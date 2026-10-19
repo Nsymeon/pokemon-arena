@@ -5,7 +5,8 @@ const MAPS = ["PALLET TOWN", "ROUTE 1", "VIRIDIAN CITY", "VIRIDIAN FOREST", "PEW
 const STARTERS = [1,4,7]
 const WILD = {1:[16,19],3:[10,13,25,16],5:[21,39,29,32],6:[41,74,46,35],7:[19,21,23,27]}
 const EVOLUTIONS = {1:[16,2],4:[16,5],7:[16,8],10:[7,11],11:[10,12],13:[7,14],14:[10,15],16:[18,17],19:[20,20],21:[20,22],29:[16,30],32:[16,33],41:[22,42],46:[24,47],74:[25,75]}
-var data = {"version":1,"map":0,"x":800.0,"y":780.0,"starter":0,"party":[],"storage":[],"balls":10,"money":300,"rival":false,"bug_catcher":false,"badge":false,"healing_map":0}
+const INITIAL_DATA = {"version":1,"map":0,"x":800.0,"y":780.0,"starter":0,"party":[],"storage":[],"balls":10,"money":300,"rival":false,"bug_catcher":false,"badge":false,"healing_map":0}
+var data = INITIAL_DATA.duplicate(true)
 var save_path = SAVE_PATH
 var save_error = ""
 var save_allowed = true
@@ -547,6 +548,7 @@ func menu():
 	ui_button("YOUR TEAM",Vector2(180,375),Vector2(400,65),party_menu)
 	ui_button("SAVE AND CONTINUE",Vector2(180,465),Vector2(400,65),func(): save(); clear_ui())
 	ui_button("SAVE AND RETURN TO MODES",Vector2(180,555),Vector2(600,65),leave)
+	ui_button("RESET ADVENTURE",Vector2(180,650),Vector2(400,55),confirm_reset)
 
 func words(value: String, at: Vector2, size = 20, color = Color("eef4de")):
 	draw_string(font,at,value,HORIZONTAL_ALIGNMENT_LEFT,-1,size,color)
@@ -744,6 +746,7 @@ func tests():
 	c.check(data.badge and c.campaign.data==saved_campaign,"Boulder Badge stays independent from League progress")
 	inventory.tests()
 	chapter_tests()
+	reset_tests()
 	leave()
 	c.campaign.layer.visible = false
 	c.frontend.layer.visible = false
@@ -919,3 +922,95 @@ func chapter_tests():
 	progress_time = 0
 	clear_ui()
 	save()
+
+func confirm_reset():
+	if not exploring or in_battle: return
+	panel("RESET ADVENTURE?")
+	ui_label("Start again in Pallet Town and choose a new starter.",Vector2(180,255),23)
+	ui_label("This resets your Pokemon, storage, levels, moves, money,\nitems, TMs, adventure badges and story progress.",Vector2(180,325),21)
+	ui_label("Gym Leaders progress and Free Battles are not affected.",Vector2(180,435),21)
+	ui_button("CANCEL / KEEP MY ADVENTURE",Vector2(180,540),Vector2(680,65),menu)
+	ui_button("YES / START A NEW ADVENTURE",Vector2(180,635),Vector2(680,65),reset_adventure)
+
+func reset_adventure() -> bool:
+	if not exploring or in_battle or modal!="RESET ADVENTURE?": return false
+	# Keep a manual recovery copy, separate from the automatically loaded backup.
+	var archive = save_path+".before-reset-"+str(Time.get_unix_time_from_system())+"-"+str(Time.get_ticks_usec())
+	for suffix in ["", ".bak"]:
+		if FileAccess.file_exists(save_path+suffix):
+			if DirAccess.copy_absolute(ProjectSettings.globalize_path(save_path+suffix),ProjectSettings.globalize_path(archive+suffix))!=OK:
+				clear_ui()
+				dialog = "Reset cancelled: could not preserve your previous save."
+				return false
+	var previous = data.duplicate(true)
+	var previous_position = position_world
+	var previous_allowed = save_allowed
+	data = INITIAL_DATA.duplicate(true)
+	inventory.migrate()
+	position_world = Vector2(data.x,data.y)
+	save_allowed = true
+	if not save():
+		data = previous
+		position_world = previous_position
+		save_allowed = previous_allowed
+		clear_ui()
+		dialog = "Reset failed. Previous adventure retained. "+save_error
+		return false
+	# Recovery must start this new adventure too, never silently resurrect the old run.
+	var backup_ok = DirAccess.copy_absolute(ProjectSettings.globalize_path(save_path),ProjectSettings.globalize_path(save_path+".bak"))==OK
+	if not backup_ok:
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(save_path+".bak"))
+	loaded = true
+	encounter.clear()
+	evolutions.clear()
+	progress_lines.clear()
+	progress_time = 0
+	capture_time = 0
+	capture_success = false
+	wild_cycle = 0
+	autosave = 0
+	walk_age = 0
+	camera = (position_world-Vector2(640,350)).clamp(Vector2.ZERO,Vector2(320,300))
+	c.shots.clear()
+	c.selecting = true
+	c.paused = false
+	c.switch_menu = false
+	clear_ui()
+	dialog = "New adventure started! Find Professor Oak outside his lab and press E."
+	if not backup_ok: dialog += " Save succeeded; backup could not be refreshed."
+	queue_redraw()
+	return true
+
+func reset_tests():
+	var campaign_before = c.campaign.data.duplicate(true)
+	data.party = [new_mon(4,16)]
+	data.storage = [new_mon(25,12)]
+	data.starter = 4
+	data.badge = true
+	data["cascade"] = true
+	data["rocket"] = true
+	data.money = 9000
+	data.map = 8
+	data.healing_map = 8
+	data.tms = {"TM03":1}
+	save()
+	var before = data.duplicate(true)
+	confirm_reset()
+	menu()
+	c.check(data==before,"Cancelling Adventure reset keeps progress")
+	c.check(not reset_adventure(),"Reset requires its explicit confirmation screen")
+	confirm_reset()
+	c.check(reset_adventure(),"Confirmed reset succeeds")
+	c.check(data.party.is_empty() and data.storage.is_empty() and data.starter==0 and data.map==0 and data.money==300 and data.balls==10,"Reset restores Pallet and initial inventory")
+	c.check(not data.badge and not data.get("cascade",false) and not data.get("rocket",false) and data.tms.is_empty(),"Reset clears adventure badges, TMs and story flags")
+	c.check(c.campaign.data==campaign_before,"Adventure reset leaves Gym Leaders progress untouched")
+	load_save()
+	c.check(data.starter==0 and data.party.is_empty(),"New adventure persists after reload")
+	var backup = JSON.parse_string(FileAccess.get_file_as_string(save_path+".bak"))
+	c.check(valid(backup) and backup.starter==0 and backup.party.is_empty(),"Recovery backup belongs to the new adventure")
+	# Remove only archives belonging to this isolated regression fixture.
+	var directory = DirAccess.open(save_path.get_base_dir())
+	for file in directory.get_files():
+		if file.begins_with(save_path.get_file()+".before-reset-"):
+			directory.remove(file)
+	clear_ui()
