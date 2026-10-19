@@ -1,0 +1,723 @@
+extends Node2D
+
+const SAVE_PATH = "user://adventure-v1.json"
+const MAPS = ["PALLET TOWN", "ROUTE 1", "VIRIDIAN CITY", "VIRIDIAN FOREST", "PEWTER CITY"]
+const STARTERS = [1,4,7]
+const WILD = {1:[16,19],3:[10,13,25,16]}
+const EVOLUTIONS = {1:[16,2],4:[16,5],7:[16,8],10:[7,11],11:[10,12],13:[7,14],14:[10,15],16:[18,17],19:[20,20]}
+var data = {"version":1,"map":0,"x":800.0,"y":780.0,"starter":0,"party":[],"storage":[],"balls":10,"money":300,"rival":false,"bug_catcher":false,"badge":false,"healing_map":0}
+var save_path = SAVE_PATH
+var save_error = ""
+var save_allowed = true
+var c
+var exploring = false
+var in_battle = false
+var position_world = Vector2(800,780)
+var camera = Vector2.ZERO
+var time = 0.0
+var walk_age = 0.0
+var facing = 1.0
+var autosave = 0.0
+var dialog = ""
+var modal = ""
+var ui: CanvasLayer
+var original = {}
+var encounter = {}
+var capture_time = 0.0
+var capture_success = false
+var wild_cycle = 0
+var loaded = false
+var font: Font
+
+func install(context):
+	c = context
+	font = ThemeDB.fallback_font
+	z_index = 100
+	visible = false
+	ui = CanvasLayer.new()
+	ui.layer = 50
+	add_child(ui)
+
+func valid(value) -> bool:
+	if not value is Dictionary or value.get("version",0) != 1: return false
+	for key in ["map","starter","balls","money","healing_map"]:
+		if not value.get(key) is float and not value.get(key) is int: return false
+		if value[key] != int(value[key]): return false
+	if value.map < 0 or value.map >= MAPS.size() or int(value.healing_map) not in [0,2,4]: return false
+	if int(value.starter) not in [0,1,4,7] or value.balls < 0 or value.balls > 999 or value.money < 0 or value.money > 999999: return false
+	for key in ["x","y"]:
+		if not (value.get(key) is float or value.get(key) is int) or not is_finite(value[key]): return false
+	if value.x < 24 or value.x > 1576 or value.y < 24 or value.y > 976: return false
+	for key in ["rival","bug_catcher","badge"]:
+		if not value.get(key) is bool: return false
+	for key in ["party","storage"]:
+		if not value.get(key) is Array or value[key].size() > (6 if key == "party" else 100): return false
+		for mon in value[key]:
+			if not mon is Dictionary: return false
+			for field in ["id","level","xp","hp"]:
+				if not (mon.get(field) is float or mon.get(field) is int) or not is_finite(mon[field]): return false
+			if mon.id != int(mon.id) or c.Dex.find_id(c.roster,int(mon.id)) < 0 or not c.roster.any(func(m):return int(m.id)==int(mon.id)): return false
+			if mon.level != int(mon.level) or mon.level < 1 or mon.level > 20 or mon.xp < 0 or mon.xp > 100000 or mon.hp < 0 or mon.hp > 1: return false
+	if value.starter != 0 and value.party.is_empty(): return false
+	if value.starter == 0 and (not value.party.is_empty() or not value.storage.is_empty() or value.map != 0): return false
+	return true
+
+func load_save():
+	loaded = true
+	for suffix in ["", ".bak"]:
+		if not FileAccess.file_exists(save_path+suffix): continue
+		var parser = JSON.new()
+		if parser.parse(FileAccess.get_file_as_string(save_path+suffix)) != OK: continue
+		if parser.data is Dictionary and parser.data.get("version",1) != 1:
+			save_error = "Save needs a different game version. Original preserved."
+			save_allowed = false
+			return
+		if valid(parser.data):
+			data = parser.data
+			for key in ["map","starter","balls","money","healing_map"]: data[key] = int(data[key])
+			for mon in data.party + data.storage:
+				mon.id = int(mon.id)
+				mon.level = int(mon.level)
+				mon.xp = int(mon.xp)
+			position_world = Vector2(data.x,data.y)
+			if suffix != "": save_error = "Recovered previous save backup."
+			return
+	if FileAccess.file_exists(save_path) or FileAccess.file_exists(save_path+".bak"):
+		save_error = "Adventure save is damaged. Original preserved; saving disabled."
+		save_allowed = false
+
+func save() -> bool:
+	if not save_allowed: return false
+	data.x = position_world.x
+	data.y = position_world.y
+	var f = FileAccess.open(save_path+".tmp",FileAccess.WRITE)
+	if f == null:
+		save_error = "Could not save adventure. Check storage."
+		return false
+	f.store_string(JSON.stringify(data,"\t"))
+	f.flush()
+	var err = f.get_error()
+	f.close()
+	if err != OK:
+		save_error = "Save write failed. Previous progress preserved."
+		return false
+	var path = ProjectSettings.globalize_path(save_path)
+	if FileAccess.file_exists(save_path):
+		# Copy a verified old save to backup; never replace a good backup with corrupt data.
+		var parser = JSON.new()
+		if parser.parse(FileAccess.get_file_as_string(save_path)) == OK and valid(parser.data):
+			if DirAccess.copy_absolute(path,path+".bak") != OK:
+				save_error = "Could not create save backup."
+				return false
+		if DirAccess.remove_absolute(path) != OK:
+			save_error = "Save file is locked."
+			return false
+	if DirAccess.rename_absolute(path+".tmp",path) != OK:
+		save_error = "Save replacement failed; backup retained."
+		return false
+	save_error = ""
+	return true
+
+func enter():
+	if not loaded and OS.get_cmdline_user_args().is_empty(): load_save()
+	original = {"player_team":c.player_team.duplicate(),"enemy_team":c.enemy_team.duplicate(),"player_index":c.player_index,"enemy_index":c.enemy_index,"team_slot":c.team_slot,"team_mode":c.team_mode}
+	c.campaign.active = false
+	c.campaign.layer.visible = false
+	c.selection_controls.visible = false
+	c.selecting = true
+	exploring = true
+	in_battle = false
+	visible = true
+	position_world = Vector2(data.x,data.y)
+	dialog = "Welcome to Pallet Town! Find Professor Oak outside his lab and press E." if data.starter == 0 else "Adventure loaded. " + objective()
+	queue_redraw()
+
+func leave():
+	save()
+	exploring = false
+	visible = false
+	clear_ui()
+	for key in original: c.set(key,original[key])
+	c.enemy_party.clear()
+	c.preview_party.clear()
+	c.opponent_choice.select(0)
+	c.opponent_choice.disabled = false
+	c.arena_choice.disabled = false
+	c.weather_choice.disabled = false
+	c.reset()
+	c.campaign.show_hub()
+
+func objective() -> String:
+	if data.starter == 0: return "Speak to Oak and choose your starter."
+	if not data.rival: return "Challenge Blue near the north exit of Pallet Town."
+	if not data.bug_catcher: return "Travel north: Route 1, Viridian City, then the forest."
+	if not data.badge: return "Reach Pewter City and defeat Brock for the Boulder Badge."
+	return "Boulder Badge earned! Chapter 1 complete. Explore, train and catch Pokemon."
+
+func buildings() -> Array:
+	match int(data.map):
+		0: return [[Rect2(250,380,310,230),"YOUR HOME",Color("5a83ab")],[Rect2(1000,350,350,250),"OAK'S LAB",Color("b86a54")]]
+		2: return [[Rect2(250,350,320,250),"POKEMON CENTER",Color("c76263")],[Rect2(1020,350,320,250),"POKE MART",Color("5596b4")]]
+		4: return [[Rect2(250,380,320,230),"POKEMON CENTER",Color("c76263")],[Rect2(990,300,380,290),"PEWTER GYM",Color("968169")]]
+	return []
+
+func npcs() -> Array:
+	match int(data.map):
+		0: return [[Vector2(1120,655),"Professor Oak","oak"],[Vector2(800,230),"Blue","rival"],[Vector2(405,660),"Mom / Heal","heal"]]
+		2: return [[Vector2(410,650),"Nurse Joy / Heal","heal"],[Vector2(1180,650),"Shop / 5 balls: $100","shop"]]
+		3: return [[Vector2(800,330),"Bug Catcher","bug"]]
+		4: return [[Vector2(410,660),"Nurse Joy / Heal","heal"],[Vector2(1180,650),"Brock / Gym battle","brock"]]
+	return []
+
+func wild_spawns() -> Array:
+	if not WILD.has(int(data.map)): return []
+	var pool: Array = WILD[int(data.map)]
+	return [[Vector2(450,650),pool[wild_cycle%pool.size()],4 if data.map==1 else 6],[Vector2(1100,450),pool[(wild_cycle+1)%pool.size()],5 if data.map==1 else 7],[Vector2(470,270),pool[(wild_cycle+2)%pool.size()],4 if data.map==1 else 6]]
+
+func blocked(point: Vector2) -> bool:
+	if point.x < 70 or point.x > 1530 or point.y < 45 or point.y > 955: return true
+	for building in buildings():
+		if building[0].grow(12).has_point(point): return true
+	return false
+
+func tick(dt):
+	if not exploring: return
+	time += dt
+	if dialog == "" and modal == "":
+		var direction: Vector2 = c.movement_input()
+		var motion = direction * (280 if Input.is_physical_key_pressed(KEY_SPACE) else 195) * minf(dt,0.05)
+		if not blocked(position_world+Vector2(motion.x,0)): position_world.x += motion.x
+		if not blocked(position_world+Vector2(0,motion.y)): position_world.y += motion.y
+		if direction != Vector2.ZERO:
+			walk_age += dt
+			if direction.x != 0: facing = signf(direction.x)
+		else: walk_age = 0
+		if position_world.x > 700 and position_world.x < 900:
+			if position_world.y < 90: travel(1)
+			elif position_world.y > 920: travel(-1)
+		autosave += dt
+		if autosave >= 5:
+			autosave = 0
+			save()
+	camera = (position_world-Vector2(640,350)).clamp(Vector2.ZERO,Vector2(320,300))
+	queue_redraw()
+
+func travel(step: int):
+	var destination = int(data.map)+step
+	if destination < 0 or destination >= MAPS.size():
+		dialog = "The next chapter is not open yet." if step>0 else "The sea lies beyond Pallet Town."
+		position_world.y = 120 if step>0 else 890
+		return
+	if step>0 and data.map==0 and (data.starter==0 or not data.rival):
+		dialog = objective()
+		position_world.y = 120
+		return
+	if step>0 and data.map==3 and not data.bug_catcher:
+		dialog = "The Bug Catcher wants a battle before you leave the forest. Find him on the path."
+		position_world.y = 120
+		return
+	data.map = destination
+	position_world = Vector2(800,860 if step>0 else 140)
+	dialog = MAPS[destination] + " / " + objective()
+	save()
+
+func handle_input(event):
+	if not event is InputEventKey or not event.pressed or event.echo: return
+	if modal != "":
+		if event.keycode == KEY_ESCAPE: clear_ui()
+		return
+	if dialog != "":
+		if event.keycode in [KEY_E,KEY_ENTER,KEY_SPACE,KEY_ESCAPE]: dialog = ""
+		return
+	match event.keycode:
+		KEY_E: interact()
+		KEY_P: party_menu()
+		KEY_ESCAPE: menu()
+		KEY_F5:
+			var ok = save()
+			dialog = "Adventure saved." if ok else save_error
+
+func interact():
+	for npc in npcs():
+		if position_world.distance_to(npc[0]) <= 100:
+			match npc[2]:
+				"oak":
+					if data.starter == 0: starter_menu()
+					else: dialog = "Oak: Weaken wild Pokemon, then press G in battle to throw a Poke Ball. Press P outside battle to manage your team."
+				"heal": heal()
+				"shop":
+					if data.money >= 100 and data.balls <= 994:
+						data.money -= 100
+						data.balls += 5
+						dialog = "Bought 5 Poke Balls for $100."
+						save()
+					else: dialog = "Five Poke Balls cost $100. Win battles to earn money."
+				"rival":
+					if data.starter == 0: dialog = "Blue: Ask Grandpa for a Pokemon first!"
+					else: begin_battle("rival",[7 if data.starter==4 else 4 if data.starter==1 else 1],[5])
+				"bug": begin_battle("bug",[10,13],[6,7])
+				"brock": begin_battle("brock",[74,95],[10,12])
+			return
+	for wild in wild_spawns():
+		if position_world.distance_to(wild[0]) <= 95:
+			begin_battle("wild",[wild[1]],[wild[2]])
+			return
+	dialog = "Move closer to a person or wild Pokemon, then press E."
+
+func new_mon(id: int, level: int) -> Dictionary:
+	return {"id":id,"level":level,"xp":0,"hp":1.0}
+
+func choose_starter(id: int):
+	if data.starter != 0 or id not in STARTERS: return
+	data.starter = id
+	data.party = [new_mon(id,5)]
+	clear_ui()
+	dialog = "Oak: " + mon_name(id) + " is your partner! Take 10 Poke Balls. Blue is waiting near the north path."
+	save()
+
+func mon_name(id: int) -> String:
+	return c.roster[c.Dex.find_id(c.roster,id)].name
+
+func heal():
+	for mon in data.party: mon.hp = 1.0
+	data.healing_map = int(data.map) if data.map in [0,2,4] else 0
+	dialog = "Your team is fully healed. See you again!"
+	save()
+
+func battle_mon(id: int, level: int) -> Dictionary:
+	var mon: Dictionary = c.roster[c.Dex.find_id(c.roster,id)].duplicate(true)
+	var scale = 0.55+level*0.06
+	mon.hp = roundf(mon.hp*scale)
+	for key in mon.base_stats: mon.base_stats[key] = roundf(mon.base_stats[key]*scale)
+	mon["level"] = level
+	return mon
+
+func begin_battle(kind: String, ids: Array, levels: Array):
+	if data.party.is_empty():
+		dialog = "Choose a starter from Professor Oak first."
+		return
+	var first = -1
+	for i in range(data.party.size()):
+		if data.party[i].hp > 0:
+			first = i
+			break
+	if first < 0:
+		dialog = "Your team needs healing. Visit Mom or a Pokemon Center."
+		return
+	clear_ui()
+	save()
+	encounter = {"kind":kind,"ids":ids.duplicate(),"levels":levels.duplicate()}
+	exploring = false
+	visible = false
+	in_battle = true
+	capture_time = 0
+	c.campaign.active = false
+	c.campaign.layer.visible = false
+	c.selecting = false
+	c.selection_controls.visible = false
+	c.team_mode = true
+	c.team_slot = 0
+	c.player_team = data.party.map(func(mon): return c.Dex.find_id(c.roster,int(mon.id)))
+	c.enemy_team = ids.map(func(id): return c.Dex.find_id(c.roster,int(id)))
+	c.enemy_party = []
+	for i in range(ids.size()): c.enemy_party.append(battle_mon(ids[i],levels[i]))
+	if kind == "brock":
+		var historical = c.league.party(c,8)
+		for i in range(c.enemy_party.size()): c.enemy_party[i].moves = historical[i].moves.duplicate(true)
+	c.opponent_identity = "wild" if kind=="wild" else "blue" if kind=="rival" else "brock" if kind=="brock" else "bug_catcher"
+	c.arena_choice.select(3 if kind=="brock" else 6 if data.map==3 else 2)
+	c.weather_choice.select(0)
+	c.reset()
+	for i in range(data.party.size()):
+		var fighter = c.player_states[i]
+		fighter.data = battle_mon(int(data.party[i].id),int(data.party[i].level))
+		fighter.hp = fighter.data.hp*float(data.party[i].hp)
+	c.activate_player(first)
+	c.countdown = c.SEND_OUT_TIME
+
+func sync_health():
+	for i in range(mini(data.party.size(),c.player_states.size())):
+		data.party[i].hp = clampf(c.player_states[i].hp/c.player_states[i].data.hp,0,1)
+
+func reward(victory: bool) -> String:
+	if not victory: return ""
+	var message = ""
+	var amount = 25+int(encounter.levels[0])*5 if encounter.kind=="wild" else 100
+	for mon in data.party:
+		if mon.hp <= 0: continue
+		mon.xp += amount
+		while mon.level < 20 and mon.xp >= 20+mon.level*6:
+			mon.xp -= 20+mon.level*6
+			mon.level += 1
+			mon.hp = minf(1,mon.hp+0.2)
+			message += mon_name(mon.id)+" reached Lv."+str(mon.level)+"! "
+			if EVOLUTIONS.has(int(mon.id)) and mon.level >= EVOLUTIONS[int(mon.id)][0]:
+				mon.id = EVOLUTIONS[int(mon.id)][1]
+				message += "Evolved into "+mon_name(mon.id)+"! "
+	data.money = mini(999999,int(data.money)+(40 if encounter.kind=="wild" else 150))
+	match encounter.kind:
+		"rival": data.rival = true
+		"bug": data.bug_catcher = true
+		"brock":
+			data.badge = true
+			message = "Boulder Badge earned! Chapter 1 complete. " + message
+	return message
+
+func return_world(caught: bool = false):
+	if not in_battle: return
+	if not caught and (not c.resolution_ready() or c.can_continue_team()): return
+	sync_health()
+	var win = c.result == "VICTORY"
+	var message = ""
+	if caught:
+		var mon = new_mon(int(encounter.ids[0]),int(encounter.levels[0]))
+		var joins_party = data.party.size() < 6
+		if joins_party: data.party.append(mon)
+		else: data.storage.append(mon)
+		message = mon_name(mon.id)+" caught! "+("Added to your party." if joins_party else "Check Party / Storage with P.")
+	else:
+		message = reward(win)
+		if not win:
+			data.map = int(data.healing_map)
+			position_world = Vector2(800,760)
+			for mon in data.party: mon.hp = 1.0
+			message = "Your team recovered at the last healing town. Try again!"
+		elif message == "": message = "Battle won! Earned money and experience."
+	in_battle = false
+	exploring = true
+	visible = true
+	c.selecting = true
+	c.paused = false
+	c.switch_menu = false
+	c.shots.clear()
+	capture_time = 0
+	wild_cycle += 1
+	dialog = message
+	save()
+	queue_redraw()
+
+func catch_chance() -> float:
+	var weak = 1.0-clampf(c.enemy.hp/c.enemy.data.hp,0,1)
+	return clampf(0.18+weak*0.65+(0.12 if c.enemy.ailment!="" else 0),0.1,0.95)
+
+func throw_ball():
+	if not in_battle or encounter.kind!="wild" or c.result!="" or c.paused or c.countdown>0 or c.switch_menu or c.switch_time>=0 or capture_time>0: return
+	if c.player.hp<=0 or c.enemy.hp<=0 or c.player.get("action_lock",0)>0: return
+	if data.balls <= 0:
+		c.notice = "NO POKE BALLS / visit Viridian's shop"
+		c.notice_time = 2
+		return
+	if data.party.size() >= 6 and data.storage.size() >= 100: return
+	data.balls -= 1
+	save()
+	capture_success = c.rng.randf() < catch_chance()
+	capture_time = 1.2
+	c.notice = "POKE BALL / attempting capture..."
+	c.notice_time = 1.5
+
+func tick_capture(dt):
+	if c.paused: return
+	capture_time = maxf(0,capture_time-dt)
+	if capture_time<=0:
+		if capture_success: return_world(true)
+		else:
+			c.notice = "Broke free! Weaken it or apply a status effect."
+			c.notice_time = 2
+			c.player.action_lock = 1.0
+
+func clear_ui():
+	for child in ui.get_children(): child.queue_free()
+	modal = ""
+
+func panel(title: String):
+	clear_ui()
+	modal = title
+	var bg = ColorRect.new()
+	bg.color = Color(0.025,0.055,0.08,0.97)
+	bg.position = Vector2(140,135)
+	bg.size = Vector2(1000,690)
+	ui.add_child(bg)
+	ui_label(title,Vector2(180,165),28)
+	ui_button("CLOSE / Esc",Vector2(900,755),Vector2(190,45),clear_ui)
+
+func ui_label(value, at, size = 19):
+	var label = Label.new()
+	label.text = value
+	label.position = at
+	label.add_theme_font_size_override("font_size",size)
+	ui.add_child(label)
+
+func ui_button(value, at, extent, action):
+	var button = Button.new()
+	button.text = value
+	button.position = at
+	button.size = extent
+	button.pressed.connect(action)
+	ui.add_child(button)
+
+func starter_menu():
+	panel("OAK'S LAB / CHOOSE YOUR PARTNER")
+	ui_label("Your partner will travel, grow and battle alongside you.",Vector2(180,225))
+	for i in range(3):
+		var id = STARTERS[i]
+		var portrait = TextureRect.new()
+		portrait.texture = c.portraits[id]
+		portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		portrait.position = Vector2(220+i*300,310)
+		portrait.size = Vector2(200,200)
+		ui.add_child(portrait)
+		ui_button(mon_name(id)+" / Lv.5",Vector2(190+i*300,550),Vector2(270,60),choose_starter.bind(id))
+
+func party_menu():
+	panel("YOUR TEAM / choose a lead Pokemon")
+	for i in range(data.party.size()):
+		var mon = data.party[i]
+		ui_button("%s  Lv.%d  / HP %d%% / XP %d%s" % [mon_name(mon.id),mon.level,roundi(mon.hp*100),mon.xp," / LEAD" if i==0 else ""],Vector2(180,230+i*66),Vector2(680,54),set_lead.bind(i))
+	ui_button("STORAGE (%d)" % data.storage.size(),Vector2(890,230),Vector2(210,55),storage_menu)
+
+func set_lead(slot):
+	var first = data.party[0]
+	data.party[0] = data.party[slot]
+	data.party[slot] = first
+	save()
+	party_menu()
+
+func storage_menu():
+	panel("STORAGE / add to team or swap with your lead")
+	var scroll = ScrollContainer.new()
+	scroll.position = Vector2(180,230)
+	scroll.size = Vector2(900,490)
+	ui.add_child(scroll)
+	var list = VBoxContainer.new()
+	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(list)
+	for i in range(data.storage.size()):
+		var mon = data.storage[i]
+		var b = Button.new()
+		b.text = "%s / Lv.%d / HP %d%%" % [mon_name(mon.id),mon.level,roundi(mon.hp*100)]
+		b.custom_minimum_size = Vector2(850,55)
+		b.pressed.connect(withdraw.bind(i))
+		list.add_child(b)
+
+func withdraw(slot):
+	var mon = data.storage[slot]
+	if data.party.size()<6:
+		data.party.append(mon)
+		data.storage.remove_at(slot)
+	else:
+		data.storage[slot] = data.party[0]
+		data.party[0] = mon
+	save()
+	party_menu()
+
+func menu():
+	panel("ADVENTURE / PALLET TO PEWTER")
+	ui_label(objective(),Vector2(180,240))
+	ui_label("Progress saves automatically on the map and after encounters.",Vector2(180,290))
+	ui_button("YOUR TEAM",Vector2(180,375),Vector2(400,65),party_menu)
+	ui_button("SAVE AND CONTINUE",Vector2(180,465),Vector2(400,65),func(): save(); clear_ui())
+	ui_button("SAVE AND RETURN TO MODES",Vector2(180,555),Vector2(600,65),leave)
+
+func words(value: String, at: Vector2, size = 20, color = Color("eef4de")):
+	draw_string(font,at,value,HORIZONTAL_ALIGNMENT_LEFT,-1,size,color)
+
+func tree(at: Vector2):
+	draw_circle(at+Vector2(8,15),38,Color(0.04,0.13,0.09,0.22))
+	draw_rect(Rect2(at+Vector2(-7,-5),Vector2(14,32)),Color("72543c"))
+	draw_circle(at+Vector2(0,-25),37,Color("245f48"))
+	draw_circle(at+Vector2(-9,-36),29,Color("38815a"))
+	draw_circle(at+Vector2(-14,-46),17,Color("579665"))
+
+func person(at: Vector2, identity: String, direction = 1.0, bob = 0.0):
+	var sprite = c.art.trainers.sprites[identity]
+	var scale_factor = sprite.scale*0.65
+	var extent: Vector2 = sprite.size*scale_factor
+	draw_set_transform(at+Vector2(0,95)-camera,0,Vector2(1,0.3))
+	draw_circle(Vector2.ZERO,19,Color(0,0,0,0.22))
+	draw_set_transform(Vector2(0,90)-camera)
+	draw_texture_rect(sprite.right if direction>0 else sprite.left,Rect2(at+Vector2(-extent.x/2,-sprite.bottom*scale_factor-bob),extent),false)
+
+func _draw():
+	if not exploring: return
+	draw_rect(Rect2(0,0,1280,960),Color("142e32"))
+	draw_set_transform(Vector2(0,90)-camera)
+	var forest = data.map==3
+	draw_rect(Rect2(0,0,1600,1000),Color("619466") if forest else Color("87b878"))
+	for y in range(0,1000,40):
+		for x in range(0,1600,40):
+			if (x/40+y/40)%3==0:
+				draw_line(Vector2(x+8,y+15),Vector2(x+12,y+9),Color(0.2,0.45,0.24,0.28),2)
+				draw_line(Vector2(x+12,y+17),Vector2(x+17,y+11),Color(0.2,0.45,0.24,0.28),2)
+	draw_rect(Rect2(710,0,180,1000),Color("cfbc87"))
+	draw_rect(Rect2(725,0,150,1000),Color("ddcb96"))
+	if not buildings().is_empty(): draw_rect(Rect2(360,615,900,95),Color("ddcb96"))
+	for y in range(70,1000,100):
+		for x in [45,145,1455,1555]: tree(Vector2(x,y))
+	# Small gardens and path stones give the chapter maps a readable outdoor layout.
+	for i in range(45):
+		var flower = Vector2(210+(i*173)%1190,110+(i*97)%760)
+		if flower.x>680 and flower.x<920: continue
+		var covered = false
+		for building in buildings():
+			if building[0].grow(30).has_point(flower): covered = true
+		if covered: continue
+		draw_circle(flower,3,Color("e6cd80") if i%2==0 else Color("d6a1aa"))
+		draw_line(flower+Vector2(0,3),flower+Vector2(0,8),Color("487c48"),2)
+	for y in range(100,1000,115):
+		draw_line(Vector2(745,y),Vector2(770,y+2),Color(0.6,0.5,0.3,0.18),2)
+	if forest:
+		for y in range(120,1000,160):
+			for x in [260,620,1000,1320]: tree(Vector2(x,y))
+	for building in buildings():
+		var r: Rect2 = building[0]
+		draw_rect(Rect2(r.position+Vector2(12,15),r.size),Color(0,0,0,0.18))
+		draw_rect(r,Color("e5dcc2"))
+		draw_rect(Rect2(r.position,r.size*Vector2(1,0.42)),building[2])
+		for y in range(4): draw_line(r.position+Vector2(0,y*23),r.position+Vector2(r.size.x,y*23),building[2].lightened(0.14),2)
+		draw_rect(Rect2(r.position+Vector2(r.size.x/2-22,r.size.y-70),Vector2(44,70)),Color("4b6261"))
+		for x in [35,r.size.x-80]:
+			draw_rect(Rect2(r.position+Vector2(x,125),Vector2(44,44)),Color("8cc4ca"))
+			draw_rect(Rect2(r.position+Vector2(x,125),Vector2(44,44)),Color("f6efd4"),false,4)
+		words(building[1],r.position+Vector2(15,25),18)
+	for spawn in wild_spawns():
+		var p: Vector2 = spawn[0]
+		draw_circle(p,45,Color(0.3,0.5,0.26,0.4))
+		draw_texture_rect(c.portraits[spawn[1]],Rect2(p+Vector2(-30,-55+sin(time*2)*3),Vector2(60,60)),false)
+		words(mon_name(spawn[1])+" Lv."+str(spawn[2]),p+Vector2(-65,28),16)
+		if position_world.distance_to(p)<95: words("E / BATTLE",p+Vector2(-45,-75),18,Color("ffe499"))
+	for npc in npcs():
+		var id = "brock" if npc[2]=="brock" else ("blue" if npc[2] in ["rival","bug"] else ("blaine" if npc[2]=="oak" else "misty"))
+		person(npc[0],id)
+		words(npc[1],npc[0]+Vector2(-70,25),17)
+		if position_world.distance_to(npc[0])<100: words("E / TALK",npc[0]+Vector2(-35,-78),18,Color("ffe499"))
+	person(position_world,"red",facing,absf(sin(walk_age*12))*4)
+	words("NORTH / "+(MAPS[data.map+1] if data.map<4 else "NEXT CHAPTER"),Vector2(630,65),17)
+	draw_set_transform(Vector2.ZERO)
+	draw_rect(Rect2(0,0,1280,90),Color("112b32"))
+	words(MAPS[data.map],Vector2(30,34),26,Color("ffdf92"))
+	words(objective(),Vector2(30,66),18)
+	words("BALLS %d   $%d   BADGES %d/1" % [data.balls,data.money,int(data.badge)],Vector2(850,35),18)
+	draw_rect(Rect2(0,790,1280,170),Color("112b32"))
+	for i in range(data.party.size()):
+		var mon = data.party[i]
+		var x = 25+i*208
+		draw_texture_rect(c.portraits[mon.id],Rect2(x,805,48,48),false)
+		words(mon_name(mon.id),Vector2(x+52,825),16)
+		words("Lv.%d / HP %d%%" % [mon.level,roundi(mon.hp*100)],Vector2(x+52,847),14)
+		draw_rect(Rect2(x+10,862,180,5),Color("354c50"))
+		draw_rect(Rect2(x+10,862,180*mon.hp,5),Color("77e2b0"))
+	words("WASD / MOVE     SPACE / RUN     E / INTERACT     P / TEAM     F5 / SAVE     ESC / MENU",Vector2(30,925),17)
+	if save_error!="": words(save_error,Vector2(30,953),15,Color("ff9999"))
+	if dialog!="":
+		draw_rect(Rect2(80,630,1120,145),Color("10252f"))
+		draw_rect(Rect2(80,630,1120,145),Color("d5be82"),false,2)
+		draw_multiline_string(font,Vector2(105,665),wrapped(dialog),HORIZONTAL_ALIGNMENT_LEFT,1060,20,4,Color("eef4de"))
+		words("E / CONTINUE",Vector2(1010,750),16,Color("ffdf92"))
+
+func tests():
+	var saved_data = data.duplicate(true)
+	var saved_path = save_path
+	var saved_loaded = loaded
+	var saved_campaign = c.campaign.data.duplicate(true)
+	save_path = "user://adventure-regression-test.json"
+	loaded = true
+	for suffix in ["", ".bak", ".tmp"]:
+		if FileAccess.file_exists(save_path+suffix): DirAccess.remove_absolute(ProjectSettings.globalize_path(save_path+suffix))
+	enter()
+	travel(1)
+	c.check(data.map==0,"Adventure requires starter and rival before Route 1")
+	choose_starter(4)
+	choose_starter(7)
+	c.check(data.party.size()==1 and data.starter==4,"Starter cannot be claimed twice")
+	begin_battle("rival",[7],[5])
+	c.check(c.player_states.size()==1 and c.enemy_party.size()==1,"Adventure battles use owned party only")
+	var balls_before = data.balls
+	c.countdown = 0
+	throw_ball()
+	c.check(data.balls==balls_before,"Trainer Pokemon cannot be captured")
+	c.enemy.hp = 0
+	c.finish_round()
+	c.shots.clear()
+	c.result_time = 10
+	return_world()
+	c.check(data.rival and exploring,"Rival victory unlocks route and returns to world")
+	travel(1)
+	c.check(data.map==1,"Route unlocked after rival")
+	begin_battle("wild",[16],[4])
+	c.countdown = 0
+	c.player.action_lock = 0
+	c.enemy.hp = c.enemy.data.hp
+	var healthy_chance = catch_chance()
+	c.enemy.hp = 1
+	c.check(catch_chance()>healthy_chance,"Weakening wild Pokemon improves capture probability")
+	throw_ball()
+	c.check(data.balls==balls_before-1 and capture_time>0,"Capture consumes one ball")
+	capture_success = true
+	tick_capture(2)
+	c.check(data.party.size()==2 and data.party[1].id==16 and exploring,"Captured Pokemon joins saved party")
+	data.party[0].hp = 0.4
+	save()
+	data.money = 999
+	load_save()
+	c.check(data.money!=999 and is_equal_approx(data.party[0].hp,0.4),"Adventure save restores health and inventory")
+	save()
+	var corrupt = FileAccess.open(save_path,FileAccess.WRITE)
+	corrupt.store_string("{damaged")
+	corrupt.close()
+	load_save()
+	c.check(save_allowed and data.party.size()==2,"Adventure recovers valid backup")
+	begin_battle("wild",[19],[5])
+	for fighter in c.player_states: fighter.hp = 0
+	c.finish_round()
+	c.shots.clear()
+	c.result_time = 10
+	return_world()
+	c.check(data.map==0 and data.party.all(func(mon):return mon.hp==1),"Defeat heals party at last healing town")
+	data.party[0] = new_mon(4,15)
+	data.party[0].xp = 109
+	encounter = {"kind":"wild","levels":[5]}
+	reward(true)
+	c.check(data.party[0].id==5 and data.party[0].level==16,"Starter evolves after level threshold")
+	data.map = 3
+	travel(1)
+	c.check(data.map==3,"Forest trainer gates Pewter")
+	data.bug_catcher = true
+	travel(1)
+	c.check(data.map==4,"Pewter unlocks after forest trainer")
+	begin_battle("brock",[74,95],[10,12])
+	c.enemy.hp = 0
+	c.finish_round()
+	c.shots.clear()
+	c.result_time = 10
+	c.check(c.can_continue_team(),"Brock retains second Pokemon")
+	c.advance_team()
+	c.check(c.enemy.data.id==95,"Brock sends out Onix")
+	c.enemy.hp = 0
+	c.finish_round()
+	c.shots.clear()
+	c.result_time = 10
+	return_world()
+	c.check(data.badge and c.campaign.data==saved_campaign,"Boulder Badge stays independent from League progress")
+	leave()
+	c.campaign.layer.visible = false
+	c.check(c.player_team.size()==6,"Leaving adventure restores arena team")
+	for suffix in ["", ".bak", ".tmp"]:
+		if FileAccess.file_exists(save_path+suffix): DirAccess.remove_absolute(ProjectSettings.globalize_path(save_path+suffix))
+	data = saved_data
+	save_path = saved_path
+	loaded = saved_loaded
+	save_error = ""
+	dialog = ""
+
+func wrapped(value: String) -> String:
+	var output = ""
+	var line = ""
+	for word in value.split(" "):
+		if font.get_string_size(line+word,HORIZONTAL_ALIGNMENT_LEFT,-1,20).x > 1020:
+			output += line+"\n"
+			line = ""
+		line += word+" "
+	return output+line
+
+

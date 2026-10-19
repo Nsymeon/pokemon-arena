@@ -202,3 +202,20 @@ location as `league-progress-v1.json`, with a `.bak` recovery copy. Updating or
 extracting a new release does not erase progress. Saves are local to each PC,
 not synced by GitHub. An invalid/unsupported save is preserved with an on-screen
 message. Automated tests use separate temporary saves, never your campaign.
+
+
+## Adventure chapter 1: Pallet to Pewter
+
+Choose **ADVENTURE / PALLET TO PEWTER** on the League hub. This is a playable first chapter, not a complete FireRed remake. The existing Arena and saved League remain separate modes.
+
+- Speak to Oak outside the lab to choose Bulbasaur, Charmander or Squirtle. Battle Blue on the north path to unlock Route 1.
+- Travel north through Route 1, Viridian City and Viridian Forest. Beat the Bug Catcher to reach Pewter City and challenge Brock's Geodude and Onix for the Boulder Badge.
+- WASD/arrows move; hold Space to run. E interacts with nearby people or visible wild Pokemon. E also closes dialogue. P opens your party/storage, F5 saves, Esc opens the adventure menu.
+- Battles retain the existing arena controls. G throws a Poke Ball at a wild Pokemon; lower HP and status improve the chance. Trainer Pokemon cannot be caught. After the whole encounter ends, R or Enter returns to the map.
+- Captures fill your six-member party, then storage (100 slots). In P, choose your lead; storage adds to a free slot or swaps with your lead when the party is full.
+- HP persists between encounters. Mom and Pokemon Centers heal for free. Defeat returns you to your last healing town. The Viridian shop sells five balls for $100; victories award money.
+- Survivors gain shared XP, levels up to 20, and supported early-route evolutions. Level scaling and existing four-move sets are provisional arena rules, not FireRed's exact stat/learnset progression.
+- Adventure autosaves on the world map and after encounters in `user://adventure-v1.json`, with a validated backup. Closing during combat resumes from the encounter checkpoint; mid-battle positions and attacks are not saved. League progress uses a separate file.
+- Buildings are currently exterior interaction points. Town graphics and some NPC sprite stand-ins are prototype art. Later routes, interiors, story chapters and the remaining badges are not yet part of Adventure.
+
+Development validation: `--smoke-test` covers adventure progression, one-member battles, capture, save reload/backup, defeat healing, evolution, Brock's second Pokemon, and isolation from League. `--capture-adventure` saves preview images using a separate test save.

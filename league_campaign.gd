@@ -142,6 +142,7 @@ func show_hub():
 	bg.size = Vector2(1280,960)
 	layer.add_child(bg)
 	layer.visible = true
+	button("ADVENTURE / PALLET TO PEWTER",Vector2(790,42),Vector2(430,50),c.adventure.enter)
 	text("KANTO LEAGUE",Vector2(60,42),36,Color("f9d86b"))
 	text("%d / 8 BADGES     %d / 13 TRAINERS DEFEATED" % [mini(8,int(data.cleared)),int(data.cleared)],Vector2(60,98),20)
 	text("GYM CHALLENGE",Vector2(60,145),20,Color("77e2b0"))

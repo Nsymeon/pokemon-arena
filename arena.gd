@@ -11,6 +11,7 @@ var fields = preload("res://tournament_fields.gd").new()
 var arena_overview = false
 var opponent_choice: OptionButton
 var league = preload("res://league.gd").new()
+var adventure = preload("res://adventure.gd").new()
 var campaign = preload("res://league_campaign.gd").new()
 var enemy_party: Array = []
 var preview_party: Array = []
@@ -95,11 +96,15 @@ func _ready():
 	load_portraits()
 	art.load_sprites()
 	reset()
+	add_child(adventure)
+	adventure.install(self)
 	campaign.install(self)
 	if "--smoke-test" in OS.get_cmdline_user_args():
 		call_deferred("smoke_test")
 	elif "--capture-clashes" in OS.get_cmdline_user_args():
 		call_deferred("capture_clashes")
+	elif "--capture-adventure" in OS.get_cmdline_user_args():
+		call_deferred("capture_adventure")
 	elif "--capture-campaign" in OS.get_cmdline_user_args():
 		call_deferred("capture_campaign")
 	elif "--capture" in OS.get_cmdline_user_args():
@@ -189,6 +194,17 @@ func reset():
 	notice_time = 0
 
 func _unhandled_input(event):
+	if adventure.exploring:
+		adventure.handle_input(event)
+		return
+	if adventure.in_battle and event is InputEventKey and event.pressed and not event.echo:
+		if event.physical_keycode == KEY_G:
+			adventure.throw_ball()
+			return
+		if event.physical_keycode in [KEY_R, KEY_TAB, KEY_ENTER]:
+			if not can_continue_team(): adventure.return_world()
+			return
+	if adventure.in_battle and adventure.capture_time > 0: return
 	if campaign.layer != null and campaign.layer.visible: return
 	if selecting:
 		selection_input(event)
@@ -436,6 +452,15 @@ func projectile(origin: Vector2, direction: Vector2, speed: float, damage: float
 	shots.append({"pos": origin + direction * 27, "origin": origin, "age": 0.0, "vel": direction * speed, "damage": damage, "radius": radius, "friendly": friendly, "owner": player if friendly else enemy, "attack_snapshot": (player if friendly else enemy).duplicate(true), "color": color, "life": 2.6, "move": move.duplicate(true)})
 
 func _process(delta):
+	if adventure.exploring:
+		selection_controls.visible = false
+		adventure.tick(delta)
+		queue_redraw()
+		return
+	if adventure.in_battle and adventure.capture_time > 0:
+		adventure.tick_capture(delta)
+		queue_redraw()
+		return
 	if not paused and not switch_menu: clock_time += delta
 	selection_controls.visible = selecting and not campaign.layer.visible
 	if not paused and not selecting and not switch_menu:
@@ -760,6 +785,7 @@ func bar(pos: Vector2, width: float, ratio: float, color: Color, height: float =
 	draw_rect(Rect2(pos, Vector2(width * clampf(ratio, 0, 1), height)), color)
 
 func _draw():
+	if adventure.exploring: return
 	if arena_overview:
 		draw_rect(Rect2(0,0,1280,960),Color("0b171f"))
 		label_at(fields.LABELS[fields.active].to_upper(),Vector2(80,90),32,GOLD)
@@ -813,6 +839,11 @@ func _draw():
 			label_at(p.text, p.pos, 22, p.color)
 		else:
 			draw_rect(Rect2(p.pos, Vector2.ONE * p.size), Color(p.color, p.life / p.max_life))
+	if adventure.in_battle and adventure.capture_time>0:
+		var progress = 1.0-adventure.capture_time/1.2
+		var ball_pos = player.pos.lerp(enemy.pos,minf(1,progress*2)) + Vector2(0,-sin(minf(1,progress*2)*PI)*140)
+		draw_pokeball(ball_pos+Vector2(sin(progress*50)*5,0),14)
+		draw_arc(enemy.pos,50+sin(progress*20)*8,0,TAU,40,Color(GOLD,0.7),3)
 	draw_ball_sequence(player, true)
 	draw_ball_sequence(enemy, false)
 	if result == "" and countdown <= 0:
@@ -845,13 +876,15 @@ func _draw():
 				draw_rect(Rect2(40+i*120,180,120,600*shutter),Color("334354"))
 			label_at("FIELD CHANGE / " + fields.LABELS[fields.active].to_upper(),Vector2(400,220),21,GOLD)
 	elif result != "" and resolution_ready():
-		overlay(result + (" / " + opponent_name().to_upper() if not enemy_party.is_empty() else ""), ("R / Tab: League progress" + (" / " + campaign.error if campaign.error != "" else " / SAVED")) if campaign.active else "R: rematch  •  Tab: choose Pokémon")
+		overlay(result + (" / " + opponent_name().to_upper() if not enemy_party.is_empty() else ""), ("R / Tab: League progress" + (" / " + campaign.error if campaign.error != "" else " / SAVED")) if campaign.active else ("R / Enter: return to adventure" if adventure.in_battle else "R: rematch  •  Tab: choose Pokémon"))
 	elif paused:
 		overlay("PAUSED", "Esc to resume  •  R to restart")
 	draw_set_transform(Vector2.ZERO)
 	if switch_menu: draw_switch_menu()
 
 func draw_hud():
+	if adventure.in_battle:
+		label_at("ADVENTURE / G: POKE BALL (%d) / weaken wild Pokemon first" % adventure.data.balls, Vector2(40,945),18,GOLD)
 	for friendly in [true, false]:
 		var f = player if friendly else enemy
 		var x = 40 if friendly else 755
@@ -862,7 +895,7 @@ func draw_hud():
 		if texture:
 			var size = texture.get_size() * 58.0 / maxf(texture.get_width(), texture.get_height())
 			draw_texture_rect(texture, Rect2(Vector2(x + 39, 124) - size / 2, size), false, Color.WHITE if f.hp > 0 else Color(0.3, 0.3, 0.3))
-		label_at(f.data.name.to_upper(), Vector2(x + 82, 110), 20, WHITE)
+		label_at(f.data.name.to_upper() + (" Lv."+str(f.data.get("level",5)) if adventure.in_battle else ""), Vector2(x + 82, 110), 20, WHITE)
 		var type_x = x + 82
 		for type in f.data.types:
 			draw_rect(Rect2(type_x, 115, 78, 14), Dex.color(type))
@@ -874,7 +907,7 @@ func draw_hud():
 		bar(Vector2(x + 82, 153), 310, f.energy / 100.0, Color("6fb9f4"), 3)
 		label_at(Conditions.summary(f).left(55), Vector2(x + 82, 167), 9, GOLD)
 		var active = player_active if friendly else enemy_active
-		for i in range((6 if friendly else enemy_party_size()) if team_mode else 1):
+		for i in range((player_states.size() if friendly else enemy_party_size()) if team_mode else 1):
 			var pos = Vector2(x + 410 + (i % 3) * 20, 102 + (i / 3) * 20)
 			if (friendly and ((team_mode and player_states[i].hp <= 0) or (not team_mode and f.hp <= 0))) or (not friendly and (i < active or (i == active and f.hp <= 0))): draw_circle(pos, 5, Color("3d4d56"))
 			else: draw_pokeball(pos, 5)
@@ -1034,6 +1067,7 @@ func throw_position(friendly: bool, destination: Vector2, time: float) -> Vector
 	return trainer_hand(friendly).lerp(destination, progress) + Vector2(0, -sin(progress * PI) * 100)
 
 func draw_trainer(friendly: bool):
+	if not friendly and adventure.in_battle and adventure.encounter.kind == "wild": return
 	art.trainer(self, friendly)
 
 func draw_pokeball(p: Vector2, radius: float, opened: bool = false):
@@ -1050,6 +1084,7 @@ func draw_pokeball(p: Vector2, radius: float, opened: bool = false):
 	draw_circle(p, radius * 0.18, WHITE)
 
 func draw_ball_sequence(fighter: Dictionary, friendly: bool):
+	if not friendly and adventure.in_battle and adventure.encounter.kind == "wild": return
 	var hand = trainer_hand(friendly)
 	var destination: Vector2 = fighter.pos + Vector2(0, -35)
 	if shadow_entry(fighter, friendly): destination = fighter.pos + Vector2(0,8)
@@ -1367,6 +1402,7 @@ func pick(number: int, rival: int):
 	selecting = false
 
 func smoke_test():
+	adventure.tests()
 	campaign.tests(self)
 	clashes.tests(self)
 	check(roster.size() == 158, "151 Kanto plus all seven existing non-Kanto species")
@@ -2451,4 +2487,24 @@ func capture_campaign():
 	queue_redraw()
 	await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png("res://captures/league-team-builder.png")
+	get_tree().quit()
+
+func capture_adventure():
+	adventure.save_path = "user://adventure-capture-test.json"
+	adventure.loaded = true
+	adventure.enter()
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://captures/adventure-pallet.png")
+	adventure.dialog = ""
+	adventure.starter_menu()
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://captures/adventure-starters.png")
+	adventure.choose_starter(4)
+	adventure.begin_battle("wild",[16],[4])
+	countdown = 0
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://captures/adventure-battle.png")
 	get_tree().quit()
