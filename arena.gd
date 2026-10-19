@@ -11,6 +11,7 @@ var fields = preload("res://tournament_fields.gd").new()
 var arena_overview = false
 var opponent_choice: OptionButton
 var league = preload("res://league.gd").new()
+var campaign = preload("res://league_campaign.gd").new()
 var enemy_party: Array = []
 var preview_party: Array = []
 var opponent_preview_slot = 0
@@ -94,10 +95,13 @@ func _ready():
 	load_portraits()
 	art.load_sprites()
 	reset()
+	campaign.install(self)
 	if "--smoke-test" in OS.get_cmdline_user_args():
 		call_deferred("smoke_test")
 	elif "--capture-clashes" in OS.get_cmdline_user_args():
 		call_deferred("capture_clashes")
+	elif "--capture-campaign" in OS.get_cmdline_user_args():
+		call_deferred("capture_campaign")
 	elif "--capture" in OS.get_cmdline_user_args():
 		call_deferred("capture_preview")
 	elif "--capture-faint" in OS.get_cmdline_user_args():
@@ -185,6 +189,7 @@ func reset():
 	notice_time = 0
 
 func _unhandled_input(event):
+	if campaign.layer != null and campaign.layer.visible: return
 	if selecting:
 		selection_input(event)
 		return
@@ -196,12 +201,21 @@ func _unhandled_input(event):
 		return
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_TAB:
+			if campaign.active:
+				campaign.show_hub()
+				return
 			selecting = true
 			if team_mode:
 				player_index = player_team[team_slot]
 				enemy_index = enemy_team[team_slot]
 			return
 		if event.keycode == KEY_R:
+			if campaign.active:
+				if result != "" and resolution_ready():
+					campaign.record_result()
+					campaign.show_hub()
+				elif result == "": reset()
+				return
 			reset()
 		if event.keycode == KEY_ESCAPE:
 			paused = not paused
@@ -423,7 +437,7 @@ func projectile(origin: Vector2, direction: Vector2, speed: float, damage: float
 
 func _process(delta):
 	if not paused and not switch_menu: clock_time += delta
-	selection_controls.visible = selecting
+	selection_controls.visible = selecting and not campaign.layer.visible
 	if not paused and not selecting and not switch_menu:
 		update_effects(delta)
 		if switch_time >= 0:
@@ -442,6 +456,7 @@ func _process(delta):
 			update_resolution(delta)
 			if recall_before < FAINT_FADE_START and result_time >= FAINT_FADE_START: tone(720, 0.15)
 			if resolution_ready() and can_continue_team(): advance_team()
+			elif resolution_ready(): campaign.record_result()
 	if not selecting: update_camera(delta)
 	queue_redraw()
 
@@ -830,7 +845,7 @@ func _draw():
 				draw_rect(Rect2(40+i*120,180,120,600*shutter),Color("334354"))
 			label_at("FIELD CHANGE / " + fields.LABELS[fields.active].to_upper(),Vector2(400,220),21,GOLD)
 	elif result != "" and resolution_ready():
-		overlay(result + (" / " + opponent_name().to_upper() if not enemy_party.is_empty() else ""), "R: rematch  •  Tab: choose Pokémon")
+		overlay(result + (" / " + opponent_name().to_upper() if not enemy_party.is_empty() else ""), ("R / Tab: League progress" + (" / " + campaign.error if campaign.error != "" else " / SAVED")) if campaign.active else "R: rematch  •  Tab: choose Pokémon")
 	elif paused:
 		overlay("PAUSED", "Esc to resume  •  R to restart")
 	draw_set_transform(Vector2.ZERO)
@@ -1174,6 +1189,7 @@ func change_page(amount: int):
 	page = posmod(page + amount, total)
 
 func start_match():
+	if not campaign.prepare_match(): return
 	opponent_choice.release_focus()
 	enemy_party = league.party(self,opponent_choice.selected)
 	opponent_identity = league.trainers[opponent_choice.selected-1].id if opponent_choice.selected > 0 else "rival"
@@ -1268,7 +1284,7 @@ func draw_selection():
 	var preview_enemy = preview_party[mini(opponent_preview_slot,preview_party.size()-1)] if not preview_party.is_empty() else roster[enemy_index]
 	var shown_enemy_index = Dex.find_id(roster,int(preview_enemy.id))
 	label_at("POKÉMON  ARENA", Vector2(40, 43), 30)
-	label_at("KANTO 151 + 7 EXTRAS", Vector2(905, 39), 20, MINT)
+	label_at("LEAGUE / " + campaign.NAMES[campaign.stage] if campaign.active else "KANTO 151 + 7 EXTRAS", Vector2(500, 39), 17, MINT)
 	panel(Rect2(40, 66, 260, 32), Color("233e3b") if not select_enemy else INK, MINT if not select_enemy else Color("29424b"))
 	panel(Rect2(310, 66, 260, 32), Color("43352f") if select_enemy else INK, GOLD if select_enemy else Color("29424b"))
 	label_at("1 / YOUR POKÉMON", Vector2(55, 88), 15, MINT)
@@ -1351,6 +1367,7 @@ func pick(number: int, rival: int):
 	selecting = false
 
 func smoke_test():
+	campaign.tests(self)
 	clashes.tests(self)
 	check(roster.size() == 158, "151 Kanto plus all seven existing non-Kanto species")
 	var ids = []
@@ -2422,4 +2439,16 @@ func capture_clashes():
 	queue_redraw()
 	await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png("res://captures/beam-breakthrough.png")
+	get_tree().quit()
+
+func capture_campaign():
+	set_process(false)
+	campaign.show_hub()
+	queue_redraw()
+	await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://captures/league-campaign.png")
+	campaign.choose(0)
+	queue_redraw()
+	await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://captures/league-team-builder.png")
 	get_tree().quit()

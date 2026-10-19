@@ -180,3 +180,25 @@ This does not automatically update an already-installed copy or push unsaved edi
 Use VS Code Commit + Sync after testing changes; no tokens belong in project files.
 
 
+
+## League campaign and saves
+
+The game opens on Kanto League. Select Continue League, build your six-Pokemon
+team, and press Enter / Start Battle. Defeat Brock, Misty, Lt. Surge, Erika, Koga,
+Sabrina, Blaine and Giovanni to collect eight badges, then Lorelei, Bruno, Agatha,
+Lance and Blue. Completed trainers can be replayed; future opponents stay locked.
+Blue uses the existing Charizard Champion party. Winning records your team in the
+Hall of Fame. Free Battle remains independent of campaign progression.
+
+The first campaign version heals the team between trainers and allows team edits
+before each match. Defeat/draw preserves the checkpoint. Tab leaves a League battle
+for the hub; R on the final result returns to the hub. Closing mid-battle restarts
+that trainer, rather than resuming individual HP, projectiles or timers.
+
+Team composition is saved when starting a League match or returning from team
+selection to the hub. Progress is awarded only after the last Pokemon and all
+pending attacks resolve. Saves live outside the game folder in Godot's user data
+location as `league-progress-v1.json`, with a `.bak` recovery copy. Updating or
+extracting a new release does not erase progress. Saves are local to each PC,
+not synced by GitHub. An invalid/unsupported save is preserved with an on-screen
+message. Automated tests use separate temporary saves, never your campaign.
