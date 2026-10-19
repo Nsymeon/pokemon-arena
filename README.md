@@ -2,6 +2,10 @@
 
 Godot 4.3 desktop arena prototype. All 151 original Kanto species are playable, plus the seven existing non-Kanto Pokémon: Chikorita, Sudowoodo, Umbreon, Duskull, Snorunt, Klink and Rookidee. Total: **158**.
 
+## Download for Windows
+
+[Download the latest tested build](https://github.com/Nsymeon/pokemon-arena/releases/latest). Choose PokemonArena-Windows.zip, extract the entire ZIP and run PLAY.bat. No Godot installation is needed. CHECK-FOR-UPDATES.bat opens the same page for future updates. Single-player against AI.
+
 ## Play
 
 Double-click `play.bat`, or import `project.godot` in Godot and press F5. All assets and roster data are local; playing needs no network access.
@@ -170,7 +174,9 @@ Fire/water contact generates steam. Already-launched attacks still survive KO.
 GitHub updates: .github/workflows/windows-playtest.yml builds a portable Windows
 ZIP on each push to main/master after roster, trainer and combat checks pass.
 Successful builds create versioned GitHub Releases marked latest. A stable link is
-https://github.com/OWNER/pokemon-arena/releases/latest (replace OWNER after publish).
+https://github.com/Nsymeon/pokemon-arena/releases/latest.
 The friend downloads PokemonArena-Windows.zip and extracts it into a new folder.
 This does not automatically update an already-installed copy or push unsaved edits.
 Use VS Code Commit + Sync after testing changes; no tokens belong in project files.
+
+

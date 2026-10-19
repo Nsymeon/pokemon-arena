@@ -26,6 +26,7 @@ with ZipFile(archive, 'w', ZIP_DEFLATED, compresslevel=6) as z:
     z.write(a.runtime, prefix+'PokemonArena.exe')
     z.writestr(prefix+'PLAY.bat', '@echo off\r\nsetlocal\r\ncd /d "%~dp0"\r\nstart "Pokemon Arena" "%~dp0PokemonArena.exe" --path . --log-file game.log\r\n')
     z.writestr(prefix+'VERSION.txt', a.version+'\n')
+    z.writestr(prefix+'CHECK-FOR-UPDATES.bat', '@echo off\r\nstart "" "https://github.com/Nsymeon/pokemon-arena/releases/latest"\r\n')
     z.writestr(prefix+'READ-ME.txt', '''POKEMON ARENA - WINDOWS PLAYTEST
 Extract the WHOLE ZIP into a folder, then open PLAY.bat.
 No separate Godot installation needed. Do not run inside the ZIP.
@@ -33,6 +34,7 @@ WASD/arrows: move. Mouse: aim. Q/LMB, E, F, C: moves. Space: sprint.
 B / 1-6: switch. Tab: roster. Esc: pause.
 Single-player against AI; online multiplayer is not implemented.
 For updates download the latest release ZIP and extract into a NEW folder.
+CHECK-FOR-UPDATES.bat opens the latest release page in your browser.
 Report problems with VERSION.txt and game.log.
 This portable source build bundles the Godot 4.3 editor as its runtime.
 Godot/third-party notices are in licenses/. Pokemon credits: CREDITS.md.
