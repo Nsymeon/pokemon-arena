@@ -33,7 +33,7 @@ No separate Godot installation needed. Do not run inside the ZIP.
 WASD/arrows: move. Mouse: aim. Q/LMB, E, F, C: moves. Space: sprint.
 B / 1-6: switch. Tab: roster. Esc: pause.
 Adventure: E interact, P team/moves, I Bag, G capture in wild battles.
-Open ADVENTURE / PALLET TO PEWTER on the mode hub. Progress autosaves.
+Choose Play, then Adventure / Gym Leaders / Free Battles. Progress autosaves.
 Single-player against AI; online multiplayer is not implemented.
 For updates download the latest release ZIP and extract into a NEW folder.
 CHECK-FOR-UPDATES.bat opens the latest release page in your browser.

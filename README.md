@@ -206,7 +206,7 @@ message. Automated tests use separate temporary saves, never your campaign.
 
 ## Adventure chapter 1: Pallet to Pewter
 
-Choose **ADVENTURE / PALLET TO PEWTER** on the League hub. This is a playable first chapter, not a complete FireRed remake. The existing Arena and saved League remain separate modes.
+Choose **Play → Adventure** on the title screen. This is a playable first chapter, not a complete FireRed remake. The existing Arena and saved League remain separate modes.
 
 - Speak to Oak outside the lab to choose Bulbasaur, Charmander or Squirtle. Battle Blue on the north path to unlock Route 1.
 - Travel north through Route 1, Viridian City and Viridian Forest. Beat the Bug Catcher to reach Pewter City and challenge Brock's Geodude and Onix for the Boulder Badge.
@@ -214,7 +214,7 @@ Choose **ADVENTURE / PALLET TO PEWTER** on the League hub. This is a playable fi
 - Battles retain the existing arena controls. G throws a Poke Ball at a wild Pokemon; lower HP and status improve the chance. Trainer Pokemon cannot be caught. After the whole encounter ends, R or Enter returns to the map.
 - Captures fill your six-member party, then storage (100 slots). In P, choose your lead; storage adds to a free slot or swaps with your lead when the party is full.
 - HP persists between encounters. Mom and Pokemon Centers heal for free. Defeat returns you to your last healing town. The Viridian shop sells five balls for $100; victories award money.
-- Survivors gain shared XP, levels up to 20, and supported early-route evolutions. Level scaling remains adapted for the arena. Kanto Adventure moves now follow FireRed level-up learnsets (see below).
+- Survivors gain shared XP, levels up to 30, and supported early-route evolutions. Level scaling remains adapted for the arena. Kanto Adventure moves now follow FireRed level-up learnsets (see below).
 - Adventure autosaves on the world map and after encounters in `user://adventure-v1.json`, with a validated backup. Closing during combat resumes from the encounter checkpoint; mid-battle positions and attacks are not saved. League progress uses a separate file.
 - Buildings are currently exterior interaction points. Town graphics and some NPC sprite stand-ins are prototype art. Later routes, interiors, story chapters and the remaining badges are not yet part of Adventure.
 
@@ -227,11 +227,11 @@ Press **I** on the map or when ready to act in a battle to open the Bag. Battles
 
 **P → MOVESETS** shows current moves, new moves waiting for a slot, relearnable level-up moves, and future levels. New moves fill empty slots automatically; a full set never loses a move without your choice. Relearning eligible level-up moves is free. Evolved Pokemon retain learned moves. Starters and wild/trainer encounters use level-appropriate sets; e.g. Charmander starts with Scratch/Growl and learns Ember at 7 and Metal Claw at 13. Existing adventure saves gain appropriate moves and a starter medicine kit once, retaining progress, HP, money and captured Pokemon.
 
-**I → TM CASE** checks compatibility, lets you choose a move slot, and consumes a TM only on successful teaching. The data contains all 50 Gen III TMs; this chapter offers TM09, TM17 and TM40 in the Mart, and Brock awards TM39 once. Existing Boulder Badge saves receive that reward once on migration. Later TM locations are not implemented. The Mart also sells medicines and Poké Balls.
+**I → TM CASE** checks compatibility, lets you choose a move slot, and consumes a TM only on successful teaching. The data contains all 50 Gen III TMs; this chapter offers TM09, TM17 and TM40 in the Mart, and Brock awards TM39 once. Existing Boulder Badge saves receive that reward once on migration. Later TM locations are not implemented. The Mart also sells medicines and Poké Balls. Misty awards TM03 once in the Cerulean chapter.
 
 Learnset and TM compatibility sources: [pret/pokefirered level-up tables](https://github.com/pret/pokefirered/blob/master/src/data/pokemon/level_up_learnsets.h) and [TM/HM tables](https://github.com/pret/pokefirered/blob/master/src/data/pokemon/tmhm_learnsets.h). Retained species absent from FireRed use the latest recorded level-up generation from the existing Showdown snapshot, with modern machine compatibility mapped to the same move names. `node tools/build-adventure-learnsets.mjs` regenerates the compact runtime catalog from checked-in sources.
 
-Move eligibility is cartridge-based; execution remains the real-time arena adaptation with modern typings/categories, energy and cooldowns rather than PP. Specialized move effects are not all exact cartridge equivalents. Leech Seed now drains HP and heals the opposing active Pokemon over eight seconds, with Grass immunity. The Adventure level cap remains 20 for this chapter.
+Move eligibility is cartridge-based; execution remains the real-time arena adaptation with modern typings/categories, energy and cooldowns rather than PP. Specialized move effects are not all exact cartridge equivalents. Leech Seed now drains HP and heals the opposing active Pokemon over eight seconds, with Grass immunity. The Adventure level cap is now 30.
 
 The friendly team HUD now displays each Pokemon portrait inside its Poké Ball, with an active outline and crossed-out fainted icons, across all battle modes.
 
@@ -243,3 +243,14 @@ The friendly team HUD now displays each Pokemon portrait inside its Poké Ball, 
 - Attack, defense, special attack, special defense, speed, accuracy and evasion stages persist until withdrawal, fainting, a new battle or an explicit clearing move such as Haze. Defeating one enemy does not clear the survivor's stages.
 - Sleep lasts 0.8-1.6 seconds, Rest sleeps for 1.6 seconds, and paralysis lasts 3 seconds. Paralysis keeps its existing speed penalty and move-failure chance. Saved adventure status uses shorter durations on battle entry too.
 - Evolution shows old and evolved Pokemon side by side, fades in the evolved portrait and waits for Continue. Multiple evolutions display in order; learned moves are kept.
+
+
+## Title menu, KO experience and chapter 2
+
+The game starts with **Play**, then **Adventure / Gym Leaders / Free Battles**. Gym Leaders keeps the separate saved League progression (gyms, Elite Four, Champion). The roster screen and Gym Leaders hub offer a return to modes; exiting Adventure restores the arena team before returning to modes.
+
+Adventure now continues from Pewter through **Route 3, Mt. Moon and Route 4 to Cerulean City**. Brock gates the Route 3 exit; a Team Rocket Grunt must be defeated to leave Mt. Moon. Route 3 also has a Lass. New wild species include Spearow, Jigglypuff, Nidoran, Zubat, Geodude, Paras, Clefairy, Ekans and Sandshrew. Cerulean has healing, supplies and Misty's Staryu/Starmie battle. The Cascade Badge and TM03 Water Pulse are awarded once. Existing saves remain compatible; the level cap is 30 and additional early evolutions are supported. Routes are compact connected prototype maps, not full cartridge layouts or interior story recreations.
+
+XP is awarded once **per opposing Pokemon knocked out**, after committed attacks and the KO animation resolve and before the next enemy enters. Standing party members share the reward; their live stats, HP and learned moves update immediately. Finishing the trainer battle awards money/progression without awarding the same XP twice. Level-up and learned/pending skill messages appear during battle. A blue EXP bar appears under the friendly battle HUD and under each party member on the world map. Pending move replacements remain available through **P → MOVESETS** after the battle. Evolution portraits display when returning to the map.
+
+XP and party health save at these KO checkpoints. Reloading during combat restarts the encounter with the saved party progress; enemy combat position and defeated slots are not resumed. `--smoke-test` covers per-KO level updates, move notifications, duplicate-credit prevention, chapter gates, healing and badge/TM persistence. `--capture-progress` captures the title, mode menu, KO notification and new towns using an isolated test save.

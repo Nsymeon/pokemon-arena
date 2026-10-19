@@ -12,6 +12,7 @@ var fields = preload("res://tournament_fields.gd").new()
 var arena_overview = false
 var opponent_choice: OptionButton
 var league = preload("res://league.gd").new()
+var frontend = preload("res://front_menu.gd").new()
 var adventure = preload("res://adventure.gd").new()
 var campaign = preload("res://league_campaign.gd").new()
 var enemy_party: Array = []
@@ -100,10 +101,13 @@ func _ready():
 	add_child(adventure)
 	adventure.install(self)
 	campaign.install(self)
+	frontend.install(self)
 	if "--smoke-test" in OS.get_cmdline_user_args():
 		call_deferred("smoke_test")
 	elif "--capture-clashes" in OS.get_cmdline_user_args():
 		call_deferred("capture_clashes")
+	elif "--capture-progress" in OS.get_cmdline_user_args():
+		call_deferred("capture_progress")
 	elif "--capture-adventure" in OS.get_cmdline_user_args():
 		call_deferred("capture_adventure")
 	elif "--capture-campaign" in OS.get_cmdline_user_args():
@@ -195,6 +199,7 @@ func reset():
 	notice_time = 0
 
 func _unhandled_input(event):
+	if frontend.layer != null and frontend.layer.visible: return
 	if adventure.exploring:
 		adventure.handle_input(event)
 		return
@@ -459,6 +464,8 @@ func projectile(origin: Vector2, direction: Vector2, speed: float, damage: float
 	shots.append({"pos": origin + direction * 27, "origin": origin, "age": 0.0, "vel": direction * speed, "damage": damage, "radius": radius, "friendly": friendly, "owner": player if friendly else enemy, "attack_snapshot": (player if friendly else enemy).duplicate(true), "color": color, "life": 2.6, "move": move.duplicate(true)})
 
 func _process(delta):
+	if frontend.layer != null and frontend.layer.visible: return
+	if adventure.in_battle and not paused: adventure.progress_time = maxf(0,adventure.progress_time-delta)
 	if adventure.in_battle and adventure.modal != "":
 		queue_redraw()
 		return
@@ -490,6 +497,7 @@ func _process(delta):
 			var recall_before = result_time
 			update_resolution(delta)
 			if recall_before < FAINT_FADE_START and result_time >= FAINT_FADE_START: tone(720, 0.15)
+			if resolution_ready() and adventure.in_battle: adventure.record_knockout()
 			if resolution_ready() and can_continue_team(): advance_team()
 			elif resolution_ready(): campaign.record_result()
 	if not selecting: update_camera(delta)
@@ -880,6 +888,7 @@ func _draw():
 	label_at("REAL-TIME POKÉMON BATTLES", Vector2(1000, 36), 13, Color("88a0a4"))
 	label_at(("VS " + opponent_name().to_upper() + " / " + str(enemy_party_size()) + " POKÉMON") if not enemy_party.is_empty() else "6 VS 6   /   TEAM BATTLE" if team_mode else "1 VS 1   /   DUEL", Vector2(976, 63), 14, GOLD)
 	draw_hud()
+	if adventure.in_battle: adventure.draw_progress()
 	weather.draw(self)
 	skills.minimap(self)
 	draw_set_transform(Vector2(0, 140))
@@ -1696,6 +1705,8 @@ func enemy_party_size() -> int:
 	return enemy_party.size() if not enemy_party.is_empty() else enemy_team.size()
 
 func opponent_name() -> String:
+	if adventure.in_battle:
+		return {"wild":"Wild Pokemon","rival":"Blue","bug":"Bug Catcher","brock":"Brock","lass":"Lass","rocket":"Team Rocket Grunt","misty":"Misty"}.get(adventure.encounter.kind,"Trainer")
 	for trainer in league.trainers:
 		if trainer.id == opponent_identity: return trainer.name
 	return opponent_identity.split("_")[0].capitalize()
@@ -1726,6 +1737,7 @@ func replacement(friendly: bool, index: int) -> Dictionary:
 	return fighter
 
 func advance_team():
+	if adventure.in_battle: adventure.record_knockout()
 	player.entering = false
 	enemy.entering = false
 	if player.hp <= 0:
@@ -2558,4 +2570,50 @@ func capture_adventure():
 	await get_tree().process_frame
 	await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png("res://captures/adventure-battle.png")
+	get_tree().quit()
+
+func capture_progress():
+	frontend.show_title()
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://captures/title.png")
+	frontend.show_modes()
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://captures/modes.png")
+	frontend.layer.visible = false
+	adventure.save_path = "user://chapter-preview-test.json"
+	adventure.loaded = true
+	adventure.enter()
+	adventure.choose_starter(4)
+	adventure.data.party[0] = adventure.new_mon(4,6)
+	adventure.data.party[0].xp = 55
+	adventure.begin_battle("lass",[21,39],[11,12])
+	enemy.hp = 0
+	finish_round()
+	shots.clear()
+	result_time = 10
+	adventure.record_knockout()
+	advance_team()
+	paused = true
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://captures/ko-level-up.png")
+	adventure.in_battle = false
+	adventure.exploring = true
+	adventure.visible = true
+	adventure.dialog = ""
+	adventure.data.rival = true
+	adventure.data.bug_catcher = true
+	adventure.data.badge = true
+	adventure.data["rocket"] = true
+	adventure.data.map = 6
+	adventure.position_world = Vector2(800,700)
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://captures/mt-moon.png")
+	adventure.data.map = 8
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://captures/cerulean.png")
 	get_tree().quit()

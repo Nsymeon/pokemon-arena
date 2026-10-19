@@ -1,10 +1,10 @@
 extends Node2D
 
 const SAVE_PATH = "user://adventure-v1.json"
-const MAPS = ["PALLET TOWN", "ROUTE 1", "VIRIDIAN CITY", "VIRIDIAN FOREST", "PEWTER CITY"]
+const MAPS = ["PALLET TOWN", "ROUTE 1", "VIRIDIAN CITY", "VIRIDIAN FOREST", "PEWTER CITY", "ROUTE 3", "MT. MOON", "ROUTE 4", "CERULEAN CITY"]
 const STARTERS = [1,4,7]
-const WILD = {1:[16,19],3:[10,13,25,16]}
-const EVOLUTIONS = {1:[16,2],4:[16,5],7:[16,8],10:[7,11],11:[10,12],13:[7,14],14:[10,15],16:[18,17],19:[20,20]}
+const WILD = {1:[16,19],3:[10,13,25,16],5:[21,39,29,32],6:[41,74,46,35],7:[19,21,23,27]}
+const EVOLUTIONS = {1:[16,2],4:[16,5],7:[16,8],10:[7,11],11:[10,12],13:[7,14],14:[10,15],16:[18,17],19:[20,20],21:[20,22],29:[16,30],32:[16,33],41:[22,42],46:[24,47],74:[25,75]}
 var data = {"version":1,"map":0,"x":800.0,"y":780.0,"starter":0,"party":[],"storage":[],"balls":10,"money":300,"rival":false,"bug_catcher":false,"badge":false,"healing_map":0}
 var save_path = SAVE_PATH
 var save_error = ""
@@ -25,6 +25,8 @@ var ui: CanvasLayer
 var original = {}
 var encounter = {}
 var evolutions: Array = []
+var progress_lines: Array = []
+var progress_time = 0.0
 var capture_time = 0.0
 var capture_success = false
 var wild_cycle = 0
@@ -46,11 +48,13 @@ func valid(value) -> bool:
 	for key in ["map","starter","balls","money","healing_map"]:
 		if not value.get(key) is float and not value.get(key) is int: return false
 		if value[key] != int(value[key]): return false
-	if value.map < 0 or value.map >= MAPS.size() or int(value.healing_map) not in [0,2,4]: return false
+	if value.map < 0 or value.map >= MAPS.size() or int(value.healing_map) not in [0,2,4,8]: return false
 	if int(value.starter) not in [0,1,4,7] or value.balls < 0 or value.balls > 999 or value.money < 0 or value.money > 999999: return false
 	for key in ["x","y"]:
 		if not (value.get(key) is float or value.get(key) is int) or not is_finite(value[key]): return false
 	if value.x < 24 or value.x > 1576 or value.y < 24 or value.y > 976: return false
+	for key in ["rocket","cascade"]:
+		if value.has(key) and not value[key] is bool: return false
 	for key in ["rival","bug_catcher","badge"]:
 		if not value.get(key) is bool: return false
 	for key in ["party","storage"]:
@@ -60,7 +64,7 @@ func valid(value) -> bool:
 			for field in ["id","level","xp","hp"]:
 				if not (mon.get(field) is float or mon.get(field) is int) or not is_finite(mon[field]): return false
 			if mon.id != int(mon.id) or c.Dex.find_id(c.roster,int(mon.id)) < 0 or not c.roster.any(func(m):return int(m.id)==int(mon.id)): return false
-			if mon.level != int(mon.level) or mon.level < 1 or mon.level > 20 or mon.xp < 0 or mon.xp > 100000 or mon.hp < 0 or mon.hp > 1: return false
+			if mon.level != int(mon.level) or mon.level < 1 or mon.level > 30 or mon.xp < 0 or mon.xp > 100000 or mon.hp < 0 or mon.hp > 1: return false
 	if value.starter != 0 and value.party.is_empty(): return false
 	if value.starter == 0 and (not value.party.is_empty() or not value.storage.is_empty() or value.map != 0): return false
 	return inventory.valid(value)
@@ -151,20 +155,23 @@ func leave():
 	c.arena_choice.disabled = false
 	c.weather_choice.disabled = false
 	c.reset()
-	c.campaign.show_hub()
+	c.frontend.show_modes()
 
 func objective() -> String:
 	if data.starter == 0: return "Speak to Oak and choose your starter."
 	if not data.rival: return "Challenge Blue near the north exit of Pallet Town."
 	if not data.bug_catcher: return "Travel north: Route 1, Viridian City, then the forest."
 	if not data.badge: return "Reach Pewter City and defeat Brock for the Boulder Badge."
-	return "Boulder Badge earned! TM39 Rock Tomb is in your Bag. Chapter 1 complete. Explore, train and catch Pokemon."
+	if not data.get("rocket",false): return "Boulder Badge earned! Head north: Route 3, then Mt. Moon."
+	if not data.get("cascade",false): return "Cross Route 4 to Cerulean City. Challenge Misty for the Cascade Badge."
+	return "Two badges earned! Explore, train and catch Pokemon before the next chapter."
 
 func buildings() -> Array:
 	match int(data.map):
 		0: return [[Rect2(250,380,310,230),"YOUR HOME",Color("5a83ab")],[Rect2(1000,350,350,250),"OAK'S LAB",Color("b86a54")]]
 		2: return [[Rect2(250,350,320,250),"POKEMON CENTER",Color("c76263")],[Rect2(1020,350,320,250),"POKE MART",Color("5596b4")]]
 		4: return [[Rect2(250,380,320,230),"POKEMON CENTER",Color("c76263")],[Rect2(990,300,380,290),"PEWTER GYM",Color("968169")]]
+		8: return [[Rect2(250,350,320,250),"POKEMON CENTER",Color("c76263")],[Rect2(990,300,380,290),"CERULEAN GYM",Color("529ab4")]]
 	return []
 
 func npcs() -> Array:
@@ -173,12 +180,16 @@ func npcs() -> Array:
 		2: return [[Vector2(410,650),"Nurse Joy / Heal","heal"],[Vector2(1180,650),"Shop / 5 balls: $100","shop"]]
 		3: return [[Vector2(800,330),"Bug Catcher","bug"]]
 		4: return [[Vector2(410,660),"Nurse Joy / Heal","heal"],[Vector2(1180,650),"Brock / Gym battle","brock"]]
+		5: return [[Vector2(800,430),"Lass / Route 3","lass"]]
+		6: return [[Vector2(800,280),"Team Rocket Grunt","rocket"]]
+		8: return [[Vector2(410,650),"Nurse Joy / Heal","heal"],[Vector2(1180,650),"Misty / Gym battle","misty"],[Vector2(800,470),"Shop / Supplies","shop"]]
 	return []
 
 func wild_spawns() -> Array:
 	if not WILD.has(int(data.map)): return []
 	var pool: Array = WILD[int(data.map)]
-	return [[Vector2(450,650),pool[wild_cycle%pool.size()],4 if data.map==1 else 6],[Vector2(1100,450),pool[(wild_cycle+1)%pool.size()],5 if data.map==1 else 7],[Vector2(470,270),pool[(wild_cycle+2)%pool.size()],4 if data.map==1 else 6]]
+	var level = {1:4,3:6,5:10,6:12,7:14}.get(int(data.map),6)
+	return [[Vector2(450,650),pool[wild_cycle%pool.size()],level],[Vector2(1100,450),pool[(wild_cycle+1)%pool.size()],level+1],[Vector2(470,270),pool[(wild_cycle+2)%pool.size()],level]]
 
 func blocked(point: Vector2) -> bool:
 	if point.x < 70 or point.x > 1530 or point.y < 45 or point.y > 955: return true
@@ -222,6 +233,10 @@ func travel(step: int):
 		dialog = "The Bug Catcher wants a battle before you leave the forest. Find him on the path."
 		position_world.y = 120
 		return
+	if step>0 and ((data.map==4 and not data.badge) or (data.map==6 and not data.get("rocket",false))):
+		dialog = "Defeat Brock before leaving Pewter." if data.map==4 else "Defeat Team Rocket to clear the Mt. Moon exit."
+		position_world.y = 120
+		return
 	data.map = destination
 	position_world = Vector2(800,860 if step>0 else 140)
 	dialog = MAPS[destination] + " / " + objective()
@@ -260,6 +275,9 @@ func interact():
 					else: begin_battle("rival",[7 if data.starter==4 else 4 if data.starter==1 else 1],[5])
 				"bug": begin_battle("bug",[10,13],[6,7])
 				"brock": begin_battle("brock",[74,95],[10,12])
+				"lass": begin_battle("lass",[21,39],[11,12])
+				"rocket": begin_battle("rocket",[19,41],[13,14])
+				"misty": begin_battle("misty",[120,121],[18,21])
 			return
 	for wild in wild_spawns():
 		if position_world.distance_to(wild[0]) <= 95:
@@ -285,7 +303,7 @@ func heal():
 	for mon in data.party:
 		mon.hp = 1.0
 		mon.ailment = ""
-	data.healing_map = int(data.map) if data.map in [0,2,4] else 0
+	if data.map in [0,2,4,8]: data.healing_map = int(data.map)
 	dialog = "Your team is fully healed. See you again!"
 	save()
 
@@ -311,8 +329,10 @@ func begin_battle(kind: String, ids: Array, levels: Array):
 		dialog = "Your team needs healing. Visit Mom or a Pokemon Center."
 		return
 	clear_ui()
+	progress_lines.clear()
+	progress_time = 0
 	save()
-	encounter = {"kind":kind,"ids":ids.duplicate(),"levels":levels.duplicate()}
+	encounter = {"kind":kind,"ids":ids.duplicate(),"levels":levels.duplicate(),"rewarded":[]}
 	exploring = false
 	visible = false
 	in_battle = true
@@ -327,8 +347,8 @@ func begin_battle(kind: String, ids: Array, levels: Array):
 	c.enemy_team = ids.map(func(id): return c.Dex.find_id(c.roster,int(id)))
 	c.enemy_party = []
 	for i in range(ids.size()): c.enemy_party.append(battle_mon(ids[i],levels[i]))
-	c.opponent_identity = "wild" if kind=="wild" else "blue" if kind=="rival" else "brock" if kind=="brock" else "bug_catcher"
-	c.arena_choice.select(3 if kind=="brock" else 6 if data.map==3 else 2)
+	c.opponent_identity = "wild" if kind=="wild" else "blue" if kind=="rival" else "brock" if kind=="brock" else "misty" if kind=="misty" else "giovanni" if kind=="rocket" else "bug_catcher"
+	c.arena_choice.select(4 if kind=="misty" else 0 if data.map==6 else 3 if kind=="brock" else 6 if data.map==3 else 2)
 	c.weather_choice.select(0)
 	c.reset()
 	for i in range(data.party.size()):
@@ -349,35 +369,27 @@ func sync_health():
 func reward(victory: bool) -> String:
 	if not victory: return ""
 	var message = ""
-	var amount = 25+int(encounter.levels[0])*5 if encounter.kind=="wild" else 100
-	for mon in data.party:
-		if mon.hp <= 0: continue
-		mon.xp += amount
-		while mon.level < 20 and mon.xp >= 20+mon.level*6:
-			mon.xp -= 20+mon.level*6
-			var old_id = int(mon.id)
-			mon.level += 1
-			mon.hp = minf(1,mon.hp+0.2)
-			message += mon_name(mon.id)+" reached Lv."+str(mon.level)+"! "
-			if EVOLUTIONS.has(int(mon.id)) and mon.level >= EVOLUTIONS[int(mon.id)][0]:
-				evolutions.append([int(mon.id),int(EVOLUTIONS[int(mon.id)][1])])
-				mon.id = EVOLUTIONS[int(mon.id)][1]
-				message += "Evolved into "+mon_name(mon.id)+"! "
-			inventory.level_up(mon,old_id,int(mon.level))
-		if not mon.pending.is_empty(): message += "New moves waiting: P / MOVESETS. "
 	data.money = mini(999999,int(data.money)+(40 if encounter.kind=="wild" else 150))
 	match encounter.kind:
 		"rival": data.rival = true
 		"bug": data.bug_catcher = true
+		"rocket":
+			data["rocket"] = true
+			message = "Team Rocket defeated! The exit to Route 4 and Cerulean is open."
+		"misty":
+			if not data.get("cascade",false): data.tms["TM03"] = int(data.tms.get("TM03",0))+1
+			data["cascade"] = true
+			message = "Cascade Badge earned! TM03 Water Pulse is in your Bag."
 		"brock":
 			inventory.award_brock()
 			data.badge = true
-			message = "Boulder Badge earned! TM39 Rock Tomb is in your Bag. Chapter 1 complete. " + message
+			message = "Boulder Badge earned! TM39 Rock Tomb is in your Bag. Route 3 and Mt. Moon are now open. " + message
 	return message
 
 func return_world(caught: bool = false):
 	if not in_battle: return
 	if not caught and (not c.resolution_ready() or c.can_continue_team()): return
+	if not caught: record_knockout()
 	sync_health()
 	var win = c.result == "VICTORY"
 	var message = ""
@@ -529,7 +541,7 @@ func withdraw(slot):
 	party_menu()
 
 func menu():
-	panel("ADVENTURE / PALLET TO PEWTER")
+	panel("ADVENTURE / PALLET TO CERULEAN")
 	ui_label(objective(),Vector2(180,240))
 	ui_label("Progress saves automatically on the map and after encounters.",Vector2(180,290))
 	ui_button("YOUR TEAM",Vector2(180,375),Vector2(400,65),party_menu)
@@ -560,17 +572,25 @@ func _draw():
 	draw_rect(Rect2(0,0,1280,960),Color("142e32"))
 	draw_set_transform(Vector2(0,90)-camera)
 	var forest = data.map==3
-	draw_rect(Rect2(0,0,1600,1000),Color("619466") if forest else Color("87b878"))
+	var cave = data.map==6
+	draw_rect(Rect2(0,0,1600,1000),Color("48495e") if cave else Color("619466") if forest else Color("87b878"))
 	for y in range(0,1000,40):
 		for x in range(0,1600,40):
 			if (x/40+y/40)%3==0:
 				draw_line(Vector2(x+8,y+15),Vector2(x+12,y+9),Color(0.2,0.45,0.24,0.28),2)
 				draw_line(Vector2(x+12,y+17),Vector2(x+17,y+11),Color(0.2,0.45,0.24,0.28),2)
-	draw_rect(Rect2(710,0,180,1000),Color("cfbc87"))
-	draw_rect(Rect2(725,0,150,1000),Color("ddcb96"))
+	if data.map==8:
+		draw_circle(Vector2(1270,140),150,Color("3d9eb4"))
+		draw_arc(Vector2(1270,140),145,0,TAU,50,Color("a6decd"),5)
+	draw_rect(Rect2(710,0,180,1000),Color("6b6877") if cave else Color("cfbc87"))
+	draw_rect(Rect2(725,0,150,1000),Color("85808a") if cave else Color("ddcb96"))
 	if not buildings().is_empty(): draw_rect(Rect2(360,615,900,95),Color("ddcb96"))
 	for y in range(70,1000,100):
-		for x in [45,145,1455,1555]: tree(Vector2(x,y))
+		for x in [45,145,1455,1555]:
+			if cave:
+				draw_circle(Vector2(x,y),58,Color("303346"))
+				draw_circle(Vector2(x-8,y-14),42,Color("626477"))
+			else: tree(Vector2(x,y))
 	# Small gardens and path stones give the chapter maps a readable outdoor layout.
 	for i in range(45):
 		var flower = Vector2(210+(i*173)%1190,110+(i*97)%760)
@@ -579,6 +599,9 @@ func _draw():
 		for building in buildings():
 			if building[0].grow(30).has_point(flower): covered = true
 		if covered: continue
+		if cave:
+			draw_circle(flower,17 if i%3==0 else 7,Color("73768c"))
+			continue
 		draw_circle(flower,3,Color("e6cd80") if i%2==0 else Color("d6a1aa"))
 		draw_line(flower+Vector2(0,3),flower+Vector2(0,8),Color("487c48"),2)
 	for y in range(100,1000,115):
@@ -604,17 +627,17 @@ func _draw():
 		words(mon_name(spawn[1])+" Lv."+str(spawn[2]),p+Vector2(-65,28),16)
 		if position_world.distance_to(p)<95: words("E / BATTLE",p+Vector2(-45,-75),18,Color("ffe499"))
 	for npc in npcs():
-		var id = "brock" if npc[2]=="brock" else ("blue" if npc[2] in ["rival","bug"] else ("blaine" if npc[2]=="oak" else "misty"))
+		var id = "brock" if npc[2]=="brock" else "giovanni" if npc[2]=="rocket" else ("blue" if npc[2] in ["rival","bug"] else ("blaine" if npc[2]=="oak" else "misty"))
 		person(npc[0],id)
 		words(npc[1],npc[0]+Vector2(-70,25),17)
 		if position_world.distance_to(npc[0])<100: words("E / TALK",npc[0]+Vector2(-35,-78),18,Color("ffe499"))
 	person(position_world,"red",facing,absf(sin(walk_age*12))*4)
-	words("NORTH / "+(MAPS[data.map+1] if data.map<4 else "NEXT CHAPTER"),Vector2(630,65),17)
+	words("NORTH / "+(MAPS[data.map+1] if data.map<MAPS.size()-1 else "NEXT CHAPTER"),Vector2(630,65),17)
 	draw_set_transform(Vector2.ZERO)
 	draw_rect(Rect2(0,0,1280,90),Color("112b32"))
 	words(MAPS[data.map],Vector2(30,34),26,Color("ffdf92"))
 	words(objective(),Vector2(30,66),18)
-	words("BALLS %d   $%d   BADGES %d/1" % [data.balls,data.money,int(data.badge)],Vector2(850,35),18)
+	words("BALLS %d   $%d   BADGES %d/2" % [data.balls,data.money,int(data.badge)+int(data.get("cascade",false))],Vector2(850,35),18)
 	draw_rect(Rect2(0,790,1280,170),Color("112b32"))
 	for i in range(data.party.size()):
 		var mon = data.party[i]
@@ -624,6 +647,9 @@ func _draw():
 		words("Lv.%d / HP %d%%" % [mon.level,roundi(mon.hp*100)],Vector2(x+52,847),14)
 		draw_rect(Rect2(x+10,862,180,5),Color("354c50"))
 		draw_rect(Rect2(x+10,862,180*mon.hp,5),Color("77e2b0"))
+		draw_rect(Rect2(x+10,875,180,4),Color("354c50"))
+		draw_rect(Rect2(x+10,875,180*xp_ratio(mon),4),Color("79aaff"))
+		words("EXP %d / %d" % [mon.xp,xp_needed(mon)] if mon.level<30 else "MAX LEVEL",Vector2(x+10,898),12,Color("79aaff"))
 	words("WASD / MOVE     SPACE / RUN     E / INTERACT     P / TEAM   I / BAG   F5 / SAVE     ESC / MENU",Vector2(30,925),17)
 	if save_error!="": words(save_error,Vector2(30,953),15,Color("ff9999"))
 	if dialog!="":
@@ -694,7 +720,7 @@ func tests():
 	data.party[0] = new_mon(4,15)
 	data.party[0].xp = 109
 	encounter = {"kind":"wild","levels":[5]}
-	reward(true)
+	grant_xp(50)
 	c.check(data.party[0].id==5 and data.party[0].level==16,"Starter evolves after level threshold")
 	data.map = 3
 	travel(1)
@@ -717,8 +743,10 @@ func tests():
 	return_world()
 	c.check(data.badge and c.campaign.data==saved_campaign,"Boulder Badge stays independent from League progress")
 	inventory.tests()
+	chapter_tests()
 	leave()
 	c.campaign.layer.visible = false
+	c.frontend.layer.visible = false
 	c.check(c.player_team.size()==6,"Leaving adventure restores arena team")
 	for suffix in ["", ".bak", ".tmp"]:
 		if FileAccess.file_exists(save_path+suffix): DirAccess.remove_absolute(ProjectSettings.globalize_path(save_path+suffix))
@@ -764,3 +792,130 @@ func show_evolution():
 func next_evolution():
 	evolutions.pop_front()
 	show_evolution()
+
+func grant_xp(amount: int) -> String:
+	var message = ""
+	for mon in data.party:
+		if mon.hp <= 0: continue
+		mon.xp += amount
+		while mon.level < 30 and mon.xp >= 20+mon.level*6:
+			mon.xp -= 20+mon.level*6
+			var old_id = int(mon.id)
+			mon.level += 1
+			mon.hp = minf(1,mon.hp+0.2)
+			message += mon_name(mon.id)+" reached Lv."+str(mon.level)+"! "
+			if EVOLUTIONS.has(int(mon.id)) and mon.level >= EVOLUTIONS[int(mon.id)][0]:
+				evolutions.append([int(mon.id),int(EVOLUTIONS[int(mon.id)][1])])
+				mon.id = EVOLUTIONS[int(mon.id)][1]
+				message += "Evolved into "+mon_name(mon.id)+"! "
+			var known_before = mon.moves.duplicate()
+			var pending_before = mon.pending.duplicate()
+			inventory.level_up(mon,old_id,int(mon.level))
+			for move in mon.moves:
+				if move not in known_before: message += mon_name(mon.id)+" learned "+inventory.book.moves[move].name+"! "
+			for move in mon.pending:
+				if move not in pending_before: message += mon_name(mon.id)+" can learn "+inventory.book.moves[move].name+" (P / MOVESETS). "
+		if mon.level>=30: mon.xp = 0
+		if not mon.pending.is_empty(): message += "New moves waiting: P / MOVESETS. "
+	return message
+
+func xp_needed(mon) -> int:
+	return 20+int(mon.level)*6
+
+func xp_ratio(mon) -> float:
+	return 1.0 if mon.level>=30 else clampf(float(mon.xp)/xp_needed(mon),0,1)
+
+func record_knockout():
+	if not in_battle or c.enemy.hp>0 or not c.resolution_ready(): return
+	if not encounter.has("rewarded"): encounter.rewarded = []
+	if c.enemy_active in encounter.rewarded: return
+	encounter.rewarded.append(c.enemy_active)
+	sync_health()
+	var amount = 25+int(encounter.levels[c.enemy_active])*5
+	var message = grant_xp(amount)
+	for i in range(data.party.size()):
+		var fighter = c.player_states[i]
+		var mon = data.party[i]
+		if not fighter.get("transformed",false):
+			fighter.data = battle_mon(int(mon.id),int(mon.level))
+			fighter.data.moves = inventory.definitions(mon.moves)
+		fighter.hp = fighter.data.hp*mon.hp
+	progress_lines = [mon_name(int(encounter.ids[c.enemy_active]))+" defeated! +"+str(amount)+" EXP to standing teammates."]
+	if message!="": progress_lines.append(message)
+	progress_time = 10.0
+	save()
+
+func draw_progress():
+	if data.party.is_empty(): return
+	var mon = data.party[c.player_active]
+	c.bar(Vector2(122,173),310,xp_ratio(mon),Color("79aaff"),4)
+	c.label_at("EXP %d/%d" % [mon.xp,xp_needed(mon)] if mon.level<30 else "MAX LEVEL",Vector2(40,177),10,Color("79aaff"))
+	if progress_time>0:
+		c.panel(Rect2(560,245,660,145),Color(0.04,0.09,0.14,0.95),Color("79aaff"))
+		var text = " ".join(progress_lines)
+		var lines = ""
+		var line = ""
+		for word in text.split(" "):
+			if font.get_string_size(line+word,HORIZONTAL_ALIGNMENT_LEFT,-1,17).x>615:
+				lines += line+"\n"
+				line = ""
+			line += word+" "
+		c.draw_multiline_string(font,Vector2(580,270),lines+line,HORIZONTAL_ALIGNMENT_LEFT,620,17,5,Color("e7eee2"))
+
+func chapter_tests():
+	var snapshot = data.duplicate(true)
+	data.party = [new_mon(4,6)]
+	data.party[0].xp = xp_needed(data.party[0])-1
+	data.map = 4
+	data.badge = false
+	travel(1)
+	c.check(data.map==4,"Brock gates Route 3")
+	data.badge = true
+	travel(1)
+	c.check(data.map==5,"Route 3 opens after Brock")
+	begin_battle("lass",[21,39],[11,12])
+	c.enemy.hp = 0
+	c.finish_round()
+	c.shots.clear()
+	c.result_time = 10
+	record_knockout()
+	c.check(data.party[0].level==8 and "ember" in data.party[0].moves,"First KO levels up inside trainer battle and learns Ember")
+	c.check(c.player.data.level==8 and c.player.data.moves.any(func(move):return move.id=="ember"),"Live fighter gets new level and learned move before next opponent")
+	c.check("learned Ember" in " ".join(progress_lines),"New skill notification names learned move")
+	var experience = data.party[0].xp
+	record_knockout()
+	c.check(data.party[0].xp==experience,"KO XP is credited only once")
+	c.advance_team()
+	c.check(c.enemy.data.id==39,"Next opponent enters after XP award")
+	c.enemy.hp = 0
+	c.finish_round()
+	c.shots.clear()
+	c.result_time = 10
+	record_knockout()
+	var level = data.party[0].level
+	experience = data.party[0].xp
+	return_world()
+	c.check(data.party[0].level==level and data.party[0].xp==experience,"End-of-battle reward does not duplicate KO XP")
+	data.map = 6
+	data["rocket"] = false
+	travel(1)
+	c.check(data.map==6,"Rocket gates Mt. Moon exit")
+	data.rocket = true
+	travel(1)
+	travel(1)
+	c.check(data.map==8,"Route 4 connects to Cerulean")
+	heal()
+	c.check(data.healing_map==8,"Cerulean is a valid healing checkpoint")
+	encounter = {"kind":"misty","levels":[18,21]}
+	reward(true)
+	var tms = data.tms.TM03
+	reward(true)
+	c.check(data.cascade and data.tms.TM03==tms,"Misty awards Cascade Badge and one Water Pulse TM")
+	save()
+	load_save()
+	c.check(data.map==8 and data.cascade and data.rocket,"Chapter 2 progress survives save reload")
+	data = snapshot
+	evolutions.clear()
+	progress_time = 0
+	clear_ui()
+	save()
