@@ -24,6 +24,7 @@ var modal = ""
 var ui: CanvasLayer
 var original = {}
 var encounter = {}
+var evolutions: Array = []
 var capture_time = 0.0
 var capture_success = false
 var wild_cycle = 0
@@ -137,6 +138,7 @@ func enter():
 	queue_redraw()
 
 func leave():
+	evolutions.clear()
 	save()
 	exploring = false
 	visible = false
@@ -228,7 +230,9 @@ func travel(step: int):
 func handle_input(event):
 	if not event is InputEventKey or not event.pressed or event.echo: return
 	if modal != "":
-		if event.keycode == KEY_ESCAPE: clear_ui()
+		if event.keycode == KEY_ESCAPE:
+			if modal.begins_with("EVOLUTION"): next_evolution()
+			else: clear_ui()
 		return
 	if dialog != "":
 		if event.keycode in [KEY_E,KEY_ENTER,KEY_SPACE,KEY_ESCAPE]: dialog = ""
@@ -333,7 +337,7 @@ func begin_battle(kind: String, ids: Array, levels: Array):
 		fighter.data.moves = inventory.definitions(data.party[i].moves)
 		fighter.hp = fighter.data.hp*float(data.party[i].hp)
 		fighter.ailment = data.party[i].ailment
-		fighter.ailment_time = 5.0 if fighter.ailment in ["sleep","freeze"] else 12.0
+		fighter.ailment_time = 1.2 if fighter.ailment=="sleep" else 3.0 if fighter.ailment=="paralysis" else 5.0 if fighter.ailment=="freeze" else 8.0
 	c.activate_player(first)
 	c.countdown = c.SEND_OUT_TIME
 
@@ -356,6 +360,7 @@ func reward(victory: bool) -> String:
 			mon.hp = minf(1,mon.hp+0.2)
 			message += mon_name(mon.id)+" reached Lv."+str(mon.level)+"! "
 			if EVOLUTIONS.has(int(mon.id)) and mon.level >= EVOLUTIONS[int(mon.id)][0]:
+				evolutions.append([int(mon.id),int(EVOLUTIONS[int(mon.id)][1])])
 				mon.id = EVOLUTIONS[int(mon.id)][1]
 				message += "Evolved into "+mon_name(mon.id)+"! "
 			inventory.level_up(mon,old_id,int(mon.level))
@@ -402,6 +407,7 @@ func return_world(caught: bool = false):
 	capture_time = 0
 	wild_cycle += 1
 	dialog = message
+	if not evolutions.is_empty(): show_evolution()
 	save()
 	queue_redraw()
 
@@ -447,7 +453,7 @@ func panel(title: String):
 	bg.size = Vector2(1000,690)
 	ui.add_child(bg)
 	ui_label(title,Vector2(180,165),28)
-	ui_button("CLOSE / Esc",Vector2(900,755),Vector2(190,45),clear_ui)
+	ui_button("CLOSE / Esc",Vector2(900,755),Vector2(190,45),next_evolution if title.begins_with("EVOLUTION") else clear_ui)
 
 func ui_label(value, at, size = 19):
 	var label = Label.new()
@@ -731,3 +737,30 @@ func wrapped(value: String) -> String:
 			line = ""
 		line += word+" "
 	return output+line
+
+func show_evolution():
+	if evolutions.is_empty():
+		clear_ui()
+		return
+	var pair = evolutions[0]
+	panel("EVOLUTION / "+mon_name(pair[0])+" → "+mon_name(pair[1]))
+	for i in range(2):
+		var picture = TextureRect.new()
+		picture.texture = c.portraits[pair[i]]
+		picture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		picture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		picture.position = Vector2(240+i*500,295)
+		picture.size = Vector2(220,220)
+		ui.add_child(picture)
+		ui_label(mon_name(pair[i]),Vector2(260+i*500,555),26)
+		if i==1:
+			picture.modulate = Color(1,1,1,0)
+			var tween = picture.create_tween()
+			tween.tween_property(picture,"modulate",Color.WHITE,0.8)
+	ui_label("→",Vector2(608,390),48)
+	ui_label("Your partner evolved! Learned moves are kept.",Vector2(240,625),22)
+	ui_button("CONTINUE",Vector2(485,700),Vector2(300,50),next_evolution)
+
+func next_evolution():
+	evolutions.pop_front()
+	show_evolution()

@@ -4,6 +4,7 @@ const FIELD = Rect2(0, 0, 2400, 1200)
 const ARENA_ORIGIN = Vector2(40, 180)
 const ARENA_SCALE = 0.8
 var camera_offset = Vector2.ZERO
+var balance = preload("res://battle_balance.gd").new()
 var weather = preload("res://weather_rules.gd").new()
 var weather_choice: OptionButton
 var arena_choice: OptionButton
@@ -438,7 +439,7 @@ func execute_move(user: Dictionary, target: Dictionary, move: Dictionary, direct
 			if move.get("rest", false):
 				user.hp = user.data.hp
 				user.ailment = "sleep"
-				user.ailment_time = 3.0
+				user.ailment_time = 1.6
 			else: user.hp = minf(user.data.hp, user.hp + user.data.hp * weather.healing(move))
 			burst(user.pos, MINT, 25)
 	burst(user.pos, color, 9)
@@ -595,6 +596,7 @@ func finish_round():
 		fighter.charge_left = 0
 		fighter.pending_move = {}
 		if fighter.fainted:
+			fighter.stages.clear()
 			fighter["faint_frame"] = art.frame(fighter)
 			# Freeze a forward direction, including a vertically moving opponent.
 			fighter.face = (1.0 if fighter == player else -1.0) if fighter.face == 0 else fighter.face
@@ -612,8 +614,10 @@ func update_ai(dt: float):
 	if not has_projectile: preferred = 110
 	var walk = direction * (1.0 if distance > preferred + 35 else -0.7 if distance < preferred - 50 else 0.0)
 	walk += direction.orthogonal() * sin(clock_time * 1.3) * 0.7
+	var dodge_direction = balance.dodge(self,dt)
 	if enemy.dash_time <= 0 and not skills.riding(self, enemy):
-		move_fighter(enemy, walk.limit_length() * enemy.data.speed * 0.75 * Conditions.speed(enemy) * fields.movement(enemy) * dt)
+		var velocity = dodge_direction*1.35 if dodge_direction!=Vector2.ZERO else walk.limit_length()*0.75
+		move_fighter(enemy, velocity * enemy.data.speed * Conditions.speed(enemy) * fields.movement(enemy) * dt)
 	ai_timer -= dt * (0.4 if enemy.stun > 0 else 1.0)
 	if ai_timer <= 0:
 		ai_timer = rng.randf_range(0.55, 1.0)
@@ -655,13 +659,13 @@ func move_fighter(fighter: Dictionary, change: Vector2):
 		fighter["heading"] = change.normalized()
 		fighter["walk_time"] = 0.12
 	var next: Vector2 = fighter.pos + change
-	next.x = clampf(next.x, FIELD.position.x + 23, FIELD.end.x - 23)
-	next.y = clampf(next.y, FIELD.position.y + 23, FIELD.end.y - 23)
+	var court = balance.bounds(self)
+	next = next.clamp(court.position,court.end)
 	for rock in rocks:
 		if rock.hp > 0 and next.distance_to(rock.pos) < 46:
 			var away = (next - rock.pos).normalized()
 			next = rock.pos + away * 46
-	fighter.pos = next
+	fighter.pos = next.clamp(court.position,court.end)
 
 func damage_amount(attacker: Dictionary, target: Dictionary, base_damage: float, move: Dictionary) -> float:
 	var move_type: String = move.get("type", "Normal")
@@ -922,7 +926,7 @@ func draw_hud():
 		bar(Vector2(x + 82, 135), 310, ratio, MINT if ratio > 0.5 else GOLD if ratio > 0.2 else Color("f7756b"), 13)
 		label_at("%d" % f.hp, Vector2(x + 402, 147), 15)
 		bar(Vector2(x + 82, 153), 310, f.energy / 100.0, Color("6fb9f4"), 3)
-		label_at(Conditions.summary(f).left(55), Vector2(x + 82, 167), 9, GOLD)
+		label_at((Conditions.summary(f)+(" / SPRINT" if f.get("sprinting",false) else "")).left(55), Vector2(x + 82, 167), 9, GOLD)
 		var active = player_active if friendly else enemy_active
 		for i in range((player_states.size() if friendly else enemy_party_size()) if team_mode else 1):
 			var pos = Vector2(x + 410 + (i % 3) * 20, 102 + (i / 3) * 20)
@@ -1172,8 +1176,8 @@ func draw_moves():
 func move_description(move: Dictionary, target_types) -> String:
 	if weather.MOVES.has(move.id): return "WEATHER / 20s / WHOLE ARENA"
 	if move.id == "solarbeam" and weather.kind == "sun": return "INSTANT BEAM / SUN"
-	if move.get("rest", false): return "Full heal / SLEEP 3s"
-	if not move.get("stat_changes", {}).is_empty(): return move.effect.to_upper() + " / 8s"
+	if move.get("rest", false): return "Full heal / SLEEP 1.6s"
+	if not move.get("stat_changes", {}).is_empty(): return move.effect.to_upper() + " / UNTIL SWITCH"
 	if move.get("volatile_status", "") == "focusenergy": return "Critical boost / 6s"
 	match move.kind:
 		"heal": return "Recover %d%% HP" % roundi(weather.healing(move) * 100)
@@ -1432,6 +1436,7 @@ func pick(number: int, rival: int):
 	selecting = false
 
 func smoke_test():
+	balance.tests(self)
 	adventure.tests()
 	campaign.tests(self)
 	clashes.tests(self)
@@ -2111,7 +2116,7 @@ func condition_tests():
 	pick(25, 7)
 	var sleep_move = {"id": "hypnosis", "type": "Psychic", "status": "slp"}
 	apply_status(enemy, sleep_move)
-	check(enemy.ailment == "sleep" and enemy.ailment_time >= 1 and enemy.ailment_time <= 5, "Hypnosis applies real 1–5 second sleep")
+	check(enemy.ailment == "sleep" and enemy.ailment_time >= 0.8 and enemy.ailment_time <= 1.6, "Hypnosis applies 0.8–1.6 second sleep")
 	check(Conditions.speed(enemy) == 0 and not Conditions.attempt(self, enemy, {}), "Sleep stops movement and actions")
 	Conditions.tick(enemy, 5.1)
 	check(enemy.ailment == "" and Conditions.speed(enemy) > 0, "Sleep expires")
@@ -2168,7 +2173,7 @@ func condition_tests():
 	player.ailment = "poison"
 	player.ailment_time = 5
 	check(use_move(player, enemy, 3, Vector2.RIGHT, true), "Rest usable")
-	check(player.hp == player.data.hp and player.ailment == "sleep" and player.ailment_time == 3, "Rest cures major status and heals at cost of sleep")
+	check(player.hp == player.data.hp and player.ailment == "sleep" and player.ailment_time == 1.6, "Rest cures major status and heals at cost of sleep")
 	pick(25, 7)
 	team_mode = true
 	reset()
@@ -2532,6 +2537,12 @@ func capture_adventure():
 	await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png("res://captures/adventure-starters.png")
 	adventure.choose_starter(4)
+	adventure.evolutions = [[4,5]]
+	adventure.show_evolution()
+	await get_tree().create_timer(0.9).timeout
+	await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://captures/adventure-evolution.png")
+	adventure.next_evolution()
 	adventure.inventory.bag()
 	await get_tree().process_frame
 	await RenderingServer.frame_post_draw

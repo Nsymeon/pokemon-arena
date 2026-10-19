@@ -234,3 +234,12 @@ Learnset and TM compatibility sources: [pret/pokefirered level-up tables](https:
 Move eligibility is cartridge-based; execution remains the real-time arena adaptation with modern typings/categories, energy and cooldowns rather than PP. Specialized move effects are not all exact cartridge equivalents. Leech Seed now drains HP and heals the opposing active Pokemon over eight seconds, with Grass immunity. The Adventure level cap remains 20 for this chapter.
 
 The friendly team HUD now displays each Pokemon portrait inside its Poké Ball, with an active outline and crossed-out fainted icons, across all battle modes.
+
+
+## Battle balance and evolution presentation
+
+- Opponents react to visible incoming projectiles, beams, Surf waves and marked impact areas. Dodges sprint up to 0.5 seconds at 1.35x speed, cost 12 energy/second, and have a 1.8-second decision cooldown. No invulnerability; immobilization, charging and riding moves prevent sprint. Escape choices account for court edges and rock cover.
+- Movement, knockback, rushes and Surf riders share legal foot-position bounds. Field battles keep Pokemon inside the painted court with sprite clearance; cavern battles use the cavern inner edge. Trainers retain their side positions.
+- Attack, defense, special attack, special defense, speed, accuracy and evasion stages persist until withdrawal, fainting, a new battle or an explicit clearing move such as Haze. Defeating one enemy does not clear the survivor's stages.
+- Sleep lasts 0.8-1.6 seconds, Rest sleeps for 1.6 seconds, and paralysis lasts 3 seconds. Paralysis keeps its existing speed penalty and move-failure chance. Saved adventure status uses shorter durations on battle entry too.
+- Evolution shows old and evolved Pokemon side by side, fades in the evolved portrait and waits for Continue. Multiple evolutions display in order; learned moves are kept.

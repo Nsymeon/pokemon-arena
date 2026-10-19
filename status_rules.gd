@@ -8,7 +8,9 @@ static func init(f):
 	f["pending_move"] = {}
 	f["volatile"] = {}
 	f["stages"] = {}
-	f["stage_time"] = 0.0
+	f["dodge_left"] = 0.0
+	f["dodge_cooldown"] = 0.0
+	f["sprinting"] = false
 	f["toxic_tick"] = 0
 	f["trap_tick"] = 1.0
 	f["condition_note"] = ""
@@ -51,7 +53,7 @@ static func apply(c, f, payload, move) -> bool:
 		if immune: note(f, "IMMUNE"); return false
 		if f.ailment != "": note(f, "ALREADY AFFLICTED"); return false
 		f.ailment = status
-		f.ailment_time = float(c.rng.randi_range(1, 5)) if status in ["sleep", "freeze"] else 8.0
+		f.ailment_time = c.rng.randf_range(0.8,1.6) if status=="sleep" else 3.0 if status=="paralysis" else float(c.rng.randi_range(1,5)) if status=="freeze" else 8.0
 		f.dot_tick = 1.0
 		f.toxic_tick = 0
 		if status in ["sleep", "freeze"]:
@@ -78,7 +80,6 @@ static func apply(c, f, payload, move) -> bool:
 		changed = true
 	for stat in payload.get("boosts", {}):
 		f.stages[stat] = clampi(int(f.stages.get(stat, 0)) + int(payload.boosts[stat]), -6, 6)
-		f.stage_time = 8.0
 		note(f, stat.to_upper() + (" UP" if payload.boosts[stat] > 0 else " DOWN"))
 		changed = true
 	return changed
@@ -86,8 +87,6 @@ static func apply(c, f, payload, move) -> bool:
 static func tick(f, dt: float):
 	f.action_lock = maxf(0, f.action_lock - dt)
 	f.condition_note_time = maxf(0, f.condition_note_time - dt)
-	f.stage_time = maxf(0, f.stage_time - dt)
-	if f.stage_time <= 0: f.stages.clear()
 	# Count only time actually spent afflicted, including the last partial tick.
 	var active = minf(dt, f.ailment_time)
 	if f.ailment in ["burn", "poison", "toxic"] and active > 0:
