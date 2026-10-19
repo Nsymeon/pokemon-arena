@@ -6,7 +6,7 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
-set "POKEMON_GODOT=C:\Users\nsyme\Downloads\Godot_v4.3-stable_win64.exe\Godot_v4.3-stable_win64.exe"
+set "POKEMON_GODOT=%USERPROFILE%\Downloads\Godot_v4.3-stable_win64.exe\Godot_v4.3-stable_win64.exe"
 if not exist "%POKEMON_GODOT%" (
   echo Godot was not found at: %POKEMON_GODOT%
   pause
@@ -19,3 +19,4 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
+
