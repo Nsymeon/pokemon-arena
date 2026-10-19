@@ -10,6 +10,7 @@ var save_path = SAVE_PATH
 var save_error = ""
 var save_allowed = true
 var c
+var inventory = preload("res://adventure_inventory.gd").new()
 var exploring = false
 var in_battle = false
 var position_world = Vector2(800,780)
@@ -31,6 +32,7 @@ var font: Font
 
 func install(context):
 	c = context
+	inventory.install(self)
 	font = ThemeDB.fallback_font
 	z_index = 100
 	visible = false
@@ -60,7 +62,7 @@ func valid(value) -> bool:
 			if mon.level != int(mon.level) or mon.level < 1 or mon.level > 20 or mon.xp < 0 or mon.xp > 100000 or mon.hp < 0 or mon.hp > 1: return false
 	if value.starter != 0 and value.party.is_empty(): return false
 	if value.starter == 0 and (not value.party.is_empty() or not value.storage.is_empty() or value.map != 0): return false
-	return true
+	return inventory.valid(value)
 
 func load_save():
 	loaded = true
@@ -74,6 +76,7 @@ func load_save():
 			return
 		if valid(parser.data):
 			data = parser.data
+			inventory.migrate()
 			for key in ["map","starter","balls","money","healing_map"]: data[key] = int(data[key])
 			for mon in data.party + data.storage:
 				mon.id = int(mon.id)
@@ -120,6 +123,7 @@ func save() -> bool:
 
 func enter():
 	if not loaded and OS.get_cmdline_user_args().is_empty(): load_save()
+	inventory.migrate()
 	original = {"player_team":c.player_team.duplicate(),"enemy_team":c.enemy_team.duplicate(),"player_index":c.player_index,"enemy_index":c.enemy_index,"team_slot":c.team_slot,"team_mode":c.team_mode}
 	c.campaign.active = false
 	c.campaign.layer.visible = false
@@ -152,7 +156,7 @@ func objective() -> String:
 	if not data.rival: return "Challenge Blue near the north exit of Pallet Town."
 	if not data.bug_catcher: return "Travel north: Route 1, Viridian City, then the forest."
 	if not data.badge: return "Reach Pewter City and defeat Brock for the Boulder Badge."
-	return "Boulder Badge earned! Chapter 1 complete. Explore, train and catch Pokemon."
+	return "Boulder Badge earned! TM39 Rock Tomb is in your Bag. Chapter 1 complete. Explore, train and catch Pokemon."
 
 func buildings() -> Array:
 	match int(data.map):
@@ -232,6 +236,7 @@ func handle_input(event):
 	match event.keycode:
 		KEY_E: interact()
 		KEY_P: party_menu()
+		KEY_I: inventory.bag()
 		KEY_ESCAPE: menu()
 		KEY_F5:
 			var ok = save()
@@ -245,13 +250,7 @@ func interact():
 					if data.starter == 0: starter_menu()
 					else: dialog = "Oak: Weaken wild Pokemon, then press G in battle to throw a Poke Ball. Press P outside battle to manage your team."
 				"heal": heal()
-				"shop":
-					if data.money >= 100 and data.balls <= 994:
-						data.money -= 100
-						data.balls += 5
-						dialog = "Bought 5 Poke Balls for $100."
-						save()
-					else: dialog = "Five Poke Balls cost $100. Win battles to earn money."
+				"shop": inventory.shop()
 				"rival":
 					if data.starter == 0: dialog = "Blue: Ask Grandpa for a Pokemon first!"
 					else: begin_battle("rival",[7 if data.starter==4 else 4 if data.starter==1 else 1],[5])
@@ -265,7 +264,7 @@ func interact():
 	dialog = "Move closer to a person or wild Pokemon, then press E."
 
 func new_mon(id: int, level: int) -> Dictionary:
-	return {"id":id,"level":level,"xp":0,"hp":1.0}
+	return {"id":id,"level":level,"xp":0,"hp":1.0,"moves":inventory.starting(id,level),"pending":[],"ailment":""}
 
 func choose_starter(id: int):
 	if data.starter != 0 or id not in STARTERS: return
@@ -279,7 +278,9 @@ func mon_name(id: int) -> String:
 	return c.roster[c.Dex.find_id(c.roster,id)].name
 
 func heal():
-	for mon in data.party: mon.hp = 1.0
+	for mon in data.party:
+		mon.hp = 1.0
+		mon.ailment = ""
 	data.healing_map = int(data.map) if data.map in [0,2,4] else 0
 	dialog = "Your team is fully healed. See you again!"
 	save()
@@ -289,6 +290,7 @@ func battle_mon(id: int, level: int) -> Dictionary:
 	var scale = 0.55+level*0.06
 	mon.hp = roundf(mon.hp*scale)
 	for key in mon.base_stats: mon.base_stats[key] = roundf(mon.base_stats[key]*scale)
+	mon.moves = inventory.definitions(inventory.starting(id,level))
 	mon["level"] = level
 	return mon
 
@@ -321,9 +323,6 @@ func begin_battle(kind: String, ids: Array, levels: Array):
 	c.enemy_team = ids.map(func(id): return c.Dex.find_id(c.roster,int(id)))
 	c.enemy_party = []
 	for i in range(ids.size()): c.enemy_party.append(battle_mon(ids[i],levels[i]))
-	if kind == "brock":
-		var historical = c.league.party(c,8)
-		for i in range(c.enemy_party.size()): c.enemy_party[i].moves = historical[i].moves.duplicate(true)
 	c.opponent_identity = "wild" if kind=="wild" else "blue" if kind=="rival" else "brock" if kind=="brock" else "bug_catcher"
 	c.arena_choice.select(3 if kind=="brock" else 6 if data.map==3 else 2)
 	c.weather_choice.select(0)
@@ -331,13 +330,17 @@ func begin_battle(kind: String, ids: Array, levels: Array):
 	for i in range(data.party.size()):
 		var fighter = c.player_states[i]
 		fighter.data = battle_mon(int(data.party[i].id),int(data.party[i].level))
+		fighter.data.moves = inventory.definitions(data.party[i].moves)
 		fighter.hp = fighter.data.hp*float(data.party[i].hp)
+		fighter.ailment = data.party[i].ailment
+		fighter.ailment_time = 5.0 if fighter.ailment in ["sleep","freeze"] else 12.0
 	c.activate_player(first)
 	c.countdown = c.SEND_OUT_TIME
 
 func sync_health():
 	for i in range(mini(data.party.size(),c.player_states.size())):
 		data.party[i].hp = clampf(c.player_states[i].hp/c.player_states[i].data.hp,0,1)
+		data.party[i].ailment = c.player_states[i].ailment
 
 func reward(victory: bool) -> String:
 	if not victory: return ""
@@ -348,19 +351,23 @@ func reward(victory: bool) -> String:
 		mon.xp += amount
 		while mon.level < 20 and mon.xp >= 20+mon.level*6:
 			mon.xp -= 20+mon.level*6
+			var old_id = int(mon.id)
 			mon.level += 1
 			mon.hp = minf(1,mon.hp+0.2)
 			message += mon_name(mon.id)+" reached Lv."+str(mon.level)+"! "
 			if EVOLUTIONS.has(int(mon.id)) and mon.level >= EVOLUTIONS[int(mon.id)][0]:
 				mon.id = EVOLUTIONS[int(mon.id)][1]
 				message += "Evolved into "+mon_name(mon.id)+"! "
+			inventory.level_up(mon,old_id,int(mon.level))
+		if not mon.pending.is_empty(): message += "New moves waiting: P / MOVESETS. "
 	data.money = mini(999999,int(data.money)+(40 if encounter.kind=="wild" else 150))
 	match encounter.kind:
 		"rival": data.rival = true
 		"bug": data.bug_catcher = true
 		"brock":
+			inventory.award_brock()
 			data.badge = true
-			message = "Boulder Badge earned! Chapter 1 complete. " + message
+			message = "Boulder Badge earned! TM39 Rock Tomb is in your Bag. Chapter 1 complete. " + message
 	return message
 
 func return_world(caught: bool = false):
@@ -380,7 +387,9 @@ func return_world(caught: bool = false):
 		if not win:
 			data.map = int(data.healing_map)
 			position_world = Vector2(800,760)
-			for mon in data.party: mon.hp = 1.0
+			for mon in data.party:
+				mon.hp = 1.0
+				mon.ailment = ""
 			message = "Your team recovered at the last healing town. Try again!"
 		elif message == "": message = "Battle won! Earned money and experience."
 	in_battle = false
@@ -474,6 +483,8 @@ func party_menu():
 	for i in range(data.party.size()):
 		var mon = data.party[i]
 		ui_button("%s  Lv.%d  / HP %d%% / XP %d%s" % [mon_name(mon.id),mon.level,roundi(mon.hp*100),mon.xp," / LEAD" if i==0 else ""],Vector2(180,230+i*66),Vector2(680,54),set_lead.bind(i))
+	ui_button("MOVESETS",Vector2(890,310),Vector2(210,55),inventory.move_party)
+	ui_button("BAG / I",Vector2(890,390),Vector2(210,55),inventory.bag)
 	ui_button("STORAGE (%d)" % data.storage.size(),Vector2(890,230),Vector2(210,55),storage_menu)
 
 func set_lead(slot):
@@ -607,7 +618,7 @@ func _draw():
 		words("Lv.%d / HP %d%%" % [mon.level,roundi(mon.hp*100)],Vector2(x+52,847),14)
 		draw_rect(Rect2(x+10,862,180,5),Color("354c50"))
 		draw_rect(Rect2(x+10,862,180*mon.hp,5),Color("77e2b0"))
-	words("WASD / MOVE     SPACE / RUN     E / INTERACT     P / TEAM     F5 / SAVE     ESC / MENU",Vector2(30,925),17)
+	words("WASD / MOVE     SPACE / RUN     E / INTERACT     P / TEAM   I / BAG   F5 / SAVE     ESC / MENU",Vector2(30,925),17)
 	if save_error!="": words(save_error,Vector2(30,953),15,Color("ff9999"))
 	if dialog!="":
 		draw_rect(Rect2(80,630,1120,145),Color("10252f"))
@@ -699,6 +710,7 @@ func tests():
 	c.result_time = 10
 	return_world()
 	c.check(data.badge and c.campaign.data==saved_campaign,"Boulder Badge stays independent from League progress")
+	inventory.tests()
 	leave()
 	c.campaign.layer.visible = false
 	c.check(c.player_team.size()==6,"Leaving adventure restores arena team")
@@ -719,5 +731,3 @@ func wrapped(value: String) -> String:
 			line = ""
 		line += word+" "
 	return output+line
-
-

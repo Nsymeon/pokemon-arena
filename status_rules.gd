@@ -61,6 +61,12 @@ static func apply(c, f, payload, move) -> bool:
 		note(f, status.to_upper())
 		changed = true
 	var volatile_status: String = payload.get("volatileStatus", "")
+	if volatile_status == "leechseed":
+		if "Grass" in f.data.types: note(f,"IMMUNE"); return false
+		f.volatile["leechseed"] = 8.0
+		f["seed_tick"] = 1.0
+		note(f,"SEEDED")
+		changed = true
 	if volatile_status in ["confusion", "flinch", "partiallytrapped", "focusenergy"]:
 		f.volatile[volatile_status] = 0.4 if volatile_status == "flinch" else 5.0 if volatile_status == "partiallytrapped" else 6.0
 		if volatile_status == "partiallytrapped": f.trap_tick = 1.0

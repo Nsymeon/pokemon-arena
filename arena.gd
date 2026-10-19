@@ -197,7 +197,13 @@ func _unhandled_input(event):
 	if adventure.exploring:
 		adventure.handle_input(event)
 		return
+	if adventure.in_battle and adventure.modal != "":
+		if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE: adventure.clear_ui()
+		return
 	if adventure.in_battle and event is InputEventKey and event.pressed and not event.echo:
+		if event.physical_keycode == KEY_I:
+			if result == "" and countdown<=0 and not paused and not switch_menu and switch_time<0 and adventure.capture_time<=0 and player.get("action_lock",0)<=0 and player.get("charge_left",0)<=0: adventure.inventory.bag()
+			return
 		if event.physical_keycode == KEY_G:
 			adventure.throw_ball()
 			return
@@ -452,6 +458,9 @@ func projectile(origin: Vector2, direction: Vector2, speed: float, damage: float
 	shots.append({"pos": origin + direction * 27, "origin": origin, "age": 0.0, "vel": direction * speed, "damage": damage, "radius": radius, "friendly": friendly, "owner": player if friendly else enemy, "attack_snapshot": (player if friendly else enemy).duplicate(true), "color": color, "life": 2.6, "move": move.duplicate(true)})
 
 func _process(delta):
+	if adventure.in_battle and adventure.modal != "":
+		queue_redraw()
+		return
 	if adventure.exploring:
 		selection_controls.visible = false
 		adventure.tick(delta)
@@ -507,6 +516,14 @@ func update_battle(dt: float):
 		fighter.stun = maxf(0, fighter.stun - dt)
 		fighter.guard = maxf(0, fighter.guard - dt)
 		fighter.boost = maxf(0, fighter.boost - dt)
+		if fighter.volatile.get("leechseed",0)>0 and fighter.hp>0:
+			fighter["seed_tick"] = fighter.get("seed_tick",1.0)-minf(dt,fighter.volatile.leechseed)
+			if fighter.seed_tick<=0:
+				fighter.seed_tick += 1
+				var stolen = minf(fighter.hp,fighter.data.hp*0.025)
+				fighter.hp -= stolen
+				var recipient = enemy if fighter==player else player
+				if recipient.hp>0: recipient.hp = minf(recipient.data.hp,recipient.hp+stolen)
 		Conditions.tick(fighter, dt)
 		if fighter.hp > 0 and fighter.charge_left > 0:
 			fighter.charge_left = maxf(0, fighter.charge_left - dt)
@@ -884,7 +901,7 @@ func _draw():
 
 func draw_hud():
 	if adventure.in_battle:
-		label_at("ADVENTURE / G: POKE BALL (%d) / weaken wild Pokemon first" % adventure.data.balls, Vector2(40,945),18,GOLD)
+		label_at("ADVENTURE / G: BALL (%d) / I: BAG / weaken wild Pokemon first" % adventure.data.balls, Vector2(40,945),18,GOLD)
 	for friendly in [true, false]:
 		var f = player if friendly else enemy
 		var x = 40 if friendly else 755
@@ -909,9 +926,22 @@ func draw_hud():
 		var active = player_active if friendly else enemy_active
 		for i in range((player_states.size() if friendly else enemy_party_size()) if team_mode else 1):
 			var pos = Vector2(x + 410 + (i % 3) * 20, 102 + (i / 3) * 20)
-			if (friendly and ((team_mode and player_states[i].hp <= 0) or (not team_mode and f.hp <= 0))) or (not friendly and (i < active or (i == active and f.hp <= 0))): draw_circle(pos, 5, Color("3d4d56"))
-			else: draw_pokeball(pos, 5)
-			if i == active: draw_arc(pos, 8, 0, TAU, 16, accent, 1)
+			if friendly:
+				pos = Vector2(x + 410 + (i % 3)*26,101+(i/3)*28)
+				var member = player_states[i] if team_mode else player
+				var alive = member.hp>0
+				draw_pokeball(pos,11)
+				var face_texture = portraits.get(int(member.data.id))
+				if face_texture:
+					var face_size = face_texture.get_size()*18.0/maxf(face_texture.get_width(),face_texture.get_height())
+					draw_texture_rect(face_texture,Rect2(pos-face_size/2,face_size),false,Color.WHITE if alive else Color(0.3,0.3,0.3,0.8))
+				if not alive: draw_line(pos-Vector2(7,7),pos+Vector2(7,7),Color("ed8272"),2)
+				if i==active: draw_arc(pos,13,0,TAU,24,accent,2)
+			else:
+				if i<active or (i==active and f.hp<=0): draw_circle(pos,5,Color("3d4d56"))
+				else: draw_pokeball(pos,5)
+				if i==active: draw_arc(pos,8,0,TAU,16,accent,1)
+
 	label_at("VS", Vector2(621, 115), 25, GOLD)
 	label_at("%02d:%02d" % [int(round_time) / 60, int(round_time) % 60], Vector2(610, 147), 18)
 
@@ -2502,6 +2532,16 @@ func capture_adventure():
 	await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png("res://captures/adventure-starters.png")
 	adventure.choose_starter(4)
+	adventure.inventory.bag()
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://captures/adventure-bag.png")
+	adventure.inventory.moves_menu(0)
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://captures/adventure-moves.png")
+	adventure.clear_ui()
+	for id in [7,1,25,16,19]: adventure.data.party.append(adventure.new_mon(id,5))
 	adventure.begin_battle("wild",[16],[4])
 	countdown = 0
 	await get_tree().process_frame

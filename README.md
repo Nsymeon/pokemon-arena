@@ -214,8 +214,23 @@ Choose **ADVENTURE / PALLET TO PEWTER** on the League hub. This is a playable fi
 - Battles retain the existing arena controls. G throws a Poke Ball at a wild Pokemon; lower HP and status improve the chance. Trainer Pokemon cannot be caught. After the whole encounter ends, R or Enter returns to the map.
 - Captures fill your six-member party, then storage (100 slots). In P, choose your lead; storage adds to a free slot or swaps with your lead when the party is full.
 - HP persists between encounters. Mom and Pokemon Centers heal for free. Defeat returns you to your last healing town. The Viridian shop sells five balls for $100; victories award money.
-- Survivors gain shared XP, levels up to 20, and supported early-route evolutions. Level scaling and existing four-move sets are provisional arena rules, not FireRed's exact stat/learnset progression.
+- Survivors gain shared XP, levels up to 20, and supported early-route evolutions. Level scaling remains adapted for the arena. Kanto Adventure moves now follow FireRed level-up learnsets (see below).
 - Adventure autosaves on the world map and after encounters in `user://adventure-v1.json`, with a validated backup. Closing during combat resumes from the encounter checkpoint; mid-battle positions and attacks are not saved. League progress uses a separate file.
 - Buildings are currently exterior interaction points. Town graphics and some NPC sprite stand-ins are prototype art. Later routes, interiors, story chapters and the remaining badges are not yet part of Adventure.
 
 Development validation: `--smoke-test` covers adventure progression, one-member battles, capture, save reload/backup, defeat healing, evolution, Brock's second Pokemon, and isolation from League. `--capture-adventure` saves preview images using a separate test save.
+
+
+## Adventure moves, Bag and TMs
+
+Press **I** on the map or when ready to act in a battle to open the Bag. Battles pause while choosing an item; a successful use consumes one item and the shared one-second action gate. No-effect uses keep the item. Potions restore 20% HP, Super Potions 50%, and Revive restores a fainted party member to 50%. These percentages are arena adaptations. Antidote, Paralyze Heal, Awakening, Burn Heal, Ice Heal and Full Heal remove their matching conditions. Saved conditions carry into the next fight, using the existing timed arena status rules. Centers heal HP and clear status.
+
+**P → MOVESETS** shows current moves, new moves waiting for a slot, relearnable level-up moves, and future levels. New moves fill empty slots automatically; a full set never loses a move without your choice. Relearning eligible level-up moves is free. Evolved Pokemon retain learned moves. Starters and wild/trainer encounters use level-appropriate sets; e.g. Charmander starts with Scratch/Growl and learns Ember at 7 and Metal Claw at 13. Existing adventure saves gain appropriate moves and a starter medicine kit once, retaining progress, HP, money and captured Pokemon.
+
+**I → TM CASE** checks compatibility, lets you choose a move slot, and consumes a TM only on successful teaching. The data contains all 50 Gen III TMs; this chapter offers TM09, TM17 and TM40 in the Mart, and Brock awards TM39 once. Existing Boulder Badge saves receive that reward once on migration. Later TM locations are not implemented. The Mart also sells medicines and Poké Balls.
+
+Learnset and TM compatibility sources: [pret/pokefirered level-up tables](https://github.com/pret/pokefirered/blob/master/src/data/pokemon/level_up_learnsets.h) and [TM/HM tables](https://github.com/pret/pokefirered/blob/master/src/data/pokemon/tmhm_learnsets.h). Retained species absent from FireRed use the latest recorded level-up generation from the existing Showdown snapshot, with modern machine compatibility mapped to the same move names. `node tools/build-adventure-learnsets.mjs` regenerates the compact runtime catalog from checked-in sources.
+
+Move eligibility is cartridge-based; execution remains the real-time arena adaptation with modern typings/categories, energy and cooldowns rather than PP. Specialized move effects are not all exact cartridge equivalents. Leech Seed now drains HP and heals the opposing active Pokemon over eight seconds, with Grass immunity. The Adventure level cap remains 20 for this chapter.
+
+The friendly team HUD now displays each Pokemon portrait inside its Poké Ball, with an active outline and crossed-out fainted icons, across all battle modes.

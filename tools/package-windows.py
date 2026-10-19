@@ -16,7 +16,7 @@ out = root / 'dist'
 out.mkdir(exist_ok=True)
 archive = out / 'PokemonArena-Windows.zip'
 files = [*root.glob('*.gd'), root/'arena.tscn', root/'project.godot', root/'CREDITS.md']
-files += [root/'data/roster.json', root/'data/trainers.json']
+files += [root/'data/roster.json', root/'data/trainers.json', root/'data/adventure-learnsets.json']
 files += [f for f in (root/'assets').rglob('*') if f.is_file() and f.suffix in ('.png','.json','.md')]
 files += list((root/'licenses').glob('*.txt'))
 with ZipFile(archive, 'w', ZIP_DEFLATED, compresslevel=6) as z:
@@ -32,6 +32,8 @@ Extract the WHOLE ZIP into a folder, then open PLAY.bat.
 No separate Godot installation needed. Do not run inside the ZIP.
 WASD/arrows: move. Mouse: aim. Q/LMB, E, F, C: moves. Space: sprint.
 B / 1-6: switch. Tab: roster. Esc: pause.
+Adventure: E interact, P team/moves, I Bag, G capture in wild battles.
+Open ADVENTURE / PALLET TO PEWTER on the mode hub. Progress autosaves.
 Single-player against AI; online multiplayer is not implemented.
 For updates download the latest release ZIP and extract into a NEW folder.
 CHECK-FOR-UPDATES.bat opens the latest release page in your browser.
