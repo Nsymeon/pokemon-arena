@@ -1,0 +1,76 @@
+{
+  "source": "Pokemon Showdown trainer sprite archive",
+  "artwork": "Pokemon FireRed/LeafGreen (Generation III), Game Freak / Nintendo / Creatures",
+  "sources": [
+    {
+      "id": "red",
+      "url": "https://play.pokemonshowdown.com/sprites/trainers/red-gen3.png",
+      "sha256": "40ef1f8fe1f729419b9ec3360c22b9ee563abcbaa2623bebe973986f3fde5bbb"
+    },
+    {
+      "id": "blue",
+      "url": "https://play.pokemonshowdown.com/sprites/trainers/blue-gen3.png",
+      "sha256": "87c389a4d88aef0fc6f29232d7f9f48b4c842a48abab4b48313156204c32b9d1"
+    },
+    {
+      "id": "brock",
+      "url": "https://play.pokemonshowdown.com/sprites/trainers/brock-gen3.png",
+      "sha256": "904cd7eb65bd7aa6553849d3597d44449ca98753de21404288b9db406c79a992"
+    },
+    {
+      "id": "misty",
+      "url": "https://play.pokemonshowdown.com/sprites/trainers/misty-gen3.png",
+      "sha256": "73266fda8e1f1a49a0040db83c3e089f6ae0d3ecc45ca9df7b5bef0ea38552d0"
+    },
+    {
+      "id": "surge",
+      "url": "https://play.pokemonshowdown.com/sprites/trainers/ltsurge-gen3.png",
+      "sha256": "cc9b2e726e3b9dbe1615e516d3cf1fb20cf016deeb969275f112616e44f6402f"
+    },
+    {
+      "id": "erika",
+      "url": "https://play.pokemonshowdown.com/sprites/trainers/erika-gen3.png",
+      "sha256": "e3ef0cf8db7c5e95bab5719c0f0e1ece83a55be9303216396d21100479098788"
+    },
+    {
+      "id": "koga",
+      "url": "https://play.pokemonshowdown.com/sprites/trainers/koga-gen3.png",
+      "sha256": "669e732ebbc4658f8d29465e89ab551589eb5a0884d3e8d9d71768e58aedcc49"
+    },
+    {
+      "id": "sabrina",
+      "url": "https://play.pokemonshowdown.com/sprites/trainers/sabrina-gen3.png",
+      "sha256": "403908df15a14b790033a23d5e553ac2000f069756799ec16681d4df4e9460ce"
+    },
+    {
+      "id": "blaine",
+      "url": "https://play.pokemonshowdown.com/sprites/trainers/blaine-gen3.png",
+      "sha256": "846d60ebccccbab65cb067d1b2b2c811e961912582163ff218e51091bdfd8f81"
+    },
+    {
+      "id": "giovanni",
+      "url": "https://play.pokemonshowdown.com/sprites/trainers/giovanni-gen3.png",
+      "sha256": "d2532883cd337032ec42ab0e8945472bc7e5e2b8f25b95291e403ccef2fbb3fd"
+    },
+    {
+      "id": "lorelei",
+      "url": "https://play.pokemonshowdown.com/sprites/trainers/lorelei-gen3.png",
+      "sha256": "dda64e001305bc2f6b544dc5322ec973115fe836abcde01719ac93f381719f2c"
+    },
+    {
+      "id": "bruno",
+      "url": "https://play.pokemonshowdown.com/sprites/trainers/bruno-gen3.png",
+      "sha256": "da2eca434968f1deb42d02ce953c5dedf93252ca64bda5cb2f59fd58f8043e97"
+    },
+    {
+      "id": "agatha",
+      "url": "https://play.pokemonshowdown.com/sprites/trainers/agatha-gen3.png",
+      "sha256": "02d71ad52d126cd452a51c4a10720c3b6293327fa96fb4816bea0237f13039a4"
+    },
+    {
+      "id": "lance",
+      "url": "https://play.pokemonshowdown.com/sprites/trainers/lance-gen3.png",
+      "sha256": "d89c3b61eb44951dedad97a2351a407316cac3f4e8e423ee7bc61f33ac919e5c"
+    }
+  ]
+}

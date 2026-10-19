@@ -1,0 +1,28 @@
+{
+  "retrieved": "2026-10-18T22:32:31.203Z",
+  "data": {
+    "pokedex": {
+      "url": "https://play.pokemonshowdown.com/data/pokedex.json",
+      "sha256": "e74c82c6312f3ab24cb324b92dbaccabb95a1d67745e45ea9525e0cca60f6e7e"
+    },
+    "moves": {
+      "url": "https://play.pokemonshowdown.com/data/moves.json",
+      "sha256": "26909a321a7e4528d14a7dffd24173aa03a6845776cf41c39cc3d76f8e14616b"
+    },
+    "learnsets": {
+      "url": "https://play.pokemonshowdown.com/data/learnsets.json",
+      "sha256": "cedbe661968e2d69abe9f317e9a3f5d4f2dcf989e1f937cb0cdd72e7af29ab8f"
+    }
+  },
+  "sprites": "https://github.com/PokeAPI/sprites/tree/master/sprites/pokemon",
+  "total": 158,
+  "retained": [
+    152,
+    185,
+    197,
+    355,
+    361,
+    599,
+    821
+  ]
+}
