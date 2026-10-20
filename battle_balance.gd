@@ -4,7 +4,7 @@ func bounds(c) -> Rect2:
 	# Foot positions stay inside the painted court, with room for the sprite above.
 	return Rect2(110,135,2180,965) if c.fields.active==0 else Rect2(275,245,1850,750)
 
-func dodge(c,dt: float) -> Vector2:
+func dodge(c,dt: float, chance: float = 0.45) -> Vector2:
 	var f = c.enemy
 	f["dodge_cooldown"] = maxf(0,f.get("dodge_cooldown",0)-dt)
 	f["dodge_left"] = maxf(0,f.get("dodge_left",0)-dt)
@@ -38,6 +38,8 @@ func dodge(c,dt: float) -> Vector2:
 			else: continue
 			if escape!=Vector2.ZERO: break
 		if escape!=Vector2.ZERO:
+			f.dodge_cooldown = c.rng.randf_range(3.5,7.0)
+			if c.rng.randf()>chance: return Vector2.ZERO
 			var best = Vector2.ZERO
 			var score = 0.0
 			var court = bounds(c)
@@ -53,7 +55,6 @@ func dodge(c,dt: float) -> Vector2:
 			if score>40:
 				f.dodge_direction = best
 				f.dodge_left = 0.5
-				f.dodge_cooldown = 1.8
 	if f.dodge_left>0:
 		f.energy = maxf(0,f.energy-12*dt)
 		f.sprinting = true
@@ -71,20 +72,29 @@ func tests(c):
 	c.projectile(c.player.pos,Vector2.RIGHT,600,20,12,true,Color.WHITE)
 	c.shots.back().age = 0.2
 	var energy = c.enemy.energy
-	var evade = dodge(c,0.04)
+	var evade = dodge(c,0.04,1.0)
 	c.check(evade!=Vector2.ZERO and c.enemy.energy<energy and c.enemy.inv==0,"AI sprints away from visible projectile without invulnerability")
+	var decisions = 0
+	for attempt in range(100):
+		c.enemy.dodge_left = 0
+		c.enemy.dodge_cooldown = 0
+		if dodge(c,0.01)!=Vector2.ZERO: decisions += 1
+		c.check(c.enemy.dodge_cooldown>=3.5 and c.enemy.dodge_cooldown<=7.0,"Random dodge decision cooldown stays in range")
+		c.enemy.dodge_left = 0
+		c.check(dodge(c,0.01)==Vector2.ZERO,"AI cannot retry dodge during decision cooldown")
+	c.check(decisions>10 and decisions<80,"AI sometimes accepts incoming attacks rather than always dodging")
 	c.enemy.ailment = "sleep"
-	c.check(dodge(c,0.04)==Vector2.ZERO,"Sleep prevents AI sprint")
+	c.check(dodge(c,0.04,1.0)==Vector2.ZERO,"Sleep prevents AI sprint")
 	c.pick(25,7)
 	c.fields.active = 1
 	c.enemy.pos = bounds(c).position+Vector2(8,8)
 	c.shots.append({"skill":"lightning","friendly":true,"life":1.0,"age":0.2,"delay":0.75,"pos":c.enemy.pos,"radius":110.0})
-	var escape = dodge(c,0.04)
+	var escape = dodge(c,0.04,1.0)
 	c.check(escape!=Vector2.ZERO and escape.y>=0,"AI chooses inward escape near arena boundary")
 	c.enemy.dodge_left = 0
 	c.enemy.dodge_cooldown = 0
 	c.enemy.energy = 0
-	c.check(dodge(c,0.04)==Vector2.ZERO,"AI cannot sprint without energy")
+	c.check(dodge(c,0.04,1.0)==Vector2.ZERO,"AI cannot sprint without energy")
 	c.pick(25,7)
 	c.Conditions.apply(c,c.player,{"boosts":{"atk":2,"def":-1,"spa":1,"spe":-2}}, {})
 	c.Conditions.tick(c.player,60)
@@ -98,10 +108,18 @@ func tests(c):
 	c.complete_switch()
 	c.pick(25,7)
 	c.Conditions.apply(c,c.enemy,{"status":"slp"},{})
-	c.check(c.enemy.ailment_time>=0.8 and c.enemy.ailment_time<=1.6,"Sleep has short balanced duration")
-	c.Conditions.tick(c.enemy,1.61)
-	c.check(c.enemy.ailment=="","Sleep expires by 1.6 seconds")
+	c.check(c.enemy.ailment_time>=2.0 and c.enemy.ailment_time<=3.0,"Sleep has short balanced duration")
+	c.Conditions.tick(c.enemy,3.01)
+	c.check(c.enemy.ailment=="","Sleep expires by three seconds")
 	c.Conditions.apply(c,c.enemy,{"status":"par"},{})
 	c.check(c.enemy.ailment_time==3,"Paralysis lasts three seconds")
 	c.Conditions.tick(c.enemy,3.01)
 	c.check(c.enemy.ailment=="","Paralysis expires after three seconds")
+	c.click_destination = c.player.pos+Vector2(100,0)
+	c.click_move = true
+	c.check(c.movement_input()==Vector2.RIGHT,"Click target drives movement")
+	c.click_move = true
+	c.click_destination = c.player.pos
+	c.check(c.movement_input()==Vector2.ZERO and not c.click_move,"Click movement stops on arrival")
+	c.check(c.capture_ball_position(0).is_equal_approx(c.trainer_hand(true)),"Capture ball starts in trainer hand")
+	c.check(c.capture_ball_position(0.5).is_equal_approx(c.enemy.pos),"Capture ball reaches wild opponent")

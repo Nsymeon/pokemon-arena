@@ -15,7 +15,7 @@ Double-click `play.bat`, or import `project.godot` in Godot and press F5. All as
 - YOU / CPU tabs or Tab switch the selected side. Enter / Start Battle begins.
 - Default mode is **6 vs 6**. Click a team slot at the bottom, or press **1–6**, then choose its Pokémon. Both teams are editable. **T** switches between teams and the original 1 vs 1 duel. Click outside search before using keyboard shortcuts. Duplicates are allowed.
 - Scroll, PgUp/PgDn or Prev/Next browse nine pages. Arrow keys move the selected Pokémon through the filtered list when the search field is not focused.
-- WASD / arrows: movement. Mouse: aim. Q / left mouse, E, F and C use the displayed moves. Hold **Space** while moving for **35% faster running**. Sprint follows your movement keys, uses 12 energy/second instead of regenerating energy, and grants no invulnerability. Space while standing still does not move you. Dash-type Pokémon attacks retain their own movement.
+- WASD / arrows or right-click a destination: movement. Keyboard movement cancels the clicked destination. Mouse: aim. Q / left mouse, E, F and C use the displayed moves. Hold **Space** while moving for **35% faster running**. Sprint follows your keyboard or clicked destination, uses 12 energy/second instead of regenerating energy, and grants no invulnerability. Space while standing still does not move you. Dash-type Pokémon attacks retain their own movement.
 - During team battles, **B** opens a paused team menu; click a healthy reserve or press **1–6**. Number keys also switch directly during combat. **B / Esc** closes the menu. The active and fainted Pokémon cannot be selected. Switching recalls the current Pokémon and sends out the chosen member, preserving HP, energy, status and move cooldowns. A four-second combat-time cooldown separates switches; reserves do not regenerate while benched. The next healthy member enters automatically after a knockout, including earlier slots you switched away from.
 - Tab returns to the roster. R restarts the current matchup. Esc pauses.
 
@@ -57,7 +57,7 @@ Real-time adaptations:
 
 - **Every action has a shared 1-second gate**, for player and CPU, so pressing a different attack key cannot bypass the turn interval. Existing per-move cooldowns and energy costs also apply. Failed paralysis/confusion attempts consume the shared interval. Space sprint does not consume an action.
 - **Charge moves** (Solar Beam, Dig, Bounce in the current roster) hold position for 1 second before executing, then lock all actions for 2 seconds. Sleep, freeze or flinch cancels charging; switching cannot bypass it. Recharge-flagged moves execute immediately and lock actions for 2 seconds. All timing pauses during menus, send-outs and recalls. Charge/recharge metadata comes from source flags; no recharge-flagged move is currently in the curated roster.
-- Healing restores 25% maximum HP. **Rest** heals fully, cures the previous major status and puts the user to sleep for 3 seconds. Protect/Reflect/Light Screen retain the arena's 50% guard for 3 seconds.
+- Healing restores 25% maximum HP. **Rest** heals fully, cures the previous major status and puts the user to sleep for 2.5 seconds. Protect/Reflect/Light Screen retain the arena's 50% guard for 3 seconds.
 - Stat-changing moves and hit effects now change the actual Attack, Defense, Sp. Attack, Sp. Defense, Speed or accuracy stages (−6 to +6, lasting 8 seconds), rather than a generic damage buff or slow. Accuracy reduction can make a move miss. Defense buffs and screens remain arena adaptations, not full cartridge implementations.
 - **Sleep:** random 1–5 seconds; no movement, sprint or attacks. **Freeze:** random 1–5 seconds with the same restrictions; damaging Fire attacks thaw it, and defrost-flagged moves can thaw their user. **Paralysis:** 8 seconds, half speed and a 25% chance to fail each attempted action.
 - **Burn:** 8 seconds, 2% max HP per second and half physical damage. **Poison:** 8 seconds, 3% max HP per second. **Toxic:** 8 seconds, increasing damage of 1%, 2%, … 8% max HP per tick. Damage ticks bypass ordinary hit invulnerability. Only one major status can be active at once.
@@ -210,7 +210,7 @@ Choose **Play → Adventure** on the title screen. This is a playable first chap
 
 - Speak to Oak outside the lab to choose Bulbasaur, Charmander or Squirtle. Battle Blue on the north path to unlock Route 1.
 - Travel north through Route 1, Viridian City and Viridian Forest. Beat the Bug Catcher to reach Pewter City and challenge Brock's Geodude and Onix for the Boulder Badge.
-- WASD/arrows move; hold Space to run. E interacts with nearby people or visible wild Pokemon. E also closes dialogue. P opens your party/storage, F5 saves, Esc opens the adventure menu.
+- WASD/arrows or right-click move; hold Space to run. E interacts with nearby people or visible wild Pokemon. E also closes dialogue. P opens your party/storage, F5 saves, Esc opens the adventure menu.
 - Battles retain the existing arena controls. G throws a Poke Ball at a wild Pokemon; lower HP and status improve the chance. Trainer Pokemon cannot be caught. After the whole encounter ends, R or Enter returns to the map.
 - Captures fill your six-member party, then storage (100 slots). In P, choose your lead; storage adds to a free slot or swaps with your lead when the party is full.
 - HP persists between encounters. Mom and Pokemon Centers heal for free. Defeat returns you to your last healing town. The Viridian shop sells five balls for $100; victories award money.
@@ -238,10 +238,10 @@ The friendly team HUD now displays each Pokemon portrait inside its Poké Ball, 
 
 ## Battle balance and evolution presentation
 
-- Opponents react to visible incoming projectiles, beams, Surf waves and marked impact areas. Dodges sprint up to 0.5 seconds at 1.35x speed, cost 12 energy/second, and have a 1.8-second decision cooldown. No invulnerability; immobilization, charging and riding moves prevent sprint. Escape choices account for court edges and rock cover.
+- Opponents react to visible incoming projectiles, beams, Surf waves and marked impact areas. Dodges sprint up to 0.5 seconds at 1.35x speed, cost 12 energy/second, and have a random 3.5-7-second decision cooldown after each threat decision, with a 45% chance to attempt an escape. No invulnerability; immobilization, charging and riding moves prevent sprint. Escape choices account for court edges and rock cover.
 - Movement, knockback, rushes and Surf riders share legal foot-position bounds. Field battles keep Pokemon inside the painted court with sprite clearance; cavern battles use the cavern inner edge. Trainers retain their side positions.
 - Attack, defense, special attack, special defense, speed, accuracy and evasion stages persist until withdrawal, fainting, a new battle or an explicit clearing move such as Haze. Defeating one enemy does not clear the survivor's stages.
-- Sleep lasts 0.8-1.6 seconds, Rest sleeps for 1.6 seconds, and paralysis lasts 3 seconds. Paralysis keeps its existing speed penalty and move-failure chance. Saved adventure status uses shorter durations on battle entry too.
+- Sleep lasts 2-3 seconds, Rest sleeps for 2.5 seconds, and paralysis lasts 3 seconds. Paralysis keeps its existing speed penalty and move-failure chance. Saved adventure status uses shorter durations on battle entry too.
 - Evolution shows old and evolved Pokemon side by side, fades in the evolved portrait and waits for Continue. Multiple evolutions display in order; learned moves are kept.
 
 
@@ -258,3 +258,5 @@ XP and party health save at these KO checkpoints. Reloading during combat restar
 ## Reset Adventure
 
 On the Adventure world map, open **Esc → RESET ADVENTURE**, then choose **YES / START A NEW ADVENTURE**. Cancel or close the confirmation to keep the current run. Reset clears the adventure party/storage, starter, levels/moves, badges/story flags, money, items and TMs, then starts at Pallet Town with the initial supplies. Gym Leaders progression and Free Battles are unaffected. The reset is saved immediately and refreshes the automatic recovery backup. Before replacing the save, a timestamped `.before-reset-*` recovery copy is preserved separately; it is not loaded automatically. Reset is unavailable during combat.
+
+Quick Attack tracks a moving opponent within its original 320-unit reach and deals one contact hit along its zigzag path. Capturing a wild Pokemon throws the ball from the trainer hand to the opponent.

@@ -128,6 +128,7 @@ func save() -> bool:
 	return true
 
 func enter():
+	c.click_move = false
 	if not loaded and OS.get_cmdline_user_args().is_empty(): load_save()
 	inventory.migrate()
 	original = {"player_team":c.player_team.duplicate(),"enemy_team":c.enemy_team.duplicate(),"player_index":c.player_index,"enemy_index":c.enemy_index,"team_slot":c.team_slot,"team_mode":c.team_mode}
@@ -221,6 +222,7 @@ func tick(dt):
 	queue_redraw()
 
 func travel(step: int):
+	c.click_move = false
 	var destination = int(data.map)+step
 	if destination < 0 or destination >= MAPS.size():
 		dialog = "The next chapter is not open yet." if step>0 else "The sea lies beyond Pallet Town."
@@ -244,6 +246,13 @@ func travel(step: int):
 	save()
 
 func handle_input(event):
+	if event is InputEventMouseButton and event.pressed and event.button_index==MOUSE_BUTTON_RIGHT:
+		if modal=="" and dialog=="" and Rect2(0,90,1280,700).has_point(event.position):
+			var target = event.position-Vector2(0,90)+camera
+			if not blocked(target):
+				c.click_destination = target
+				c.click_move = true
+		return
 	if not event is InputEventKey or not event.pressed or event.echo: return
 	if modal != "":
 		if event.keycode == KEY_ESCAPE:
@@ -358,7 +367,7 @@ func begin_battle(kind: String, ids: Array, levels: Array):
 		fighter.data.moves = inventory.definitions(data.party[i].moves)
 		fighter.hp = fighter.data.hp*float(data.party[i].hp)
 		fighter.ailment = data.party[i].ailment
-		fighter.ailment_time = 1.2 if fighter.ailment=="sleep" else 3.0 if fighter.ailment=="paralysis" else 5.0 if fighter.ailment=="freeze" else 8.0
+		fighter.ailment_time = 2.5 if fighter.ailment=="sleep" else 3.0 if fighter.ailment=="paralysis" else 5.0 if fighter.ailment=="freeze" else 8.0
 	c.activate_player(first)
 	c.countdown = c.SEND_OUT_TIME
 
@@ -634,6 +643,7 @@ func _draw():
 		words(npc[1],npc[0]+Vector2(-70,25),17)
 		if position_world.distance_to(npc[0])<100: words("E / TALK",npc[0]+Vector2(-35,-78),18,Color("ffe499"))
 	person(position_world,"red",facing,absf(sin(walk_age*12))*4)
+	if c.click_move: draw_arc(c.click_destination,13,0,TAU,24,Color("ffdf92"),2)
 	words("NORTH / "+(MAPS[data.map+1] if data.map<MAPS.size()-1 else "NEXT CHAPTER"),Vector2(630,65),17)
 	draw_set_transform(Vector2.ZERO)
 	draw_rect(Rect2(0,0,1280,90),Color("112b32"))
@@ -652,7 +662,7 @@ func _draw():
 		draw_rect(Rect2(x+10,875,180,4),Color("354c50"))
 		draw_rect(Rect2(x+10,875,180*xp_ratio(mon),4),Color("79aaff"))
 		words("EXP %d / %d" % [mon.xp,xp_needed(mon)] if mon.level<30 else "MAX LEVEL",Vector2(x+10,898),12,Color("79aaff"))
-	words("WASD / MOVE     SPACE / RUN     E / INTERACT     P / TEAM   I / BAG   F5 / SAVE     ESC / MENU",Vector2(30,925),17)
+	words("WASD / RMB / MOVE     SPACE / RUN     E / INTERACT     P / TEAM   I / BAG   F5 / SAVE     ESC / MENU",Vector2(30,925),17)
 	if save_error!="": words(save_error,Vector2(30,953),15,Color("ff9999"))
 	if dialog!="":
 		draw_rect(Rect2(80,630,1120,145),Color("10252f"))
@@ -968,6 +978,7 @@ func reset_adventure() -> bool:
 	capture_time = 0
 	capture_success = false
 	wild_cycle = 0
+	c.click_move = false
 	autosave = 0
 	walk_age = 0
 	camera = (position_world-Vector2(640,350)).clamp(Vector2.ZERO,Vector2(320,300))

@@ -23,14 +23,18 @@ func tick_rush(c, s, dt):
 	s.age += dt
 	s.life -= dt
 	var target = c.enemy if s.friendly else c.player
+	# Quick Attack follows its target within the original reach instead of hitting an empty launch position.
+	if s.move.id=="quickattack" and before<s.duration and target.hp>0:
+		s.end = s.origin+(target.pos-s.origin).limit_length(320)
+		s.dir = (s.end-s.origin).normalized()
 	# Subdivide along the zigzag so low frame rates cannot skip collisions.
 	var steps = maxi(1, int(ceil(minf(dt, s.duration) / 0.008)))
 	for i in range(steps):
 		var old: Vector2 = s.pos
 		s.pos = rush_position(s, lerpf(before, s.age, (i + 1.0) / steps) / s.duration)
-		if before < s.duration and not s.hit_done and target.pos.distance_to(Geometry2D.get_closest_point_to_segment(target.pos, old, s.pos)) <= 32:
-			c.hit(target, s.move.damage, s.dir, s.friendly, s.move, s.owner, s.attack_snapshot)
-			s.hit_done = true
+		if before < s.duration+0.12 and not s.hit_done and target.pos.distance_to(Geometry2D.get_closest_point_to_segment(target.pos, old, s.pos)) <= 40:
+			var dealt = c.hit(target, s.move.damage, s.dir, s.friendly, s.move, s.owner, s.attack_snapshot)
+			s.hit_done = dealt>0 or c.Dex.effectiveness(s.move.type,target.data.types)==0
 	if s.owner.hp > 0 and c.result == "": c.move_fighter(s.owner, s.pos - s.owner.pos)
 	s.trail.append(s.pos)
 	if s.trail.size() > 24: s.trail.pop_front()
@@ -343,6 +347,21 @@ func minimap(c):
 		c.draw_circle(rect.position + fighter.pos * ratio, 4, c.MINT if friendly else Color("ff7a72"))
 
 func tests(c):
+	c.pick(25,9)
+	c.rocks.clear()
+	c.player.pos = Vector2(500,600)
+	c.enemy.pos = Vector2(750,600)
+	launch(c,c.player,c.enemy,{"id":"quickattack","type":"Normal","category":"Physical","damage":30.0},Vector2.RIGHT,true)
+	var tracking_rush = c.shots.back()
+	var tracking_health: float = c.enemy.hp
+	for frame in range(30):
+		c.enemy.pos.y += 2
+		tick(c,tracking_rush,0.016)
+	c.check(c.enemy.hp<tracking_health,"Quick Attack damages a moving target within reach")
+	tracking_health = c.enemy.hp
+	c.enemy.inv = 0
+	tick(c,tracking_rush,0.05)
+	c.check(c.enemy.hp==tracking_health,"Tracking Quick Attack cannot damage twice")
 	for id in RUSHES:
 		c.pick(25,9)
 		c.rocks.clear()

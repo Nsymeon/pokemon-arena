@@ -53,7 +53,7 @@ static func apply(c, f, payload, move) -> bool:
 		if immune: note(f, "IMMUNE"); return false
 		if f.ailment != "": note(f, "ALREADY AFFLICTED"); return false
 		f.ailment = status
-		f.ailment_time = c.rng.randf_range(0.8,1.6) if status=="sleep" else 3.0 if status=="paralysis" else float(c.rng.randi_range(1,5)) if status=="freeze" else 8.0
+		f.ailment_time = c.rng.randf_range(2.0,3.0) if status=="sleep" else 3.0 if status=="paralysis" else float(c.rng.randi_range(1,5)) if status=="freeze" else 8.0
 		f.dot_tick = 1.0
 		f.toxic_tick = 0
 		if status in ["sleep", "freeze"]:

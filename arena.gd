@@ -63,6 +63,8 @@ var clock_time = 0.0
 var round_time = 0.0
 var countdown = SEND_OUT_TIME
 var ai_timer = 1.0
+var click_move = false
+var click_destination = Vector2.ZERO
 var sprinting = false
 var player_states: Array = []
 var switch_menu = false
@@ -136,6 +138,7 @@ func _ready():
 		call_deferred("capture_persistent")
 
 func reset():
+	click_move = false
 	clash_effects.clear()
 	weather.reset(weather_choice.selected if weather_choice != null else 0)
 	player_active = 0
@@ -255,12 +258,29 @@ func _unhandled_input(event):
 				switch_menu = true
 			if event.keycode >= KEY_1 and event.keycode <= KEY_6:
 				request_switch(event.keycode - KEY_1)
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
+		if not paused and result == "" and countdown<=0 and Rect2(40,180,1200,600).has_point(event.position):
+			var court = balance.bounds(self)
+			click_destination = screen_to_arena(event.position).clamp(court.position,court.end)
+			click_move = true
+		return
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		if not paused and result == "" and countdown <= 0:
 			attack(0)
 
 func movement_input() -> Vector2:
-	return Vector2(float(Input.is_physical_key_pressed(KEY_D) or Input.is_physical_key_pressed(KEY_RIGHT)) - float(Input.is_physical_key_pressed(KEY_A) or Input.is_physical_key_pressed(KEY_LEFT)), float(Input.is_physical_key_pressed(KEY_S) or Input.is_physical_key_pressed(KEY_DOWN)) - float(Input.is_physical_key_pressed(KEY_W) or Input.is_physical_key_pressed(KEY_UP))).normalized()
+	var keyboard = Vector2(float(Input.is_physical_key_pressed(KEY_D) or Input.is_physical_key_pressed(KEY_RIGHT)) - float(Input.is_physical_key_pressed(KEY_A) or Input.is_physical_key_pressed(KEY_LEFT)), float(Input.is_physical_key_pressed(KEY_S) or Input.is_physical_key_pressed(KEY_DOWN)) - float(Input.is_physical_key_pressed(KEY_W) or Input.is_physical_key_pressed(KEY_UP))).normalized()
+
+	if keyboard!=Vector2.ZERO:
+		click_move = false
+		return keyboard
+	if click_move:
+		var location: Vector2 = adventure.position_world if adventure.exploring else player.pos
+		if location.distance_to(click_destination)<=20:
+			click_move = false
+			return Vector2.ZERO
+		return (click_destination-location).normalized()
+	return Vector2.ZERO
 
 func aim() -> Vector2:
 	return (screen_to_arena(get_global_mouse_position()) - player.pos).normalized()
@@ -444,7 +464,7 @@ func execute_move(user: Dictionary, target: Dictionary, move: Dictionary, direct
 			if move.get("rest", false):
 				user.hp = user.data.hp
 				user.ailment = "sleep"
-				user.ailment_time = 1.6
+				user.ailment_time = 2.5
 			else: user.hp = minf(user.data.hp, user.hp + user.data.hp * weather.healing(move))
 			burst(user.pos, MINT, 25)
 	burst(user.pos, color, 9)
@@ -870,9 +890,10 @@ func _draw():
 			draw_rect(Rect2(p.pos, Vector2.ONE * p.size), Color(p.color, p.life / p.max_life))
 	if adventure.in_battle and adventure.capture_time>0:
 		var progress = 1.0-adventure.capture_time/1.2
-		var ball_pos = player.pos.lerp(enemy.pos,minf(1,progress*2)) + Vector2(0,-sin(minf(1,progress*2)*PI)*140)
+		var ball_pos = capture_ball_position(progress)
 		draw_pokeball(ball_pos+Vector2(sin(progress*50)*5,0),14)
 		draw_arc(enemy.pos,50+sin(progress*20)*8,0,TAU,40,Color(GOLD,0.7),3)
+	if click_move: draw_arc(click_destination,15,0,TAU,24,MINT,2)
 	draw_ball_sequence(player, true)
 	draw_ball_sequence(enemy, false)
 	if result == "" and countdown <= 0:
@@ -1109,6 +1130,10 @@ func throw_position(friendly: bool, destination: Vector2, time: float) -> Vector
 	var progress = clampf((time - 0.25) / (BALL_RELEASE_TIME - 0.25), 0, 1)
 	return trainer_hand(friendly).lerp(destination, progress) + Vector2(0, -sin(progress * PI) * 100)
 
+func capture_ball_position(progress: float) -> Vector2:
+	var flight = clampf(progress*2,0,1)
+	return trainer_hand(true).lerp(enemy.pos,flight)+Vector2(0,-sin(flight*PI)*140)
+
 func draw_trainer(friendly: bool):
 	if not friendly and adventure.in_battle and adventure.encounter.kind == "wild": return
 	art.trainer(self, friendly)
@@ -1179,13 +1204,13 @@ func draw_moves():
 	panel(Rect2(1028, 678, 212, 78), Color("142831"))
 	label_at("SPACE / SPRINT", Vector2(1042, 704), 16, MINT)
 	label_at("HOLD / +35% SPEED", Vector2(1042, 731), 12, WHITE)
-	label_at("WASD / ARROWS  Move     MOUSE  Aim     Q E F C  Moves     SPACE  Sprint", Vector2(40, 783), 12, Color("91a6a7"))
+	label_at("WASD / RMB  Move     MOUSE  Aim     Q E F C  Moves     SPACE  Sprint", Vector2(40, 783), 12, Color("91a6a7"))
 	label_at("B / 1–6: Switch   TAB: Roster   ESC: Pause", Vector2(945, 783), 11, Color("91a6a7"))
 
 func move_description(move: Dictionary, target_types) -> String:
 	if weather.MOVES.has(move.id): return "WEATHER / 20s / WHOLE ARENA"
 	if move.id == "solarbeam" and weather.kind == "sun": return "INSTANT BEAM / SUN"
-	if move.get("rest", false): return "Full heal / SLEEP 1.6s"
+	if move.get("rest", false): return "Full heal / SLEEP 2.5s"
 	if not move.get("stat_changes", {}).is_empty(): return move.effect.to_upper() + " / UNTIL SWITCH"
 	if move.get("volatile_status", "") == "focusenergy": return "Critical boost / 6s"
 	match move.kind:
@@ -1908,6 +1933,7 @@ func next_player_reserve() -> int:
 	return -1
 
 func activate_player(slot: int):
+	click_move = false
 	player_active = slot
 	player = player_states[slot]
 	player.pos = FIELD.size * Vector2(0.34, 0.5)
@@ -2128,7 +2154,7 @@ func condition_tests():
 	pick(25, 7)
 	var sleep_move = {"id": "hypnosis", "type": "Psychic", "status": "slp"}
 	apply_status(enemy, sleep_move)
-	check(enemy.ailment == "sleep" and enemy.ailment_time >= 0.8 and enemy.ailment_time <= 1.6, "Hypnosis applies 0.8–1.6 second sleep")
+	check(enemy.ailment == "sleep" and enemy.ailment_time >= 2.0 and enemy.ailment_time <= 3.0, "Hypnosis applies 2–3 second sleep")
 	check(Conditions.speed(enemy) == 0 and not Conditions.attempt(self, enemy, {}), "Sleep stops movement and actions")
 	Conditions.tick(enemy, 5.1)
 	check(enemy.ailment == "" and Conditions.speed(enemy) > 0, "Sleep expires")
@@ -2185,7 +2211,7 @@ func condition_tests():
 	player.ailment = "poison"
 	player.ailment_time = 5
 	check(use_move(player, enemy, 3, Vector2.RIGHT, true), "Rest usable")
-	check(player.hp == player.data.hp and player.ailment == "sleep" and player.ailment_time == 1.6, "Rest cures major status and heals at cost of sleep")
+	check(player.hp == player.data.hp and player.ailment == "sleep" and player.ailment_time == 2.5, "Rest cures major status and heals at cost of sleep")
 	pick(25, 7)
 	team_mode = true
 	reset()
