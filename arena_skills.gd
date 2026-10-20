@@ -34,7 +34,7 @@ func tick_rush(c, s, dt):
 		s.pos = rush_position(s, lerpf(before, s.age, (i + 1.0) / steps) / s.duration)
 		if before < s.duration+0.12 and not s.hit_done and target.pos.distance_to(Geometry2D.get_closest_point_to_segment(target.pos, old, s.pos)) <= 40:
 			var dealt = c.hit(target, s.move.damage, s.dir, s.friendly, s.move, s.owner, s.attack_snapshot)
-			s.hit_done = dealt>0 or c.Dex.effectiveness(s.move.type,target.data.types)==0
+			s.hit_done = dealt>0 or c.Dex.effectiveness(s.move.type,c.Conditions.types(target))==0
 	if s.owner.hp > 0 and c.result == "": c.move_fighter(s.owner, s.pos - s.owner.pos)
 	s.trail.append(s.pos)
 	if s.trail.size() > 24: s.trail.pop_front()

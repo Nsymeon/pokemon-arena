@@ -110,6 +110,8 @@ func _ready():
 		call_deferred("capture_clashes")
 	elif "--capture-progress" in OS.get_cmdline_user_args():
 		call_deferred("capture_progress")
+	if "--capture-kanto" in OS.get_cmdline_user_args():
+		call_deferred("capture_kanto")
 	elif "--capture-adventure" in OS.get_cmdline_user_args():
 		call_deferred("capture_adventure")
 	elif "--capture-campaign" in OS.get_cmdline_user_args():
@@ -461,6 +463,9 @@ func execute_move(user: Dictionary, target: Dictionary, move: Dictionary, direct
 			else: Conditions.apply(self, user, status_payload(move), move)
 			rings.append({"pos": user.pos, "radius": 25.0, "max": 55.0, "life": 0.6, "color": color})
 		"heal":
+			if move.id=="roost":
+				user.volatile["roost"] = 1.5
+				Conditions.note(user,"ROOST / GROUNDED 1.5s")
 			if move.get("rest", false):
 				user.hp = user.data.hp
 				user.ailment = "sleep"
@@ -657,7 +662,7 @@ func update_ai(dt: float):
 			var move: Dictionary = enemy.data.moves[i]
 			if enemy_cooldowns[i] > 0 or enemy.energy < move.cost:
 				continue
-			var score = Dex.effectiveness(move.type, player.data.types) * (1.5 if move.type in enemy.data.types else 1.0)
+			var score = Dex.effectiveness(move.type, Conditions.types(player)) * (1.5 if move.type in Conditions.types(enemy) else 1.0)
 			if move.kind == "dash" and distance > (420 if move.id == "extremespeed" else 320 if move.id in skills.RUSHES else 200): continue
 			if move.kind == "pulse" and distance > (800 if move.id in ["surf", "rockslide"] else 310 if move.id == "earthquake" else 175): continue
 			if move.kind == "transform": score = 10.0
@@ -698,7 +703,7 @@ func move_fighter(fighter: Dictionary, change: Vector2):
 func damage_amount(attacker: Dictionary, target: Dictionary, base_damage: float, move: Dictionary) -> float:
 	var move_type: String = move.get("type", "Normal")
 	if move.get("fixed_damage", false):
-		return base_damage * (0.0 if Dex.effectiveness(move_type,target.data.types) == 0 else 1.0) * (0.5 if target.guard > 0 else 1.0)
+		return base_damage * (0.0 if Dex.effectiveness(move_type,Conditions.types(target)) == 0 else 1.0) * (0.5 if target.guard > 0 else 1.0)
 	var physical = move.get("category", "Physical") == "Physical"
 	var attack_stat: float = attacker.data.base_stats.atk if physical else attacker.data.base_stats.spa
 	var defense_stat: float = target.data.base_stats.def if physical else target.data.base_stats.spd
@@ -706,8 +711,8 @@ func damage_amount(attacker: Dictionary, target: Dictionary, base_damage: float,
 	defense_stat *= Conditions.stage(target, "def" if physical else "spd")
 	defense_stat *= weather.defense(target, physical)
 	var ratio = clampf((50.0 + attack_stat) / (50.0 + defense_stat), 0.35, 2.5)
-	var stab = 1.5 if move_type in attacker.data.types else 1.0
-	var multiplier = Dex.effectiveness(move_type, target.data.types)
+	var stab = 1.5 if move_type in Conditions.types(attacker) else 1.0
+	var multiplier = Dex.effectiveness(move_type, Conditions.types(target))
 	var boost = float(move.get("weather_power", weather.power(move)))
 	if physical and attacker.ailment == "burn": boost *= 0.5
 	return snappedf(base_damage * ratio * stab * multiplier * boost * (0.5 if target.guard > 0 else 1.0), 0.1)
@@ -718,7 +723,7 @@ func hit(target: Dictionary, damage: float, direction: Vector2, friendly: bool, 
 	var attacker = owner if not owner.is_empty() else player if friendly else enemy
 	var offense = attack_snapshot if not attack_snapshot.is_empty() else attacker
 	var move_type: String = move.get("type", "Normal")
-	var multiplier = Dex.effectiveness(move_type, target.data.types)
+	var multiplier = Dex.effectiveness(move_type, Conditions.types(target))
 	damage = damage_amount(offense, target, damage, move)
 	if offense.get("volatile", {}).get("focusenergy", 0) > 0 and rng.randf() < 0.5:
 		damage *= 1.5
@@ -948,7 +953,7 @@ func draw_hud():
 			draw_texture_rect(texture, Rect2(Vector2(x + 39, 124) - size / 2, size), false, Color.WHITE if f.hp > 0 else Color(0.3, 0.3, 0.3))
 		label_at(f.data.name.to_upper() + (" Lv."+str(f.data.get("level",5)) if adventure.in_battle else ""), Vector2(x + 82, 110), 20, WHITE)
 		var type_x = x + 82
-		for type in f.data.types:
+		for type in Conditions.types(f):
 			draw_rect(Rect2(type_x, 115, 78, 14), Dex.color(type))
 			label_at(type.to_upper(), Vector2(type_x + 5, 126), 10, INK)
 			type_x += 83
@@ -1195,7 +1200,7 @@ func draw_moves():
 		panel(Rect2(x, 678, 233, 78), Color("142831"), Color("726747") if cooldowns[i] <= 0 else Color("29424b"))
 		label_at(keys[i] + "  " + move.type.to_upper(), Vector2(x + 12, 698), 11, type_color)
 		label_at(move.name.to_upper(), Vector2(x + 12, 721), 15)
-		label_at(move_description(move, enemy.data.types), Vector2(x + 12, 742), 11, Color("91a6a7"))
+		label_at(move_description(move, Conditions.types(enemy)), Vector2(x + 12, 742), 11, Color("91a6a7"))
 		label_at(str(int(move.cost)) + " EN", Vector2(x + 185, 698), 10, Color("91a6a7"))
 		var remaining = maxf(cooldowns[i], player.get("action_lock", 0.0))
 		if remaining > 0:
@@ -1210,6 +1215,7 @@ func draw_moves():
 func move_description(move: Dictionary, target_types) -> String:
 	if weather.MOVES.has(move.id): return "WEATHER / 20s / WHOLE ARENA"
 	if move.id == "solarbeam" and weather.kind == "sun": return "INSTANT BEAM / SUN"
+	if move.id=="roost": return "Heal / NO FLYING 1.5s"
 	if move.get("rest", false): return "Full heal / SLEEP 2.5s"
 	if not move.get("stat_changes", {}).is_empty(): return move.effect.to_upper() + " / UNTIL SWITCH"
 	if move.get("volatile_status", "") == "focusenergy": return "Critical boost / 6s"
@@ -2596,6 +2602,30 @@ func capture_adventure():
 	await get_tree().process_frame
 	await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png("res://captures/adventure-battle.png")
+	get_tree().quit()
+
+func capture_kanto():
+	frontend.layer.visible = false
+	adventure.save_path = "user://kanto-preview-test.json"
+	adventure.loaded = true
+	adventure.enter()
+	adventure.choose_starter(4)
+	adventure.dialog = ""
+	adventure.data["cascade"] = true
+	adventure.data.rival = true
+	adventure.data.bug_catcher = true
+	adventure.data.badge = true
+	adventure.data["rocket"] = true
+	for city in adventure.Kanto.CITIES:
+		adventure.data.map = city
+		adventure.position_world = Vector2(800,400)
+		await get_tree().process_frame
+		await RenderingServer.frame_post_draw
+		get_viewport().get_texture().get_image().save_png("res://captures/kanto-%d.png" % city)
+	adventure.Kanto.guide(adventure)
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://captures/kanto-guide.png")
 	get_tree().quit()
 
 func capture_progress():

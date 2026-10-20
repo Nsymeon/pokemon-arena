@@ -62,6 +62,24 @@ func dodge(c,dt: float, chance: float = 0.45) -> Vector2:
 	return Vector2.ZERO
 
 func tests(c):
+	c.pick(6,9)
+	c.player.hp *= 0.5
+	var roost_hp: float = c.player.hp
+	var ground = {"type":"Ground","category":"Physical"}
+	c.check(c.damage_amount(c.enemy,c.player,40,ground)==0,"Flying blocks Ground before Roost")
+	c.execute_move(c.player,c.enemy,{"id":"roost","name":"Roost","kind":"heal","type":"Flying","damage":0},Vector2.RIGHT,true)
+	c.check(c.player.hp>roost_hp and c.Conditions.types(c.player)==["Fire"],"Roost heals and removes Flying")
+	c.check(c.damage_amount(c.enemy,c.player,40,ground)>0,"Ground can hit during Roost")
+	c.check(c.player.data.types==["Fire","Flying"],"Roost never mutates species types")
+	c.Conditions.tick(c.player,1.49)
+	c.check("Flying" not in c.Conditions.types(c.player),"Roost remains active for 1.5 seconds")
+	c.Conditions.tick(c.player,0.02)
+	c.check("Flying" in c.Conditions.types(c.player) and c.damage_amount(c.enemy,c.player,40,ground)==0,"Flying and Ground immunity return after Roost")
+	c.player.data.types = ["Flying"]
+	c.player.volatile["roost"] = 1.5
+	c.check(c.Conditions.types(c.player)==["Normal"],"Pure Flying temporarily becomes Normal")
+	c.player.volatile.clear()
+	c.check(c.Conditions.types(c.player)==["Flying"],"Withdrawal cleanup restores Flying")
 	c.pick(25,7)
 	c.fields.active = 1
 	for delta in [Vector2(-10000,0),Vector2(10000,0),Vector2(0,-10000),Vector2(0,10000)]:

@@ -2,6 +2,13 @@ extends RefCounted
 
 const NAMES = {"slp": "sleep", "par": "paralysis", "brn": "burn", "psn": "poison", "tox": "toxic", "frz": "freeze"}
 
+static func types(f) -> Array:
+	var current: Array = f.data.types.duplicate()
+	if f.get("volatile",{}).get("roost",0)>0:
+		current.erase("Flying")
+		if current.is_empty(): current.append("Normal")
+	return current
+
 static func init(f):
 	f["action_lock"] = 0.0
 	f["charge_left"] = 0.0
@@ -47,9 +54,9 @@ static func apply(c, f, payload, move) -> bool:
 	var status: String = NAMES.get(payload.get("status", ""), "")
 	var changed = false
 	if status != "":
-		var immune = (status == "burn" and "Fire" in f.data.types) or (status in ["poison", "toxic"] and ("Poison" in f.data.types or "Steel" in f.data.types)) or (status == "paralysis" and "Electric" in f.data.types) or (status == "freeze" and "Ice" in f.data.types)
-		if move.get("id", "") == "thunderwave" and "Ground" in f.data.types: immune = true
-		if move.get("powder", false) and "Grass" in f.data.types: immune = true
+		var immune = (status == "burn" and "Fire" in types(f)) or (status in ["poison", "toxic"] and ("Poison" in types(f) or "Steel" in types(f))) or (status == "paralysis" and "Electric" in types(f)) or (status == "freeze" and "Ice" in types(f))
+		if move.get("id", "") == "thunderwave" and "Ground" in types(f): immune = true
+		if move.get("powder", false) and "Grass" in types(f): immune = true
 		if immune: note(f, "IMMUNE"); return false
 		if f.ailment != "": note(f, "ALREADY AFFLICTED"); return false
 		f.ailment = status
@@ -64,7 +71,7 @@ static func apply(c, f, payload, move) -> bool:
 		changed = true
 	var volatile_status: String = payload.get("volatileStatus", "")
 	if volatile_status == "leechseed":
-		if "Grass" in f.data.types: note(f,"IMMUNE"); return false
+		if "Grass" in types(f): note(f,"IMMUNE"); return false
 		f.volatile["leechseed"] = 8.0
 		f["seed_tick"] = 1.0
 		note(f,"SEEDED")

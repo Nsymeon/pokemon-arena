@@ -1,7 +1,8 @@
 extends Node2D
 
 const SAVE_PATH = "user://adventure-v1.json"
-const MAPS = ["PALLET TOWN", "ROUTE 1", "VIRIDIAN CITY", "VIRIDIAN FOREST", "PEWTER CITY", "ROUTE 3", "MT. MOON", "ROUTE 4", "CERULEAN CITY"]
+const Kanto = preload("res://adventure_kanto.gd")
+var MAPS = ["PALLET TOWN", "ROUTE 1", "VIRIDIAN CITY", "VIRIDIAN FOREST", "PEWTER CITY", "ROUTE 3", "MT. MOON", "ROUTE 4", "CERULEAN CITY"] + Kanto.EXTRA_MAPS
 const STARTERS = [1,4,7]
 const WILD = {1:[16,19],3:[10,13,25,16],5:[21,39,29,32],6:[41,74,46,35],7:[19,21,23,27]}
 const EVOLUTIONS = {1:[16,2],4:[16,5],7:[16,8],10:[7,11],11:[10,12],13:[7,14],14:[10,15],16:[18,17],19:[20,20],21:[20,22],29:[16,30],32:[16,33],41:[22,42],46:[24,47],74:[25,75]}
@@ -49,7 +50,7 @@ func valid(value) -> bool:
 	for key in ["map","starter","balls","money","healing_map"]:
 		if not value.get(key) is float and not value.get(key) is int: return false
 		if value[key] != int(value[key]): return false
-	if value.map < 0 or value.map >= MAPS.size() or int(value.healing_map) not in [0,2,4,8]: return false
+	if value.map < 0 or value.map >= MAPS.size() or int(value.healing_map) not in Kanto.HEALING_MAPS: return false
 	if int(value.starter) not in [0,1,4,7] or value.balls < 0 or value.balls > 999 or value.money < 0 or value.money > 999999: return false
 	for key in ["x","y"]:
 		if not (value.get(key) is float or value.get(key) is int) or not is_finite(value[key]): return false
@@ -166,9 +167,10 @@ func objective() -> String:
 	if not data.badge: return "Reach Pewter City and defeat Brock for the Boulder Badge."
 	if not data.get("rocket",false): return "Boulder Badge earned! Head north: Route 3, then Mt. Moon."
 	if not data.get("cascade",false): return "Cross Route 4 to Cerulean City. Challenge Misty for the Cascade Badge."
-	return "Two badges earned! Explore, train and catch Pokemon before the next chapter."
+	return "Explore Kanto! M opens the region guide; follow the exit signs."
 
 func buildings() -> Array:
+	if Kanto.CITIES.has(int(data.map)): return Kanto.buildings(int(data.map))
 	match int(data.map):
 		0: return [[Rect2(250,380,310,230),"YOUR HOME",Color("5a83ab")],[Rect2(1000,350,350,250),"OAK'S LAB",Color("b86a54")]]
 		2: return [[Rect2(250,350,320,250),"POKEMON CENTER",Color("c76263")],[Rect2(1020,350,320,250),"POKE MART",Color("5596b4")]]
@@ -177,6 +179,7 @@ func buildings() -> Array:
 	return []
 
 func npcs() -> Array:
+	if Kanto.CITIES.has(int(data.map)): return Kanto.npcs(int(data.map))
 	match int(data.map):
 		0: return [[Vector2(1120,655),"Professor Oak","oak"],[Vector2(800,230),"Blue","rival"],[Vector2(405,660),"Mom / Heal","heal"]]
 		2: return [[Vector2(410,650),"Nurse Joy / Heal","heal"],[Vector2(1180,650),"Shop / 5 balls: $100","shop"]]
@@ -188,6 +191,7 @@ func npcs() -> Array:
 	return []
 
 func wild_spawns() -> Array:
+	if Kanto.WILD.has(int(data.map)): return Kanto.wild_spawns(int(data.map),wild_cycle)
 	if not WILD.has(int(data.map)): return []
 	var pool: Array = WILD[int(data.map)]
 	var level = {1:4,3:6,5:10,6:12,7:14}.get(int(data.map),6)
@@ -214,6 +218,9 @@ func tick(dt):
 		if position_world.x > 700 and position_world.x < 900:
 			if position_world.y < 90: travel(1)
 			elif position_world.y > 920: travel(-1)
+		if position_world.y>760 and position_world.y<880:
+			if position_world.x>1500: travel(2)
+			elif position_world.x<100: travel(-2)
 		autosave += dt
 		if autosave >= 5:
 			autosave = 0
@@ -223,10 +230,10 @@ func tick(dt):
 
 func travel(step: int):
 	c.click_move = false
-	var destination = int(data.map)+step
+	var destination = Kanto.destination(int(data.map),step)
 	if destination < 0 or destination >= MAPS.size():
-		dialog = "The next chapter is not open yet." if step>0 else "The sea lies beyond Pallet Town."
-		position_world.y = 120 if step>0 else 890
+		dialog = "No passage here. Press M to see the Kanto connections."
+		position_world = Vector2(800,500)
 		return
 	if step>0 and data.map==0 and (data.starter==0 or not data.rival):
 		dialog = objective()
@@ -240,8 +247,13 @@ func travel(step: int):
 		dialog = "Defeat Brock before leaving Pewter." if data.map==4 else "Defeat Team Rocket to clear the Mt. Moon exit."
 		position_world.y = 120
 		return
+	if destination>=9 and not data.get("cascade",false):
+		dialog = "Earn Misty's Cascade Badge in Cerulean to explore the rest of Kanto."
+		position_world = Vector2(800,500)
+		return
+	var arrival = Kanto.LINKS[destination].find_key(int(data.map))
+	position_world = {1:Vector2(800,140),-1:Vector2(800,860),2:Vector2(1460,820),-2:Vector2(140,820)}.get(arrival,Vector2(800,500))
 	data.map = destination
-	position_world = Vector2(800,860 if step>0 else 140)
 	dialog = MAPS[destination] + " / " + objective()
 	save()
 
@@ -263,6 +275,7 @@ func handle_input(event):
 		if event.keycode in [KEY_E,KEY_ENTER,KEY_SPACE,KEY_ESCAPE]: dialog = ""
 		return
 	match event.keycode:
+		KEY_M: Kanto.guide(self)
 		KEY_E: interact()
 		KEY_P: party_menu()
 		KEY_I: inventory.bag()
@@ -272,12 +285,14 @@ func handle_input(event):
 			dialog = "Adventure saved." if ok else save_error
 
 func interact():
+	c.click_move = false
 	for npc in npcs():
 		if position_world.distance_to(npc[0]) <= 100:
 			match npc[2]:
 				"oak":
 					if data.starter == 0: starter_menu()
 					else: dialog = "Oak: Weaken wild Pokemon, then press G in battle to throw a Poke Ball. Press P outside battle to manage your team."
+				"guide": dialog = Kanto.CITIES[int(data.map)][2]
 				"heal": heal()
 				"shop": inventory.shop()
 				"rival":
@@ -313,7 +328,7 @@ func heal():
 	for mon in data.party:
 		mon.hp = 1.0
 		mon.ailment = ""
-	if data.map in [0,2,4,8]: data.healing_map = int(data.map)
+	if data.map in Kanto.HEALING_MAPS: data.healing_map = int(data.map)
 	dialog = "Your team is fully healed. See you again!"
 	save()
 
@@ -467,6 +482,7 @@ func clear_ui():
 	modal = ""
 
 func panel(title: String):
+	c.click_move = false
 	clear_ui()
 	modal = title
 	var bg = ColorRect.new()
@@ -551,9 +567,10 @@ func withdraw(slot):
 	party_menu()
 
 func menu():
-	panel("ADVENTURE / PALLET TO CERULEAN")
+	panel("ADVENTURE / KANTO")
 	ui_label(objective(),Vector2(180,240))
 	ui_label("Progress saves automatically on the map and after encounters.",Vector2(180,290))
+	ui_button("KANTO GUIDE / M",Vector2(650,375),Vector2(400,65),func(): Kanto.guide(self))
 	ui_button("YOUR TEAM",Vector2(180,375),Vector2(400,65),party_menu)
 	ui_button("SAVE AND CONTINUE",Vector2(180,465),Vector2(400,65),func(): save(); clear_ui())
 	ui_button("SAVE AND RETURN TO MODES",Vector2(180,555),Vector2(600,65),leave)
@@ -583,8 +600,9 @@ func _draw():
 	draw_rect(Rect2(0,0,1280,960),Color("142e32"))
 	draw_set_transform(Vector2(0,90)-camera)
 	var forest = data.map==3
-	var cave = data.map==6
+	var cave = data.map in [6,24]
 	draw_rect(Rect2(0,0,1600,1000),Color("48495e") if cave else Color("619466") if forest else Color("87b878"))
+	Kanto.draw_ground(self)
 	for y in range(0,1000,40):
 		for x in range(0,1600,40):
 			if (x/40+y/40)%3==0:
@@ -595,6 +613,8 @@ func _draw():
 		draw_arc(Vector2(1270,140),145,0,TAU,50,Color("a6decd"),5)
 	draw_rect(Rect2(710,0,180,1000),Color("6b6877") if cave else Color("cfbc87"))
 	draw_rect(Rect2(725,0,150,1000),Color("85808a") if cave else Color("ddcb96"))
+	if Kanto.destination(int(data.map),2)>=0 or Kanto.destination(int(data.map),-2)>=0:
+		draw_rect(Rect2(0,775,1600,90),Color("ddcb96"))
 	if not buildings().is_empty(): draw_rect(Rect2(360,615,900,95),Color("ddcb96"))
 	for y in range(70,1000,100):
 		for x in [45,145,1455,1555]:
@@ -644,7 +664,7 @@ func _draw():
 		if position_world.distance_to(npc[0])<100: words("E / TALK",npc[0]+Vector2(-35,-78),18,Color("ffe499"))
 	person(position_world,"red",facing,absf(sin(walk_age*12))*4)
 	if c.click_move: draw_arc(c.click_destination,13,0,TAU,24,Color("ffdf92"),2)
-	words("NORTH / "+(MAPS[data.map+1] if data.map<MAPS.size()-1 else "NEXT CHAPTER"),Vector2(630,65),17)
+	Kanto.draw_signs(self)
 	draw_set_transform(Vector2.ZERO)
 	draw_rect(Rect2(0,0,1280,90),Color("112b32"))
 	words(MAPS[data.map],Vector2(30,34),26,Color("ffdf92"))
@@ -662,7 +682,7 @@ func _draw():
 		draw_rect(Rect2(x+10,875,180,4),Color("354c50"))
 		draw_rect(Rect2(x+10,875,180*xp_ratio(mon),4),Color("79aaff"))
 		words("EXP %d / %d" % [mon.xp,xp_needed(mon)] if mon.level<30 else "MAX LEVEL",Vector2(x+10,898),12,Color("79aaff"))
-	words("WASD / RMB / MOVE     SPACE / RUN     E / INTERACT     P / TEAM   I / BAG   F5 / SAVE     ESC / MENU",Vector2(30,925),17)
+	words("WASD / RMB / MOVE     SPACE / RUN     E / INTERACT     P / TEAM   I / BAG   F5 / SAVE   M / MAP   ESC / MENU",Vector2(30,925),17)
 	if save_error!="": words(save_error,Vector2(30,953),15,Color("ff9999"))
 	if dialog!="":
 		draw_rect(Rect2(80,630,1120,145),Color("10252f"))
@@ -756,6 +776,7 @@ func tests():
 	c.check(data.badge and c.campaign.data==saved_campaign,"Boulder Badge stays independent from League progress")
 	inventory.tests()
 	chapter_tests()
+	Kanto.tests(self)
 	reset_tests()
 	leave()
 	c.campaign.layer.visible = false

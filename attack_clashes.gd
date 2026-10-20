@@ -10,7 +10,7 @@ func strength(c, s) -> float:
 	var physical = s.move.get("category", "Special") == "Physical"
 	var stat = "atk" if physical else "spa"
 	var attack: float = owner.data.base_stats[stat] * c.Conditions.stage(owner, stat)
-	var stab = 1.5 if s.move.get("type", "") in owner.data.types else 1.0
+	var stab = 1.5 if s.move.get("type", "") in c.Conditions.types(owner) else 1.0
 	var burn = 0.5 if physical and owner.get("ailment", "") == "burn" else 1.0
 	return maxf(1, s.damage * (50 + attack) / 150.0 * stab * s.move.get("weather_power", 1.0) * burn)
 

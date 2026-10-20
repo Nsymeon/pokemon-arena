@@ -32,8 +32,8 @@ func tick(c, dt: float):
 	while chip_clock >= 1.0:
 		chip_clock -= 1.0
 		for f in [c.player, c.enemy]:
-			var immune = kind == "sand" and ("Rock" in f.data.types or "Ground" in f.data.types or "Steel" in f.data.types)
-			immune = immune or (kind == "hail" and "Ice" in f.data.types)
+			var immune = kind == "sand" and ("Rock" in preload("res://status_rules.gd").types(f) or "Ground" in preload("res://status_rules.gd").types(f) or "Steel" in preload("res://status_rules.gd").types(f))
+			immune = immune or (kind == "hail" and "Ice" in preload("res://status_rules.gd").types(f))
 			if kind in ["sand", "hail"] and not immune and f.hp > 0:
 				f.hp = maxf(0, f.hp - f.data.hp * 0.01)
 				c.Conditions.note(f, kind.to_upper())
@@ -78,8 +78,8 @@ func healing(move: Dictionary) -> float:
 	return 0.25
 
 func defense(target, physical: bool) -> float:
-	if kind == "sand" and "Rock" in target.data.types and not physical: return 1.5
-	if kind == "snow" and "Ice" in target.data.types and physical: return 1.5
+	if kind == "sand" and "Rock" in preload("res://status_rules.gd").types(target) and not physical: return 1.5
+	if kind == "snow" and "Ice" in preload("res://status_rules.gd").types(target) and physical: return 1.5
 	return 1.0
 
 func draw(c):

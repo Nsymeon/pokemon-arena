@@ -52,7 +52,7 @@ func in_water(p: Vector2) -> bool:
 	return true
 
 func movement(f) -> float:
-	var types = f.data.types
+	var types = preload("res://status_rules.gd").types(f)
 	if in_water(f.pos) and "Water" not in types and "Flying" not in types: return 0.78
 	if active == 5 and "Ice" in types: return 1.15
 	return 1.0

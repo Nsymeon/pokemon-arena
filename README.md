@@ -260,3 +260,16 @@ XP and party health save at these KO checkpoints. Reloading during combat restar
 On the Adventure world map, open **Esc → RESET ADVENTURE**, then choose **YES / START A NEW ADVENTURE**. Cancel or close the confirmation to keep the current run. Reset clears the adventure party/storage, starter, levels/moves, badges/story flags, money, items and TMs, then starts at Pallet Town with the initial supplies. Gym Leaders progression and Free Battles are unaffected. The reset is saved immediately and refreshes the automatic recovery backup. Before replacing the save, a timestamped `.before-reset-*` recovery copy is preserved separately; it is not loaded automatically. Reset is unavailable during combat.
 
 Quick Attack tracks a moving opponent within its original 320-unit reach and deals one contact hit along its zigzag path. Capturing a wild Pokemon throws the ball from the trainer hand to the opponent.
+
+
+## Roost and Kanto exploration
+
+Roost retains its arena healing and removes Flying from the user's effective types for 1.5 combat seconds. Dual types keep their other type; pure Flying becomes Normal temporarily. Damage, STAB, immunity, terrain movement and the type HUD use the effective types. Expiry or withdrawal restores Flying without modifying species data. Committed attacks keep their launch-time offensive snapshot.
+
+Adventure now connects all ten Kanto towns/cities plus Indigo Plateau across 26 compact maps. Added Saffron, Vermilion, Lavender, Celadon, Fuchsia and Cinnabar, with Centers, shops, resident guides and distinct landmark exteriors. New routes contain level 18-27 wild Pokemon. The existing level-30 cap remains.
+
+After Misty's Cascade Badge, follow the signed exits from Cerulean; **M** or the pause menu opens the Kanto guide with current connections. Other links return through Pallet and Viridian. North/south exits are at the central path; east/west exits use the lower crossroad. This is a compact adapted layout, not a tile-for-tile FireRed map. Sea routes currently use walkable ferry paths without an HM requirement. Town healing points persist and are used after defeat. Existing saves keep their map IDs and progress.
+
+New landmarks are exterior exploration areas: building interiors, Safari gameplay, Silph/Tower/Mansion quests and the later Adventure gym/League campaign are not yet implemented. All gym leaders and the Elite Four/Blue remain available in the separate Gym Leaders mode.
+
+Location reference: [FireRed/LeafGreen Kanto world map](https://pokedream.com/games/fireleaf/worldmap/index.php).
