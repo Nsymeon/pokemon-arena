@@ -15,7 +15,7 @@ func dodge(c,dt: float, chance: float = 0.45) -> Vector2:
 		for shot in c.shots:
 			if not shot.get("friendly",false) or shot.get("life",0)<=0 or shot.get("hit_done",false) or shot.get("age",0)<0.12: continue
 			var skill = shot.get("skill","")
-			if skill in ["lightning","rocks","vortex","psychic"]:
+			if skill in ["lightning","rocks","vortex","psychic","fly"]:
 				if shot.age>=shot.delay or f.pos.distance_to(shot.pos)>shot.radius+55: continue
 				escape = (f.pos-shot.pos).normalized()
 				if escape==Vector2.ZERO: escape = Vector2.UP

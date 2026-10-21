@@ -20,6 +20,7 @@ var preview_party: Array = []
 var opponent_preview_slot = 0
 var opponent_identity = "rival"
 var trainer_gallery = false
+var move_editor = preload("res://battle_moves.gd").new()
 var skills = preload("res://arena_skills.gd").new()
 var clashes = preload("res://attack_clashes.gd").new()
 var clash_effects: Array = []
@@ -97,6 +98,7 @@ func _ready():
 	sound = AudioStreamPlayer.new()
 	add_child(sound)
 	setup_selection_controls()
+	move_editor.install(self)
 	load_portraits()
 	art.load_sprites()
 	reset()
@@ -112,6 +114,8 @@ func _ready():
 		call_deferred("capture_progress")
 	if "--capture-kanto" in OS.get_cmdline_user_args():
 		call_deferred("capture_kanto")
+	if "--capture-loadouts" in OS.get_cmdline_user_args():
+		call_deferred("capture_loadouts")
 	elif "--capture-adventure" in OS.get_cmdline_user_args():
 		call_deferred("capture_adventure")
 	elif "--capture-campaign" in OS.get_cmdline_user_args():
@@ -184,6 +188,11 @@ func reset():
 	if team_mode:
 		for index in player_team: player_states.append(replacement(true, index))
 		player_states[0] = player
+	if not adventure.in_battle:
+		player.data = move_editor.configured(player.data,true,0)
+		if team_mode:
+			for slot in range(player_states.size()): player_states[slot].data = move_editor.configured(player_states[slot].data,true,slot)
+		if enemy_party.is_empty(): enemy.data = move_editor.configured(enemy.data,false,0)
 	rocks = [{"pos": Vector2(600, 240), "hp": 55.0}, {"pos": Vector2(900, 515), "hp": 55.0}, {"pos": Vector2(1150, 150), "hp": 55.0}, {"pos": Vector2(340, 590), "hp": 55.0}]
 	for rock in rocks: rock.pos *= Vector2(1.6, 1.6)
 	fields.reset(self,arena_choice.selected if arena_choice != null else 0)
@@ -324,7 +333,7 @@ func use_move(user: Dictionary, target: Dictionary, index: int, direction: Vecto
 	if not Conditions.attempt(self, user, move): return false
 	timers[index] = move.cooldown
 	user.energy -= move.cost
-	if move.get("charge_time", 0.0) > 0:
+	if move.get("charge_time", 0.0) > 0 and move.id!="fly":
 		user.charge_left = float(move.charge_time)
 		user.pending_move = {"move": move.duplicate(true), "direction": direction, "friendly": friendly}
 		user.heading = direction
@@ -346,7 +355,7 @@ func execute_move(user: Dictionary, target: Dictionary, move: Dictionary, direct
 		move = copied.duplicate(true)
 		for key in ["weather_prepared","weather_power","area_scale"]: move.erase(key)
 		move = weather.prepare(move)
-		if move.get("charge_time",0)>0:
+		if move.get("charge_time",0)>0 and move.id!="fly":
 			user.charge_left = move.charge_time
 			user.pending_move = {"move":move,"direction":direction,"friendly":friendly}
 			user.action_lock = 1.0
@@ -718,7 +727,7 @@ func damage_amount(attacker: Dictionary, target: Dictionary, base_damage: float,
 	return snappedf(base_damage * ratio * stab * multiplier * boost * (0.5 if target.guard > 0 else 1.0), 0.1)
 
 func hit(target: Dictionary, damage: float, direction: Vector2, friendly: bool, move: Dictionary = {}, owner: Dictionary = {}, attack_snapshot: Dictionary = {}) -> float:
-	if target.inv > 0 or target.hp <= 0: return 0.0
+	if target.inv > 0 or target.hp <= 0 or target.get("volatile",{}).get("airborne",0)>0: return 0.0
 	if move.get("id", "") == "dreameater" and target.ailment != "sleep": return 0.0
 	var attacker = owner if not owner.is_empty() else player if friendly else enemy
 	var offense = attack_snapshot if not attack_snapshot.is_empty() else attacker
@@ -1020,6 +1029,7 @@ func draw_creature(fighter: Dictionary, friendly: bool):
 		return
 	if summon <= 0: return
 	draw_ellipse(p + Vector2(0, 8), Vector2(25, 9) * summon, Color(0.06, 0.14, 0.13, 0.28 * summon))
+	p = skills.areas.visual_position(self,fighter)
 	var texture = (portraits_flipped if fighter.face > 0 else portraits).get(int(fighter.data.id))
 	var animated = art.frame(fighter) if not selecting else {}
 	if not animated.is_empty():
@@ -1059,6 +1069,7 @@ func draw_fainted(fighter: Dictionary):
 	var pose = faint_pose(faint_elapsed)
 	if not pose.visible: return
 	var p: Vector2 = fighter.pos
+	p = skills.areas.visual_position(self,fighter)
 	var texture = (portraits_flipped if fighter.face > 0 else portraits).get(int(fighter.data.id))
 	if not texture: return
 	var size = texture.get_size() * (78.0 / maxf(texture.get_width(), texture.get_height()))
@@ -1354,6 +1365,7 @@ func selection_click(mouse: Vector2, button: int):
 	if button == MOUSE_BUTTON_WHEEL_UP: change_page(-1); return
 	if button not in [MOUSE_BUTTON_LEFT, MOUSE_BUTTON_RIGHT]: return
 	search_box.release_focus()
+	if button==MOUSE_BUTTON_LEFT and move_editor.click(mouse): return
 	if not preview_party.is_empty():
 		for i in range(preview_party.size()):
 			if Rect2(652+i*98,806,92,50).has_point(mouse):
@@ -1440,6 +1452,7 @@ func stat_total(mon: Dictionary) -> int:
 	return total
 
 func selection_details(mon: Dictionary, rival: Dictionary, pos: Vector2, friendly: bool):
+	if friendly or opponent_choice.selected==0: mon = move_editor.configured(mon,friendly,team_slot if team_mode else 0)
 	panel(Rect2(pos, Vector2(588, 185)), Color("10232c"))
 	label_at(("YOU / " if friendly else "CPU / ") + mon.name.to_upper(), pos + Vector2(16, 25), 18, Dex.color(mon.type))
 	label_at(Dex.type_label(mon), pos + Vector2(400, 24), 12, Dex.color(mon.type))
@@ -1448,7 +1461,7 @@ func selection_details(mon: Dictionary, rival: Dictionary, pos: Vector2, friendl
 	for i in range(mon.moves.size()):
 		var move: Dictionary = mon.moves[i]
 		var offset = Vector2(16 + (i % 2) * 286, 76 + (i / 2) * 50)
-		label_at(["Q", "E", "F", "C"][i] + "  " + move.name, pos + offset, 14)
+		label_at(["Q", "E", "F", "C"][i] + "  " + move.name + ("  v" if friendly or opponent_choice.selected==0 else ""), pos + offset, 14)
 		label_at(move.type.to_upper() + " / " + move_description(move, rival.types), pos + offset + Vector2(0, 17), 9, Dex.color(move.type))
 	label_at("ARENA  %d HP / %d movement  ·  %s" % [mon.hp, mon.speed, mon.role], pos + Vector2(16, 173), 10, Color("91a6a7"))
 
@@ -1749,6 +1762,7 @@ func can_continue_team() -> bool:
 func replacement(friendly: bool, index: int) -> Dictionary:
 	var fighter: Dictionary = (player if friendly else enemy).duplicate(true)
 	fighter.data = enemy_party[enemy_active].duplicate(true) if not friendly and not enemy_party.is_empty() else roster[index].duplicate(true)
+	if not friendly and enemy_party.is_empty() and not adventure.in_battle: fighter.data = move_editor.configured(fighter.data,false,enemy_active)
 	fighter.hp = fighter.data.hp
 	fighter.energy = 100.0
 	fighter.pos = FIELD.size * Vector2(0.34 if friendly else 0.66, 0.5)
@@ -1960,7 +1974,7 @@ func activate_player(slot: int):
 func request_switch(slot: int) -> bool:
 	if not team_mode or paused or countdown > 0 or result != "" or switch_time >= 0: return false
 	if slot < 0 or slot >= player_states.size() or slot == player_active or player_states[slot].hp <= 0: return false
-	if player.get("charge_left", 0.0) > 0 or player.get("volatile", {}).get("partiallytrapped", 0) > 0:
+	if player.get("charge_left", 0.0) > 0 or player.get("volatile", {}).get("partiallytrapped", 0) > 0 or player.get("volatile",{}).get("airborne",0)>0:
 		Conditions.note(player, "CANNOT SWITCH")
 		return false
 	if switch_cooldown > 0:
@@ -2672,4 +2686,35 @@ func capture_progress():
 	await get_tree().process_frame
 	await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png("res://captures/cerulean.png")
+	get_tree().quit()
+
+func capture_loadouts():
+	set_process(false)
+	frontend.layer.visible = false
+	campaign.layer.visible = false
+	pick(6,9)
+	selecting = true
+	selection_controls.visible = true
+	move_editor.open(roster[player_index],true,0,0)
+	move_editor.popup.position = Vector2i(300,300)
+	await get_tree().process_frame
+	queue_redraw()
+	await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://captures/move-dropdown.png")
+	move_editor.popup.hide()
+	for entry in [["icebeam",0.3],["earthquake",0.8],["fly",0.9],["whirlpool",0.8]]:
+		pick(6 if entry[0]=="fly" else 9,6)
+		selecting = false
+		selection_controls.visible = false
+		rocks.clear()
+		player.pos = Vector2(1000,650)
+		enemy.pos = Vector2(1250,650)
+		update_camera(10)
+		var move = move_editor.book.moves[entry[0]].duplicate(true)
+		skills.launch(self,player,enemy,move,Vector2.RIGHT,true)
+		skills.tick(self,shots.back(),entry[1])
+		queue_redraw()
+		await get_tree().process_frame
+		await RenderingServer.frame_post_draw
+		get_viewport().get_texture().get_image().save_png("res://captures/custom-"+entry[0]+".png")
 	get_tree().quit()

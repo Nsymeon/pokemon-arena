@@ -33,7 +33,7 @@ static func stage(f, stat: String) -> float:
 	return (base + n) / base if n >= 0 else base / (base - n)
 
 static func immobilized(f) -> bool:
-	return f.ailment in ["sleep", "freeze"] or f.get("volatile", {}).get("flinch", 0) > 0 or f.get("charge_left", 0.0) > 0
+	return f.get("volatile",{}).get("airborne",0)>0 or f.ailment in ["sleep", "freeze"] or f.get("volatile", {}).get("flinch", 0) > 0 or f.get("charge_left", 0.0) > 0
 
 static func speed(f) -> float:
 	if immobilized(f): return 0.0

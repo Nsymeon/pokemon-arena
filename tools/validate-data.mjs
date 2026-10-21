@@ -30,3 +30,16 @@ for(const p of roster) {
  assert.equal(png.subarray(1,4).toString(),'PNG');
 }
 console.log(`PASS: 151 Kanto IDs, 7 retained extras, exact modern base stats/types, ${official} learnset-validated moves, ${custom} marked Ditto arena actions, 158 PNG assets.`);
+
+const battle=await json('data/battle-learnsets.json');
+for(const mon of roster){
+ const ids=battle.species[mon.id];
+ assert(ids?.length>=4 && new Set(ids).size===ids.length, mon.name+' battle move pool');
+ for(const id of ids){
+  const m=battle.moves[id];
+  assert(m?.id===id && m.name && m.type && m.kind && Number.isFinite(m.damage) && Number.isFinite(m.cost) && Number.isFinite(m.cooldown), mon.name+' usable definition '+id);
+ }
+}
+assert(battle.species[6].includes('fly'));
+assert(!battle.species[129].includes('flamethrower'));
+console.log('PASS: custom battle move catalog');

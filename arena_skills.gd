@@ -1,5 +1,7 @@
 extends RefCounted
 
+var areas = preload("res://area_skills.gd").new()
+
 const BEAMS = ["solarbeam", "hyperbeam", "icebeam", "aurorabeam", "hydropump", "flamethrower"]
 const RUSHES = ["quickattack", "extremespeed", "aquajet"]
 
@@ -74,7 +76,7 @@ func visible_length(s) -> float:
 	return minf(s.get("clash_limit",beam_range(s.move)), front_length(s,s.age) if s.has("age") else beam_range(s.move))
 
 func beam_half_width(s) -> float:
-	return (28.0 if s.get("move",{}).get("id","") == "flamethrower" else 34.0 if s.get("move",{}).get("id","") == "hydropump" else 48.0) * s.get("scale",1.0)
+	return (20.0 if s.get("move",{}).get("id","")=="icebeam" else 28.0 if s.get("move",{}).get("id","") == "flamethrower" else 34.0 if s.get("move",{}).get("id","") == "hydropump" else 48.0) * s.get("scale",1.0)
 
 func description(move) -> String:
 	if move.id in RUSHES: return "ZIGZAG RUSH" if move.id == "quickattack" else "WATER JET" if move.id == "aquajet" else "STRAIGHT RUSH"
@@ -85,11 +87,14 @@ func description(move) -> String:
 	if move.id == "hurricane": return "WIND VORTEX"
 	if move.id == "surf": return "RIDE WAVE"
 	if move.id in ["thunderbolt", "thunder"]: return "AIM CIRCLE"
-	if move.id == "earthquake": return "SHOCKWAVE"
+	if move.id == "earthquake": return "SHOCKWAVE / ARENA WIDTH 1/3"
+	if move.id == "whirlpool": return "PULL VORTEX / WIDTH 1/5"
+	if move.id == "fly": return "ASCEND / MARK / DIVE"
 	return move.kind.to_upper()
 
 func launch(c, user, target, move, direction, friendly) -> bool:
 	move = c.weather.prepare(move)
+	if areas.launch(c,user,target,move,friendly): return true
 	var id: String = move.get("id", "")
 	if id in RUSHES:
 		launch_rush(c, user, target, move, friendly)
@@ -107,7 +112,9 @@ func launch(c, user, target, move, direction, friendly) -> bool:
 	var delay = 0.75 if kind in ["lightning", "rocks", "vortex", "psychic"] else 0.3 if kind == "quake" else 0.0
 	var duration = 1.45 if kind == "wave" else delay + 0.55
 	if kind == "beam": duration = 1.35
-	c.shots.append({"skill": kind, "scale": move.get("area_scale", 1.0), "pos": point, "origin": user.pos, "dir": direction.normalized(), "vel": direction * 620, "age": 0.0, "life": duration, "duration": duration, "delay": delay, "damage": move.damage, "radius": 110.0 if kind in ["lightning", "rocks", "vortex", "psychic"] else 310.0, "friendly": friendly, "owner": user, "attack_snapshot": user.duplicate(true), "color": c.Dex.color(move.type), "move": move.duplicate(true), "hit_done": false, "rocks_hit": []})
+	var radius = c.balance.bounds(c).size.x/3.0 if kind=="quake" else 110.0 if kind in ["lightning","rocks","vortex","psychic"] else 310.0
+	if kind=="quake": duration = delay+radius/900.0+0.3
+	c.shots.append({"skill": kind, "scale": move.get("area_scale", 1.0), "pos": point, "origin": user.pos, "dir": direction.normalized(), "vel": direction * 620, "age": 0.0, "life": duration, "duration": duration, "delay": delay, "damage": move.damage, "radius": radius, "friendly": friendly, "owner": user, "attack_snapshot": user.duplicate(true), "color": c.Dex.color(move.type), "move": move.duplicate(true), "hit_done": false, "rocks_hit": []})
 	return true
 
 func riding(c, fighter) -> bool:
@@ -115,6 +122,9 @@ func riding(c, fighter) -> bool:
 
 func tick(c, s, dt):
 	if s.life <= 0: return
+	if s.skill in ["fly","whirlpool"]:
+		areas.tick(c,s,dt)
+		return
 	if s.skill == "rush":
 		tick_rush(c, s, dt)
 		return
@@ -154,7 +164,7 @@ func contains(s, point: Vector2, previous: Vector2) -> bool:
 		var along = offset.dot(s.dir)
 		return along >= 0 and along <= 520 * s.scale and absf(offset.dot(s.dir.orthogonal())) <= (20 + along / (520 * s.scale) * 115) * s.scale
 	if s.skill == "quake":
-		return point.distance_to(s.pos) <= minf(310, (s.age - s.delay) * 700)
+		return point.distance_to(s.pos) <= minf(s.radius, (s.age - s.delay) * 900)
 	return point.distance_to(s.pos) <= s.radius
 
 func draw_charge(c, fighter):
@@ -172,6 +182,9 @@ func draw_charge(c, fighter):
 	c.draw_arc(start, 20 + fighter.charge_left * 30, 0, TAU, 48, Color("e5ff9e"), 3, true)
 
 func draw(c, s):
+	if s.skill in ["fly","whirlpool"]:
+		areas.draw(c,s)
+		return
 	if s.skill == "rush":
 		draw_rush(c, s)
 		return
@@ -251,8 +264,8 @@ func draw(c, s):
 				c.draw_polyline(points, Color("fffbd4") * Color(1,1,1,fade), 5, true)
 			c.draw_circle(s.pos, 22 * fade, Color.WHITE)
 	else:
-		var radius = minf(310, maxf(0, s.age - s.delay) * 700)
-		c.draw_arc(s.pos, 310, 0, TAU, 64, Color(0.6,0.35,0.1,0.3 * fade), 2)
+		var radius = minf(s.radius, maxf(0, s.age - s.delay) * 900)
+		c.draw_arc(s.pos, s.radius, 0, TAU, 64, Color(0.6,0.35,0.1,0.3 * fade), 2)
 		c.draw_arc(s.pos, radius, 0, TAU, 64, Color(color, fade), 10, true)
 		for i in range(16):
 			var dir = Vector2.from_angle(i * TAU / 16)
@@ -347,6 +360,8 @@ func minimap(c):
 		c.draw_circle(rect.position + fighter.pos * ratio, 4, c.MINT if friendly else Color("ff7a72"))
 
 func tests(c):
+	c.move_editor.tests()
+	areas.tests(c)
 	c.pick(25,9)
 	c.rocks.clear()
 	c.player.pos = Vector2(500,600)

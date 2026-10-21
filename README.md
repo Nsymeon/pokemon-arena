@@ -273,3 +273,16 @@ After Misty's Cascade Badge, follow the signed exits from Cerulean; **M** or the
 New landmarks are exterior exploration areas: building interiors, Safari gameplay, Silph/Tower/Mansion quests and the later Adventure gym/League campaign are not yet implemented. All gym leaders and the Elite Four/Blue remain available in the separate Gym Leaders mode.
 
 Location reference: [FireRed/LeafGreen Kanto world map](https://pokedream.com/games/fireleaf/worldmap/index.php).
+
+
+## Custom battle moves and area attacks
+
+In Free Battles and the Gym Leaders team builder, click a move in the lower Pokemon detail card to open its scrollable dropdown. Defaults are unchanged until edited. Choices include recorded level, machine, tutor, egg and event moves across generations, inherited pre-evolution moves and the existing arena defaults. This is an unrestricted cross-generation sandbox, not a single competitive-format legality checker. Duplicate moves in a set are disabled. Reset restores that Pokemon's four default moves.
+
+Selections persist in `user://battle-moves.json` per side, team slot and species, separately from Adventure learned moves and inventory. Free Battles allows editing both custom teams; Gym Leaders edits your team while retaining the original opposing trainer moves. The added catalog uses the existing real-time move adaptations; not every cartridge-specific special rule has a dedicated implementation.
+
+Ice Beam now has a 20-unit half-width (previously 48). Earthquake expands from the cast position to a radius of one third of the playable arena width. Whirlpool creates a fixed 2.5-second vortex around the cast position, radius one fifth of that width, dealing one contact hit and pulling affected opponents inward at up to 165 units/second. Circles show their damage/pull boundaries.
+
+Fly skips the old stationary charge: the Pokemon rises, tracks the opponent during its first 0.6 seconds, locks a 115-unit landing circle, then dives at 1.5 seconds. The target can leave the marked area to dodge. The caster cannot move, switch or attack while airborne and avoids normal incoming hits. Committed impacts still resolve after caster fainting.
+
+`node tools/build-battle-learnsets.mjs` rebuilds the 158-species move catalog from the checked-in source data. Adventure learnsets remain separate.

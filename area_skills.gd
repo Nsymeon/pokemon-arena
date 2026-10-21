@@ -1,0 +1,125 @@
+extends RefCounted
+
+func launch(c,user,target,move,friendly) -> bool:
+	if move.id not in ["fly","whirlpool"]: return false
+	var flying = move.id=="fly"
+	var radius = 115.0 if flying else c.balance.bounds(c).size.x/5.0
+	var position: Vector2 = target.pos if flying else user.pos
+	var court = c.balance.bounds(c)
+	position = position.clamp(court.position,court.end)
+	c.shots.append({"skill":move.id,"move":move.duplicate(true),"owner":user,"attack_snapshot":user.duplicate(true),"friendly":friendly,"pos":position,"origin":user.pos,"radius":radius,"age":0.0,"life":1.9 if flying else 2.5,"delay":1.5 if flying else 0.3,"damage":move.damage,"dir":Vector2.DOWN,"hit_done":false,"color":c.Dex.color(move.type)})
+	if flying:
+		user.volatile["airborne"] = 1.5
+		user.action_lock = 1.6
+		user.dash_time = 0
+	return true
+
+func tick(c,s,dt):
+	s.age += dt
+	s.life -= dt
+	var target = c.enemy if s.friendly else c.player
+	if s.skill=="fly":
+		# Follow during ascent, then lock the warning so the opponent can dodge the landing.
+		if s.age<0.6:
+			var court = c.balance.bounds(c)
+			s.pos = target.pos.clamp(court.position,court.end)
+		if s.age>=s.delay and not s.hit_done:
+			if s.owner.hp>0:
+				c.move_fighter(s.owner,s.pos-s.owner.pos)
+				s.owner.volatile.erase("airborne")
+			if target.pos.distance_to(s.pos)<=s.radius: c.hit(target,s.damage,(target.pos-s.pos).normalized(),s.friendly,s.move,s.owner,s.attack_snapshot)
+			s.hit_done = true
+			c.burst(s.pos,s.color,25)
+	else:
+		if s.age<s.delay or target.hp<=0 or target.volatile.get("airborne",0)>0: return
+		var delta: Vector2 = s.pos-target.pos
+		if delta.length()<=s.radius:
+			if not s.hit_done:
+				c.hit(target,s.damage,delta.normalized(),s.friendly,s.move,s.owner,s.attack_snapshot)
+				s.hit_done = true
+			c.move_fighter(target,delta.limit_length(165*dt))
+
+func height(c,f) -> float:
+	for s in c.shots:
+		if s.get("skill","")=="fly" and s.owner==f and f.hp>0 and s.age<1.5:
+			return 260*clampf(s.age/0.35,0,1)*(1-clampf((s.age-1.2)/0.3,0,1))
+	return 0
+
+func visual_position(c,f) -> Vector2:
+	for s in c.shots:
+		if s.get("skill","")=="fly" and s.owner==f and f.hp>0 and s.age<1.5:
+			return s.origin.lerp(s.pos,clampf((s.age-1.2)/0.3,0,1))-Vector2(0,height(c,f))
+	return f.pos
+
+func draw(c,s):
+	var fade = clampf(s.life/0.35,0,1)
+	var color: Color = s.color
+	c.draw_circle(s.pos,s.radius,Color(color,0.12*fade))
+	c.draw_arc(s.pos,s.radius,0,TAU,96,Color(color,0.8*fade),3,true)
+	if s.skill=="fly":
+		var progress = clampf(s.age/s.delay,0,1)
+		c.draw_arc(s.pos,s.radius*progress,-PI/2,-PI/2+TAU*progress,64,Color(1,1,1,fade),4,true)
+		for i in range(8):
+			var dir = Vector2.from_angle(i*TAU/8)
+			c.draw_line(s.pos+dir*s.radius*0.8,s.pos+dir*s.radius,Color(1,1,1,fade),3)
+		if s.age>=s.delay:
+			c.draw_arc(s.pos,s.radius*(1+(s.age-s.delay)*2),0,TAU,64,Color(1,1,1,fade),8,true)
+	else:
+		for arm in range(5):
+			var spiral = PackedVector2Array()
+			for i in range(55):
+				var t = i/54.0
+				spiral.append(s.pos+Vector2.from_angle(arm*TAU/5+t*TAU-s.age*4)*s.radius*t)
+			c.draw_polyline(spiral,Color(0.2,0.65,1,fade*0.3),14,true)
+			c.draw_polyline(spiral,Color(0.7,0.95,1,fade*0.8),3,true)
+		c.draw_circle(s.pos,18,Color(0.08,0.3,0.55,fade))
+
+func tests(c):
+	c.pick(6,9)
+	var beam = {"move":{"id":"icebeam"},"scale":1.0}
+	c.check(c.skills.beam_half_width(beam)==20,"Ice Beam has a narrow 20-unit half-width")
+	for field in [0,1]:
+		c.fields.active = field
+		c.skills.launch(c,c.player,c.enemy,{"id":"earthquake","type":"Ground","damage":30},Vector2.RIGHT,true)
+		var quake = c.shots.back()
+		c.check(is_equal_approx(quake.radius,c.balance.bounds(c).size.x/3),"Earthquake radius scales with the actual arena")
+		quake.age = quake.duration-0.1
+		c.check(c.skills.contains(quake,quake.pos+Vector2(quake.radius-0.1,0),quake.pos) and not c.skills.contains(quake,quake.pos+Vector2(quake.radius+1,0),quake.pos),"Earthquake damage matches the drawn outer radius")
+	c.pick(6,9)
+	c.rocks.clear()
+	var move = {"id":"fly","name":"Fly","kind":"dash","type":"Flying","category":"Physical","damage":30}
+	launch(c,c.player,c.enemy,move,true)
+	var shot = c.shots.back()
+	var hp: float = c.player.hp
+	c.hit(c.player,20,Vector2.LEFT,false,{"type":"Normal"})
+	c.check(c.player.hp==hp,"Fly ascent avoids normal incoming attacks")
+	tick(c,shot,0.7)
+	var marked: Vector2 = shot.pos
+	c.enemy.pos += Vector2(200,0)
+	hp = c.enemy.hp
+	tick(c,shot,0.81)
+	c.check(c.enemy.hp==hp and shot.pos==marked,"Fly locks a warning circle that can be dodged")
+	c.check(not c.player.volatile.has("airborne"),"Fly landing clears airborne state")
+	c.pick(6,9)
+	c.rocks.clear()
+	launch(c,c.player,c.enemy,move,true)
+	shot = c.shots.back()
+	hp = c.enemy.hp
+	c.player.hp = 0
+	tick(c,shot,1.51)
+	c.check(c.enemy.hp<hp,"Committed Fly impact survives caster faint")
+	c.pick(9,6)
+	c.rocks.clear()
+	c.player.pos = Vector2(900,600)
+	c.enemy.pos = Vector2(1100,600)
+	move = {"id":"whirlpool","type":"Water","category":"Special","damage":20}
+	launch(c,c.player,c.enemy,move,true)
+	shot = c.shots.back()
+	var distance: float = c.enemy.pos.distance_to(shot.pos)
+	hp = c.enemy.hp
+	tick(c,shot,0.4)
+	c.check(c.enemy.hp<hp and c.enemy.pos.distance_to(shot.pos)<distance,"Whirlpool damages and pulls toward its center")
+	c.enemy.pos = shot.pos+Vector2(shot.radius+10,0)
+	var outside: Vector2 = c.enemy.pos
+	tick(c,shot,0.1)
+	c.check(c.enemy.pos==outside,"Whirlpool cannot pull outside its circle")
