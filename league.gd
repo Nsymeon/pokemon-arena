@@ -41,6 +41,7 @@ func tests(c):
 				c.result = ""
 				c.use_move(c.enemy,c.player,index,Vector2.LEFT,false)
 				c.shots.clear()
+		for member in c.enemy_bench.states: member.hp = 0
 		c.enemy.hp = 0
 		c.result = ""
 		c.finish_round()

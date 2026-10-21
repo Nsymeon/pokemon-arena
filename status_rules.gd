@@ -32,8 +32,12 @@ static func stage(f, stat: String) -> float:
 	var base = 3.0 if stat in ["accuracy", "evasion"] else 2.0
 	return (base + n) / base if n >= 0 else base / (base - n)
 
+static func avoids(f,move) -> bool:
+	if f.get("volatile",{}).get("airborne",0)>0: return true
+	return f.get("volatile",{}).get("underground",0)>0 and move.get("id","") not in ["earthquake","magnitude","fissure"]
+
 static func immobilized(f) -> bool:
-	return f.get("volatile",{}).get("airborne",0)>0 or f.ailment in ["sleep", "freeze"] or f.get("volatile", {}).get("flinch", 0) > 0 or f.get("charge_left", 0.0) > 0
+	return f.get("volatile",{}).get("underground",0)>0 or f.get("volatile",{}).get("airborne",0)>0 or f.ailment in ["sleep", "freeze"] or f.get("volatile", {}).get("flinch", 0) > 0 or f.get("charge_left", 0.0) > 0
 
 static func speed(f) -> float:
 	if immobilized(f): return 0.0
@@ -50,7 +54,7 @@ static func attempt(c, f, move) -> bool:
 	return true
 
 static func apply(c, f, payload, move) -> bool:
-	if f.hp <= 0: return false
+	if f.hp <= 0 or (not move.is_empty() and avoids(f,move)): return false
 	var status: String = NAMES.get(payload.get("status", ""), "")
 	var changed = false
 	if status != "":

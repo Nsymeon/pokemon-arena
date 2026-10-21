@@ -4,6 +4,7 @@ const FIELD = Rect2(0, 0, 2400, 1200)
 const ARENA_ORIGIN = Vector2(40, 180)
 const ARENA_SCALE = 0.8
 var camera_offset = Vector2.ZERO
+var enemy_bench = preload("res://enemy_switching.gd").new()
 var balance = preload("res://battle_balance.gd").new()
 var weather = preload("res://weather_rules.gd").new()
 var weather_choice: OptionButton
@@ -211,9 +212,13 @@ func reset():
 	quick_attack_active = false
 	shake = 0
 	notice_time = 0
+	enemy_bench.reset(self)
 
 func _unhandled_input(event):
 	if frontend.layer != null and frontend.layer.visible: return
+	if enemy_bench.timer>=0:
+		if event is InputEventKey and event.pressed and not event.echo and event.keycode==KEY_ESCAPE: paused = not paused
+		return
 	if adventure.exploring:
 		adventure.handle_input(event)
 		return
@@ -333,7 +338,7 @@ func use_move(user: Dictionary, target: Dictionary, index: int, direction: Vecto
 	if not Conditions.attempt(self, user, move): return false
 	timers[index] = move.cooldown
 	user.energy -= move.cost
-	if move.get("charge_time", 0.0) > 0 and move.id!="fly":
+	if move.get("charge_time", 0.0) > 0 and move.id not in ["fly","dig"]:
 		user.charge_left = float(move.charge_time)
 		user.pending_move = {"move": move.duplicate(true), "direction": direction, "friendly": friendly}
 		user.heading = direction
@@ -355,7 +360,7 @@ func execute_move(user: Dictionary, target: Dictionary, move: Dictionary, direct
 		move = copied.duplicate(true)
 		for key in ["weather_prepared","weather_power","area_scale"]: move.erase(key)
 		move = weather.prepare(move)
-		if move.get("charge_time",0)>0 and move.id!="fly":
+		if move.get("charge_time",0)>0 and move.id not in ["fly","dig"]:
 			user.charge_left = move.charge_time
 			user.pending_move = {"move":move,"direction":direction,"friendly":friendly}
 			user.action_lock = 1.0
@@ -516,7 +521,10 @@ func _process(delta):
 	selection_controls.visible = selecting and not campaign.layer.visible
 	if not paused and not selecting and not switch_menu:
 		update_effects(delta)
-		if switch_time >= 0:
+		if enemy_bench.timer>=0:
+			enemy_bench.timer += delta
+			if enemy_bench.timer>=0.7: enemy_bench.complete(self)
+		elif switch_time >= 0:
 			switch_time += delta
 			if switch_time >= 0.7: complete_switch()
 		elif countdown > 0:
@@ -624,7 +632,7 @@ func update_projectiles(dt: float):
 func finish_round():
 	if result != "": return
 	var player_out = player.hp <= 0 and (not team_mode or not has_player_reserve())
-	var enemy_out = enemy.hp <= 0 and (not team_mode or enemy_active >= enemy_party_size() - 1)
+	var enemy_out = enemy.hp <= 0 and (not team_mode or enemy_bench.reserve(self)<0)
 	result = "DRAW" if player_out and enemy_out else "DEFEAT" if player_out else "VICTORY" if enemy_out else "SWITCH"
 	result_time = 0.0
 	quick_attack_active = false
@@ -647,6 +655,8 @@ func finish_round():
 
 func update_ai(dt: float):
 	if enemy.hp <= 0 or player.hp <= 0: return
+	enemy_bench.tick(self,dt)
+	if enemy_bench.timer>=0: return
 	var offset: Vector2 = player.pos - enemy.pos
 	var distance = offset.length()
 	var direction = offset.normalized()
@@ -713,6 +723,7 @@ func damage_amount(attacker: Dictionary, target: Dictionary, base_damage: float,
 	var move_type: String = move.get("type", "Normal")
 	if move.get("fixed_damage", false):
 		return base_damage * (0.0 if Dex.effectiveness(move_type,Conditions.types(target)) == 0 else 1.0) * (0.5 if target.guard > 0 else 1.0)
+	if target.get("volatile",{}).get("underground",0)>0 and move.get("id","") in ["earthquake","magnitude"]: base_damage *= 2
 	var physical = move.get("category", "Physical") == "Physical"
 	var attack_stat: float = attacker.data.base_stats.atk if physical else attacker.data.base_stats.spa
 	var defense_stat: float = target.data.base_stats.def if physical else target.data.base_stats.spd
@@ -727,7 +738,7 @@ func damage_amount(attacker: Dictionary, target: Dictionary, base_damage: float,
 	return snappedf(base_damage * ratio * stab * multiplier * boost * (0.5 if target.guard > 0 else 1.0), 0.1)
 
 func hit(target: Dictionary, damage: float, direction: Vector2, friendly: bool, move: Dictionary = {}, owner: Dictionary = {}, attack_snapshot: Dictionary = {}) -> float:
-	if target.inv > 0 or target.hp <= 0 or target.get("volatile",{}).get("airborne",0)>0: return 0.0
+	if target.inv > 0 or target.hp <= 0 or Conditions.avoids(target,move): return 0.0
 	if move.get("id", "") == "dreameater" and target.ailment != "sleep": return 0.0
 	var attacker = owner if not owner.is_empty() else player if friendly else enemy
 	var offense = attack_snapshot if not attack_snapshot.is_empty() else attacker
@@ -986,7 +997,7 @@ func draw_hud():
 				if not alive: draw_line(pos-Vector2(7,7),pos+Vector2(7,7),Color("ed8272"),2)
 				if i==active: draw_arc(pos,13,0,TAU,24,accent,2)
 			else:
-				if i<active or (i==active and f.hp<=0): draw_circle(pos,5,Color("3d4d56"))
+				if (enemy_bench.states[i].hp<=0 if team_mode and i<enemy_bench.states.size() else f.hp<=0): draw_circle(pos,5,Color("3d4d56"))
 				else: draw_pokeball(pos,5)
 				if i==active: draw_arc(pos,8,0,TAU,16,accent,1)
 
@@ -1016,6 +1027,13 @@ func draw_ellipse(center: Vector2, radii: Vector2, color: Color):
 	draw_colored_polygon(points, color)
 
 func draw_creature(fighter: Dictionary, friendly: bool):
+	if not selecting and not friendly and enemy_bench.timer>=0:
+		enemy_bench.draw_recall(self)
+		return
+	if fighter.get("hp",1)>0 and fighter.get("volatile",{}).get("underground",0)>0:
+		draw_ellipse(fighter.pos,Vector2(30,12),Color(0.12,0.08,0.03,0.85))
+		draw_arc(fighter.pos,30,0,TAU,24,Color("b69b69"),3)
+		return
 	if not selecting and friendly and switch_time >= 0:
 		draw_switch_recall()
 		return
@@ -1757,7 +1775,7 @@ func opponent_name() -> String:
 
 func can_continue_team() -> bool:
 	if not team_mode or result == "": return false
-	return (player.hp > 0 or has_player_reserve()) and (enemy.hp > 0 or enemy_active < enemy_party_size() - 1)
+	return (player.hp > 0 or has_player_reserve()) and (enemy.hp > 0 or enemy_bench.reserve(self)>=0)
 
 func replacement(friendly: bool, index: int) -> Dictionary:
 	var fighter: Dictionary = (player if friendly else enemy).duplicate(true)
@@ -1790,9 +1808,7 @@ func advance_team():
 		activate_player(next_player_reserve())
 		sprinting = false
 	if enemy.hp <= 0:
-		enemy_active += 1
-		enemy = replacement(false, enemy_team[enemy_active])
-		enemy_cooldowns = [0.0, 0.0, 0.0, 0.0]
+		enemy_bench.activate(self,enemy_bench.reserve(self))
 	result = ""
 	result_time = 0
 	fields.intermission(self)
@@ -1848,6 +1864,7 @@ func style_tests():
 	for state in player_states: state.hp = 0
 	player_active = 5
 	enemy_active = 5
+	for f in enemy_bench.states: f.hp = 0
 	player.hp = 0
 	enemy.hp = 0
 	finish_round()
@@ -1972,9 +1989,9 @@ func activate_player(slot: int):
 	sprinting = false
 
 func request_switch(slot: int) -> bool:
-	if not team_mode or paused or countdown > 0 or result != "" or switch_time >= 0: return false
+	if not team_mode or paused or countdown > 0 or result != "" or switch_time >= 0 or enemy_bench.timer>=0: return false
 	if slot < 0 or slot >= player_states.size() or slot == player_active or player_states[slot].hp <= 0: return false
-	if player.get("charge_left", 0.0) > 0 or player.get("volatile", {}).get("partiallytrapped", 0) > 0 or player.get("volatile",{}).get("airborne",0)>0:
+	if player.get("charge_left", 0.0) > 0 or player.get("volatile", {}).get("partiallytrapped", 0) > 0 or player.get("volatile",{}).get("airborne",0)>0 or player.get("volatile",{}).get("underground",0)>0:
 		Conditions.note(player, "CANNOT SWITCH")
 		return false
 	if switch_cooldown > 0:
@@ -2324,7 +2341,7 @@ func update_resolution(delta: float):
 		result_time = minf(until, result_time + dt)
 		if is_equal_approx(result_time, until): result_time = until
 		var player_out = player.hp <= 0 and (not team_mode or not has_player_reserve())
-		var enemy_out = enemy.hp <= 0 and (not team_mode or enemy_active >= enemy_party_size() - 1)
+		var enemy_out = enemy.hp <= 0 and (not team_mode or enemy_bench.reserve(self)<0)
 		result = "DRAW" if player_out and enemy_out else "DEFEAT" if player_out else "VICTORY" if enemy_out else "SWITCH"
 
 func persistent_attack_tests():
@@ -2702,8 +2719,8 @@ func capture_loadouts():
 	await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png("res://captures/move-dropdown.png")
 	move_editor.popup.hide()
-	for entry in [["icebeam",0.3],["earthquake",0.8],["fly",0.9],["whirlpool",0.8]]:
-		pick(6 if entry[0]=="fly" else 9,6)
+	for entry in [["icebeam",0.3],["earthquake",0.8],["fly",0.9],["dig",0.9],["whirlpool",0.8]]:
+		pick(6 if entry[0]=="fly" else 28 if entry[0]=="dig" else 9,6)
 		selecting = false
 		selection_controls.visible = false
 		rocks.clear()
@@ -2717,4 +2734,15 @@ func capture_loadouts():
 		await get_tree().process_frame
 		await RenderingServer.frame_post_draw
 		get_viewport().get_texture().get_image().save_png("res://captures/custom-"+entry[0]+".png")
+	team_mode = true
+	reset()
+	countdown = 0
+	selecting = false
+	enemy_bench.cooldown = 0
+	enemy_bench.request(self,1)
+	enemy_bench.timer = 0.35
+	queue_redraw()
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://captures/enemy-switch.png")
 	get_tree().quit()

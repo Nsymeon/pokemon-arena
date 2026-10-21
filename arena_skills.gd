@@ -87,8 +87,9 @@ func description(move) -> String:
 	if move.id == "hurricane": return "WIND VORTEX"
 	if move.id == "surf": return "RIDE WAVE"
 	if move.id in ["thunderbolt", "thunder"]: return "AIM CIRCLE"
-	if move.id == "earthquake": return "SHOCKWAVE / ARENA WIDTH 1/3"
-	if move.id == "whirlpool": return "PULL VORTEX / WIDTH 1/5"
+	if move.id == "earthquake": return "SHOCKWAVE / ARENA WIDTH 1/5"
+	if move.id == "whirlpool": return "PULL VORTEX / WIDTH 1/6"
+	if move.id == "dig": return "BURROW / MARK / ERUPT"
 	if move.id == "fly": return "ASCEND / MARK / DIVE"
 	return move.kind.to_upper()
 
@@ -112,7 +113,7 @@ func launch(c, user, target, move, direction, friendly) -> bool:
 	var delay = 0.75 if kind in ["lightning", "rocks", "vortex", "psychic"] else 0.3 if kind == "quake" else 0.0
 	var duration = 1.45 if kind == "wave" else delay + 0.55
 	if kind == "beam": duration = 1.35
-	var radius = c.balance.bounds(c).size.x/3.0 if kind=="quake" else 110.0 if kind in ["lightning","rocks","vortex","psychic"] else 310.0
+	var radius = c.balance.bounds(c).size.x/5.0 if kind=="quake" else 110.0 if kind in ["lightning","rocks","vortex","psychic"] else 310.0
 	if kind=="quake": duration = delay+radius/900.0+0.3
 	c.shots.append({"skill": kind, "scale": move.get("area_scale", 1.0), "pos": point, "origin": user.pos, "dir": direction.normalized(), "vel": direction * 620, "age": 0.0, "life": duration, "duration": duration, "delay": delay, "damage": move.damage, "radius": radius, "friendly": friendly, "owner": user, "attack_snapshot": user.duplicate(true), "color": c.Dex.color(move.type), "move": move.duplicate(true), "hit_done": false, "rocks_hit": []})
 	return true
@@ -122,7 +123,7 @@ func riding(c, fighter) -> bool:
 
 func tick(c, s, dt):
 	if s.life <= 0: return
-	if s.skill in ["fly","whirlpool"]:
+	if s.skill in ["fly","dig","whirlpool"]:
 		areas.tick(c,s,dt)
 		return
 	if s.skill == "rush":
@@ -182,7 +183,7 @@ func draw_charge(c, fighter):
 	c.draw_arc(start, 20 + fighter.charge_left * 30, 0, TAU, 48, Color("e5ff9e"), 3, true)
 
 func draw(c, s):
-	if s.skill in ["fly","whirlpool"]:
+	if s.skill in ["fly","dig","whirlpool"]:
 		areas.draw(c,s)
 		return
 	if s.skill == "rush":

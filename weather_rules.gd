@@ -34,7 +34,7 @@ func tick(c, dt: float):
 		for f in [c.player, c.enemy]:
 			var immune = kind == "sand" and ("Rock" in preload("res://status_rules.gd").types(f) or "Ground" in preload("res://status_rules.gd").types(f) or "Steel" in preload("res://status_rules.gd").types(f))
 			immune = immune or (kind == "hail" and "Ice" in preload("res://status_rules.gd").types(f))
-			if kind in ["sand", "hail"] and not immune and f.hp > 0:
+			if kind in ["sand", "hail"] and not immune and f.hp > 0 and f.volatile.get("underground",0)<=0:
 				f.hp = maxf(0, f.hp - f.data.hp * 0.01)
 				c.Conditions.note(f, kind.to_upper())
 	if remaining >= 0:

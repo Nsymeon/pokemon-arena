@@ -281,8 +281,19 @@ In Free Battles and the Gym Leaders team builder, click a move in the lower Poke
 
 Selections persist in `user://battle-moves.json` per side, team slot and species, separately from Adventure learned moves and inventory. Free Battles allows editing both custom teams; Gym Leaders edits your team while retaining the original opposing trainer moves. The added catalog uses the existing real-time move adaptations; not every cartridge-specific special rule has a dedicated implementation.
 
-Ice Beam now has a 20-unit half-width (previously 48). Earthquake expands from the cast position to a radius of one third of the playable arena width. Whirlpool creates a fixed 2.5-second vortex around the cast position, radius one fifth of that width, dealing one contact hit and pulling affected opponents inward at up to 165 units/second. Circles show their damage/pull boundaries.
+Ice Beam now has a 20-unit half-width (previously 48). Earthquake expands from the cast position to a radius of one fifth of the playable arena width. Whirlpool creates a fixed 2.5-second vortex around the cast position, radius one sixth of that width, dealing one contact hit and pulling affected opponents inward at up to 165 units/second. Circles show their damage/pull boundaries.
 
 Fly skips the old stationary charge: the Pokemon rises, tracks the opponent during its first 0.6 seconds, locks a 115-unit landing circle, then dives at 1.5 seconds. The target can leave the marked area to dodge. The caster cannot move, switch or attack while airborne and avoids normal incoming hits. Committed impacts still resolve after caster fainting.
 
 `node tools/build-battle-learnsets.mjs` rebuilds the 158-species move catalog from the checked-in source data. Adventure learnsets remain separate.
+
+
+## Dig, Whirlpool eruption and opponent substitutions
+
+Whirlpool now warns for 0.55 seconds, then erupts in upward water jets while its spiral pulls inward. Its radius is one sixth of playable arena width; Earthquake uses one fifth. Whirlpool rolls a 30% chance of 0.4-second flinch once on a successful hit, never each frame.
+
+Dig uses a 1.5-second underground phase, with a locked emergence warning like Fly. Most hits and targeted statuses miss underground, and sand/hail damage is avoided. Earthquake and Magnitude hit for double damage; Fissure can also connect (retaining this game's adapted damage). Abilities/Lock-On exceptions are not simulated. The source rule reference is https://bulbapedia.bulbagarden.net/wiki/Dig_(move).
+
+Opposing trainers/custom teams may make at most three voluntary substitutions per battle. They look for healthier or better attacking matchups, initially after eight combat seconds, then wait 12-20 seconds between successful changes. They cannot switch while trapped, underground, airborne, charging, or while committed attacks remain in flight. Recall/send-out pauses combat. Reserves retain HP, energy, major status and move cooldowns; withdrawal clears stat stages and volatile effects. Forced replacements after fainting do not consume the three-change budget. The fight ends only when the whole enemy team is exhausted, including earlier members who withdrew. Wild single-Pokemon battles cannot switch.
+
+Adventure story progress remains Pallet -> Blue -> Viridian Forest -> Brock -> Route 3/Mt. Moon Rocket -> Cerulean/Misty (two badges). After Misty all Kanto settlements are explorable; the later Adventure gyms, building interiors, Rocket story chapters and League finale are still pending. The separate Gym Leaders mode already includes the full leader/Elite Four/Blue challenges.
