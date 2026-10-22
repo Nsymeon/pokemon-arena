@@ -141,7 +141,7 @@ func enter():
 	in_battle = false
 	visible = true
 	position_world = Vector2(data.x,data.y)
-	dialog = "Welcome to Pallet Town! Find Professor Oak outside his lab and press E." if data.starter == 0 else "Adventure loaded. " + objective()
+	dialog = "Welcome to Pallet Town! Find Professor Oak outside his lab and press "+c.controls.text("interact")+"." if data.starter == 0 else "Adventure loaded. " + objective()
 	queue_redraw()
 
 func leave():
@@ -208,7 +208,7 @@ func tick(dt):
 	time += dt
 	if dialog == "" and modal == "":
 		var direction: Vector2 = c.movement_input()
-		var motion = direction * (280 if Input.is_physical_key_pressed(KEY_SPACE) else 195) * minf(dt,0.05)
+		var motion = direction * (280 if c.controls.held("sprint") else 195) * minf(dt,0.05)
 		if not blocked(position_world+Vector2(motion.x,0)): position_world.x += motion.x
 		if not blocked(position_world+Vector2(0,motion.y)): position_world.y += motion.y
 		if direction != Vector2.ZERO:
@@ -258,31 +258,31 @@ func travel(step: int):
 	save()
 
 func handle_input(event):
-	if event is InputEventMouseButton and event.pressed and event.button_index==MOUSE_BUTTON_RIGHT:
-		if modal=="" and dialog=="" and Rect2(0,90,1280,700).has_point(event.position):
-			var target = event.position-Vector2(0,90)+camera
+	if c.controls.matches(event,"click_move"):
+		if modal=="" and dialog=="" and Rect2(0,90,1280,700).has_point(c.get_global_mouse_position()):
+			var target = c.get_global_mouse_position()-Vector2(0,90)+camera
 			if not blocked(target):
 				c.click_destination = target
 				c.click_move = true
 		return
-	if not event is InputEventKey or not event.pressed or event.echo: return
+	if not (event is InputEventKey or event is InputEventMouseButton) or not event.pressed: return
+	if event is InputEventKey and event.echo: return
 	if modal != "":
-		if event.keycode == KEY_ESCAPE:
+		if event is InputEventKey and event.keycode == KEY_ESCAPE:
 			if modal.begins_with("EVOLUTION"): next_evolution()
 			else: clear_ui()
 		return
 	if dialog != "":
-		if event.keycode in [KEY_E,KEY_ENTER,KEY_SPACE,KEY_ESCAPE]: dialog = ""
+		if c.controls.matches(event,"interact") or c.controls.matches(event,"sprint") or (event is InputEventKey and event.keycode in [KEY_ENTER,KEY_ESCAPE]): dialog = ""
 		return
-	match event.keycode:
-		KEY_M: Kanto.guide(self)
-		KEY_E: interact()
-		KEY_P: party_menu()
-		KEY_I: inventory.bag()
-		KEY_ESCAPE: menu()
-		KEY_F5:
-			var ok = save()
-			dialog = "Adventure saved." if ok else save_error
+	if c.controls.matches(event,"map"): Kanto.guide(self)
+	elif c.controls.matches(event,"interact"): interact()
+	elif c.controls.matches(event,"party"): party_menu()
+	elif c.controls.matches(event,"bag"): inventory.bag()
+	elif event is InputEventKey and event.keycode==KEY_ESCAPE: menu()
+	elif c.controls.matches(event,"save"):
+		var ok=save()
+		dialog="Adventure saved." if ok else save_error
 
 func interact():
 	c.click_move = false
@@ -291,7 +291,7 @@ func interact():
 			match npc[2]:
 				"oak":
 					if data.starter == 0: starter_menu()
-					else: dialog = "Oak: Weaken wild Pokemon, then press G in battle to throw a Poke Ball. Press P outside battle to manage your team."
+					else: dialog = "Oak: Weaken wild Pokemon, then press "+c.controls.text("capture")+" in battle to throw a Poke Ball. Press "+c.controls.text("party")+" outside battle to manage your team."
 				"guide": dialog = Kanto.CITIES[int(data.map)][2]
 				"heal": heal()
 				"shop": inventory.shop()
@@ -308,7 +308,7 @@ func interact():
 		if position_world.distance_to(wild[0]) <= 95:
 			begin_battle("wild",[wild[1]],[wild[2]])
 			return
-	dialog = "Move closer to a person or wild Pokemon, then press E."
+	dialog = "Move closer to a person or wild Pokemon, then press "+c.controls.text("interact")+"."
 
 func new_mon(id: int, level: int) -> Dictionary:
 	return {"id":id,"level":level,"xp":0,"hp":1.0,"moves":inventory.starting(id,level),"pending":[],"ailment":""}
@@ -528,7 +528,7 @@ func party_menu():
 		var mon = data.party[i]
 		ui_button("%s  Lv.%d  / HP %d%% / XP %d%s" % [mon_name(mon.id),mon.level,roundi(mon.hp*100),mon.xp," / LEAD" if i==0 else ""],Vector2(180,230+i*66),Vector2(680,54),set_lead.bind(i))
 	ui_button("MOVESETS",Vector2(890,310),Vector2(210,55),inventory.move_party)
-	ui_button("BAG / I",Vector2(890,390),Vector2(210,55),inventory.bag)
+	ui_button("BAG / "+c.controls.text("bag"),Vector2(890,390),Vector2(210,55),inventory.bag)
 	ui_button("STORAGE (%d)" % data.storage.size(),Vector2(890,230),Vector2(210,55),storage_menu)
 
 func set_lead(slot):
@@ -682,7 +682,7 @@ func _draw():
 		draw_rect(Rect2(x+10,875,180,4),Color("354c50"))
 		draw_rect(Rect2(x+10,875,180*xp_ratio(mon),4),Color("79aaff"))
 		words("EXP %d / %d" % [mon.xp,xp_needed(mon)] if mon.level<30 else "MAX LEVEL",Vector2(x+10,898),12,Color("79aaff"))
-	words("WASD / RMB / MOVE     SPACE / RUN     E / INTERACT     P / TEAM   I / BAG   F5 / SAVE   M / MAP   ESC / MENU",Vector2(30,925),17)
+	words("Run: "+c.controls.text("sprint")+"   Talk: "+c.controls.text("interact")+"   Team: "+c.controls.text("party")+"   Bag: "+c.controls.text("bag")+"   Save: "+c.controls.text("save")+"   Map: "+c.controls.text("map")+"   Esc: Menu",Vector2(30,925),17)
 	if save_error!="": words(save_error,Vector2(30,953),15,Color("ff9999"))
 	if dialog!="":
 		draw_rect(Rect2(80,630,1120,145),Color("10252f"))
@@ -848,7 +848,7 @@ func grant_xp(amount: int) -> String:
 			for move in mon.moves:
 				if move not in known_before: message += mon_name(mon.id)+" learned "+inventory.book.moves[move].name+"! "
 			for move in mon.pending:
-				if move not in pending_before: message += mon_name(mon.id)+" can learn "+inventory.book.moves[move].name+" (P / MOVESETS). "
+				if move not in pending_before: message += mon_name(mon.id)+" can learn "+inventory.book.moves[move].name+" ("+c.controls.text("party")+" / MOVESETS). "
 		if mon.level>=30: mon.xp = 0
 		if not mon.pending.is_empty(): message += "New moves waiting: P / MOVESETS. "
 	return message
@@ -1008,7 +1008,7 @@ func reset_adventure() -> bool:
 	c.paused = false
 	c.switch_menu = false
 	clear_ui()
-	dialog = "New adventure started! Find Professor Oak outside his lab and press E."
+	dialog = "New adventure started! Find Professor Oak outside his lab and press "+c.controls.text("interact")+"."
 	if not backup_ok: dialog += " Save succeeded; backup could not be refreshed."
 	queue_redraw()
 	return true

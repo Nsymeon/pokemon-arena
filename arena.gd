@@ -94,7 +94,12 @@ var selection_controls: CanvasLayer
 var query = ""
 var test_failures: Array = []
 
+var controls = preload("res://keybinds.gd").new()
+
 func _ready():
+	add_child(controls)
+	controls.install()
+	if "--capture-controls" in OS.get_cmdline_user_args(): call_deferred("capture_controls")
 	rng.seed = 47
 	sound = AudioStreamPlayer.new()
 	add_child(sound)
@@ -225,14 +230,14 @@ func _unhandled_input(event):
 	if adventure.in_battle and adventure.modal != "":
 		if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE: adventure.clear_ui()
 		return
-	if adventure.in_battle and event is InputEventKey and event.pressed and not event.echo:
-		if event.physical_keycode == KEY_I:
+	if adventure.in_battle:
+		if controls.matches(event,"bag"):
 			if result == "" and countdown<=0 and not paused and not switch_menu and switch_time<0 and adventure.capture_time<=0 and player.get("action_lock",0)<=0 and player.get("charge_left",0)<=0: adventure.inventory.bag()
 			return
-		if event.physical_keycode == KEY_G:
+		if controls.matches(event,"capture"):
 			adventure.throw_ball()
 			return
-		if event.physical_keycode in [KEY_R, KEY_TAB, KEY_ENTER]:
+		if controls.matches(event,"restart") or controls.matches(event,"roster") or (result!="" and event is InputEventKey and event.pressed and event.keycode==KEY_ENTER):
 			if not can_continue_team(): adventure.return_world()
 			return
 	if adventure.in_battle and adventure.capture_time > 0: return
@@ -246,46 +251,42 @@ func _unhandled_input(event):
 	if switch_time >= 0:
 		if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE: paused = not paused
 		return
-	if event is InputEventKey and event.pressed and not event.echo:
-		if event.keycode == KEY_TAB:
-			if campaign.active:
-				campaign.show_hub()
-				return
-			selecting = true
-			if team_mode:
-				player_index = player_team[team_slot]
-				enemy_index = enemy_team[team_slot]
+	if controls.matches(event,"roster"):
+		if campaign.active:
+			campaign.show_hub()
 			return
-		if event.keycode == KEY_R:
-			if campaign.active:
-				if result != "" and resolution_ready():
-					campaign.record_result()
-					campaign.show_hub()
-				elif result == "": reset()
-				return
-			reset()
-		if event.keycode == KEY_ESCAPE:
-			paused = not paused
-		if not paused and result == "" and countdown <= 0:
-			for i in range(4):
-				if event.keycode == [KEY_Q, KEY_E, KEY_F, KEY_C][i]:
-					attack(i)
-			if event.keycode == KEY_B and team_mode:
-				switch_menu = true
-			if event.keycode >= KEY_1 and event.keycode <= KEY_6:
-				request_switch(event.keycode - KEY_1)
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
-		if not paused and result == "" and countdown<=0 and Rect2(40,180,1200,600).has_point(event.position):
-			var court = balance.bounds(self)
-			click_destination = screen_to_arena(event.position).clamp(court.position,court.end)
-			click_move = true
+		selecting = true
+		if team_mode:
+			player_index = player_team[team_slot]
+			enemy_index = enemy_team[team_slot]
 		return
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		if not paused and result == "" and countdown <= 0:
-			attack(0)
+	if controls.matches(event,"restart"):
+		if campaign.active:
+			if result != "" and resolution_ready():
+				campaign.record_result()
+				campaign.show_hub()
+			elif result == "": reset()
+			return
+		reset()
+		return
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode==KEY_ESCAPE:
+		paused = not paused
+		return
+	if not paused and result == "" and countdown <= 0:
+		for i in range(4):
+			if controls.matches(event,"move"+str(i+1)): attack(i)
+		if controls.matches(event,"switch") and team_mode: switch_menu=true
+		for i in range(6):
+			if controls.matches(event,"slot"+str(i+1)): request_switch(i)
+		if controls.matches(event,"click_move"):
+			var mouse=get_global_mouse_position()
+			if Rect2(40,180,1200,600).has_point(mouse):
+				var court=balance.bounds(self)
+				click_destination=screen_to_arena(mouse).clamp(court.position,court.end)
+				click_move=true
 
 func movement_input() -> Vector2:
-	var keyboard = Vector2(float(Input.is_physical_key_pressed(KEY_D) or Input.is_physical_key_pressed(KEY_RIGHT)) - float(Input.is_physical_key_pressed(KEY_A) or Input.is_physical_key_pressed(KEY_LEFT)), float(Input.is_physical_key_pressed(KEY_S) or Input.is_physical_key_pressed(KEY_DOWN)) - float(Input.is_physical_key_pressed(KEY_W) or Input.is_physical_key_pressed(KEY_UP))).normalized()
+	var keyboard = Vector2(float(controls.held("right"))-float(controls.held("left")),float(controls.held("down"))-float(controls.held("up"))).normalized()
 
 	if keyboard!=Vector2.ZERO:
 		click_move = false
@@ -576,7 +577,7 @@ func update_battle(dt: float):
 	round_time += dt
 	notice_time -= dt
 	switch_cooldown = maxf(0, switch_cooldown - dt)
-	sprinting = Input.is_physical_key_pressed(KEY_SPACE) and movement_input() != Vector2.ZERO and player.dash_time <= 0 and player.energy >= 12.0 * dt and not Conditions.immobilized(player)
+	sprinting = controls.held("sprint") and movement_input() != Vector2.ZERO and player.dash_time <= 0 and player.energy >= 12.0 * dt and not Conditions.immobilized(player)
 	for i in range(4):
 		cooldowns[i] = maxf(0, cooldowns[i] - dt)
 		enemy_cooldowns[i] = maxf(0, enemy_cooldowns[i] - dt)
@@ -613,7 +614,7 @@ func update_battle(dt: float):
 	if player.dash_time <= 0:
 		quick_attack_active = false
 		var direction = movement_input()
-		sprint_movement(direction, dt, Input.is_physical_key_pressed(KEY_SPACE))
+		sprint_movement(direction, dt, controls.held("sprint"))
 		if absf(direction.x) > 0:
 			player.face = signf(direction.x)
 	elif quick_attack_active and player.pos.distance_to(enemy.pos) < 48 * player.dash_move.get("area_scale", 1.0) and player.inv > 0:
@@ -1241,7 +1242,7 @@ func draw_ball_sequence(fighter: Dictionary, friendly: bool):
 			draw_arc(hand, 10 + glow * 10, 0, TAU, 24, Color(1, 0.5, 0.6, glow), 2)
 
 func draw_moves():
-	var keys = ["Q / LMB", "E", "F", "C"]
+	var keys = [controls.text("move1"),controls.text("move2"),controls.text("move3"),controls.text("move4")]
 	for i in range(player.data.moves.size()):
 		var move: Dictionary = weather.prepare(player.data.moves[i])
 		var type_color = Dex.color(move.type)
@@ -1256,10 +1257,10 @@ func draw_moves():
 			bar(Vector2(x, 753), 233, 1 - cooldowns[i] / move.cooldown, type_color, 3)
 			label_at("%.1fs" % remaining, Vector2(x + 184, 720), 12, GOLD)
 	panel(Rect2(1028, 678, 212, 78), Color("142831"))
-	label_at("SPACE / SPRINT", Vector2(1042, 704), 16, MINT)
+	label_at(controls.text("sprint")+" / SPRINT", Vector2(1042, 704), 16, MINT)
 	label_at("HOLD / +35% SPEED", Vector2(1042, 731), 12, WHITE)
-	label_at("WASD / RMB  Move     MOUSE  Aim     Q E F C  Moves     SPACE  Sprint", Vector2(40, 783), 12, Color("91a6a7"))
-	label_at("B / 1–6: Switch   TAB: Roster   ESC: Pause", Vector2(945, 783), 11, Color("91a6a7"))
+	label_at("Move: "+controls.text("up")+", "+controls.text("left")+", "+controls.text("down")+", "+controls.text("right")+" / "+controls.text("click_move")+"    Aim: Mouse", Vector2(40, 783), 12, Color("91a6a7"))
+	label_at(controls.text("switch")+": Team  "+controls.text("roster")+": Roster  Esc: Pause", Vector2(945, 783), 11, Color("91a6a7"))
 
 func move_description(move: Dictionary, target_types) -> String:
 	if weather.MOVES.has(move.id): return "WEATHER / 20s / WHOLE ARENA"
@@ -1597,6 +1598,7 @@ func movement_recovery_tests():
 	reset()
 
 func smoke_test():
+	controls.tests(self)
 	movement_recovery_tests()
 	homing_tests()
 	art.tests(self)
@@ -2122,9 +2124,9 @@ func complete_switch():
 	particles.clear()
 
 func switch_input(event):
-	if event is InputEventKey and event.pressed and not event.echo:
-		if event.keycode in [KEY_B, KEY_ESCAPE]: switch_menu = false
-		if event.keycode >= KEY_1 and event.keycode <= KEY_6: request_switch(event.keycode - KEY_1)
+	if controls.matches(event,"switch") or (event is InputEventKey and event.pressed and event.keycode==KEY_ESCAPE): switch_menu=false
+	for i in range(6):
+		if controls.matches(event,"slot"+str(i+1)): request_switch(i)
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		var mouse = get_global_mouse_position()
 		for i in range(6):
@@ -2136,7 +2138,7 @@ func switch_card(slot: int) -> Rect2:
 func draw_switch_menu():
 	draw_rect(Rect2(0, 0, 1280, 960), Color(0.02, 0.04, 0.08, 0.88))
 	label_at("CHOOSE YOUR POKÉMON", Vector2(390, 220), 30, GOLD)
-	label_at("Battle paused • Click / 1–6 to switch • B / Esc to return", Vector2(370, 252), 15)
+	label_at("Battle paused • Click a Pokemon to switch • "+controls.text("switch")+" / Esc to return", Vector2(370, 252), 15)
 	for i in range(player_states.size()):
 		var f: Dictionary = player_states[i]
 		var rect = switch_card(i)
@@ -2839,3 +2841,36 @@ func capture_loadouts():
 	await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png("res://captures/enemy-switch.png")
 	get_tree().quit()
+
+func capture_controls():
+	set_process(false)
+	DirAccess.make_dir_recursive_absolute("res://captures")
+	for screen in ["title","instructions","settings","capture"]:
+		match screen:
+			"title": frontend.show_title()
+			"instructions": frontend.show_instructions()
+			"settings": frontend.show_settings()
+			"capture":
+				var dummy=Button.new()
+				frontend.layer.add_child(dummy)
+				frontend.capture_key("move1",0,"Attack 1",dummy)
+		await get_tree().process_frame
+		await get_tree().process_frame
+		await RenderingServer.frame_post_draw
+		get_viewport().get_texture().get_image().save_png("res://captures/controls-"+screen+".png")
+	var key=InputEventKey.new()
+	key.physical_keycode=KEY_Z
+	key.keycode=KEY_Z
+	key.pressed=true
+	controls._input(key)
+	check(controls.capturing=="" and controls.bindings.move1[0]==KEY_Z,"Capture dialog assigns key and closes")
+	controls.reset_defaults(false)
+	frontend.layer.visible=false
+	pick(25,7)
+	countdown=0
+	controls.assign("move1",0,KEY_Z,false)
+	_unhandled_input(key)
+	check(player.action_lock>0,"Remapped attack reaches live battle input handler")
+	controls.reset_defaults(false)
+	print("PASS: title, instructions, settings, key capture and live rebound attack" if test_failures.is_empty() else str(test_failures))
+	get_tree().quit(0 if test_failures.is_empty() else 1)

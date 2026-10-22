@@ -64,7 +64,9 @@ func show_title():
 	portrait(25,Rect2(520,380,240,240))
 	portrait(9,Rect2(880,395,245,245))
 	button("PLAY",Rect2(440,690,400,80),show_modes)
-	button("QUIT",Rect2(520,800,240,50),c.get_tree().quit)
+	button("INSTRUCTIONS",Rect2(330,790,300,55),show_instructions)
+	button("SETTINGS",Rect2(650,790,300,55),show_settings)
+	button("QUIT",Rect2(520,875,240,45),c.get_tree().quit)
 
 func show_modes():
 	background()
@@ -89,3 +91,89 @@ func choose(mode):
 		0: c.adventure.enter()
 		1: c.campaign.show_hub()
 		2: c.campaign.free_battle()
+
+func show_instructions():
+	background()
+	label("HOW TO PLAY",Vector2(430,65),42,Color("f9d86b"))
+	var sections=[
+		["ADVENTURE", "Start in Pallet Town, choose a starter, catch Pokemon and earn XP.\nLearn moves, evolve, use your Bag and TMs. Your journey autosaves.\nStory battles currently reach Misty; the remaining Kanto towns are explorable."],
+		["GYM LEADERS", "Challenge the eight Kanto Gym Leaders, Elite Four and Blue.\nBuild your team and choose its moves. League progress saves separately\nfrom Adventure."],
+		["FREE BATTLES", "Choose Pokemon, moves, opponents and arenas for practice matches.\nExperiment with team combinations without changing Adventure progress."],
+		["REAL-TIME COMBAT", "Aim with the mouse. Use four moves, sprint and switch Pokemon.\nMoves have energy costs and cooldowns: normally 1 second between attacks.\nAfter casting, walking/sprint pauses for 0.4 seconds. Sprint gives no invulnerability.\nHoming attacks can chase for 3 seconds: sprint sideways to evade them."],
+		["CONTROLS", "Settings lets you change keyboard and mouse bindings, with two slots per action.\nClick a binding, then press the new key. Backspace clears it; Esc cancels.\nEsc pauses/closes menus. Menu navigation and roster browsing use their shown controls."]
+	]
+	var y=145
+	for section in sections:
+		label(section[0],Vector2(100,y),24,Color("77e2b0"))
+		label(section[1],Vector2(100,y+38),19)
+		y+=155 if section[0]=="REAL-TIME COMBAT" else 140
+	button("BACK",Rect2(490,875,300,50),show_title)
+
+func show_settings():
+	background()
+	label("CONTROLS",Vector2(465,50),42,Color("f9d86b"))
+	label("Click a key, then press its replacement. Settings save automatically.",Vector2(220,110),20)
+	label("Esc: cancel   /   Backspace: clear   /   Conflicting keys in the same mode are rejected.",Vector2(160,145),18,Color("77e2b0"))
+	var scroll=ScrollContainer.new()
+	scroll.position=Vector2(165,195)
+	scroll.size=Vector2(950,610)
+	layer.add_child(scroll)
+	var grid=GridContainer.new()
+	grid.columns=4
+	grid.add_theme_constant_override("h_separation",18)
+	grid.add_theme_constant_override("v_separation",8)
+	scroll.add_child(grid)
+	for heading in ["Action","Mode","Primary","Alternate"]:
+		var title=Label.new()
+		title.text=heading
+		grid.add_child(title)
+	for def in c.controls.DEFINITIONS:
+		var name_label=Label.new()
+		name_label.text=def[1]
+		name_label.custom_minimum_size=Vector2(270,43)
+		name_label.add_theme_font_size_override("font_size",20)
+		grid.add_child(name_label)
+		var context=Label.new()
+		context.text={1:"Battle",2:"Adventure",3:"Both"}[def[2]]
+		context.custom_minimum_size=Vector2(120,43)
+		grid.add_child(context)
+		for slot in range(2):
+			var key=Button.new()
+			key.text=c.controls.key_name(c.controls.bindings[def[0]][slot])
+			key.custom_minimum_size=Vector2(225,43)
+			key.pressed.connect(capture_key.bind(def[0],slot,def[1],key))
+			grid.add_child(key)
+	button("RESTORE DEFAULTS",Rect2(290,845,350,60),func(): c.controls.reset_defaults(); show_settings())
+	button("BACK",Rect2(675,845,250,60),show_title)
+
+func capture_key(action,slot,title,key_button):
+	var shade=ColorRect.new()
+	shade.color=Color(0,0,0,0.8)
+	shade.size=Vector2(1280,960)
+	layer.add_child(shade)
+	var box=Panel.new()
+	box.position=Vector2(290,330)
+	box.size=Vector2(700,260)
+	var style=StyleBoxFlat.new()
+	style.bg_color=Color("142b3b")
+	style.border_color=Color("77e2b0")
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(12)
+	box.add_theme_stylebox_override("panel",style)
+	shade.add_child(box)
+	var message=Label.new()
+	message.position=Vector2(25,30)
+	message.size=Vector2(650,210)
+	message.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	message.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER
+	message.add_theme_font_size_override("font_size",23)
+	message.text="Bind: "+title+"\n\nPress a keyboard key or mouse button.\nEsc cancels / Backspace clears"
+	box.add_child(message)
+	c.controls.capturing=action
+	c.controls.capture_slot=slot
+	c.controls.callback=func(error):
+		if error!="":
+			message.text=error+"\n\nTry another key. Esc cancels."
+		else:
+			key_button.text=c.controls.key_name(c.controls.bindings[action][slot])
+			shade.queue_free()
