@@ -1,40 +1,67 @@
-# Adventure: Kanto story plan
+# Kanto Adventure: current scope and route
 
-## Research and direction
+The playable main progression now runs from Pallet to Champion across **57 compact areas**. All original map IDs are preserved; new location IDs are appended. This is the functional world/story foundation for the later graphics and encounter pass, not a tile-for-tile FireRed recreation.
 
-Use the FireRed/LeafGreen story as the progression reference, with our real-time arena battles. The world remains a compact adaptation rather than a tile-for-tile remake. Current arena rosters, healing, learnsets, move selection, inventory, capture controls and party persistence are reused.
+## Main route
 
-References:
-- [Overall FireRed/LeafGreen walkthrough](https://bulbapedia.bulbagarden.net/wiki/Walkthrough:Pok%C3%A9mon_FireRed_and_LeafGreen): regional chapter order.
-- [Cerulean, Routes 24/25 and Bill](https://bulbapedia.bulbagarden.net/wiki/Walkthrough:Pok%C3%A9mon_FireRed_and_LeafGreen/Part_5): rival, bridge trainers, Bill's transporter and S.S. Ticket.
-- [Vermilion and S.S. Anne](https://bulbapedia.bulbagarden.net/wiki/Walkthrough:Pok%C3%A9mon_FireRed_and_LeafGreen/Part_6): ship rival, Captain/Cut, Gym switches, Surge's party, Thunder Badge and TM34.
+1. Pallet starter and Blue; Viridian Forest; Brock; Mt. Moon Rocket; Misty.
+2. Nugget Bridge, Bill and S.S. Ticket; S.S. Anne rival; Cut; Surge.
+3. Celadon Gym (Erika), Rocket Hideout guard, Lift Key and Giovanni for Silph Scope.
+4. Lavender Tower: reveal the ghost, defeat Rocket, rescue Fuji for the Poke Flute. Play it at the coastal or cycling-road Snorlax event.
+5. Fuchsia Gym (Koga); Safari Zone Gold Teeth and Secret House Surf; return teeth to the Warden for Strength.
+6. Saffron Silph Co.: security fight, Card Key, Blue, Giovanni and President. A separate employee awards Lapras once. Saffron Gym has a panel question and Sabrina. The optional Dojo grants one choice of Hitmonlee or Hitmonchan.
+7. Cinnabar Mansion statue and Secret Key; Cinnabar Gym quiz and Blaine.
+8. Viridian Gym Giovanni requires seven badges. Victory Road requires eight badges plus Surf and Strength: activate the boulder plate, beat the Ace Trainer and Blue.
+9. Indigo Plateau: heal, then enter the League chambers. Lorelei, Bruno, Agatha, Lance and the appropriate Blue starter variant follow in order. Champion victory saves the party's species and levels in the Hall of Fame.
 
-## Playable now: third badge
+Surge remains the earlier chapter's FireRed-style party. Later Gym/League parties reuse the existing researched Red/Blue trainer dataset with Adventure level scaling and explicit movesets. Intermediate Rocket/rival teams are adapted for this real-time progression. This is not a promise that every trainer, floor or optional item matches FireRed exactly.
 
-After Misty, take Cerulean's WEST exit to the new Nugget Bridge area. Beat Blue, the five bridge trainers in sequence, then the Rocket recruiter. The nugget reward is converted directly to $5000 once. Continue north to Sea Cottage: speak to Bill and activate his console to receive the ticket.
+## Navigation
 
-Use the existing compact Kanto connections to Vermilion. Its NORTH exit enters S.S. Anne once the ticket is owned. The deck has a healing passenger, an optional sailor, Blue and the Captain. Blue's evolved starter counters your original choice. After that rival battle, the Captain gives Cut as a permanent field tool.
+Existing signed north/south/east/west exits still link the outdoor world. Additional doors, cave passages and Gym entrances appear as labeled markers near the lower part of their parent area. Approach and use the interaction key (default E). The region guide (default M) lists both signed exits and local entrances, with missing prerequisites. Every added area has a return passage.
 
-Vermilion's WEST exit leads to the Gym after obtaining Cut. Inspect switch boxes: box 2 opens the first lock, adjacent box 3 opens the second; a wrong second choice resets the puzzle. Defeat Surge for the third Adventure badge and one TM34. His Voltorb/Pikachu/Raichu levels and Electric movesets follow the reference.
+| Parent area | Added destinations |
+| --- | --- |
+| Celadon | Gym, Rocket Hideout |
+| Lavender | Pokemon Tower |
+| Fuchsia | Gym, Safari Zone, Warden's House |
+| Safari Zone | Secret House |
+| Saffron | Silph Co., Gym, Fighting Dojo |
+| Cinnabar | Mansion, Gym, Lab |
+| Viridian | Gym, Route 2 |
+| Routes 22-23 | Victory Road |
+| Indigo Plateau | League chambers, then Hall of Fame |
+| Sea Routes 19-20 | Seafoam Islands |
+| Route 9 / Rock Tunnel | Power Plant, Route 10 |
+| Vermilion | Diglett's Cave, Route 11, Fan Club (plus S.S. Anne and Gym) |
+| Cerulean | Cerulean Cave after Champion (plus Nugget Bridge) |
+| Routes 5/6 | Underground Path connection |
+| Routes 7/8 | Underground Path connection |
 
-All story flags, bridge progress, key items and puzzle state save with the existing Adventure file. Old saves default to the new chapter being unstarted; no reset is needed. Key items appear in the Bag. Existing Kanto map IDs and exploration access are retained. New areas append IDs 26-29.
+All Kanto routes 1-25 are represented, sometimes grouped with neighboring routes. Original free exploration beyond Misty remains available. Story prerequisites gate the new interiors and events, rather than retroactively locking old saved positions in the outdoor region.
 
-Deliberate adaptations: west/north exits follow our compact map, Bill's event is outside his cottage, the ship is a single deck, the switch pair is fixed instead of randomized, and Cut does not require teaching an HM into a battle slot. The ship remains available. Bill and supporting NPCs currently reuse existing trainer sprites; dedicated character art is still pending. This update does not recreate all optional trainers/items, indoor floors, bike, fishing, trades or the cartridge's exact path gates.
+## Saving, progression and balance
 
-## Next implementation chapters
+- Existing saves need no reset. Missing `journey` flags default to unstarted. Badges, keys, gifts, puzzles, League stage and the last Hall of Fame party persist.
+- Level cap is now 100. All Gen I level-based evolution chains, including final starters and Dragonite, are supported. The existing level-up move data already extends past level 30. Stone and trade evolution mechanics are not part of this map update.
+- Late badges grant their TMs once. Lapras is placed in the party or storage; full capacity leaves the gift unclaimed. The Dojo allows only one gift choice.
+- League battles preserve party health. There is no healing NPC inside. Bag medicines remain usable. Defeat resets the run; leaving the chambers for Indigo resets it too. A save between victories resumes at the next trainer. The Champion and Hall of Fame remain recorded when replaying.
+- NPC prerequisites and one-time rewards are stored separately from the standalone Gym Leaders/League mode.
 
-1. Lavender and Celadon: route travel, Tower mystery, Erika, Rocket Hideout, Silph Scope and a return to the Tower to rescue Mr. Fuji and obtain the Poke Flute. Give each quest persistent prerequisites and one-time rewards.
-2. Fuchsia: Snorlax route gates, cycling/coastal travel, Koga, Safari exploration objectives for Surf and the Warden's Strength reward. Safari encounter rules are postponed with other wild encounter work.
-3. Saffron: Silph Co. access/card doors, rival and Giovanni, Lapras reward, Fighting Dojo choice and Sabrina.
-4. Cinnabar and Viridian: water traversal, Mansion key puzzle, Blaine, final Giovanni Gym, eight-badge access to Victory Road.
-5. Indigo: rival checkpoint, Elite Four sequence, Champion, Hall of Fame save and a clear postgame entry point.
+## Deliberate compact adaptations / deferred work
 
-Before later chapters exceed the current level-30 cap: expand level scaling, evolution coverage, trainer learnsets, rewards and save validation together. Later Gyms in the separate Gym Leaders mode do not count as completed Adventure chapters.
+New interiors are simple functional rooms with existing trainer artwork. Key interactions stand in for multi-floor dungeon navigation: Card Key doors, statues, boulder plates and warp panels do not yet reproduce the original physical tile puzzles. Most optional ordinary trainers and pickups are not reproduced. Bill's event remains outside; the ship remains one deck. Surf/Cut/Strength are progression tools, not equipped battle HMs; sea routes still use the existing walkable paths. The bicycle voucher is recorded but not redeemable yet.
 
-## Deferred by request
+Power Plant, Cerulean Cave, Lab and some connector areas currently provide exploration space/information without legendary battles, fossil revival or side quests. Sevii Islands are outside this Kanto map pass.
 
-No new grass/cave encounter method, random encounter checks, encounter frequencies or new wild spawn tables. Existing visible Pokemon and manual interaction remain as before. The four new story areas contain no wild encounters. Fishing, surfing encounters, Safari catches, roaming and legendary encounters belong to a later dedicated pass.
+Per user request, **no changes to existing grass/cave spawn tables or encounter mechanics**. No random encounters, Safari catch rules, new wild tables or legendary fights were added. Snorlax and the Tower ghost are scripted story interactions instead of new catchable encounters. The 27 new areas contain no wild spawns. Graphics upgrades and these encounter systems are the next major work.
 
 ## Verification
 
-The smoke suite covers old save compatibility, ticket/Cut/bridge gates, no progression after defeat, bridge counters, transporter ordering, Blue/Surge party dispatch, puzzle reset, one-time TM reward, save reload, malformed story data and zero wild spawns in new areas. All Kanto exits are traversed in both directions with unlocked story prerequisites. The --capture-story flag renders each new map using a temporary save, never the player's real save.
+The smoke suite walks the progression from Erika to Champion using actual trainer-party battle dispatch and KO/return/reward hooks. It checks prerequisite gates, eight badges, gifts/TMs, late evolutions, level 100, save reload, League order, loss/exit reset and Hall of Fame. It also verifies the combined outdoor/portal graph reaches all 57 maps, every new entrance has a usable return, and new locations have no wild spawns. These are automated checks; real-player difficulty and pacing still need playtesting.
+
+`--capture-finale` renders representative towns, interiors, the Hall of Fame and the region guide using a temporary save. It never reads or changes the player's actual Adventure save.
+
+## Research references
+
+The chapter order and key-item roles were checked against the [FireRed/LeafGreen walkthrough](https://bulbapedia.bulbagarden.net/wiki/Walkthrough:Pok%C3%A9mon_FireRed_and_LeafGreen): [Celadon and Tower](https://bulbapedia.bulbagarden.net/wiki/Walkthrough:Pok%C3%A9mon_FireRed_and_LeafGreen/Part_9), [Fuchsia](https://bulbapedia.bulbagarden.net/wiki/Walkthrough:Pok%C3%A9mon_FireRed_and_LeafGreen/Part_10), [Saffron](https://bulbapedia.bulbagarden.net/wiki/Walkthrough:Pok%C3%A9mon_FireRed_and_LeafGreen/Part_11), [Cinnabar](https://bulbapedia.bulbagarden.net/wiki/Walkthrough:Pok%C3%A9mon_FireRed_and_LeafGreen/Part_13), and [Indigo](https://bulbapedia.bulbagarden.net/wiki/Walkthrough:Pok%C3%A9mon_FireRed_and_LeafGreen/Part_17). Adaptations above are intentional game design decisions, not claims about cartridge mechanics.

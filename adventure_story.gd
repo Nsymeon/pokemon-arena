@@ -28,7 +28,7 @@ static func objective(a) -> String:
 	if not s.get("ship_blue",false): return "Vermilion north exit: board S.S. Anne with Bill's ticket and find Blue."
 	if not s.get("cut",false): return "S.S. Anne: speak to the Captain to receive the Cut field tool."
 	if not s.get("thunder",false): return "Vermilion west exit: use Cut, solve the Gym switches and defeat Lt. Surge."
-	return "Thunder Badge earned! Next story chapter: Lavender and Celadon (coming next)."
+	return a.Finale.objective(a)
 
 static func gate(a,dest) -> String:
 	var s=state(a)
@@ -123,7 +123,7 @@ static func reward(a,kind) -> String:
 	if kind=="surge":
 		if not s.get("thunder",false): a.data.tms["TM34"]=int(a.data.tms.get("TM34",0))+1
 		s["thunder"]=true
-		return "THUNDER BADGE earned! TM34 Shock Wave added to your TM Case. Adventure chapter complete!"
+		return "THUNDER BADGE earned! TM34 Shock Wave added to your TM Case. Continue to Celadon for Erika and Team Rocket!"
 	return ""
 
 static func prepare(a,kind):

@@ -101,6 +101,7 @@ var controls = preload("res://keybinds.gd").new()
 func _ready():
 	add_child(controls)
 	controls.install()
+	if "--capture-finale" in OS.get_cmdline_user_args(): call_deferred("capture_finale")
 	if "--capture-story" in OS.get_cmdline_user_args(): call_deferred("capture_story")
 	if "--capture-support" in OS.get_cmdline_user_args(): call_deferred("capture_support")
 	if "--capture-controls" in OS.get_cmdline_user_args(): call_deferred("capture_controls")
@@ -2991,6 +2992,46 @@ func capture_story():
 		await get_tree().process_frame
 		await RenderingServer.frame_post_draw
 		get_viewport().get_texture().get_image().save_png("res://captures/adventure-story-%d.png"%map)
+	for suffix in ["", ".bak", ".tmp"]:
+		if FileAccess.file_exists(adventure.save_path+suffix): DirAccess.remove_absolute(ProjectSettings.globalize_path(adventure.save_path+suffix))
+	get_tree().quit()
+
+func capture_finale():
+	set_process(false)
+	frontend.layer.visible=false
+	adventure.save_path="user://adventure-finale-capture.json"
+	adventure.loaded=true
+	adventure.enter()
+	adventure.choose_starter(4)
+	adventure.data.rival=true
+	adventure.data.bug_catcher=true
+	adventure.data.badge=true
+	adventure.data["rocket"]=true
+	adventure.data["cascade"]=true
+	adventure.data["story"]={"bridge_blue":true,"bridge_rocket":true,"ticket":true,"cut":true,"ship_blue":true,"thunder":true}
+	adventure.data.party=[adventure.new_mon(6,60),adventure.new_mon(131,55),adventure.new_mon(25,57)]
+	adventure.clear_ui()
+	adventure.dialog=""
+	for map in [10,16,31,36,42,43,55]:
+		adventure.data.map=map
+		adventure.position_world=Vector2(800,690)
+		adventure.camera=Vector2(160,100)
+		adventure.queue_redraw()
+		await get_tree().process_frame
+		await RenderingServer.frame_post_draw
+		get_viewport().get_texture().get_image().save_png("res://captures/kanto-final-%d.png"%map)
+	adventure.data["hall_of_fame"]=adventure.data.party.map(func(mon):return {"id":mon.id,"level":mon.level})
+	adventure.Finale.hall(adventure)
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://captures/kanto-hall-of-fame.png")
+	adventure.clear_ui()
+	adventure.data.map=10
+	adventure.queue_redraw()
+	adventure.Finale.guide(adventure)
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://captures/kanto-guide.png")
 	for suffix in ["", ".bak", ".tmp"]:
 		if FileAccess.file_exists(adventure.save_path+suffix): DirAccess.remove_absolute(ProjectSettings.globalize_path(adventure.save_path+suffix))
 	get_tree().quit()

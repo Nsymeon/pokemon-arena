@@ -106,6 +106,7 @@ func bag():
 		row(list,ITEMS[id].name+"  x"+str(count),targets.bind(id),count<=0)
 	row(list,"TM CASE",tm_case, a.in_battle)
 	row(list,a.Story.keys(a),func():pass,true)
+	for key in a.Finale.keys(a): row(list,"KEY ITEM / "+key,func():pass,true)
 
 func targets(id):
 	var list = page(ITEMS[id].name+" / CHOOSE POKEMON")

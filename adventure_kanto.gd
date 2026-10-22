@@ -5,13 +5,13 @@ const EXTRA_MAPS = ["ROUTE 5", "SAFFRON CITY", "ROUTE 6", "VERMILION CITY", "ROU
 const HEALING_MAPS = [0,2,4,8,10,12,14,16,18,20,23]
 # [landmark, city color, resident dialogue]
 const CITIES = {
-	10:["SILPH CO.","d0b26b","Saffron: Silph Co. towers above the city. Routes connect to Cerulean, Vermilion, Celadon and Lavender. Heal and stock up before exploring."],
+	10:["SILPH CO.","d0b26b","Saffron: Enter Silph Co. to stop Team Rocket. The Gym and Fighting Dojo have separate marked entrances."],
 	12:["S.S. ANNE / HARBOR","d8a45c","Vermilion: North leads to S.S. Anne; west to Lt. Surge's Gym. Bill at Sea Cottage has a ticket. The Captain can give you Cut."],
 	14:["POKEMON TOWER","a995bd","Lavender: Pokemon Tower watches over this quiet town. Rock Tunnel leads toward Cerulean; the coastal road continues to Fuchsia."],
-	16:["DEPARTMENT STORE","6aaa91","Celadon: Gardens and the department store welcome travelers. Our shop sells supplies and TMs. Cycling Road leads to Fuchsia."],
-	18:["SAFARI ZONE GATE","bd82a0","Fuchsia: The Safari Zone gate is a landmark for now. Explore the coastal routes for wild Pokemon. The southern ferry path leads to Cinnabar."],
+	16:["DEPARTMENT STORE","6aaa91","Celadon: Gardens and the department store welcome travelers. The Gym and Rocket Hideout entrances are marked below. Cycling Road leads to Fuchsia."],
+	18:["SAFARI ZONE GATE","bd82a0","Fuchsia: Enter the Safari Zone for Gold Teeth and Surf; visit the Warden for Strength. The southern ferry path leads to Cinnabar."],
 	20:["POKEMON LAB / MANSION","bb6f5e","Cinnabar: The island laboratory and old mansion overlook the sea. Marked ferry paths let you cross the sea routes without a Surf HM in this version."],
-	23:["POKEMON LEAGUE","8d9bb5","Indigo Plateau: You have reached the League! Heal here; the Elite Four and Blue can be challenged from Gym Leaders mode. The Adventure League story is still to come."]
+	23:["POKEMON LEAGUE","8d9bb5","Indigo Plateau: You have reached the League! Heal here before your Elite Four challenge. Enter the League chambers after clearing Victory Road with eight badges."]
 }
 # n/s/e/w exit directions. Early chapter layouts stay compatible; routes are compact adaptations.
 const LINKS = {
@@ -65,26 +65,16 @@ static func draw_signs(a):
 		a.words({1:"N / ",-1:"S / ",2:"E / ",-2:"W / "}[direction]+a.MAPS[dest],at,15,Color("fff0ba"))
 
 static func guide(a):
-	a.panel("KANTO / REGION GUIDE")
-	a.ui_label("HERE: "+a.MAPS[a.data.map]+"   |   Walk to the signed exits.",Vector2(180,215),18)
-	var row = 0
-	for direction in LINKS[int(a.data.map)]:
-		a.ui_label({1:"NORTH",-1:"SOUTH",2:"EAST",-2:"WEST"}[direction]+"  >  "+a.MAPS[destination(int(a.data.map),direction)],Vector2(180,260+row*30),19)
-		row += 1
-	a.ui_label("TOWNS / CITIES",Vector2(180,420),22)
-	for i in range(HEALING_MAPS.size()):
-		a.ui_label(a.MAPS[HEALING_MAPS[i]],Vector2(180+(i%3)*300,465+int(i/3)*40),18)
-	a.ui_label("Beyond Cerulean opens after Misty. Compact routes; sea crossings use ferry paths.",Vector2(180,655),17)
-	a.ui_label("Story: Nugget Bridge, Bill, S.S. Anne and Lt. Surge. Later chapters are in development.",Vector2(180,690),17)
+	a.Finale.guide(a)
 
 static func tests(a):
 	var seen = [0]
 	var pending = [0]
 	while not pending.is_empty():
 		var current = pending.pop_front()
-		for next in LINKS[current].values():
+		for next in LINKS.get(current,{}).values()+a.Finale.destinations(current):
 			a.c.check(next>=0 and next<a.MAPS.size(),"Kanto exit resolves to an existing map")
-			a.c.check(current in LINKS[next].values(),"Kanto connections allow a return trip")
+			a.c.check(current in LINKS.get(next,{}).values()+a.Finale.destinations(next),"Kanto connections allow a return trip")
 			if next not in seen: seen.append(next); pending.append(next)
 	a.c.check(seen.size()==a.MAPS.size(),"Every Kanto map is reachable")
 	a.data.map = 8

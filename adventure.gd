@@ -1,12 +1,13 @@
 extends Node2D
 
 const SAVE_PATH = "user://adventure-v1.json"
+const Finale = preload("res://adventure_finale.gd")
 const Story = preload("res://adventure_story.gd")
 const Kanto = preload("res://adventure_kanto.gd")
-var MAPS = ["PALLET TOWN", "ROUTE 1", "VIRIDIAN CITY", "VIRIDIAN FOREST", "PEWTER CITY", "ROUTE 3", "MT. MOON", "ROUTE 4", "CERULEAN CITY"] + Kanto.EXTRA_MAPS + Story.MAPS
+var MAPS = ["PALLET TOWN", "ROUTE 1", "VIRIDIAN CITY", "VIRIDIAN FOREST", "PEWTER CITY", "ROUTE 3", "MT. MOON", "ROUTE 4", "CERULEAN CITY"] + Kanto.EXTRA_MAPS + Story.MAPS + Finale.MAPS
 const STARTERS = [1,4,7]
 const WILD = {1:[16,19],3:[10,13,25,16],5:[21,39,29,32],6:[41,74,46,35],7:[19,21,23,27]}
-const EVOLUTIONS = {1:[16,2],4:[16,5],7:[16,8],10:[7,11],11:[10,12],13:[7,14],14:[10,15],16:[18,17],19:[20,20],21:[20,22],29:[16,30],32:[16,33],41:[22,42],46:[24,47],74:[25,75]}
+const EVOLUTIONS = {1:[16,2],2:[32,3],4:[16,5],5:[36,6],7:[16,8],8:[36,9],10:[7,11],11:[10,12],13:[7,14],14:[10,15],16:[18,17],17:[36,18],19:[20,20],21:[20,22],23:[22,24],27:[22,28],29:[16,30],32:[16,33],41:[22,42],43:[21,44],46:[24,47],48:[31,49],50:[26,51],52:[28,53],54:[33,55],56:[28,57],60:[25,61],63:[16,64],66:[28,67],69:[21,70],72:[30,73],74:[25,75],77:[40,78],79:[37,80],81:[30,82],84:[31,85],86:[34,87],88:[38,89],92:[25,93],96:[26,97],98:[28,99],100:[30,101],104:[28,105],109:[35,110],111:[42,112],116:[32,117],118:[33,119],129:[20,130],138:[40,139],140:[40,141],147:[30,148],148:[55,149]}
 const INITIAL_DATA = {"version":1,"map":0,"x":800.0,"y":780.0,"starter":0,"party":[],"storage":[],"balls":10,"money":300,"rival":false,"bug_catcher":false,"badge":false,"healing_map":0}
 var data = INITIAL_DATA.duplicate(true)
 var save_path = SAVE_PATH
@@ -67,9 +68,12 @@ func valid(value) -> bool:
 			for field in ["id","level","xp","hp"]:
 				if not (mon.get(field) is float or mon.get(field) is int) or not is_finite(mon[field]): return false
 			if mon.id != int(mon.id) or c.Dex.find_id(c.roster,int(mon.id)) < 0 or not c.roster.any(func(m):return int(m.id)==int(mon.id)): return false
-			if mon.level != int(mon.level) or mon.level < 1 or mon.level > 30 or mon.xp < 0 or mon.xp > 100000 or mon.hp < 0 or mon.hp > 1: return false
+			if mon.level != int(mon.level) or mon.level < 1 or mon.level > 100 or mon.xp < 0 or mon.xp > 100000 or mon.hp < 0 or mon.hp > 1: return false
 	if value.starter != 0 and value.party.is_empty(): return false
 	if value.starter == 0 and (not value.party.is_empty() or not value.storage.is_empty() or value.map != 0): return false
+	if not Finale.valid(value): return false
+	for member in value.get("hall_of_fame",[]):
+		if not c.roster.any(func(mon):return int(mon.id)==int(member.id)): return false
 	return inventory.valid(value) and Story.valid(value)
 
 func load_save():
@@ -181,6 +185,9 @@ func buildings() -> Array:
 	return []
 
 func npcs() -> Array:
+	return base_npcs()+Finale.npcs(self)
+
+func base_npcs() -> Array:
 	if int(data.map)>=26: return Story.npcs(self)
 	if Kanto.CITIES.has(int(data.map)): return Kanto.npcs(int(data.map))
 	match int(data.map):
@@ -285,7 +292,7 @@ func handle_input(event):
 	if dialog != "":
 		if c.controls.matches(event,"interact") or c.controls.matches(event,"sprint") or (event is InputEventKey and event.keycode in [KEY_ENTER,KEY_ESCAPE]): dialog = ""
 		return
-	if c.controls.matches(event,"map"): Kanto.guide(self)
+	if c.controls.matches(event,"map"): Finale.guide(self)
 	elif c.controls.matches(event,"interact"): interact()
 	elif c.controls.matches(event,"party"): party_menu()
 	elif c.controls.matches(event,"bag"): inventory.bag()
@@ -298,7 +305,7 @@ func interact():
 	c.click_move = false
 	for npc in npcs():
 		if position_world.distance_to(npc[0]) <= 100:
-			if Story.interact(self,npc[2]): return
+			if Finale.interact(self,npc[2]) or Story.interact(self,npc[2]): return
 			match npc[2]:
 				"oak":
 					if data.starter == 0: starter_menu()
@@ -386,6 +393,7 @@ func begin_battle(kind: String, ids: Array, levels: Array):
 	c.opponent_identity = "wild" if kind=="wild" else "blue" if kind=="rival" else "brock" if kind=="brock" else "misty" if kind=="misty" else "giovanni" if kind=="rocket" else "bug_catcher"
 	c.arena_choice.select(4 if kind=="misty" else 0 if data.map==6 else 3 if kind=="brock" else 6 if data.map==3 else 2)
 	Story.prepare(self,kind)
+	Finale.prepare(self,kind)
 	c.weather_choice.select(0)
 	c.reset()
 	for i in range(data.party.size()):
@@ -404,8 +412,9 @@ func sync_health():
 		data.party[i].ailment = c.player_states[i].ailment
 
 func reward(victory: bool) -> String:
+	var later_message=Finale.reward(self,victory)
 	if not victory: return ""
-	var message = Story.reward(self,encounter.kind)
+	var message = later_message if later_message!="" else Story.reward(self,encounter.kind)
 	data.money = mini(999999,int(data.money)+(40 if encounter.kind=="wild" else 150))
 	match encounter.kind:
 		"rival": data.rival = true
@@ -582,7 +591,7 @@ func menu():
 	panel("ADVENTURE / KANTO")
 	ui_label(objective(),Vector2(180,240))
 	ui_label("Progress saves automatically on the map and after encounters.",Vector2(180,290))
-	ui_button("KANTO GUIDE / M",Vector2(650,375),Vector2(400,65),func(): Kanto.guide(self))
+	ui_button("KANTO GUIDE / M",Vector2(650,375),Vector2(400,65),func(): Finale.guide(self))
 	ui_button("YOUR TEAM",Vector2(180,375),Vector2(400,65),party_menu)
 	ui_button("SAVE AND CONTINUE",Vector2(180,465),Vector2(400,65),func(): save(); clear_ui())
 	ui_button("SAVE AND RETURN TO MODES",Vector2(180,555),Vector2(600,65),leave)
@@ -653,6 +662,7 @@ func _draw():
 		for y in range(120,1000,160):
 			for x in [260,620,1000,1320]: tree(Vector2(x,y))
 	Story.draw(self)
+	Finale.draw(self)
 	for building in buildings():
 		var r: Rect2 = building[0]
 		draw_rect(Rect2(r.position+Vector2(12,15),r.size),Color(0,0,0,0.18))
@@ -677,7 +687,14 @@ func _draw():
 		if npc[2]=="story_bridge" and Story.state(self).get("bridge_blue",false): id="giovanni" if int(Story.state(self).get("bridge",0))==5 else "brock" if int(Story.state(self).get("bridge",0))%2==0 else "misty"
 		if npc[2]=="story_captain": id="blaine"
 		if npc[2]=="story_sailor": id="surge"
-		if not npc[2].begins_with("story_switch") and npc[2]!="story_console": person(npc[0],id)
+		if npc[2].begins_with("late_task_"):
+			var task=Finale.TASKS.get(npc[2].trim_prefix("late_task_"),{})
+			id=task.get("trainer",task.get("identity","blaine"))
+		if npc[2]=="late_league": id=Finale.league_trainer(self).id.split("_")[0]
+		if npc[2].begins_with("late_enter_"):
+			draw_rect(Rect2(npc[0]+Vector2(-26,-52),Vector2(52,52)),Color("c8b17d"),false,4)
+			draw_line(npc[0]+Vector2(0,-40),npc[0]+Vector2(0,-8),Color("fff0b0"),3)
+		elif not npc[2].begins_with("story_switch") and npc[2]!="story_console": person(npc[0],id)
 		words(npc[1],npc[0]+Vector2(-70,25),17)
 		if position_world.distance_to(npc[0])<100: words("E / TALK",npc[0]+Vector2(-35,-78),18,Color("ffe499"))
 	person(position_world,"red",facing,absf(sin(walk_age*12))*4)
@@ -687,7 +704,7 @@ func _draw():
 	draw_rect(Rect2(0,0,1280,90),Color("112b32"))
 	words(MAPS[data.map],Vector2(30,34),26,Color("ffdf92"))
 	words(objective(),Vector2(30,66),18)
-	words("BALLS %d   $%d   BADGES %d/8" % [data.balls,data.money,int(data.badge)+int(data.get("cascade",false))+int(Story.state(self).get("thunder",false))],Vector2(850,35),18)
+	words("BALLS %d   $%d   BADGES %d/8" % [data.balls,data.money,Finale.badges(self)],Vector2(850,35),18)
 	draw_rect(Rect2(0,790,1280,170),Color("112b32"))
 	for i in range(data.party.size()):
 		var mon = data.party[i]
@@ -699,7 +716,7 @@ func _draw():
 		draw_rect(Rect2(x+10,862,180*mon.hp,5),Color("77e2b0"))
 		draw_rect(Rect2(x+10,875,180,4),Color("354c50"))
 		draw_rect(Rect2(x+10,875,180*xp_ratio(mon),4),Color("79aaff"))
-		words("EXP %d / %d" % [mon.xp,xp_needed(mon)] if mon.level<30 else "MAX LEVEL",Vector2(x+10,898),12,Color("79aaff"))
+		words("EXP %d / %d" % [mon.xp,xp_needed(mon)] if mon.level<100 else "MAX LEVEL",Vector2(x+10,898),12,Color("79aaff"))
 	words("Run: "+c.controls.text("sprint")+"   Talk: "+c.controls.text("interact")+"   Team: "+c.controls.text("party")+"   Bag: "+c.controls.text("bag")+"   Save: "+c.controls.text("save")+"   Map: "+c.controls.text("map")+"   Esc: Menu",Vector2(30,925),17)
 	if save_error!="": words(save_error,Vector2(30,953),15,Color("ff9999"))
 	if dialog!="":
@@ -795,6 +812,7 @@ func tests():
 	inventory.tests()
 	chapter_tests()
 	Story.tests(self)
+	Finale.tests(self)
 	Kanto.tests(self)
 	reset_tests()
 	leave()
@@ -851,7 +869,7 @@ func grant_xp(amount: int) -> String:
 	for mon in data.party:
 		if mon.hp <= 0: continue
 		mon.xp += amount
-		while mon.level < 30 and mon.xp >= 20+mon.level*6:
+		while mon.level < 100 and mon.xp >= 20+mon.level*6:
 			mon.xp -= 20+mon.level*6
 			var old_id = int(mon.id)
 			mon.level += 1
@@ -868,7 +886,7 @@ func grant_xp(amount: int) -> String:
 				if move not in known_before: message += mon_name(mon.id)+" learned "+inventory.book.moves[move].name+"! "
 			for move in mon.pending:
 				if move not in pending_before: message += mon_name(mon.id)+" can learn "+inventory.book.moves[move].name+" ("+c.controls.text("party")+" / MOVESETS). "
-		if mon.level>=30: mon.xp = 0
+		if mon.level>=100: mon.xp = 0
 		if not mon.pending.is_empty(): message += "New moves waiting: P / MOVESETS. "
 	return message
 
@@ -876,7 +894,7 @@ func xp_needed(mon) -> int:
 	return 20+int(mon.level)*6
 
 func xp_ratio(mon) -> float:
-	return 1.0 if mon.level>=30 else clampf(float(mon.xp)/xp_needed(mon),0,1)
+	return 1.0 if mon.level>=100 else clampf(float(mon.xp)/xp_needed(mon),0,1)
 
 func record_knockout():
 	if not in_battle or c.enemy.hp>0 or not c.resolution_ready(): return
@@ -902,7 +920,7 @@ func draw_progress():
 	if data.party.is_empty(): return
 	var mon = data.party[c.player_active]
 	c.bar(Vector2(122,173),310,xp_ratio(mon),Color("79aaff"),4)
-	c.label_at("EXP %d/%d" % [mon.xp,xp_needed(mon)] if mon.level<30 else "MAX LEVEL",Vector2(40,177),10,Color("79aaff"))
+	c.label_at("EXP %d/%d" % [mon.xp,xp_needed(mon)] if mon.level<100 else "MAX LEVEL",Vector2(40,177),10,Color("79aaff"))
 	if progress_time>0:
 		c.panel(Rect2(560,245,660,145),Color(0.04,0.09,0.14,0.95),Color("79aaff"))
 		var text = " ".join(progress_lines)
@@ -1040,6 +1058,8 @@ func reset_tests():
 	data.badge = true
 	data["cascade"] = true
 	data["rocket"] = true
+	data["journey"]={"champion":true,"league":2}
+	data["hall_of_fame"]=[{"id":6,"level":60}]
 	data.money = 9000
 	data.map = 8
 	data.healing_map = 8
@@ -1054,6 +1074,7 @@ func reset_tests():
 	c.check(reset_adventure(),"Confirmed reset succeeds")
 	c.check(data.party.is_empty() and data.storage.is_empty() and data.starter==0 and data.map==0 and data.money==300 and data.balls==10,"Reset restores Pallet and initial inventory")
 	c.check(not data.badge and not data.get("cascade",false) and not data.get("rocket",false) and data.tms.is_empty(),"Reset clears adventure badges, TMs and story flags")
+	c.check(not data.has("journey") and not data.has("hall_of_fame"),"Adventure reset clears full Kanto and Hall of Fame")
 	c.check(c.campaign.data==campaign_before,"Adventure reset leaves Gym Leaders progress untouched")
 	load_save()
 	c.check(data.starter==0 and data.party.is_empty(),"New adventure persists after reload")

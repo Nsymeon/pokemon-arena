@@ -249,7 +249,7 @@ The friendly team HUD now displays each Pokemon portrait inside its Poké Ball, 
 
 The game starts with **Play**, then **Adventure / Gym Leaders / Free Battles**. Gym Leaders keeps the separate saved League progression (gyms, Elite Four, Champion). The roster screen and Gym Leaders hub offer a return to modes; exiting Adventure restores the arena team before returning to modes.
 
-Adventure now continues from Pewter through **Route 3, Mt. Moon and Route 4 to Cerulean City**. Brock gates the Route 3 exit; a Team Rocket Grunt must be defeated to leave Mt. Moon. Route 3 also has a Lass. New wild species include Spearow, Jigglypuff, Nidoran, Zubat, Geodude, Paras, Clefairy, Ekans and Sandshrew. Cerulean has healing, supplies and Misty's Staryu/Starmie battle. The Cascade Badge and TM03 Water Pulse are awarded once. Existing saves remain compatible; the level cap is 30 and additional early evolutions are supported. Routes are compact connected prototype maps, not full cartridge layouts or interior story recreations.
+Adventure now continues from Pewter through **Route 3, Mt. Moon and Route 4 to Cerulean City**. Brock gates the Route 3 exit; a Team Rocket Grunt must be defeated to leave Mt. Moon. Route 3 also has a Lass. New wild species include Spearow, Jigglypuff, Nidoran, Zubat, Geodude, Paras, Clefairy, Ekans and Sandshrew. Cerulean has healing, supplies and Misty's Staryu/Starmie battle. The Cascade Badge and TM03 Water Pulse are awarded once. Existing saves remain compatible; the level cap is now 100 and additional early evolutions are supported. Routes are compact connected prototype maps, not full cartridge layouts or interior story recreations.
 
 XP is awarded once **per opposing Pokemon knocked out**, after committed attacks and the KO animation resolve and before the next enemy enters. Standing party members share the reward; their live stats, HP and learned moves update immediately. Finishing the trainer battle awards money/progression without awarding the same XP twice. Level-up and learned/pending skill messages appear during battle. A blue EXP bar appears under the friendly battle HUD and under each party member on the world map. Pending move replacements remain available through **P → MOVESETS** after the battle. Evolution portraits display when returning to the map.
 
@@ -266,7 +266,7 @@ Quick Attack tracks a moving opponent within its original 320-unit reach and dea
 
 Roost retains its arena healing and removes Flying from the user's effective types for 1.5 combat seconds. Dual types keep their other type; pure Flying becomes Normal temporarily. Damage, STAB, immunity, terrain movement and the type HUD use the effective types. Expiry or withdrawal restores Flying without modifying species data. Committed attacks keep their launch-time offensive snapshot.
 
-Adventure now connects all ten Kanto towns/cities plus Indigo Plateau across 26 compact maps. Added Saffron, Vermilion, Lavender, Celadon, Fuchsia and Cinnabar, with Centers, shops, resident guides and distinct landmark exteriors. New routes contain level 18-27 wild Pokemon. The existing level-30 cap remains.
+Adventure now connects all ten Kanto towns/cities plus Indigo Plateau across 57 compact maps. Added Saffron, Vermilion, Lavender, Celadon, Fuchsia and Cinnabar, with Centers, shops, resident guides and distinct landmark exteriors. New routes contain level 18-27 wild Pokemon. The current level cap is 100.
 
 After Misty's Cascade Badge, follow the signed exits from Cerulean; **M** or the pause menu opens the Kanto guide with current connections. Other links return through Pallet and Viridian. North/south exits are at the central path; east/west exits use the lower crossroad. This is a compact adapted layout, not a tile-for-tile FireRed map. Sea routes currently use walkable ferry paths without an HM requirement. Town healing points persist and are used after defeat. Existing saves keep their map IDs and progress.
 
@@ -296,9 +296,16 @@ Dig uses a 1.5-second underground phase, with a locked emergence warning like Fl
 
 Opposing trainers/custom teams may make at most three voluntary substitutions per battle. They look for healthier or better attacking matchups, initially after eight combat seconds, then wait 12-20 seconds between successful changes. They cannot switch while trapped, underground, airborne, charging, or while committed attacks remain in flight. Recall/send-out pauses combat. Reserves retain HP, energy, major status and move cooldowns; withdrawal clears stat stages and volatile effects. Forced replacements after fainting do not consume the three-change budget. The fight ends only when the whole enemy team is exhausted, including earlier members who withdrew. Wild single-Pokemon battles cannot switch.
 
-Adventure story progress now reaches Lt. Surge (three badges), through Nugget Bridge, Bill and S.S. Anne. After Misty all Kanto settlements are explorable; the later Adventure gyms, building interiors, Rocket story chapters and League finale are still pending. The separate Gym Leaders mode already includes the full leader/Elite Four/Blue challenges.
+Adventure main progression now reaches all eight badges and Champion Blue, with saved Hall of Fame, key-item quests and the League gauntlet. Interiors are compact functional areas, ready for the later art/encounter pass. The separate Gym Leaders mode already includes the full leader/Elite Four/Blue challenges.
 
 
 ### Adventure chapter 3: Bill, S.S. Anne and Lt. Surge
 
 Story now continues beyond Misty to the third badge. From Cerulean take the west exit to Nugget Bridge, then north to Bill. His ticket admits S.S. Anne via Vermilion's north exit; beat Blue and speak to the Captain for the Cut field tool. Enter Vermilion Gym to the west, solve the two-switch puzzle, and defeat Surge. Key items appear in the Bag and all progress persists in existing saves. New maps add no wild encounters and do not alter grass/cave encounter behavior. See [the Adventure roadmap](docs/adventure-roadmap.md) for the exact current scope, adaptations and remaining Kanto chapters.
+
+
+### Full Kanto progression / 57 areas
+
+Continue beyond Surge through Celadon/Erika and Rocket Hideout, Lavender Tower/Fuji, Fuchsia/Koga and Safari field tools, Silph Co./Sabrina, Mansion/Blaine, Viridian/Giovanni, Victory Road, Elite Four and Champion. Additional landmarks include Seafoam, Power Plant, Diglett's Cave, the Underground Paths, Route 2/10/11 connectors, Cinnabar Lab, Cerulean Cave and Hall of Fame. Approach labeled entrance markers and press E; M lists connections and requirements. Existing saves are preserved.
+
+The level cap is 100 with all Gen I level-based evolutions. League health persists between trainers; defeat or leaving the chambers resets the current run. Winning saves the party in the Hall of Fame. Existing wild encounter mechanics/tables are unchanged. New interiors use simple layouts and reused artwork; original multi-floor puzzles, graphics upgrades and random/legendary encounters are deferred. See [current scope and route](docs/adventure-roadmap.md).
