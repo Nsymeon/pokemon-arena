@@ -766,7 +766,7 @@ func hit(target: Dictionary, damage: float, direction: Vector2, friendly: bool, 
 	target.flash = 0.15
 	move_fighter(target, direction * 16)
 	shake = 5
-	impacts.append({"pos": target.pos + Vector2(0, -24), "type": move_type, "age": 0.0, "life": 0.65, "strength": clampf(damage / 35.0, 0.6, 1.8)})
+	impacts.append({"pos": target.pos + Vector2(0, -24), "type": move_type, "move": move.duplicate(true), "age": 0.0, "life": 0.65, "strength": clampf(damage / 35.0, 0.6, 1.8)})
 	if impacts.size() > 24: impacts.pop_front()
 	scars.append({"pos": target.pos, "life": 14.0, "size": clampf(damage / 40.0, 0.6, 1.6)})
 	if scars.size() > 60: scars.pop_front()
@@ -1507,6 +1507,7 @@ func pick(number: int, rival: int):
 	selecting = false
 
 func smoke_test():
+	art.tests(self)
 	balance.tests(self)
 	adventure.tests()
 	campaign.tests(self)

@@ -175,12 +175,13 @@ func draw_charge(c, fighter):
 	var start: Vector2 = fighter.pos - Vector2(0, 42)
 	var reach = beam_range(fighter.pending_move.move)
 	var end = start + direction * reach
-	c.draw_line(start, end, Color("b4ee66"), 2, true)
-	c.draw_line(start, end, Color(0.8, 1.0, 0.4, 0.10), 72, true)
+	var color: Color = c.Dex.color(fighter.pending_move.move.type)
+	c.draw_line(start, end, color.lightened(0.35), 2, true)
+	c.draw_line(start, end, Color(color,0.10), beam_half_width({"move":fighter.pending_move.move})*2, true)
 	for i in range(10):
 		var p = start + direction * (i * reach/10 + fposmod(c.clock_time * 180, reach/10))
 		c.draw_circle(p, 3, Color("ffffc4"))
-	c.draw_arc(start, 20 + fighter.charge_left * 30, 0, TAU, 48, Color("e5ff9e"), 3, true)
+	c.draw_arc(start, 20 + fighter.charge_left * 30, 0, TAU, 48, color.lightened(0.5), 3, true)
 
 func draw(c, s):
 	if s.skill in ["fly","dig","whirlpool"]:
@@ -210,6 +211,19 @@ func draw(c, s):
 			for i in range(28):
 				var p = start.lerp(end,fposmod(i/28.0+s.age*0.8,1)) + s.dir.orthogonal()*sin(i*7.2)*width*0.8
 				c.draw_circle(p,3+i%4,Color(0.8,1,1,fade*0.7))
+			return
+		if s.move.id in ["icebeam","aurorabeam"]:
+			c.draw_line(start,end,Color(color,0.12*fade),width*2.2,true)
+			for strand in range(3):
+				var points = PackedVector2Array()
+				for i in range(49):
+					var t=i/48.0
+					points.append(start.lerp(end,t)+s.dir.orthogonal()*sin(i*2.1-s.age*26+strand*2)*width*0.36)
+				var tint = Color("b4f6ff") if s.move.id=="icebeam" else Color.from_hsv(fposmod(s.age*0.3+strand/3.0,1),0.45,1)
+				c.draw_polyline(points,Color(tint,fade),4 if strand else 7,true)
+			for i in range(9):
+				var p=start.lerp(end,fposmod(i/9.0+s.age*0.6,1))
+				c.art.vfx.motif(c,"snow",p,s.dir,s.age,5,Color("e2ffff",fade*0.7))
 			return
 		c.draw_line(start, end, Color(color, 0.14 * fade), width * 2.8, true)
 		c.draw_line(start, end, Color(color, fade), width * 1.7, true)
