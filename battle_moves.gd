@@ -21,7 +21,7 @@ func identity(mon, friendly: bool, slot: int) -> String:
 	return "%s:%d:%d" % ["you" if friendly else "cpu",slot,mon.id]
 
 func configured(mon, friendly: bool, slot: int) -> Dictionary:
-	var result = mon.duplicate(true)
+	var result = c.abilities.configured(mon,friendly,slot)
 	var ids = choices.get(identity(mon,friendly,slot),[])
 	if not ids is Array or ids.size()!=4: return result
 	var seen = []
@@ -66,6 +66,9 @@ func click(mouse: Vector2) -> bool:
 	for friendly in [true,false]:
 		if not friendly and c.opponent_choice.selected>0: continue
 		var origin = Vector2(40 if friendly else 652,544)
+		if Rect2(origin+Vector2(12,154),Vector2(560,28)).has_point(mouse):
+			c.abilities.open(c.roster[c.player_index if friendly else c.enemy_index],friendly,c.team_slot if c.team_mode else 0)
+			return true
 		for i in range(4):
 			if Rect2(origin+Vector2(12+(i%2)*286,57+int(i/2)*50),Vector2(280,48)).has_point(mouse):
 				open(c.roster[c.player_index if friendly else c.enemy_index],friendly,c.team_slot if c.team_mode else 0,i)

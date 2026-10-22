@@ -1,0 +1,11438 @@
+{
+  "1": {
+    "Idle": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        40,
+        6,
+        6
+      ],
+      "path": "res://assets/shiny/1/Idle.png"
+    },
+    "Walk": {
+      "width": 40,
+      "height": 40,
+      "durations": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "path": "res://assets/shiny/1/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 72,
+      "durations": [
+        4,
+        2,
+        4,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        4
+      ],
+      "path": "res://assets/shiny/1/Attack.png"
+    },
+    "Shoot": {
+      "width": 32,
+      "height": 32,
+      "durations": [
+        12,
+        4,
+        4,
+        4,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/1/Shoot.png"
+    },
+    "Hurt": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/1/Hurt.png"
+    }
+  },
+  "2": {
+    "Idle": {
+      "width": 32,
+      "height": 32,
+      "durations": [
+        40,
+        12,
+        12,
+        12
+      ],
+      "path": "res://assets/shiny/2/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 32,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/2/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 64,
+      "durations": [
+        4,
+        2,
+        4,
+        2,
+        2,
+        2,
+        2,
+        2,
+        4
+      ],
+      "path": "res://assets/shiny/2/Attack.png"
+    },
+    "Shoot": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        12,
+        4,
+        4,
+        4,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/2/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/2/Hurt.png"
+    }
+  },
+  "3": {
+    "Idle": {
+      "width": 32,
+      "height": 32,
+      "durations": [
+        30,
+        16,
+        12,
+        16
+      ],
+      "path": "res://assets/shiny/3/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 32,
+      "durations": [
+        8,
+        16,
+        8,
+        16
+      ],
+      "path": "res://assets/shiny/3/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 72,
+      "durations": [
+        4,
+        2,
+        4,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        4
+      ],
+      "path": "res://assets/shiny/3/Attack.png"
+    },
+    "Shoot": {
+      "width": 40,
+      "height": 40,
+      "durations": [
+        12,
+        4,
+        4,
+        4,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/3/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 48,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/3/Hurt.png"
+    }
+  },
+  "4": {
+    "Idle": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        12,
+        8,
+        8,
+        8
+      ],
+      "path": "res://assets/shiny/4/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 32,
+      "durations": [
+        6,
+        8,
+        6,
+        8
+      ],
+      "path": "res://assets/shiny/4/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 64,
+      "durations": [
+        2,
+        2,
+        4,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/4/Attack.png"
+    },
+    "Shoot": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/4/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/4/Hurt.png"
+    }
+  },
+  "5": {
+    "Idle": {
+      "width": 32,
+      "height": 56,
+      "durations": [
+        40,
+        2,
+        3,
+        3,
+        3,
+        2
+      ],
+      "path": "res://assets/shiny/5/Idle.png"
+    },
+    "Walk": {
+      "width": 24,
+      "height": 32,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/5/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 80,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        4,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/5/Attack.png"
+    },
+    "Shoot": {
+      "width": 48,
+      "height": 48,
+      "durations": [
+        2,
+        2,
+        4,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/5/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/5/Hurt.png"
+    }
+  },
+  "6": {
+    "Idle": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        15,
+        15,
+        15,
+        15
+      ],
+      "path": "res://assets/shiny/6/Idle.png"
+    },
+    "Walk": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/6/Walk.png"
+    },
+    "Attack": {
+      "width": 80,
+      "height": 88,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        4,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/6/Attack.png"
+    },
+    "Shoot": {
+      "width": 56,
+      "height": 56,
+      "durations": [
+        4,
+        6,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/6/Shoot.png"
+    },
+    "Hurt": {
+      "width": 64,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/6/Hurt.png"
+    }
+  },
+  "7": {
+    "Idle": {
+      "width": 32,
+      "height": 32,
+      "durations": [
+        30,
+        2,
+        2,
+        4,
+        4,
+        4,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/7/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 32,
+      "durations": [
+        12,
+        8,
+        12,
+        8
+      ],
+      "path": "res://assets/shiny/7/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 72,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/7/Attack.png"
+    },
+    "Shoot": {
+      "width": 40,
+      "height": 32,
+      "durations": [
+        2,
+        6,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/7/Shoot.png"
+    },
+    "Hurt": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/7/Hurt.png"
+    }
+  },
+  "8": {
+    "Idle": {
+      "width": 24,
+      "height": 40,
+      "durations": [
+        40,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/8/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/8/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 72,
+      "durations": [
+        4,
+        2,
+        4,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        4
+      ],
+      "path": "res://assets/shiny/8/Attack.png"
+    },
+    "Shoot": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        2,
+        8,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/8/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 48,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/8/Hurt.png"
+    }
+  },
+  "9": {
+    "Idle": {
+      "width": 40,
+      "height": 40,
+      "durations": [
+        32,
+        12,
+        4,
+        4,
+        4,
+        4,
+        4,
+        8
+      ],
+      "path": "res://assets/shiny/9/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        8,
+        14,
+        8,
+        14
+      ],
+      "path": "res://assets/shiny/9/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 72,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        1,
+        1,
+        1,
+        2,
+        2,
+        4
+      ],
+      "path": "res://assets/shiny/9/Attack.png"
+    },
+    "Shoot": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        4,
+        2,
+        6,
+        2,
+        2,
+        4
+      ],
+      "path": "res://assets/shiny/9/Shoot.png"
+    },
+    "Hurt": {
+      "width": 40,
+      "height": 40,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/9/Hurt.png"
+    }
+  },
+  "10": {
+    "Idle": {
+      "width": 32,
+      "height": 32,
+      "durations": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        4,
+        10,
+        4
+      ],
+      "path": "res://assets/shiny/10/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 32,
+      "durations": [
+        10,
+        10,
+        10
+      ],
+      "path": "res://assets/shiny/10/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 64,
+      "durations": [
+        4,
+        2,
+        4,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        4
+      ],
+      "path": "res://assets/shiny/10/Attack.png"
+    },
+    "Shoot": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        1,
+        1,
+        6
+      ],
+      "path": "res://assets/shiny/10/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/10/Hurt.png"
+    }
+  },
+  "11": {
+    "Idle": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        10,
+        14,
+        10,
+        14
+      ],
+      "path": "res://assets/shiny/11/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        4,
+        2,
+        2,
+        2,
+        2,
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "path": "res://assets/shiny/11/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 80,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/11/Attack.png"
+    },
+    "Shoot": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        4,
+        2,
+        2,
+        2,
+        4,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/11/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/11/Hurt.png"
+    }
+  },
+  "12": {
+    "Idle": {
+      "width": 32,
+      "height": 56,
+      "durations": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "path": "res://assets/shiny/12/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 56,
+      "durations": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "path": "res://assets/shiny/12/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 80,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/12/Attack.png"
+    },
+    "Shoot": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        2,
+        2,
+        1,
+        1,
+        1,
+        1,
+        1,
+        2,
+        2,
+        3,
+        6,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/12/Shoot.png"
+    },
+    "Hurt": {
+      "width": 56,
+      "height": 72,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/12/Hurt.png"
+    }
+  },
+  "13": {
+    "Idle": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        40,
+        8,
+        8,
+        8
+      ],
+      "path": "res://assets/shiny/13/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        8,
+        10,
+        8
+      ],
+      "path": "res://assets/shiny/13/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 64,
+      "durations": [
+        4,
+        2,
+        4,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        4
+      ],
+      "path": "res://assets/shiny/13/Attack.png"
+    },
+    "Shoot": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        2,
+        2,
+        4,
+        4,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        4
+      ],
+      "path": "res://assets/shiny/13/Shoot.png"
+    },
+    "Hurt": {
+      "width": 56,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/13/Hurt.png"
+    }
+  },
+  "14": {
+    "Idle": {
+      "width": 24,
+      "height": 40,
+      "durations": [
+        40,
+        1,
+        1,
+        4,
+        1,
+        1
+      ],
+      "path": "res://assets/shiny/14/Idle.png"
+    },
+    "Walk": {
+      "width": 24,
+      "height": 40,
+      "durations": [
+        8,
+        4,
+        4,
+        4,
+        10
+      ],
+      "path": "res://assets/shiny/14/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 72,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        6,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/14/Attack.png"
+    },
+    "Shoot": {
+      "width": 24,
+      "height": 40,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/14/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/14/Hurt.png"
+    }
+  },
+  "15": {
+    "Idle": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "path": "res://assets/shiny/15/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "path": "res://assets/shiny/15/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 80,
+      "durations": [
+        2,
+        2,
+        4,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        1
+      ],
+      "path": "res://assets/shiny/15/Attack.png"
+    },
+    "Shoot": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        4,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/15/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/15/Hurt.png"
+    }
+  },
+  "16": {
+    "Idle": {
+      "width": 24,
+      "height": 40,
+      "durations": [
+        30,
+        4,
+        4,
+        4,
+        4
+      ],
+      "path": "res://assets/shiny/16/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 32,
+      "durations": [
+        6,
+        4,
+        4,
+        4,
+        4
+      ],
+      "path": "res://assets/shiny/16/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 72,
+      "durations": [
+        2,
+        2,
+        2,
+        4,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/16/Attack.png"
+    },
+    "Shoot": {
+      "width": 24,
+      "height": 48,
+      "durations": [
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        2,
+        1
+      ],
+      "path": "res://assets/shiny/16/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 48,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/16/Hurt.png"
+    }
+  },
+  "17": {
+    "Idle": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        40,
+        2,
+        4,
+        2
+      ],
+      "path": "res://assets/shiny/17/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        6,
+        10,
+        6,
+        10
+      ],
+      "path": "res://assets/shiny/17/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 80,
+      "durations": [
+        2,
+        2,
+        2,
+        4,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/17/Attack.png"
+    },
+    "Shoot": {
+      "width": 32,
+      "height": 56,
+      "durations": [
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        2,
+        1
+      ],
+      "path": "res://assets/shiny/17/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/17/Hurt.png"
+    }
+  },
+  "18": {
+    "Idle": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        40,
+        2,
+        4,
+        2
+      ],
+      "path": "res://assets/shiny/18/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        8,
+        12,
+        8,
+        12
+      ],
+      "path": "res://assets/shiny/18/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 72,
+      "durations": [
+        2,
+        2,
+        2,
+        4,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/18/Attack.png"
+    },
+    "Shoot": {
+      "width": 32,
+      "height": 64,
+      "durations": [
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        2,
+        1
+      ],
+      "path": "res://assets/shiny/18/Shoot.png"
+    },
+    "Hurt": {
+      "width": 56,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/18/Hurt.png"
+    }
+  },
+  "19": {
+    "Idle": {
+      "width": 32,
+      "height": 32,
+      "durations": [
+        40,
+        2,
+        2,
+        2,
+        4,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/19/Idle.png"
+    },
+    "Walk": {
+      "width": 48,
+      "height": 40,
+      "durations": [
+        6,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "path": "res://assets/shiny/19/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 72,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/19/Attack.png"
+    },
+    "Shoot": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        2,
+        2,
+        4,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/19/Shoot.png"
+    },
+    "Hurt": {
+      "width": 56,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/19/Hurt.png"
+    }
+  },
+  "20": {
+    "Idle": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        30,
+        6,
+        3,
+        4,
+        3,
+        6
+      ],
+      "path": "res://assets/shiny/20/Idle.png"
+    },
+    "Walk": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        4,
+        6,
+        4,
+        4,
+        4,
+        4
+      ],
+      "path": "res://assets/shiny/20/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 72,
+      "durations": [
+        2,
+        2,
+        4,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/20/Attack.png"
+    },
+    "Shoot": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        2,
+        2,
+        4,
+        2,
+        2,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/20/Shoot.png"
+    },
+    "Hurt": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/20/Hurt.png"
+    }
+  },
+  "21": {
+    "Idle": {
+      "width": 24,
+      "height": 40,
+      "durations": [
+        40,
+        2,
+        3,
+        4,
+        3,
+        2
+      ],
+      "path": "res://assets/shiny/21/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        6,
+        4,
+        4,
+        4,
+        4
+      ],
+      "path": "res://assets/shiny/21/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 80,
+      "durations": [
+        2,
+        2,
+        2,
+        4,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/21/Attack.png"
+    },
+    "Shoot": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        2,
+        3,
+        3,
+        3,
+        3,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/21/Shoot.png"
+    },
+    "Hurt": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/21/Hurt.png"
+    }
+  },
+  "22": {
+    "Idle": {
+      "width": 40,
+      "height": 72,
+      "durations": [
+        40,
+        20,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "path": "res://assets/shiny/22/Idle.png"
+    },
+    "Walk": {
+      "width": 40,
+      "height": 64,
+      "durations": [
+        4,
+        5,
+        6,
+        4,
+        5,
+        6
+      ],
+      "path": "res://assets/shiny/22/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 72,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        4,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/22/Attack.png"
+    },
+    "Shoot": {
+      "width": 48,
+      "height": 64,
+      "durations": [
+        3,
+        3,
+        3,
+        3,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        1
+      ],
+      "path": "res://assets/shiny/22/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 72,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/22/Hurt.png"
+    }
+  },
+  "23": {
+    "Idle": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        16,
+        16
+      ],
+      "path": "res://assets/shiny/23/Idle.png"
+    },
+    "Walk": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        6,
+        6,
+        6,
+        6,
+        6,
+        6
+      ],
+      "path": "res://assets/shiny/23/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 72,
+      "durations": [
+        4,
+        2,
+        4,
+        6,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        4
+      ],
+      "path": "res://assets/shiny/23/Attack.png"
+    },
+    "Shoot": {
+      "width": 64,
+      "height": 64,
+      "durations": [
+        2,
+        6,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        4
+      ],
+      "path": "res://assets/shiny/23/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 48,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/23/Hurt.png"
+    }
+  },
+  "24": {
+    "Idle": {
+      "width": 32,
+      "height": 56,
+      "durations": [
+        32,
+        14
+      ],
+      "path": "res://assets/shiny/24/Idle.png"
+    },
+    "Walk": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        6,
+        6,
+        8,
+        6,
+        6,
+        6
+      ],
+      "path": "res://assets/shiny/24/Walk.png"
+    },
+    "Attack": {
+      "width": 80,
+      "height": 88,
+      "durations": [
+        2,
+        4,
+        6,
+        2,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/24/Attack.png"
+    },
+    "Shoot": {
+      "width": 72,
+      "height": 72,
+      "durations": [
+        2,
+        6,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        4
+      ],
+      "path": "res://assets/shiny/24/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/24/Hurt.png"
+    }
+  },
+  "25": {
+    "Idle": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        40,
+        2,
+        3,
+        3,
+        3,
+        2
+      ],
+      "path": "res://assets/shiny/25/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/25/Walk.png"
+    },
+    "Attack": {
+      "width": 80,
+      "height": 80,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        4
+      ],
+      "path": "res://assets/shiny/25/Attack.png"
+    },
+    "Shoot": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        1,
+        2,
+        6,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/25/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/25/Hurt.png"
+    }
+  },
+  "26": {
+    "Idle": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        40,
+        2,
+        4,
+        4,
+        4,
+        2
+      ],
+      "path": "res://assets/shiny/26/Idle.png"
+    },
+    "Walk": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/26/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 80,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/26/Attack.png"
+    },
+    "Shoot": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        1,
+        2,
+        6,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/26/Shoot.png"
+    },
+    "Hurt": {
+      "width": 56,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/26/Hurt.png"
+    }
+  },
+  "27": {
+    "Idle": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        40,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/27/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 32,
+      "durations": [
+        6,
+        10,
+        6,
+        10
+      ],
+      "path": "res://assets/shiny/27/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 72,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/27/Attack.png"
+    },
+    "Shoot": {
+      "width": 24,
+      "height": 32,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/27/Shoot.png"
+    },
+    "Hurt": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/27/Hurt.png"
+    }
+  },
+  "28": {
+    "Idle": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        25,
+        10,
+        25,
+        10
+      ],
+      "path": "res://assets/shiny/28/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/28/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 80,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/28/Attack.png"
+    },
+    "Shoot": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/28/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/28/Hurt.png"
+    }
+  },
+  "29": {
+    "Idle": {
+      "width": 24,
+      "height": 40,
+      "durations": [
+        24,
+        6,
+        6,
+        6,
+        6
+      ],
+      "path": "res://assets/shiny/29/Idle.png"
+    },
+    "Walk": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        6,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "path": "res://assets/shiny/29/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 72,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/29/Attack.png"
+    },
+    "Shoot": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        2,
+        4,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/29/Shoot.png"
+    },
+    "Hurt": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/29/Hurt.png"
+    }
+  },
+  "30": {
+    "Idle": {
+      "width": 24,
+      "height": 40,
+      "durations": [
+        40,
+        2,
+        4,
+        2
+      ],
+      "path": "res://assets/shiny/30/Idle.png"
+    },
+    "Walk": {
+      "width": 24,
+      "height": 32,
+      "durations": [
+        6,
+        8,
+        6,
+        8
+      ],
+      "path": "res://assets/shiny/30/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 72,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/30/Attack.png"
+    },
+    "Shoot": {
+      "width": 40,
+      "height": 40,
+      "durations": [
+        2,
+        2,
+        6,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/30/Shoot.png"
+    },
+    "Hurt": {
+      "width": 56,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/30/Hurt.png"
+    }
+  },
+  "31": {
+    "Idle": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        20,
+        6,
+        6,
+        6,
+        12
+      ],
+      "path": "res://assets/shiny/31/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/31/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 80,
+      "durations": [
+        2,
+        6,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/31/Attack.png"
+    },
+    "Shoot": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        2,
+        2,
+        4,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/31/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/31/Hurt.png"
+    }
+  },
+  "32": {
+    "Idle": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        30,
+        4,
+        4,
+        4,
+        4
+      ],
+      "path": "res://assets/shiny/32/Idle.png"
+    },
+    "Walk": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        6,
+        6,
+        5,
+        6,
+        6,
+        4
+      ],
+      "path": "res://assets/shiny/32/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 80,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/32/Attack.png"
+    },
+    "Shoot": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        2,
+        2,
+        6,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/32/Shoot.png"
+    },
+    "Hurt": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/32/Hurt.png"
+    }
+  },
+  "33": {
+    "Idle": {
+      "width": 40,
+      "height": 40,
+      "durations": [
+        40,
+        10,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        6
+      ],
+      "path": "res://assets/shiny/33/Idle.png"
+    },
+    "Walk": {
+      "width": 40,
+      "height": 40,
+      "durations": [
+        6,
+        12,
+        6,
+        12
+      ],
+      "path": "res://assets/shiny/33/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 88,
+      "durations": [
+        2,
+        6,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/33/Attack.png"
+    },
+    "Shoot": {
+      "width": 56,
+      "height": 64,
+      "durations": [
+        2,
+        2,
+        6,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/33/Shoot.png"
+    },
+    "Hurt": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/33/Hurt.png"
+    }
+  },
+  "34": {
+    "Idle": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        35,
+        12
+      ],
+      "path": "res://assets/shiny/34/Idle.png"
+    },
+    "Walk": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        8,
+        14,
+        8,
+        14
+      ],
+      "path": "res://assets/shiny/34/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 80,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/34/Attack.png"
+    },
+    "Shoot": {
+      "width": 48,
+      "height": 64,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/34/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/34/Hurt.png"
+    }
+  },
+  "35": {
+    "Idle": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        30,
+        3,
+        4,
+        5,
+        4,
+        3
+      ],
+      "path": "res://assets/shiny/35/Idle.png"
+    },
+    "Walk": {
+      "width": 24,
+      "height": 40,
+      "durations": [
+        8,
+        4,
+        8,
+        4,
+        8,
+        4,
+        8,
+        4
+      ],
+      "path": "res://assets/shiny/35/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 80,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/35/Attack.png"
+    },
+    "Hurt": {
+      "width": 56,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/35/Hurt.png"
+    }
+  },
+  "36": {
+    "Idle": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        30,
+        6,
+        6,
+        6,
+        6,
+        6
+      ],
+      "path": "res://assets/shiny/36/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        8,
+        6,
+        6,
+        6,
+        8,
+        6,
+        6,
+        6
+      ],
+      "path": "res://assets/shiny/36/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 72,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/36/Attack.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/36/Hurt.png"
+    }
+  },
+  "37": {
+    "Idle": {
+      "width": 32,
+      "height": 32,
+      "durations": [
+        40,
+        12,
+        20,
+        12
+      ],
+      "path": "res://assets/shiny/37/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        6,
+        4,
+        4,
+        4,
+        6
+      ],
+      "path": "res://assets/shiny/37/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 72,
+      "durations": [
+        4,
+        2,
+        6,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/37/Attack.png"
+    },
+    "Shoot": {
+      "width": 40,
+      "height": 40,
+      "durations": [
+        2,
+        6,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/37/Shoot.png"
+    },
+    "Hurt": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/37/Hurt.png"
+    }
+  },
+  "38": {
+    "Idle": {
+      "width": 40,
+      "height": 40,
+      "durations": [
+        60,
+        10,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        10
+      ],
+      "path": "res://assets/shiny/38/Idle.png"
+    },
+    "Walk": {
+      "width": 40,
+      "height": 40,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/38/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 72,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/38/Attack.png"
+    },
+    "Shoot": {
+      "width": 48,
+      "height": 40,
+      "durations": [
+        2,
+        4,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/38/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/38/Hurt.png"
+    }
+  },
+  "39": {
+    "Idle": {
+      "width": 24,
+      "height": 32,
+      "durations": [
+        25,
+        8,
+        15,
+        8,
+        15
+      ],
+      "path": "res://assets/shiny/39/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        6,
+        4,
+        4,
+        4,
+        6
+      ],
+      "path": "res://assets/shiny/39/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 80,
+      "durations": [
+        2,
+        2,
+        6,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/39/Attack.png"
+    },
+    "Shoot": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        2,
+        2,
+        6,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/39/Shoot.png"
+    },
+    "Hurt": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/39/Hurt.png"
+    }
+  },
+  "40": {
+    "Idle": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        40,
+        4,
+        6,
+        4
+      ],
+      "path": "res://assets/shiny/40/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/40/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 80,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/40/Attack.png"
+    },
+    "Shoot": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        2,
+        2,
+        6,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/40/Shoot.png"
+    },
+    "Hurt": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/40/Hurt.png"
+    }
+  },
+  "41": {
+    "Idle": {
+      "width": 32,
+      "height": 56,
+      "durations": [
+        10,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        8
+      ],
+      "path": "res://assets/shiny/41/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 56,
+      "durations": [
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6
+      ],
+      "path": "res://assets/shiny/41/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 80,
+      "durations": [
+        2,
+        3,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/41/Attack.png"
+    },
+    "Shoot": {
+      "width": 32,
+      "height": 56,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/41/Shoot.png"
+    },
+    "Hurt": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/41/Hurt.png"
+    }
+  },
+  "42": {
+    "Idle": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        6,
+        6,
+        6,
+        6
+      ],
+      "path": "res://assets/shiny/42/Idle.png"
+    },
+    "Walk": {
+      "width": 40,
+      "height": 64,
+      "durations": [
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6
+      ],
+      "path": "res://assets/shiny/42/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 88,
+      "durations": [
+        2,
+        3,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/42/Attack.png"
+    },
+    "Shoot": {
+      "width": 40,
+      "height": 64,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/42/Shoot.png"
+    },
+    "Hurt": {
+      "width": 40,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/42/Hurt.png"
+    }
+  },
+  "43": {
+    "Idle": {
+      "width": 24,
+      "height": 40,
+      "durations": [
+        30,
+        4,
+        4,
+        4,
+        4
+      ],
+      "path": "res://assets/shiny/43/Idle.png"
+    },
+    "Walk": {
+      "width": 24,
+      "height": 40,
+      "durations": [
+        8,
+        4,
+        8,
+        6,
+        8,
+        4,
+        8,
+        6
+      ],
+      "path": "res://assets/shiny/43/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 80,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/43/Attack.png"
+    },
+    "Shoot": {
+      "width": 48,
+      "height": 40,
+      "durations": [
+        2,
+        2,
+        6,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/43/Shoot.png"
+    },
+    "Hurt": {
+      "width": 56,
+      "height": 48,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/43/Hurt.png"
+    }
+  },
+  "44": {
+    "Idle": {
+      "width": 32,
+      "height": 32,
+      "durations": [
+        30,
+        8,
+        8,
+        8,
+        8
+      ],
+      "path": "res://assets/shiny/44/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 32,
+      "durations": [
+        6,
+        8,
+        6,
+        8
+      ],
+      "path": "res://assets/shiny/44/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 80,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/44/Attack.png"
+    },
+    "Shoot": {
+      "width": 48,
+      "height": 40,
+      "durations": [
+        2,
+        2,
+        6,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/44/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/44/Hurt.png"
+    }
+  },
+  "45": {
+    "Idle": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        30,
+        3,
+        3,
+        8,
+        3,
+        3,
+        30,
+        3,
+        3,
+        8,
+        3,
+        3
+      ],
+      "path": "res://assets/shiny/45/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 32,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/45/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 72,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/45/Attack.png"
+    },
+    "Shoot": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        2,
+        2,
+        6,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/45/Shoot.png"
+    },
+    "Hurt": {
+      "width": 56,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/45/Hurt.png"
+    }
+  },
+  "46": {
+    "Idle": {
+      "width": 24,
+      "height": 24,
+      "durations": [
+        24,
+        6,
+        6,
+        6
+      ],
+      "path": "res://assets/shiny/46/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 24,
+      "durations": [
+        6,
+        8,
+        6,
+        8
+      ],
+      "path": "res://assets/shiny/46/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 72,
+      "durations": [
+        2,
+        2,
+        4,
+        1,
+        3,
+        3,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/46/Attack.png"
+    },
+    "Shoot": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        1,
+        2
+      ],
+      "path": "res://assets/shiny/46/Shoot.png"
+    },
+    "Hurt": {
+      "width": 40,
+      "height": 40,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/46/Hurt.png"
+    }
+  },
+  "47": {
+    "Idle": {
+      "width": 32,
+      "height": 32,
+      "durations": [
+        40,
+        4,
+        2
+      ],
+      "path": "res://assets/shiny/47/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 32,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/47/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 72,
+      "durations": [
+        2,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/47/Attack.png"
+    },
+    "Shoot": {
+      "width": 32,
+      "height": 56,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        1,
+        2
+      ],
+      "path": "res://assets/shiny/47/Shoot.png"
+    },
+    "Hurt": {
+      "width": 56,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/47/Hurt.png"
+    }
+  },
+  "48": {
+    "Idle": {
+      "width": 24,
+      "height": 40,
+      "durations": [
+        16,
+        16
+      ],
+      "path": "res://assets/shiny/48/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        8,
+        6,
+        6,
+        6,
+        8
+      ],
+      "path": "res://assets/shiny/48/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 80,
+      "durations": [
+        1,
+        1,
+        2,
+        3,
+        2,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/48/Attack.png"
+    },
+    "Shoot": {
+      "width": 56,
+      "height": 64,
+      "durations": [
+        2,
+        8,
+        1,
+        2,
+        4,
+        4
+      ],
+      "path": "res://assets/shiny/48/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/48/Hurt.png"
+    }
+  },
+  "49": {
+    "Idle": {
+      "width": 32,
+      "height": 56,
+      "durations": [
+        12,
+        12,
+        12,
+        12,
+        12,
+        12,
+        12,
+        12
+      ],
+      "path": "res://assets/shiny/49/Idle.png"
+    },
+    "Walk": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "path": "res://assets/shiny/49/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 80,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/49/Attack.png"
+    },
+    "Shoot": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        1,
+        2,
+        1,
+        2,
+        1,
+        2,
+        1,
+        2,
+        1,
+        2,
+        1,
+        2,
+        1,
+        2,
+        1,
+        2,
+        1,
+        2,
+        1,
+        2
+      ],
+      "path": "res://assets/shiny/49/Shoot.png"
+    },
+    "Hurt": {
+      "width": 56,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/49/Hurt.png"
+    }
+  },
+  "50": {
+    "Idle": {
+      "width": 24,
+      "height": 24,
+      "durations": [
+        16,
+        16
+      ],
+      "path": "res://assets/shiny/50/Idle.png"
+    },
+    "Walk": {
+      "width": 40,
+      "height": 40,
+      "durations": [
+        8,
+        8,
+        8
+      ],
+      "path": "res://assets/shiny/50/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 56,
+      "durations": [
+        2,
+        6,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/50/Attack.png"
+    },
+    "Shoot": {
+      "width": 24,
+      "height": 24,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/50/Shoot.png"
+    },
+    "Hurt": {
+      "width": 32,
+      "height": 32,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/50/Hurt.png"
+    }
+  },
+  "51": {
+    "Idle": {
+      "width": 32,
+      "height": 32,
+      "durations": [
+        12,
+        16
+      ],
+      "path": "res://assets/shiny/51/Idle.png"
+    },
+    "Walk": {
+      "width": 56,
+      "height": 48,
+      "durations": [
+        8,
+        8,
+        8
+      ],
+      "path": "res://assets/shiny/51/Walk.png"
+    },
+    "Attack": {
+      "width": 80,
+      "height": 72,
+      "durations": [
+        2,
+        6,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/51/Attack.png"
+    },
+    "Shoot": {
+      "width": 40,
+      "height": 32,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/51/Shoot.png"
+    },
+    "Hurt": {
+      "width": 40,
+      "height": 40,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/51/Hurt.png"
+    }
+  },
+  "52": {
+    "Idle": {
+      "width": 32,
+      "height": 32,
+      "durations": [
+        12,
+        12,
+        12,
+        12
+      ],
+      "path": "res://assets/shiny/52/Idle.png"
+    },
+    "Walk": {
+      "width": 24,
+      "height": 32,
+      "durations": [
+        6,
+        10,
+        6,
+        10
+      ],
+      "path": "res://assets/shiny/52/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 80,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/52/Attack.png"
+    },
+    "Shoot": {
+      "width": 24,
+      "height": 40,
+      "durations": [
+        2,
+        1,
+        2,
+        3,
+        3,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/52/Shoot.png"
+    },
+    "Hurt": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/52/Hurt.png"
+    }
+  },
+  "53": {
+    "Idle": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        8
+      ],
+      "path": "res://assets/shiny/53/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/53/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 80,
+      "durations": [
+        2,
+        2,
+        6,
+        2,
+        2,
+        1,
+        2,
+        2,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/53/Attack.png"
+    },
+    "Shoot": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        2,
+        2,
+        4,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/53/Shoot.png"
+    },
+    "Hurt": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/53/Hurt.png"
+    }
+  },
+  "54": {
+    "Idle": {
+      "width": 24,
+      "height": 40,
+      "durations": [
+        16,
+        20,
+        16,
+        20
+      ],
+      "path": "res://assets/shiny/54/Idle.png"
+    },
+    "Walk": {
+      "width": 24,
+      "height": 40,
+      "durations": [
+        8,
+        12,
+        8,
+        12
+      ],
+      "path": "res://assets/shiny/54/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 72,
+      "durations": [
+        4,
+        2,
+        4,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        4
+      ],
+      "path": "res://assets/shiny/54/Attack.png"
+    },
+    "Shoot": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        2,
+        4,
+        5,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/54/Shoot.png"
+    },
+    "Hurt": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/54/Hurt.png"
+    }
+  },
+  "55": {
+    "Idle": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        40,
+        20,
+        40,
+        20
+      ],
+      "path": "res://assets/shiny/55/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        8,
+        12,
+        8,
+        12
+      ],
+      "path": "res://assets/shiny/55/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 80,
+      "durations": [
+        2,
+        2,
+        6,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/55/Attack.png"
+    },
+    "Shoot": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        2,
+        2,
+        6,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/55/Shoot.png"
+    },
+    "Hurt": {
+      "width": 56,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/55/Hurt.png"
+    }
+  },
+  "56": {
+    "Idle": {
+      "width": 32,
+      "height": 56,
+      "durations": [
+        40,
+        4,
+        4,
+        4,
+        4
+      ],
+      "path": "res://assets/shiny/56/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 56,
+      "durations": [
+        8,
+        4,
+        4,
+        4,
+        8,
+        4,
+        4,
+        4
+      ],
+      "path": "res://assets/shiny/56/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 80,
+      "durations": [
+        2,
+        4,
+        4,
+        2,
+        2,
+        2,
+        2,
+        1,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/56/Attack.png"
+    },
+    "Shoot": {
+      "width": 32,
+      "height": 32,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/56/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/56/Hurt.png"
+    }
+  },
+  "57": {
+    "Idle": {
+      "width": 32,
+      "height": 56,
+      "durations": [
+        22,
+        4,
+        6,
+        4,
+        22,
+        4,
+        6,
+        4
+      ],
+      "path": "res://assets/shiny/57/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        6,
+        8,
+        6,
+        8
+      ],
+      "path": "res://assets/shiny/57/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 80,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        1,
+        2
+      ],
+      "path": "res://assets/shiny/57/Attack.png"
+    },
+    "Shoot": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/57/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/57/Hurt.png"
+    }
+  },
+  "58": {
+    "Idle": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        40,
+        4,
+        2
+      ],
+      "path": "res://assets/shiny/58/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        6,
+        8,
+        6,
+        8
+      ],
+      "path": "res://assets/shiny/58/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 80,
+      "durations": [
+        2,
+        2,
+        6,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/58/Attack.png"
+    },
+    "Shoot": {
+      "width": 40,
+      "height": 40,
+      "durations": [
+        2,
+        2,
+        6,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/58/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 48,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/58/Hurt.png"
+    }
+  },
+  "59": {
+    "Idle": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        8
+      ],
+      "path": "res://assets/shiny/59/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/59/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 88,
+      "durations": [
+        2,
+        2,
+        6,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/59/Attack.png"
+    },
+    "Shoot": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        2,
+        2,
+        6,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/59/Shoot.png"
+    },
+    "Hurt": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/59/Hurt.png"
+    }
+  },
+  "60": {
+    "Idle": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        30,
+        8,
+        6,
+        6,
+        4,
+        4,
+        4,
+        4
+      ],
+      "path": "res://assets/shiny/60/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        8,
+        6,
+        6,
+        6,
+        6
+      ],
+      "path": "res://assets/shiny/60/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 72,
+      "durations": [
+        2,
+        4,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/60/Attack.png"
+    },
+    "Shoot": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        2,
+        4,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/60/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 40,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/60/Hurt.png"
+    }
+  },
+  "61": {
+    "Idle": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        40,
+        2,
+        4,
+        4,
+        2
+      ],
+      "path": "res://assets/shiny/61/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/61/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 80,
+      "durations": [
+        2,
+        6,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/61/Attack.png"
+    },
+    "Shoot": {
+      "width": 56,
+      "height": 72,
+      "durations": [
+        1,
+        1,
+        2,
+        6,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/61/Shoot.png"
+    },
+    "Hurt": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/61/Hurt.png"
+    }
+  },
+  "62": {
+    "Idle": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        40,
+        2,
+        4,
+        2
+      ],
+      "path": "res://assets/shiny/62/Idle.png"
+    },
+    "Walk": {
+      "width": 40,
+      "height": 40,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/62/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 80,
+      "durations": [
+        2,
+        6,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/62/Attack.png"
+    },
+    "Shoot": {
+      "width": 48,
+      "height": 72,
+      "durations": [
+        1,
+        1,
+        2,
+        2,
+        2,
+        1,
+        1,
+        6,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/62/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/62/Hurt.png"
+    }
+  },
+  "63": {
+    "Idle": {
+      "width": 24,
+      "height": 48,
+      "durations": [
+        24,
+        8,
+        8,
+        24,
+        8,
+        8
+      ],
+      "path": "res://assets/shiny/63/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        8,
+        10,
+        8,
+        10,
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/63/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 80,
+      "durations": [
+        4,
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        4
+      ],
+      "path": "res://assets/shiny/63/Attack.png"
+    },
+    "Shoot": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        6,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/63/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/63/Hurt.png"
+    }
+  },
+  "64": {
+    "Idle": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        4,
+        4,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        4
+      ],
+      "path": "res://assets/shiny/64/Idle.png"
+    },
+    "Walk": {
+      "width": 40,
+      "height": 40,
+      "durations": [
+        8,
+        12,
+        8,
+        12
+      ],
+      "path": "res://assets/shiny/64/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 80,
+      "durations": [
+        2,
+        6,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/64/Attack.png"
+    },
+    "Shoot": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        2,
+        3,
+        4,
+        4,
+        3,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/64/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/64/Hurt.png"
+    }
+  },
+  "65": {
+    "Idle": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6
+      ],
+      "path": "res://assets/shiny/65/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        8,
+        12,
+        8,
+        12
+      ],
+      "path": "res://assets/shiny/65/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 72,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        4
+      ],
+      "path": "res://assets/shiny/65/Attack.png"
+    },
+    "Shoot": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        2,
+        2,
+        4,
+        6,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        4
+      ],
+      "path": "res://assets/shiny/65/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/65/Hurt.png"
+    }
+  },
+  "66": {
+    "Idle": {
+      "width": 24,
+      "height": 40,
+      "durations": [
+        40,
+        4,
+        4,
+        4
+      ],
+      "path": "res://assets/shiny/66/Idle.png"
+    },
+    "Walk": {
+      "width": 24,
+      "height": 32,
+      "durations": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "path": "res://assets/shiny/66/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 80,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        4
+      ],
+      "path": "res://assets/shiny/66/Attack.png"
+    },
+    "Shoot": {
+      "width": 24,
+      "height": 40,
+      "durations": [
+        2,
+        3,
+        6,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/66/Shoot.png"
+    },
+    "Hurt": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/66/Hurt.png"
+    }
+  },
+  "67": {
+    "Idle": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        40,
+        4,
+        4,
+        4
+      ],
+      "path": "res://assets/shiny/67/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/67/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 80,
+      "durations": [
+        4,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        3,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/67/Attack.png"
+    },
+    "Shoot": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/67/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/67/Hurt.png"
+    }
+  },
+  "68": {
+    "Idle": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        40,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        12
+      ],
+      "path": "res://assets/shiny/68/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/68/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 88,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        1,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/68/Attack.png"
+    },
+    "Shoot": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/68/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/68/Hurt.png"
+    }
+  },
+  "69": {
+    "Idle": {
+      "width": 24,
+      "height": 32,
+      "durations": [
+        20,
+        22
+      ],
+      "path": "res://assets/shiny/69/Idle.png"
+    },
+    "Walk": {
+      "width": 24,
+      "height": 32,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/69/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 72,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/69/Attack.png"
+    },
+    "Shoot": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        2,
+        2,
+        4,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/69/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 48,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/69/Hurt.png"
+    }
+  },
+  "70": {
+    "Idle": {
+      "width": 32,
+      "height": 32,
+      "durations": [
+        16,
+        8,
+        16,
+        8
+      ],
+      "path": "res://assets/shiny/70/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 32,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/70/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 80,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/70/Attack.png"
+    },
+    "Shoot": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        2,
+        2,
+        2,
+        4,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/70/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/70/Hurt.png"
+    }
+  },
+  "71": {
+    "Idle": {
+      "width": 32,
+      "height": 56,
+      "durations": [
+        35,
+        3,
+        3,
+        5,
+        5,
+        5,
+        3,
+        3,
+        3
+      ],
+      "path": "res://assets/shiny/71/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 56,
+      "durations": [
+        6,
+        8,
+        6,
+        8
+      ],
+      "path": "res://assets/shiny/71/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 80,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/71/Attack.png"
+    },
+    "Shoot": {
+      "width": 56,
+      "height": 64,
+      "durations": [
+        2,
+        2,
+        2,
+        4,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/71/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/71/Hurt.png"
+    }
+  },
+  "72": {
+    "Idle": {
+      "width": 24,
+      "height": 48,
+      "durations": [
+        4,
+        8,
+        8,
+        4,
+        8,
+        8,
+        8
+      ],
+      "path": "res://assets/shiny/72/Idle.png"
+    },
+    "Walk": {
+      "width": 24,
+      "height": 40,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/72/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 72,
+      "durations": [
+        2,
+        2,
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/72/Attack.png"
+    },
+    "Shoot": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        8,
+        1,
+        2,
+        6,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/72/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 72,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/72/Hurt.png"
+    }
+  },
+  "73": {
+    "Idle": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        6,
+        10,
+        10,
+        6,
+        10,
+        10,
+        10
+      ],
+      "path": "res://assets/shiny/73/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/73/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 72,
+      "durations": [
+        2,
+        2,
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/73/Attack.png"
+    },
+    "Shoot": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        2,
+        2,
+        4,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/73/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 72,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/73/Hurt.png"
+    }
+  },
+  "74": {
+    "Idle": {
+      "width": 32,
+      "height": 24,
+      "durations": [
+        8,
+        12,
+        8,
+        12
+      ],
+      "path": "res://assets/shiny/74/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 32,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/74/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 80,
+      "durations": [
+        3,
+        3,
+        2,
+        2,
+        2,
+        2,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/74/Attack.png"
+    },
+    "Shoot": {
+      "width": 48,
+      "height": 40,
+      "durations": [
+        2,
+        2,
+        4,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/74/Shoot.png"
+    },
+    "Hurt": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/74/Hurt.png"
+    }
+  },
+  "75": {
+    "Idle": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        60,
+        10,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        10
+      ],
+      "path": "res://assets/shiny/75/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        6,
+        10,
+        6,
+        10
+      ],
+      "path": "res://assets/shiny/75/Walk.png"
+    },
+    "Attack": {
+      "width": 80,
+      "height": 80,
+      "durations": [
+        2,
+        6,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/75/Attack.png"
+    },
+    "Shoot": {
+      "width": 40,
+      "height": 72,
+      "durations": [
+        4,
+        1,
+        2,
+        4,
+        4,
+        2,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/75/Shoot.png"
+    },
+    "Hurt": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/75/Hurt.png"
+    }
+  },
+  "76": {
+    "Idle": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        30,
+        25
+      ],
+      "path": "res://assets/shiny/76/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        8,
+        12,
+        8,
+        12
+      ],
+      "path": "res://assets/shiny/76/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 80,
+      "durations": [
+        6,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/76/Attack.png"
+    },
+    "Shoot": {
+      "width": 48,
+      "height": 40,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        4,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/76/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/76/Hurt.png"
+    }
+  },
+  "77": {
+    "Idle": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        60,
+        10,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        10
+      ],
+      "path": "res://assets/shiny/77/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/77/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 72,
+      "durations": [
+        2,
+        6,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/77/Attack.png"
+    },
+    "Shoot": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        2,
+        2,
+        6,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/77/Shoot.png"
+    },
+    "Hurt": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/77/Hurt.png"
+    }
+  },
+  "78": {
+    "Idle": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        60,
+        10,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        10
+      ],
+      "path": "res://assets/shiny/78/Idle.png"
+    },
+    "Walk": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/78/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 88,
+      "durations": [
+        2,
+        6,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/78/Attack.png"
+    },
+    "Shoot": {
+      "width": 48,
+      "height": 72,
+      "durations": [
+        2,
+        2,
+        6,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/78/Shoot.png"
+    },
+    "Hurt": {
+      "width": 56,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/78/Hurt.png"
+    }
+  },
+  "79": {
+    "Idle": {
+      "width": 24,
+      "height": 32,
+      "durations": [
+        40,
+        8,
+        8,
+        8
+      ],
+      "path": "res://assets/shiny/79/Idle.png"
+    },
+    "Walk": {
+      "width": 24,
+      "height": 32,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/79/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 64,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/79/Attack.png"
+    },
+    "Shoot": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        2,
+        2,
+        4,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/79/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/79/Hurt.png"
+    }
+  },
+  "80": {
+    "Idle": {
+      "width": 40,
+      "height": 40,
+      "durations": [
+        30,
+        30
+      ],
+      "path": "res://assets/shiny/80/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        8,
+        12,
+        8,
+        12
+      ],
+      "path": "res://assets/shiny/80/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 72,
+      "durations": [
+        6,
+        6,
+        1,
+        1,
+        1,
+        2,
+        2,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        1
+      ],
+      "path": "res://assets/shiny/80/Attack.png"
+    },
+    "Shoot": {
+      "width": 48,
+      "height": 48,
+      "durations": [
+        8,
+        6,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/80/Shoot.png"
+    },
+    "Hurt": {
+      "width": 56,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/80/Hurt.png"
+    }
+  },
+  "81": {
+    "Idle": {
+      "width": 24,
+      "height": 32,
+      "durations": [
+        10,
+        14,
+        10,
+        14
+      ],
+      "path": "res://assets/shiny/81/Idle.png"
+    },
+    "Walk": {
+      "width": 24,
+      "height": 32,
+      "durations": [
+        8,
+        6,
+        6,
+        8,
+        6,
+        6
+      ],
+      "path": "res://assets/shiny/81/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 72,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/81/Attack.png"
+    },
+    "Shoot": {
+      "width": 32,
+      "height": 32,
+      "durations": [
+        2,
+        2,
+        6,
+        1,
+        2,
+        4,
+        2
+      ],
+      "path": "res://assets/shiny/81/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/81/Hurt.png"
+    }
+  },
+  "82": {
+    "Idle": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        14,
+        10,
+        14,
+        10
+      ],
+      "path": "res://assets/shiny/82/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "path": "res://assets/shiny/82/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 72,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/82/Attack.png"
+    },
+    "Shoot": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        2,
+        2,
+        6,
+        1,
+        2,
+        4,
+        2
+      ],
+      "path": "res://assets/shiny/82/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/82/Hurt.png"
+    }
+  },
+  "83": {
+    "Idle": {
+      "width": 24,
+      "height": 32,
+      "durations": [
+        30,
+        12,
+        30,
+        12
+      ],
+      "path": "res://assets/shiny/83/Idle.png"
+    },
+    "Walk": {
+      "width": 24,
+      "height": 32,
+      "durations": [
+        6,
+        12,
+        6,
+        12
+      ],
+      "path": "res://assets/shiny/83/Walk.png"
+    },
+    "Attack": {
+      "width": 88,
+      "height": 80,
+      "durations": [
+        2,
+        6,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/83/Attack.png"
+    },
+    "Shoot": {
+      "width": 24,
+      "height": 40,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/83/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/83/Hurt.png"
+    }
+  },
+  "84": {
+    "Idle": {
+      "width": 40,
+      "height": 40,
+      "durations": [
+        40,
+        6,
+        12,
+        6
+      ],
+      "path": "res://assets/shiny/84/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        8,
+        12,
+        8,
+        12
+      ],
+      "path": "res://assets/shiny/84/Walk.png"
+    },
+    "Attack": {
+      "width": 80,
+      "height": 72,
+      "durations": [
+        1,
+        2,
+        4,
+        3,
+        2,
+        2,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/84/Attack.png"
+    },
+    "Shoot": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/84/Shoot.png"
+    },
+    "Hurt": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/84/Hurt.png"
+    }
+  },
+  "85": {
+    "Idle": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        40,
+        10,
+        16,
+        10,
+        16,
+        10
+      ],
+      "path": "res://assets/shiny/85/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        8,
+        12,
+        8,
+        12
+      ],
+      "path": "res://assets/shiny/85/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 80,
+      "durations": [
+        1,
+        2,
+        4,
+        3,
+        2,
+        2,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/85/Attack.png"
+    },
+    "Shoot": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/85/Shoot.png"
+    },
+    "Hurt": {
+      "width": 40,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/85/Hurt.png"
+    }
+  },
+  "86": {
+    "Idle": {
+      "width": 32,
+      "height": 32,
+      "durations": [
+        30,
+        20
+      ],
+      "path": "res://assets/shiny/86/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        8,
+        6,
+        8,
+        10,
+        6,
+        6,
+        6
+      ],
+      "path": "res://assets/shiny/86/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 72,
+      "durations": [
+        2,
+        6,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/86/Attack.png"
+    },
+    "Shoot": {
+      "width": 40,
+      "height": 40,
+      "durations": [
+        2,
+        6,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/86/Shoot.png"
+    },
+    "Hurt": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/86/Hurt.png"
+    }
+  },
+  "87": {
+    "Idle": {
+      "width": 48,
+      "height": 40,
+      "durations": [
+        30,
+        12,
+        8,
+        12,
+        8,
+        12
+      ],
+      "path": "res://assets/shiny/87/Idle.png"
+    },
+    "Walk": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        8,
+        6,
+        6,
+        6,
+        10,
+        8,
+        8
+      ],
+      "path": "res://assets/shiny/87/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 72,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/87/Attack.png"
+    },
+    "Shoot": {
+      "width": 48,
+      "height": 48,
+      "durations": [
+        2,
+        2,
+        4,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/87/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/87/Hurt.png"
+    }
+  },
+  "88": {
+    "Idle": {
+      "width": 24,
+      "height": 32,
+      "durations": [
+        40,
+        8,
+        30,
+        8
+      ],
+      "path": "res://assets/shiny/88/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 32,
+      "durations": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "path": "res://assets/shiny/88/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 72,
+      "durations": [
+        2,
+        2,
+        2,
+        4,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/88/Attack.png"
+    },
+    "Shoot": {
+      "width": 48,
+      "height": 48,
+      "durations": [
+        2,
+        2,
+        2,
+        4,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/88/Shoot.png"
+    },
+    "Hurt": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/88/Hurt.png"
+    }
+  },
+  "89": {
+    "Idle": {
+      "width": 40,
+      "height": 40,
+      "durations": [
+        40,
+        8,
+        30,
+        8
+      ],
+      "path": "res://assets/shiny/89/Idle.png"
+    },
+    "Walk": {
+      "width": 48,
+      "height": 40,
+      "durations": [
+        10,
+        8,
+        6,
+        10,
+        8
+      ],
+      "path": "res://assets/shiny/89/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 72,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/89/Attack.png"
+    },
+    "Shoot": {
+      "width": 56,
+      "height": 56,
+      "durations": [
+        2,
+        6,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/89/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/89/Hurt.png"
+    }
+  },
+  "90": {
+    "Idle": {
+      "width": 24,
+      "height": 32,
+      "durations": [
+        14,
+        40,
+        14,
+        30
+      ],
+      "path": "res://assets/shiny/90/Idle.png"
+    },
+    "Walk": {
+      "width": 24,
+      "height": 32,
+      "durations": [
+        10,
+        6,
+        10,
+        10,
+        6,
+        10
+      ],
+      "path": "res://assets/shiny/90/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 72,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/90/Attack.png"
+    },
+    "Shoot": {
+      "width": 40,
+      "height": 40,
+      "durations": [
+        2,
+        5,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/90/Shoot.png"
+    },
+    "Hurt": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/90/Hurt.png"
+    }
+  },
+  "91": {
+    "Idle": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        12,
+        12,
+        12,
+        14,
+        12,
+        12
+      ],
+      "path": "res://assets/shiny/91/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        8,
+        8,
+        8,
+        10,
+        8,
+        8
+      ],
+      "path": "res://assets/shiny/91/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 80,
+      "durations": [
+        2,
+        2,
+        6,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/91/Attack.png"
+    },
+    "Shoot": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        2,
+        2,
+        4,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/91/Shoot.png"
+    },
+    "Hurt": {
+      "width": 40,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/91/Hurt.png"
+    }
+  },
+  "92": {
+    "Idle": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        10,
+        10,
+        10,
+        10,
+        10,
+        10
+      ],
+      "path": "res://assets/shiny/92/Idle.png"
+    },
+    "Walk": {
+      "width": 48,
+      "height": 64,
+      "durations": [
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6
+      ],
+      "path": "res://assets/shiny/92/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 80,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        1,
+        1,
+        2,
+        2,
+        2,
+        3
+      ],
+      "path": "res://assets/shiny/92/Attack.png"
+    },
+    "Shoot": {
+      "width": 48,
+      "height": 64,
+      "durations": [
+        3,
+        3,
+        3,
+        3,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        4
+      ],
+      "path": "res://assets/shiny/92/Shoot.png"
+    },
+    "Hurt": {
+      "width": 56,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/92/Hurt.png"
+    }
+  },
+  "93": {
+    "Idle": {
+      "width": 32,
+      "height": 56,
+      "durations": [
+        14,
+        8,
+        14,
+        8
+      ],
+      "path": "res://assets/shiny/93/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 56,
+      "durations": [
+        6,
+        6,
+        6,
+        10,
+        6,
+        6,
+        6,
+        6,
+        10,
+        6
+      ],
+      "path": "res://assets/shiny/93/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 80,
+      "durations": [
+        2,
+        2,
+        2,
+        6,
+        2,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        4
+      ],
+      "path": "res://assets/shiny/93/Attack.png"
+    },
+    "Shoot": {
+      "width": 56,
+      "height": 56,
+      "durations": [
+        2,
+        6,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/93/Shoot.png"
+    },
+    "Hurt": {
+      "width": 40,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/93/Hurt.png"
+    }
+  },
+  "94": {
+    "Idle": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        40,
+        4,
+        3,
+        3,
+        3,
+        3,
+        3,
+        4
+      ],
+      "path": "res://assets/shiny/94/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/94/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 80,
+      "durations": [
+        4,
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        4
+      ],
+      "path": "res://assets/shiny/94/Attack.png"
+    },
+    "Shoot": {
+      "width": 56,
+      "height": 64,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        10,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/94/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/94/Hurt.png"
+    }
+  },
+  "95": {
+    "Idle": {
+      "width": 96,
+      "height": 104,
+      "durations": [
+        16,
+        16,
+        16,
+        16
+      ],
+      "path": "res://assets/shiny/95/Idle.png"
+    },
+    "Walk": {
+      "width": 88,
+      "height": 112,
+      "durations": [
+        10,
+        14,
+        10,
+        14
+      ],
+      "path": "res://assets/shiny/95/Walk.png"
+    },
+    "Attack": {
+      "width": 128,
+      "height": 152,
+      "durations": [
+        2,
+        6,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/95/Attack.png"
+    },
+    "Shoot": {
+      "width": 96,
+      "height": 112,
+      "durations": [
+        2,
+        2,
+        6,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/95/Shoot.png"
+    },
+    "Hurt": {
+      "width": 80,
+      "height": 88,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/95/Hurt.png"
+    }
+  },
+  "96": {
+    "Idle": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        40,
+        10,
+        6,
+        10
+      ],
+      "path": "res://assets/shiny/96/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        8,
+        12,
+        8,
+        12
+      ],
+      "path": "res://assets/shiny/96/Walk.png"
+    },
+    "Attack": {
+      "width": 80,
+      "height": 72,
+      "durations": [
+        2,
+        6,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/96/Attack.png"
+    },
+    "Shoot": {
+      "width": 56,
+      "height": 56,
+      "durations": [
+        2,
+        2,
+        6,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/96/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/96/Hurt.png"
+    }
+  },
+  "97": {
+    "Idle": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        30,
+        1,
+        2,
+        3,
+        3,
+        3,
+        2,
+        1
+      ],
+      "path": "res://assets/shiny/97/Idle.png"
+    },
+    "Walk": {
+      "width": 40,
+      "height": 40,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/97/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 80,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/97/Attack.png"
+    },
+    "Shoot": {
+      "width": 56,
+      "height": 48,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/97/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/97/Hurt.png"
+    }
+  },
+  "98": {
+    "Idle": {
+      "width": 24,
+      "height": 40,
+      "durations": [
+        30,
+        30
+      ],
+      "path": "res://assets/shiny/98/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 32,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/98/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 80,
+      "durations": [
+        1,
+        2,
+        3,
+        2,
+        1,
+        3,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        4,
+        2,
+        1
+      ],
+      "path": "res://assets/shiny/98/Attack.png"
+    },
+    "Shoot": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        4,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        1,
+        2,
+        4,
+        2,
+        1
+      ],
+      "path": "res://assets/shiny/98/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 48,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/98/Hurt.png"
+    }
+  },
+  "99": {
+    "Idle": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        30,
+        30
+      ],
+      "path": "res://assets/shiny/99/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 32,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/99/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 72,
+      "durations": [
+        1,
+        2,
+        3,
+        2,
+        1,
+        3,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        4,
+        2,
+        1
+      ],
+      "path": "res://assets/shiny/99/Attack.png"
+    },
+    "Shoot": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        4,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        1,
+        2,
+        4,
+        2,
+        1
+      ],
+      "path": "res://assets/shiny/99/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/99/Hurt.png"
+    }
+  },
+  "100": {
+    "Idle": {
+      "width": 24,
+      "height": 32,
+      "durations": [
+        22,
+        6,
+        2,
+        6,
+        6
+      ],
+      "path": "res://assets/shiny/100/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        6,
+        6,
+        10,
+        4,
+        4,
+        4,
+        6,
+        8
+      ],
+      "path": "res://assets/shiny/100/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 72,
+      "durations": [
+        2,
+        2,
+        6,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/100/Attack.png"
+    },
+    "Shoot": {
+      "width": 24,
+      "height": 24,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/100/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 48,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/100/Hurt.png"
+    }
+  },
+  "101": {
+    "Idle": {
+      "width": 24,
+      "height": 32,
+      "durations": [
+        10,
+        18,
+        10,
+        18
+      ],
+      "path": "res://assets/shiny/101/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        4,
+        4,
+        6,
+        8,
+        6,
+        4,
+        10
+      ],
+      "path": "res://assets/shiny/101/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 72,
+      "durations": [
+        2,
+        2,
+        6,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/101/Attack.png"
+    },
+    "Shoot": {
+      "width": 24,
+      "height": 32,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/101/Shoot.png"
+    },
+    "Hurt": {
+      "width": 56,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/101/Hurt.png"
+    }
+  },
+  "102": {
+    "Idle": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        30,
+        2,
+        4,
+        4,
+        4,
+        2
+      ],
+      "path": "res://assets/shiny/102/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 32,
+      "durations": [
+        6,
+        8,
+        6,
+        8
+      ],
+      "path": "res://assets/shiny/102/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 72,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/102/Attack.png"
+    },
+    "Shoot": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        2,
+        2,
+        1,
+        1,
+        2,
+        6,
+        1,
+        2,
+        6,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/102/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 48,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/102/Hurt.png"
+    }
+  },
+  "103": {
+    "Idle": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        40,
+        12,
+        8,
+        12
+      ],
+      "path": "res://assets/shiny/103/Idle.png"
+    },
+    "Walk": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        8,
+        12,
+        8,
+        12
+      ],
+      "path": "res://assets/shiny/103/Walk.png"
+    },
+    "Attack": {
+      "width": 88,
+      "height": 80,
+      "durations": [
+        2,
+        2,
+        6,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/103/Attack.png"
+    },
+    "Shoot": {
+      "width": 64,
+      "height": 56,
+      "durations": [
+        2,
+        2,
+        6,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/103/Shoot.png"
+    },
+    "Hurt": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/103/Hurt.png"
+    }
+  },
+  "104": {
+    "Idle": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        40,
+        1,
+        2,
+        3,
+        2,
+        1
+      ],
+      "path": "res://assets/shiny/104/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 32,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/104/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 72,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/104/Attack.png"
+    },
+    "Shoot": {
+      "width": 32,
+      "height": 32,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/104/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/104/Hurt.png"
+    }
+  },
+  "105": {
+    "Idle": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        40,
+        6,
+        16,
+        6
+      ],
+      "path": "res://assets/shiny/105/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/105/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 88,
+      "durations": [
+        2,
+        6,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/105/Attack.png"
+    },
+    "Shoot": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        2,
+        6,
+        2,
+        2,
+        3,
+        4
+      ],
+      "path": "res://assets/shiny/105/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/105/Hurt.png"
+    }
+  },
+  "106": {
+    "Idle": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        40,
+        20
+      ],
+      "path": "res://assets/shiny/106/Idle.png"
+    },
+    "Walk": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        10,
+        12,
+        10,
+        12
+      ],
+      "path": "res://assets/shiny/106/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 72,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/106/Attack.png"
+    },
+    "Shoot": {
+      "width": 40,
+      "height": 40,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/106/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/106/Hurt.png"
+    }
+  },
+  "107": {
+    "Idle": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        30,
+        6,
+        8,
+        6
+      ],
+      "path": "res://assets/shiny/107/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/107/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 72,
+      "durations": [
+        2,
+        2,
+        6,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/107/Attack.png"
+    },
+    "Shoot": {
+      "width": 24,
+      "height": 40,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/107/Shoot.png"
+    },
+    "Hurt": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/107/Hurt.png"
+    }
+  },
+  "108": {
+    "Idle": {
+      "width": 48,
+      "height": 48,
+      "durations": [
+        36,
+        12,
+        10,
+        12
+      ],
+      "path": "res://assets/shiny/108/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        10,
+        14,
+        10,
+        14
+      ],
+      "path": "res://assets/shiny/108/Walk.png"
+    },
+    "Attack": {
+      "width": 80,
+      "height": 80,
+      "durations": [
+        2,
+        6,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/108/Attack.png"
+    },
+    "Shoot": {
+      "width": 56,
+      "height": 64,
+      "durations": [
+        2,
+        6,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/108/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/108/Hurt.png"
+    }
+  },
+  "109": {
+    "Idle": {
+      "width": 32,
+      "height": 56,
+      "durations": [
+        10,
+        10,
+        8,
+        10,
+        10,
+        8
+      ],
+      "path": "res://assets/shiny/109/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 56,
+      "durations": [
+        6,
+        6,
+        6,
+        6,
+        8,
+        6,
+        6,
+        6,
+        6,
+        8
+      ],
+      "path": "res://assets/shiny/109/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 80,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        4,
+        2,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/109/Attack.png"
+    },
+    "Shoot": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/109/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/109/Hurt.png"
+    }
+  },
+  "110": {
+    "Idle": {
+      "width": 32,
+      "height": 64,
+      "durations": [
+        12,
+        12,
+        12,
+        12,
+        12,
+        12,
+        12,
+        12,
+        12,
+        12,
+        12
+      ],
+      "path": "res://assets/shiny/110/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 56,
+      "durations": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "path": "res://assets/shiny/110/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 80,
+      "durations": [
+        2,
+        6,
+        1,
+        1,
+        1,
+        2,
+        1,
+        1,
+        1,
+        1,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/110/Attack.png"
+    },
+    "Shoot": {
+      "width": 48,
+      "height": 64,
+      "durations": [
+        2,
+        2,
+        2,
+        4,
+        4,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/110/Shoot.png"
+    },
+    "Hurt": {
+      "width": 40,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/110/Hurt.png"
+    }
+  },
+  "111": {
+    "Idle": {
+      "width": 40,
+      "height": 32,
+      "durations": [
+        40,
+        20,
+        15
+      ],
+      "path": "res://assets/shiny/111/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 32,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/111/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 72,
+      "durations": [
+        2,
+        6,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/111/Attack.png"
+    },
+    "Shoot": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        2,
+        6,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/111/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/111/Hurt.png"
+    }
+  },
+  "112": {
+    "Idle": {
+      "width": 48,
+      "height": 48,
+      "durations": [
+        40,
+        26
+      ],
+      "path": "res://assets/shiny/112/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        8,
+        12,
+        8,
+        12
+      ],
+      "path": "res://assets/shiny/112/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 80,
+      "durations": [
+        2,
+        6,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/112/Attack.png"
+    },
+    "Shoot": {
+      "width": 48,
+      "height": 64,
+      "durations": [
+        2,
+        6,
+        2,
+        2,
+        3,
+        3,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/112/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/112/Hurt.png"
+    }
+  },
+  "113": {
+    "Idle": {
+      "width": 24,
+      "height": 40,
+      "durations": [
+        40,
+        2,
+        3,
+        4,
+        3,
+        2
+      ],
+      "path": "res://assets/shiny/113/Idle.png"
+    },
+    "Walk": {
+      "width": 24,
+      "height": 32,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/113/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 80,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/113/Attack.png"
+    },
+    "Shoot": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/113/Shoot.png"
+    },
+    "Hurt": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/113/Hurt.png"
+    }
+  },
+  "114": {
+    "Idle": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        34,
+        6,
+        6,
+        6
+      ],
+      "path": "res://assets/shiny/114/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        8,
+        6,
+        6,
+        6,
+        6,
+        6
+      ],
+      "path": "res://assets/shiny/114/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 72,
+      "durations": [
+        2,
+        2,
+        4,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/114/Attack.png"
+    },
+    "Shoot": {
+      "width": 64,
+      "height": 72,
+      "durations": [
+        2,
+        8,
+        1,
+        2,
+        4,
+        4
+      ],
+      "path": "res://assets/shiny/114/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/114/Hurt.png"
+    }
+  },
+  "115": {
+    "Idle": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        30,
+        3,
+        4,
+        3,
+        20
+      ],
+      "path": "res://assets/shiny/115/Idle.png"
+    },
+    "Walk": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        16,
+        10,
+        16,
+        10
+      ],
+      "path": "res://assets/shiny/115/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 96,
+      "durations": [
+        1,
+        2,
+        3,
+        2,
+        1,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/115/Attack.png"
+    },
+    "Shoot": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        2,
+        1,
+        1,
+        1,
+        1,
+        1,
+        6,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/115/Shoot.png"
+    },
+    "Hurt": {
+      "width": 40,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/115/Hurt.png"
+    }
+  },
+  "116": {
+    "Idle": {
+      "width": 24,
+      "height": 48,
+      "durations": [
+        8,
+        16,
+        8,
+        16
+      ],
+      "path": "res://assets/shiny/116/Idle.png"
+    },
+    "Walk": {
+      "width": 24,
+      "height": 48,
+      "durations": [
+        8,
+        12,
+        8,
+        12
+      ],
+      "path": "res://assets/shiny/116/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 72,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/116/Attack.png"
+    },
+    "Shoot": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        2,
+        6,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/116/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 72,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/116/Hurt.png"
+    }
+  },
+  "117": {
+    "Idle": {
+      "width": 32,
+      "height": 64,
+      "durations": [
+        12,
+        12,
+        12,
+        12,
+        8,
+        8,
+        8,
+        8
+      ],
+      "path": "res://assets/shiny/117/Idle.png"
+    },
+    "Walk": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        8,
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/117/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 80,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/117/Attack.png"
+    },
+    "Shoot": {
+      "width": 48,
+      "height": 64,
+      "durations": [
+        2,
+        6,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/117/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 72,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/117/Hurt.png"
+    }
+  },
+  "118": {
+    "Idle": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        16,
+        10,
+        16,
+        10,
+        16,
+        10,
+        16,
+        2,
+        4,
+        4,
+        4,
+        12,
+        10,
+        16,
+        10
+      ],
+      "path": "res://assets/shiny/118/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10
+      ],
+      "path": "res://assets/shiny/118/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 72,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/118/Attack.png"
+    },
+    "Shoot": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        2,
+        2,
+        6,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/118/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/118/Hurt.png"
+    }
+  },
+  "119": {
+    "Idle": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        16,
+        10,
+        16,
+        10,
+        16,
+        10,
+        16,
+        2,
+        4,
+        4,
+        4,
+        12,
+        10,
+        16,
+        10
+      ],
+      "path": "res://assets/shiny/119/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        10,
+        8,
+        10,
+        8
+      ],
+      "path": "res://assets/shiny/119/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 72,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/119/Attack.png"
+    },
+    "Shoot": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        2,
+        2,
+        6,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/119/Shoot.png"
+    },
+    "Hurt": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/119/Hurt.png"
+    }
+  },
+  "120": {
+    "Idle": {
+      "width": 24,
+      "height": 32,
+      "durations": [
+        36,
+        10,
+        6,
+        10
+      ],
+      "path": "res://assets/shiny/120/Idle.png"
+    },
+    "Walk": {
+      "width": 24,
+      "height": 32,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/120/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 64,
+      "durations": [
+        2,
+        2,
+        4,
+        2,
+        2,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/120/Attack.png"
+    },
+    "Shoot": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        4,
+        8,
+        1,
+        1,
+        1,
+        4,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/120/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/120/Hurt.png"
+    }
+  },
+  "121": {
+    "Idle": {
+      "width": 24,
+      "height": 32,
+      "durations": [
+        60,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "path": "res://assets/shiny/121/Idle.png"
+    },
+    "Walk": {
+      "width": 24,
+      "height": 40,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/121/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 64,
+      "durations": [
+        2,
+        2,
+        4,
+        2,
+        2,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/121/Attack.png"
+    },
+    "Shoot": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        2,
+        2,
+        6,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/121/Shoot.png"
+    },
+    "Hurt": {
+      "width": 56,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/121/Hurt.png"
+    }
+  },
+  "122": {
+    "Idle": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        20,
+        12
+      ],
+      "path": "res://assets/shiny/122/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        8,
+        12,
+        8,
+        12
+      ],
+      "path": "res://assets/shiny/122/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 88,
+      "durations": [
+        2,
+        6,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/122/Attack.png"
+    },
+    "Shoot": {
+      "width": 56,
+      "height": 56,
+      "durations": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        2,
+        2,
+        2,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/122/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/122/Hurt.png"
+    }
+  },
+  "123": {
+    "Idle": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        40,
+        10,
+        14,
+        10
+      ],
+      "path": "res://assets/shiny/123/Idle.png"
+    },
+    "Walk": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/123/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 80,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/123/Attack.png"
+    },
+    "Shoot": {
+      "width": 48,
+      "height": 64,
+      "durations": [
+        2,
+        6,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/123/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/123/Hurt.png"
+    }
+  },
+  "124": {
+    "Idle": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        30,
+        14,
+        30,
+        14
+      ],
+      "path": "res://assets/shiny/124/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        8,
+        12,
+        8,
+        12
+      ],
+      "path": "res://assets/shiny/124/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 72,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/124/Attack.png"
+    },
+    "Shoot": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        2,
+        2,
+        6,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/124/Shoot.png"
+    },
+    "Hurt": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/124/Hurt.png"
+    }
+  },
+  "125": {
+    "Idle": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        28,
+        18,
+        28,
+        18
+      ],
+      "path": "res://assets/shiny/125/Idle.png"
+    },
+    "Walk": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/125/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 72,
+      "durations": [
+        2,
+        6,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/125/Attack.png"
+    },
+    "Shoot": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        2,
+        2,
+        6,
+        1,
+        2,
+        3,
+        3,
+        3,
+        3,
+        3,
+        2
+      ],
+      "path": "res://assets/shiny/125/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/125/Hurt.png"
+    }
+  },
+  "126": {
+    "Idle": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        40,
+        6,
+        12,
+        6
+      ],
+      "path": "res://assets/shiny/126/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/126/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 80,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/126/Attack.png"
+    },
+    "Shoot": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        2,
+        6,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/126/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/126/Hurt.png"
+    }
+  },
+  "127": {
+    "Idle": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        40,
+        2,
+        6,
+        3,
+        2
+      ],
+      "path": "res://assets/shiny/127/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        8,
+        12,
+        8,
+        12
+      ],
+      "path": "res://assets/shiny/127/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 80,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/127/Attack.png"
+    },
+    "Shoot": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/127/Shoot.png"
+    },
+    "Hurt": {
+      "width": 40,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/127/Hurt.png"
+    }
+  },
+  "128": {
+    "Idle": {
+      "width": 32,
+      "height": 56,
+      "durations": [
+        40,
+        3,
+        6,
+        3,
+        2
+      ],
+      "path": "res://assets/shiny/128/Idle.png"
+    },
+    "Walk": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        8,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6
+      ],
+      "path": "res://assets/shiny/128/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 80,
+      "durations": [
+        1,
+        2,
+        4,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/128/Attack.png"
+    },
+    "Shoot": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/128/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/128/Hurt.png"
+    }
+  },
+  "129": {
+    "Idle": {
+      "width": 32,
+      "height": 32,
+      "durations": [
+        8,
+        10,
+        10,
+        12
+      ],
+      "path": "res://assets/shiny/129/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        6,
+        2,
+        4,
+        6,
+        4,
+        2,
+        6
+      ],
+      "path": "res://assets/shiny/129/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 72,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/129/Attack.png"
+    },
+    "Shoot": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        4,
+        1,
+        2,
+        2,
+        1,
+        3,
+        3,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/129/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 48,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/129/Hurt.png"
+    }
+  },
+  "130": {
+    "Idle": {
+      "width": 72,
+      "height": 128,
+      "durations": [
+        18,
+        8,
+        18,
+        8
+      ],
+      "path": "res://assets/shiny/130/Idle.png"
+    },
+    "Walk": {
+      "width": 88,
+      "height": 128,
+      "durations": [
+        10,
+        14,
+        10,
+        14
+      ],
+      "path": "res://assets/shiny/130/Walk.png"
+    },
+    "Attack": {
+      "width": 104,
+      "height": 136,
+      "durations": [
+        4,
+        6,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/130/Attack.png"
+    },
+    "Shoot": {
+      "width": 104,
+      "height": 128,
+      "durations": [
+        2,
+        2,
+        4,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/130/Shoot.png"
+    },
+    "Hurt": {
+      "width": 72,
+      "height": 120,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/130/Hurt.png"
+    }
+  },
+  "131": {
+    "Idle": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        40,
+        12,
+        16,
+        12
+      ],
+      "path": "res://assets/shiny/131/Idle.png"
+    },
+    "Walk": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        10,
+        12,
+        10,
+        12
+      ],
+      "path": "res://assets/shiny/131/Walk.png"
+    },
+    "Attack": {
+      "width": 88,
+      "height": 88,
+      "durations": [
+        2,
+        2,
+        6,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/131/Attack.png"
+    },
+    "Shoot": {
+      "width": 64,
+      "height": 72,
+      "durations": [
+        2,
+        2,
+        6,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/131/Shoot.png"
+    },
+    "Hurt": {
+      "width": 56,
+      "height": 96,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/131/Hurt.png"
+    }
+  },
+  "132": {
+    "Idle": {
+      "width": 24,
+      "height": 32,
+      "durations": [
+        16,
+        16
+      ],
+      "path": "res://assets/shiny/132/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 32,
+      "durations": [
+        10,
+        8,
+        10,
+        8,
+        8
+      ],
+      "path": "res://assets/shiny/132/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 72,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/132/Attack.png"
+    },
+    "Shoot": {
+      "width": 24,
+      "height": 32,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/132/Shoot.png"
+    },
+    "Hurt": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/132/Hurt.png"
+    }
+  },
+  "133": {
+    "Idle": {
+      "width": 24,
+      "height": 32,
+      "durations": [
+        16,
+        16
+      ],
+      "path": "res://assets/shiny/133/Idle.png"
+    },
+    "Walk": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        4,
+        4,
+        4,
+        4,
+        6,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/133/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 72,
+      "durations": [
+        4,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        4,
+        4,
+        4
+      ],
+      "path": "res://assets/shiny/133/Attack.png"
+    },
+    "Shoot": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        4,
+        6,
+        4,
+        2,
+        4,
+        4,
+        4,
+        4
+      ],
+      "path": "res://assets/shiny/133/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 48,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/133/Hurt.png"
+    }
+  },
+  "134": {
+    "Idle": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        60,
+        16
+      ],
+      "path": "res://assets/shiny/134/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/134/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 80,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/134/Attack.png"
+    },
+    "Shoot": {
+      "width": 56,
+      "height": 72,
+      "durations": [
+        2,
+        2,
+        6,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/134/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 48,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/134/Hurt.png"
+    }
+  },
+  "135": {
+    "Idle": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        60,
+        16
+      ],
+      "path": "res://assets/shiny/135/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/135/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 80,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/135/Attack.png"
+    },
+    "Shoot": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        6,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/135/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/135/Hurt.png"
+    }
+  },
+  "136": {
+    "Idle": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        12,
+        16,
+        12,
+        16
+      ],
+      "path": "res://assets/shiny/136/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "path": "res://assets/shiny/136/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 72,
+      "durations": [
+        4,
+        2,
+        4,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        4
+      ],
+      "path": "res://assets/shiny/136/Attack.png"
+    },
+    "Shoot": {
+      "width": 40,
+      "height": 40,
+      "durations": [
+        4,
+        6,
+        2,
+        2,
+        3,
+        3,
+        3,
+        3
+      ],
+      "path": "res://assets/shiny/136/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/136/Hurt.png"
+    }
+  },
+  "137": {
+    "Idle": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        12,
+        8,
+        12,
+        8
+      ],
+      "path": "res://assets/shiny/137/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        10,
+        10,
+        10,
+        10
+      ],
+      "path": "res://assets/shiny/137/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 64,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/137/Attack.png"
+    },
+    "Shoot": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        2,
+        2,
+        6,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/137/Shoot.png"
+    },
+    "Hurt": {
+      "width": 40,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/137/Hurt.png"
+    }
+  },
+  "138": {
+    "Idle": {
+      "width": 32,
+      "height": 32,
+      "durations": [
+        30,
+        12
+      ],
+      "path": "res://assets/shiny/138/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 32,
+      "durations": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "path": "res://assets/shiny/138/Walk.png"
+    },
+    "Attack": {
+      "width": 80,
+      "height": 80,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/138/Attack.png"
+    },
+    "Shoot": {
+      "width": 24,
+      "height": 40,
+      "durations": [
+        1,
+        2,
+        2,
+        2,
+        2,
+        1,
+        6,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/138/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/138/Hurt.png"
+    }
+  },
+  "139": {
+    "Idle": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        30,
+        20
+      ],
+      "path": "res://assets/shiny/139/Idle.png"
+    },
+    "Walk": {
+      "width": 40,
+      "height": 40,
+      "durations": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "path": "res://assets/shiny/139/Walk.png"
+    },
+    "Attack": {
+      "width": 80,
+      "height": 88,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/139/Attack.png"
+    },
+    "Shoot": {
+      "width": 48,
+      "height": 48,
+      "durations": [
+        2,
+        2,
+        6,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/139/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/139/Hurt.png"
+    }
+  },
+  "140": {
+    "Idle": {
+      "width": 24,
+      "height": 24,
+      "durations": [
+        40,
+        4,
+        4
+      ],
+      "path": "res://assets/shiny/140/Idle.png"
+    },
+    "Walk": {
+      "width": 24,
+      "height": 24,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/140/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 64,
+      "durations": [
+        4,
+        2,
+        4,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        4
+      ],
+      "path": "res://assets/shiny/140/Attack.png"
+    },
+    "Shoot": {
+      "width": 32,
+      "height": 32,
+      "durations": [
+        4,
+        4,
+        4,
+        2,
+        2,
+        2,
+        4,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/140/Shoot.png"
+    },
+    "Hurt": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/140/Hurt.png"
+    }
+  },
+  "141": {
+    "Idle": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        20,
+        10,
+        20,
+        10
+      ],
+      "path": "res://assets/shiny/141/Idle.png"
+    },
+    "Walk": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        6,
+        4,
+        8,
+        4,
+        6,
+        4,
+        8,
+        4
+      ],
+      "path": "res://assets/shiny/141/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 64,
+      "durations": [
+        4,
+        2,
+        4,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        4
+      ],
+      "path": "res://assets/shiny/141/Attack.png"
+    },
+    "Shoot": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        4,
+        6,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        4
+      ],
+      "path": "res://assets/shiny/141/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/141/Hurt.png"
+    }
+  },
+  "142": {
+    "Idle": {
+      "width": 40,
+      "height": 64,
+      "durations": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "path": "res://assets/shiny/142/Idle.png"
+    },
+    "Walk": {
+      "width": 40,
+      "height": 64,
+      "durations": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "path": "res://assets/shiny/142/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 72,
+      "durations": [
+        2,
+        2,
+        6,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/142/Attack.png"
+    },
+    "Shoot": {
+      "width": 56,
+      "height": 64,
+      "durations": [
+        2,
+        2,
+        6,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/142/Shoot.png"
+    },
+    "Hurt": {
+      "width": 40,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/142/Hurt.png"
+    }
+  },
+  "143": {
+    "Idle": {
+      "width": 32,
+      "height": 64,
+      "durations": [
+        40,
+        1,
+        3,
+        4,
+        3,
+        1
+      ],
+      "path": "res://assets/shiny/143/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/143/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 88,
+      "durations": [
+        2,
+        8,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/143/Attack.png"
+    },
+    "Shoot": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        2,
+        2,
+        6,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/143/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/143/Hurt.png"
+    }
+  },
+  "144": {
+    "Idle": {
+      "width": 88,
+      "height": 88,
+      "durations": [
+        8,
+        10,
+        8,
+        16
+      ],
+      "path": "res://assets/shiny/144/Idle.png"
+    },
+    "Walk": {
+      "width": 88,
+      "height": 88,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/144/Walk.png"
+    },
+    "Attack": {
+      "width": 88,
+      "height": 120,
+      "durations": [
+        2,
+        2,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/144/Attack.png"
+    },
+    "Shoot": {
+      "width": 104,
+      "height": 104,
+      "durations": [
+        1,
+        2,
+        1,
+        2,
+        1,
+        2,
+        1,
+        2,
+        1,
+        2,
+        1,
+        2,
+        6,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/144/Shoot.png"
+    },
+    "Hurt": {
+      "width": 64,
+      "height": 120,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/144/Hurt.png"
+    }
+  },
+  "145": {
+    "Idle": {
+      "width": 56,
+      "height": 96,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/145/Idle.png"
+    },
+    "Walk": {
+      "width": 56,
+      "height": 96,
+      "durations": [
+        6,
+        6,
+        6,
+        6
+      ],
+      "path": "res://assets/shiny/145/Walk.png"
+    },
+    "Attack": {
+      "width": 80,
+      "height": 88,
+      "durations": [
+        2,
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/145/Attack.png"
+    },
+    "Shoot": {
+      "width": 72,
+      "height": 112,
+      "durations": [
+        2,
+        2,
+        2,
+        6,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/145/Shoot.png"
+    },
+    "Hurt": {
+      "width": 80,
+      "height": 104,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/145/Hurt.png"
+    }
+  },
+  "146": {
+    "Idle": {
+      "width": 80,
+      "height": 96,
+      "durations": [
+        8,
+        12,
+        8,
+        12
+      ],
+      "path": "res://assets/shiny/146/Idle.png"
+    },
+    "Walk": {
+      "width": 80,
+      "height": 96,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/146/Walk.png"
+    },
+    "Attack": {
+      "width": 104,
+      "height": 136,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/146/Attack.png"
+    },
+    "Shoot": {
+      "width": 96,
+      "height": 96,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/146/Shoot.png"
+    },
+    "Hurt": {
+      "width": 80,
+      "height": 120,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/146/Hurt.png"
+    }
+  },
+  "147": {
+    "Idle": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        10,
+        20,
+        10,
+        20
+      ],
+      "path": "res://assets/shiny/147/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        10,
+        8,
+        8,
+        8,
+        8
+      ],
+      "path": "res://assets/shiny/147/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 80,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/147/Attack.png"
+    },
+    "Shoot": {
+      "width": 48,
+      "height": 48,
+      "durations": [
+        2,
+        2,
+        4,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/147/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/147/Hurt.png"
+    }
+  },
+  "148": {
+    "Idle": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        8,
+        6,
+        6,
+        8,
+        6,
+        6,
+        6
+      ],
+      "path": "res://assets/shiny/148/Idle.png"
+    },
+    "Walk": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        8,
+        6,
+        6,
+        8,
+        6,
+        6,
+        6
+      ],
+      "path": "res://assets/shiny/148/Walk.png"
+    },
+    "Attack": {
+      "width": 80,
+      "height": 80,
+      "durations": [
+        2,
+        6,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/148/Attack.png"
+    },
+    "Shoot": {
+      "width": 64,
+      "height": 80,
+      "durations": [
+        2,
+        2,
+        6,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/148/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 72,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/148/Hurt.png"
+    }
+  },
+  "149": {
+    "Idle": {
+      "width": 40,
+      "height": 64,
+      "durations": [
+        40,
+        2,
+        2,
+        3,
+        3,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/149/Idle.png"
+    },
+    "Walk": {
+      "width": 40,
+      "height": 56,
+      "durations": [
+        8,
+        12,
+        8,
+        12
+      ],
+      "path": "res://assets/shiny/149/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 80,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/149/Attack.png"
+    },
+    "Shoot": {
+      "width": 48,
+      "height": 64,
+      "durations": [
+        2,
+        2,
+        6,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/149/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 72,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/149/Hurt.png"
+    }
+  },
+  "150": {
+    "Idle": {
+      "width": 32,
+      "height": 64,
+      "durations": [
+        40,
+        2,
+        4,
+        6,
+        8,
+        6,
+        4,
+        2
+      ],
+      "path": "res://assets/shiny/150/Idle.png"
+    },
+    "Walk": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        12,
+        6,
+        6,
+        12,
+        6,
+        6
+      ],
+      "path": "res://assets/shiny/150/Walk.png"
+    },
+    "Attack": {
+      "width": 80,
+      "height": 88,
+      "durations": [
+        2,
+        3,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/150/Attack.png"
+    },
+    "Shoot": {
+      "width": 56,
+      "height": 64,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/150/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 72,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/150/Hurt.png"
+    }
+  },
+  "151": {
+    "Idle": {
+      "width": 32,
+      "height": 56,
+      "durations": [
+        12,
+        8,
+        12,
+        8
+      ],
+      "path": "res://assets/shiny/151/Idle.png"
+    },
+    "Walk": {
+      "width": 40,
+      "height": 64,
+      "durations": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "path": "res://assets/shiny/151/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 88,
+      "durations": [
+        2,
+        2,
+        1,
+        3,
+        1,
+        3,
+        2,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/151/Attack.png"
+    },
+    "Shoot": {
+      "width": 40,
+      "height": 64,
+      "durations": [
+        2,
+        2,
+        2,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/151/Shoot.png"
+    },
+    "Hurt": {
+      "width": 40,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/151/Hurt.png"
+    }
+  },
+  "152": {
+    "Idle": {
+      "width": 24,
+      "height": 48,
+      "durations": [
+        40,
+        2,
+        4,
+        3,
+        1,
+        1
+      ],
+      "path": "res://assets/shiny/152/Idle.png"
+    },
+    "Walk": {
+      "width": 24,
+      "height": 32,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/152/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 72,
+      "durations": [
+        2,
+        4,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/152/Attack.png"
+    },
+    "Shoot": {
+      "width": 48,
+      "height": 48,
+      "durations": [
+        2,
+        2,
+        5,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/152/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/152/Hurt.png"
+    }
+  },
+  "185": {
+    "Idle": {
+      "width": 24,
+      "height": 40,
+      "durations": [
+        8
+      ],
+      "path": "res://assets/shiny/185/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/185/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 72,
+      "durations": [
+        2,
+        2,
+        6,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/185/Attack.png"
+    },
+    "Shoot": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/185/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/185/Hurt.png"
+    }
+  },
+  "197": {
+    "Idle": {
+      "width": 24,
+      "height": 48,
+      "durations": [
+        60,
+        10,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        10
+      ],
+      "path": "res://assets/shiny/197/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "path": "res://assets/shiny/197/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 72,
+      "durations": [
+        2,
+        6,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        4
+      ],
+      "path": "res://assets/shiny/197/Attack.png"
+    },
+    "Shoot": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        6,
+        2,
+        6,
+        4,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/197/Shoot.png"
+    },
+    "Hurt": {
+      "width": 56,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/197/Hurt.png"
+    }
+  },
+  "355": {
+    "Idle": {
+      "width": 32,
+      "height": 56,
+      "durations": [
+        24,
+        8,
+        8,
+        24,
+        8,
+        8
+      ],
+      "path": "res://assets/shiny/355/Idle.png"
+    },
+    "Walk": {
+      "width": 24,
+      "height": 48,
+      "durations": [
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6
+      ],
+      "path": "res://assets/shiny/355/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 80,
+      "durations": [
+        2,
+        6,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/355/Attack.png"
+    },
+    "Shoot": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        2,
+        6,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/355/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/355/Hurt.png"
+    }
+  },
+  "361": {
+    "Idle": {
+      "width": 24,
+      "height": 40,
+      "durations": [
+        40,
+        6,
+        6,
+        6
+      ],
+      "path": "res://assets/shiny/361/Idle.png"
+    },
+    "Walk": {
+      "width": 24,
+      "height": 32,
+      "durations": [
+        8,
+        10,
+        8,
+        10
+      ],
+      "path": "res://assets/shiny/361/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 64,
+      "durations": [
+        2,
+        6,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/361/Attack.png"
+    },
+    "Shoot": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        2,
+        6,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/361/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 64,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/361/Hurt.png"
+    }
+  },
+  "599": {
+    "Idle": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6
+      ],
+      "path": "res://assets/shiny/599/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6
+      ],
+      "path": "res://assets/shiny/599/Walk.png"
+    },
+    "Attack": {
+      "width": 72,
+      "height": 80,
+      "durations": [
+        2,
+        4,
+        2,
+        2,
+        2,
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "path": "res://assets/shiny/599/Attack.png"
+    },
+    "Shoot": {
+      "width": 32,
+      "height": 40,
+      "durations": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/599/Shoot.png"
+    },
+    "Hurt": {
+      "width": 48,
+      "height": 56,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/599/Hurt.png"
+    }
+  },
+  "821": {
+    "Idle": {
+      "width": 24,
+      "height": 32,
+      "durations": [
+        30,
+        4,
+        4,
+        4,
+        4
+      ],
+      "path": "res://assets/shiny/821/Idle.png"
+    },
+    "Walk": {
+      "width": 32,
+      "height": 32,
+      "durations": [
+        6,
+        4,
+        4,
+        4,
+        4
+      ],
+      "path": "res://assets/shiny/821/Walk.png"
+    },
+    "Attack": {
+      "width": 64,
+      "height": 72,
+      "durations": [
+        2,
+        2,
+        2,
+        4,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "path": "res://assets/shiny/821/Attack.png"
+    },
+    "Shoot": {
+      "width": 32,
+      "height": 48,
+      "durations": [
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        2,
+        1
+      ],
+      "path": "res://assets/shiny/821/Shoot.png"
+    },
+    "Hurt": {
+      "width": 40,
+      "height": 48,
+      "durations": [
+        2,
+        8
+      ],
+      "path": "res://assets/shiny/821/Hurt.png"
+    }
+  }
+}

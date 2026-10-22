@@ -309,3 +309,8 @@ Story now continues beyond Misty to the third badge. From Cerulean take the west
 Continue beyond Surge through Celadon/Erika and Rocket Hideout, Lavender Tower/Fuji, Fuchsia/Koga and Safari field tools, Silph Co./Sabrina, Mansion/Blaine, Viridian/Giovanni, Victory Road, Elite Four and Champion. Additional landmarks include Seafoam, Power Plant, Diglett's Cave, the Underground Paths, Route 2/10/11 connectors, Cinnabar Lab, Cerulean Cave and Hall of Fame. Approach labeled entrance markers and press E; M lists connections and requirements. Existing saves are preserved.
 
 The level cap is 100 with all Gen I level-based evolutions. League health persists between trainers; defeat or leaving the chambers resets the current run. Winning saves the party in the Hall of Fame. Existing wild encounter mechanics/tables are unchanged. New interiors use simple layouts and reused artwork; original multi-floor puzzles, graphics upgrades and random/legendary encounters are deferred. See [current scope and route](docs/adventure-roadmap.md).
+
+
+### Shinies and passive abilities
+
+Adventure now assigns persistent normal ability slots (equal odds) and shininess (FireRed base rate 1/8192). All 158 species have shiny animations and a brief send-out sparkle. In Free/Gym setup, click ABILITY below the moves to select a legal normal ability for that team slot. Existing Adventure saves are retained. This is the FRLG ability roster, without Hidden Abilities; passives for doubles, held items or deferred encounter systems remain contextual. See [rules, adaptations and sources](docs/shinies-and-abilities.md).

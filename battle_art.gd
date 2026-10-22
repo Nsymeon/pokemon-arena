@@ -6,6 +6,7 @@ var trainers = preload("res://trainer_art.gd").new()
 var cave = preload("res://cavern_art.gd").new()
 var library = {}
 var scales = {}
+var shiny_library = {}
 
 func load_sprites():
 	var manifest = JSON.parse_string(FileAccess.get_file_as_string("res://assets/animated/manifest.json"))
@@ -20,9 +21,18 @@ func load_sprites():
 				var used = image.get_region(Rect2i(0, 0, int(anim.width), int(anim.height))).get_used_rect()
 				scales[int(id)] = clampf(86.4 / maxf(used.size.x, used.size.y), 1.92, 3.6)
 		library[int(id)] = entry
+	var shiny_manifest=JSON.parse_string(FileAccess.get_file_as_string("res://assets/shiny/manifest.json"))
+	for id in shiny_manifest:
+		var entry=shiny_manifest[id]
+		for name in entry:
+			var anim=entry[name]
+			var image=Image.load_from_file(anim.path)
+			anim["texture"]=ImageTexture.create_from_image(image)
+			anim["rows"]=image.get_height()/int(anim.height)
+		shiny_library[int(id)]=entry
 
 func frame(fighter: Dictionary) -> Dictionary:
-	var entry: Dictionary = library.get(int(fighter.data.id), {})
+	var entry: Dictionary = (shiny_library if fighter.data.get("shiny",false) else library).get(int(fighter.data.id), {})
 	if entry.is_empty(): return {}
 	var state = "Idle"
 	if fighter.get("walk_time", 0.0) > 0: state = "Walk"

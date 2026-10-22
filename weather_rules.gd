@@ -5,12 +5,17 @@ const MODES = ["clear", "sun", "rain", "sand", "hail", "dynamic"]
 const LABELS = ["Clear sky", "Harsh sunlight", "Rain", "Sandstorm", "Hail", "Changing weather"]
 const MOVES = {"sunnyday":"sun", "raindance":"rain", "sandstorm":"sand", "hail":"hail", "snowscape":"snow"}
 var mode = "clear"
-var kind = "clear"
+var actual_kind = "clear"
+var suppressed = false
+var kind: String:
+	get: return "clear" if suppressed else actual_kind
+	set(value): actual_kind=value
 var remaining = -1.0
 var chip_clock = 0.0
 var cycle = 0
 
 func reset(selected: int):
+	suppressed=false
 	mode = MODES[selected]
 	cycle = 0
 	restore()
@@ -33,6 +38,7 @@ func tick(c, dt: float):
 		chip_clock -= 1.0
 		for f in [c.player, c.enemy]:
 			var immune = kind == "sand" and ("Rock" in preload("res://status_rules.gd").types(f) or "Ground" in preload("res://status_rules.gd").types(f) or "Steel" in preload("res://status_rules.gd").types(f))
+			immune = immune or (kind=="sand" and c.abilities.name_of(f)=="Sand Veil")
 			immune = immune or (kind == "hail" and "Ice" in preload("res://status_rules.gd").types(f))
 			if kind in ["sand", "hail"] and not immune and f.hp > 0 and f.volatile.get("underground",0)<=0:
 				f.hp = maxf(0, f.hp - f.data.hp * 0.01)

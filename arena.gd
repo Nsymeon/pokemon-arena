@@ -21,6 +21,8 @@ var preview_party: Array = []
 var opponent_preview_slot = 0
 var opponent_identity = "rival"
 var trainer_gallery = false
+var abilities = preload("res://passive_abilities.gd").new()
+var move_flags: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/move-flags.json"))
 var move_editor = preload("res://battle_moves.gd").new()
 var skills = preload("res://arena_skills.gd").new()
 var clashes = preload("res://attack_clashes.gd").new()
@@ -86,6 +88,8 @@ var rng = RandomNumberGenerator.new()
 var sound: AudioStreamPlayer
 var portraits = {}
 var portraits_flipped = {}
+var shiny_portraits = {}
+var shiny_flipped = {}
 var page = 0
 var search_box: LineEdit
 var type_filter: OptionButton
@@ -110,6 +114,7 @@ func _ready():
 	sound = AudioStreamPlayer.new()
 	add_child(sound)
 	setup_selection_controls()
+	abilities.install(self)
 	move_editor.install(self)
 	load_portraits()
 	art.load_sprites()
@@ -118,7 +123,9 @@ func _ready():
 	adventure.install(self)
 	campaign.install(self)
 	frontend.install(self)
-	if "--smoke-test" in OS.get_cmdline_user_args():
+	if "--capture-shiny" in OS.get_cmdline_user_args():
+		call_deferred("capture_shiny")
+	elif "--smoke-test" in OS.get_cmdline_user_args():
 		call_deferred("smoke_test")
 	elif "--capture-clashes" in OS.get_cmdline_user_args():
 		call_deferred("capture_clashes")
@@ -191,9 +198,11 @@ func reset():
 		fighter["attack_time"] = 0.0
 		fighter["walk_time"] = 0.0
 		fighter["heading"] = Vector2(fighter.face, 0)
+		abilities.assign(fighter.data)
 		Conditions.init(fighter)
 	if not enemy_party.is_empty():
 		enemy.data = enemy_party[0].duplicate(true)
+		abilities.assign(enemy.data,true)
 		enemy.hp = enemy.data.hp
 	player.pos = FIELD.size * Vector2(0.34, 0.5)
 	enemy.pos = FIELD.size * Vector2(0.66, 0.5)
@@ -332,6 +341,11 @@ func use_move(user: Dictionary, target: Dictionary, index: int, direction: Vecto
 	if result != "" or user.hp <= 0: return false
 	var timers = cooldowns if friendly else enemy_cooldowns
 	var move: Dictionary = weather.prepare(user.data.moves[index])
+	if move.id=="rest" and abilities.name_of(user) in ["Insomnia","Vital Spirit"]:
+		Conditions.note(user,"ABILITY / CANNOT REST"); return false
+	if move.id in ["explosion","selfdestruct"] and (abilities.name_of(user)=="Damp" or abilities.name_of(target)=="Damp"):
+		Conditions.note(user,"DAMP / BLOCKED"); return false
+	if abilities.name_of(target)=="Pressure" and move.get("category","")!="Status": move.cost*=2.0
 	if user.volatile.get("disabled",0) > 0 and user.get("disabled_move","") == move.id:
 		Conditions.note(user,"MOVE DISABLED")
 		return false
@@ -388,6 +402,7 @@ func execute_move(user: Dictionary, target: Dictionary, move: Dictionary, direct
 	user.action_lock = float(move.get("action_delay", 1.0))
 	var accuracy = 1.0 if move.get("accuracy", true) is bool else float(move.accuracy) / 100.0 * Conditions.stage(user, "accuracy")
 	accuracy = weather.accuracy(move, accuracy)
+	if not move.get("accuracy",true) is bool: accuracy=abilities.accuracy(user,target,accuracy)
 	if not move.get("accuracy",true) is bool: accuracy /= Conditions.stage(target,"evasion")
 	if rng.randf() > accuracy:
 		Conditions.note(user, "MISS")
@@ -518,7 +533,7 @@ func sprint_movement(direction: Vector2, dt: float, requested: bool):
 		return
 	sprinting = requested and direction.length_squared() > 0 and player.energy >= 12.0 * dt and not Conditions.immobilized(player)
 	if sprinting: player.energy = maxf(0, player.energy - 12.0 * dt)
-	move_fighter(player, direction * player.data.speed * (1.35 if sprinting else 1.0) * Conditions.speed(player) * (2.0 if support.side(self,player).has("tailwind") else 1.0) * fields.movement(player) * dt)
+	move_fighter(player, direction * player.data.speed * (1.35 if sprinting else 1.0) * Conditions.speed(player) * abilities.speed(player) * (2.0 if support.side(self,player).has("tailwind") else 1.0) * fields.movement(player) * dt)
 
 func projectile(origin: Vector2, direction: Vector2, speed: float, damage: float, radius: float, friendly: bool, color: Color, move: Dictionary = {}) :
 	move = weather.prepare(move)
@@ -591,7 +606,10 @@ func update_battle(dt: float):
 	if player.hp <= 0 or enemy.hp <= 0:
 		finish_round()
 		return
+	abilities.entry(player,enemy)
+	abilities.entry(enemy,player)
 	support.tick(dt)
+	weather.suppressed=abilities.name_of(player)=="Cloud Nine" or abilities.name_of(enemy)=="Cloud Nine"
 	weather.tick(self, dt)
 	if player.hp <= 0 or enemy.hp <= 0:
 		finish_round()
@@ -616,7 +634,8 @@ func update_battle(dt: float):
 				var stolen = minf(fighter.hp,fighter.data.hp*0.025)
 				fighter.hp -= stolen
 				var recipient = enemy if fighter==player else player
-				if recipient.hp>0: recipient.hp = minf(recipient.data.hp,recipient.hp+stolen)
+				if recipient.hp>0: recipient.hp = clampf(recipient.hp+stolen*(-1 if abilities.name_of(fighter)=="Liquid Ooze" else 1),0,recipient.data.hp)
+		abilities.tick(fighter,dt)
 		Conditions.tick(fighter, dt)
 		if fighter.hp > 0 and fighter.charge_left > 0:
 			fighter.charge_left = maxf(0, fighter.charge_left - dt)
@@ -712,7 +731,7 @@ func update_ai(dt: float):
 	var dodge_direction = balance.dodge(self,dt)
 	if enemy.dash_time <= 0 and not skills.riding(self, enemy):
 		var velocity = dodge_direction*1.35 if dodge_direction!=Vector2.ZERO else walk.limit_length()*0.75
-		move_fighter(enemy, velocity * enemy.data.speed * Conditions.speed(enemy) * (2.0 if support.side(self,enemy).has("tailwind") else 1.0) * fields.movement(enemy) * dt)
+		move_fighter(enemy, velocity * enemy.data.speed * Conditions.speed(enemy) * abilities.speed(enemy) * (2.0 if support.side(self,enemy).has("tailwind") else 1.0) * fields.movement(enemy) * dt)
 	ai_timer -= dt * (0.4 if enemy.stun > 0 else 1.0)
 	if ai_timer <= 0:
 		ai_timer = rng.randf_range(0.55, 1.0)
@@ -778,8 +797,8 @@ func damage_amount(attacker: Dictionary, target: Dictionary, base_damage: float,
 	var stab = 1.5 if move_type in Conditions.types(attacker) else 1.0
 	var multiplier = Dex.effectiveness(move_type, Conditions.types(target))
 	var boost = float(move.get("weather_power", weather.power(move)))
-	if physical and attacker.ailment == "burn": boost *= 0.5
-	return snappedf(base_damage * ratio * stab * multiplier * boost * (0.5 if target.guard > 0 else 1.0) * support.multiplier(self,target,move), 0.1)
+	if physical and attacker.ailment == "burn" and abilities.name_of(attacker)!="Guts": boost *= 0.5
+	return snappedf(base_damage * ratio * stab * multiplier * boost * abilities.damage(attacker,target,move) * (0.5 if target.guard > 0 else 1.0) * support.multiplier(self,target,move), 0.1)
 
 func hit(target: Dictionary, damage: float, direction: Vector2, friendly: bool, move: Dictionary = {}, owner: Dictionary = {}, attack_snapshot: Dictionary = {}) -> float:
 	if target.inv > 0 or target.hp <= 0 or Conditions.avoids(target,move): return 0.0
@@ -788,11 +807,12 @@ func hit(target: Dictionary, damage: float, direction: Vector2, friendly: bool, 
 		return 0.0
 	if move.get("id", "") == "dreameater" and target.ailment != "sleep": return 0.0
 	var attacker = owner if not owner.is_empty() else player if friendly else enemy
+	if abilities.blocks_hit(target,move): return 0.0
 	var offense = attack_snapshot if not attack_snapshot.is_empty() else attacker
 	var move_type: String = move.get("type", "Normal")
 	var multiplier = Dex.effectiveness(move_type, Conditions.types(target))
 	damage = damage_amount(offense, target, damage, move)
-	if offense.get("volatile", {}).get("focusenergy", 0) > 0 and rng.randf() < 0.5:
+	if offense.get("volatile", {}).get("focusenergy", 0) > 0 and abilities.name_of(target) not in ["Battle Armor","Shell Armor"] and rng.randf() < 0.5:
 		damage *= 1.5
 		Conditions.note(attacker, "CRITICAL!")
 	var feedback = "IMMUNE" if multiplier == 0 else "SUPER EFFECTIVE x" + str(multiplier) if multiplier > 1 else "RESISTED x" + str(multiplier) if multiplier < 1 else ""
@@ -824,11 +844,12 @@ func hit(target: Dictionary, damage: float, direction: Vector2, friendly: bool, 
 		target.ailment = ""
 		target.ailment_time = 0
 		Conditions.note(target, "THAWED")
+	abilities.contact(attacker,target,move)
 	apply_hit_effects(attacker, target, move)
 	if move.get("drain", false) and attacker.hp > 0:
-		attacker.hp = minf(attacker.data.hp, attacker.hp + actual_damage * 0.4)
+		attacker.hp = clampf(attacker.hp + actual_damage * (-0.4 if abilities.name_of(target)=="Liquid Ooze" else 0.4),0,attacker.data.hp)
 		attacker.movement_lock=maxf(attacker.get("movement_lock",0),1.0)
-	if move.get("recoil", false): attacker.hp = maxf(0, attacker.hp - actual_damage * 0.2)
+	if move.get("recoil", false) and abilities.name_of(attacker)!="Rock Head": attacker.hp = maxf(0, attacker.hp - actual_damage * 0.2)
 	tone(190 if friendly else 100, 0.045)
 	return damage
 
@@ -845,10 +866,11 @@ func apply_status(target: Dictionary, move: Dictionary):
 func apply_hit_effects(attacker: Dictionary, target: Dictionary, move: Dictionary):
 	if move.get("volatile_status", "") != "": Conditions.apply(self, target, status_payload(move), move)
 	for effect in move.get("secondaries", []):
-		if rng.randf() * 100 >= effect.get("chance", 100): continue
-		if move.get("tri_status", false):
-			Conditions.apply(self, target, {"status": ["brn", "par", "frz"][rng.randi_range(0, 2)]}, move)
-		else: Conditions.apply(self, target, effect, move)
+		if rng.randf() * 100 >= effect.get("chance", 100)*(2 if abilities.name_of(attacker)=="Serene Grace" else 1): continue
+		if abilities.name_of(target)!="Shield Dust":
+			if move.get("tri_status", false):
+				Conditions.apply(self, target, {"status": ["brn", "par", "frz"][rng.randi_range(0, 2)]}, move)
+			else: Conditions.apply(self, target, effect, move)
 		if effect.has("self"): Conditions.apply(self, attacker, effect.self, move, false)
 
 func burst(pos: Vector2, color: Color, count: int):
@@ -1016,7 +1038,7 @@ func draw_hud():
 		var accent = MINT if friendly else Color("f18c71")
 		panel(Rect2(x, 75, 520, 100), Color("152734"), Color("607989"))
 		panel(Rect2(x + 6, 82, 80, 80), Color("304557"), GOLD)
-		var texture = portraits.get(int(f.data.id))
+		var texture = portrait(f.data)
 		if texture:
 			var size = texture.get_size() * 72.0 / maxf(texture.get_width(), texture.get_height())
 			draw_texture_rect(texture, Rect2(Vector2(x + 46, 122) - size / 2, size), false, Color.WHITE if f.hp > 0 else Color(0.3, 0.3, 0.3))
@@ -1030,7 +1052,7 @@ func draw_hud():
 		bar(Vector2(x + 96, 140), 330, ratio, MINT if ratio > 0.5 else GOLD if ratio > 0.2 else Color("f7756b"), 19)
 		label_at("%d" % f.hp, Vector2(x + 437, 157), 18)
 		bar(Vector2(x + 96, 165), 330, f.energy / 100.0, Color("6fb9f4"), 3)
-		label_at((Conditions.summary(f)+(" / SPRINT" if f.get("sprinting",false) else "")).left(55), Vector2(x + 96, 134), 10, GOLD)
+		label_at((abilities.name_of(f)+" / "+Conditions.summary(f)+(" / SPRINT" if f.get("sprinting",false) else "")).left(55), Vector2(x + 96, 134), 10, GOLD)
 		var active = player_active if friendly else enemy_active
 		for i in range((player_states.size() if friendly else enemy_party_size()) if team_mode else 1):
 			var pos = Vector2(x + 435 + (i % 3) * 32, 93 + (i / 3) * 30)
@@ -1039,7 +1061,7 @@ func draw_hud():
 				var member = player_states[i] if team_mode else player
 				var alive = member.hp>0
 				draw_pokeball(pos,13)
-				var face_texture = portraits.get(int(member.data.id))
+				var face_texture = portrait(member.data)
 				if face_texture:
 					var face_size = face_texture.get_size()*23.0/maxf(face_texture.get_width(),face_texture.get_height())
 					draw_texture_rect(face_texture,Rect2(pos-face_size/2,face_size),false,Color.WHITE if alive else Color(0.3,0.3,0.3,0.8))
@@ -1093,11 +1115,12 @@ func draw_creature(fighter: Dictionary, friendly: bool):
 	var summon = summon_progress(SEND_OUT_TIME - countdown) if not selecting and countdown > 0 and fighter.get("entering", true) else 1.0
 	if shadow_entry(fighter, friendly):
 		draw_shadow_entry(fighter, SEND_OUT_TIME - countdown)
+		shiny_sparkle(fighter)
 		return
 	if summon <= 0: return
 	draw_ellipse(p + Vector2(0, 8), Vector2(25, 9) * summon, Color(0.06, 0.14, 0.13, 0.28 * summon))
 	p = skills.areas.visual_position(self,fighter)
-	var texture = (portraits_flipped if fighter.face > 0 else portraits).get(int(fighter.data.id))
+	var texture = portrait(fighter.data,fighter.face>0)
 	var animated = art.frame(fighter) if not selecting else {}
 	if not animated.is_empty():
 		var size: Vector2 = animated.size * summon
@@ -1111,6 +1134,7 @@ func draw_creature(fighter: Dictionary, friendly: bool):
 		var size = texture.get_size() * factor * summon
 		var pos = p + Vector2(-size.x * 0.5, -size.y + 8 + sin(clock_time * 7) * 1.5)
 		draw_texture_rect(texture, Rect2(pos, size), false, Color(2, 2, 2, summon) if fighter.flash > 0 or summon < 0.9 else Color.WHITE)
+	shiny_sparkle(fighter)
 	if not selecting and fighter.get("attack_time", 0.0) > 0:
 		art.attack_effect(self, fighter)
 		var text: String = fighter.get("move_label", "")
@@ -1139,7 +1163,7 @@ func draw_fainted(fighter: Dictionary):
 	if not pose.visible: return
 	var p: Vector2 = fighter.pos
 	p = skills.areas.visual_position(self,fighter)
-	var texture = (portraits_flipped if fighter.face > 0 else portraits).get(int(fighter.data.id))
+	var texture = portrait(fighter.data,fighter.face>0)
 	if not texture: return
 	var size = texture.get_size() * (78.0 / maxf(texture.get_width(), texture.get_height()))
 	var animated: Dictionary = fighter.get("faint_frame", {})
@@ -1159,6 +1183,22 @@ func draw_fainted(fighter: Dictionary):
 		draw_texture_rect(texture, Rect2(Vector2(-size.x * 0.5, -size.y), size), false, tint)
 	draw_set_transform(world_origin() + jitter, 0, Vector2.ONE * ARENA_SCALE)
 
+func portrait(mon, flipped: bool=false):
+	var bank=(shiny_flipped if flipped else shiny_portraits) if mon.get("shiny",false) else (portraits_flipped if flipped else portraits)
+	return bank.get(int(mon.id),portraits.get(int(mon.id)))
+
+func shiny_sparkle(fighter):
+	if selecting or not fighter.data.get("shiny",false) or not fighter.get("entering",false) or countdown<=0: return
+	var age=SEND_OUT_TIME-countdown-1.25
+	if age<0 or age>1.2: return
+	for i in range(9):
+		var phase=clampf((age-i*0.035)/0.85,0,1)
+		var alpha=sin(phase*PI)
+		var p: Vector2=fighter.pos+Vector2(0,-35)+Vector2.from_angle(i*TAU/9-PI/2)*(30+phase*45)
+		var size=7.0*alpha
+		draw_line(p-Vector2(size,0),p+Vector2(size,0),Color(1,0.9,0.45,alpha),2,true)
+		draw_line(p-Vector2(0,size*1.5),p+Vector2(0,size*1.5),Color(1,1,0.85,alpha),2,true)
+
 func load_portraits():
 	for mon in roster:
 		var image = Image.load_from_file(mon.sprite)
@@ -1168,6 +1208,11 @@ func load_portraits():
 		portraits[int(mon.id)] = ImageTexture.create_from_image(cropped)
 		cropped.flip_x()
 		portraits_flipped[int(mon.id)] = ImageTexture.create_from_image(cropped)
+		var shiny=Image.load_from_file("res://assets/shiny/%d.png"%int(mon.id))
+		var shiny_crop=shiny.get_region(shiny.get_used_rect())
+		shiny_portraits[int(mon.id)]=ImageTexture.create_from_image(shiny_crop)
+		shiny_crop.flip_x()
+		shiny_flipped[int(mon.id)]=ImageTexture.create_from_image(shiny_crop)
 
 func trainer_position(friendly: bool) -> Vector2:
 	return FIELD.size * Vector2(0.032 if friendly else 0.968, 0.54)
@@ -1535,7 +1580,7 @@ func selection_details(mon: Dictionary, rival: Dictionary, pos: Vector2, friendl
 		var offset = Vector2(16 + (i % 2) * 286, 76 + (i / 2) * 50)
 		label_at(["Q", "E", "F", "C"][i] + "  " + move.name + ("  v" if friendly or opponent_choice.selected==0 else ""), pos + offset, 14)
 		label_at(move.type.to_upper() + " / " + move_description(move, rival.types), pos + offset + Vector2(0, 17), 9, Dex.color(move.type))
-	label_at("ARENA  %d HP / %d movement  ·  %s" % [mon.hp, mon.speed, mon.role], pos + Vector2(16, 173), 10, Color("91a6a7"))
+	label_at("ABILITY: %s%s" % [mon.get("ability",abilities.legal(mon.id)[0]),"  [choose]" if friendly or opponent_choice.selected==0 else ""], pos + Vector2(16, 173), 10, Color("91a6a7"))
 
 func overlay(title: String, subtitle: String):
 	draw_rect(Rect2(360, 337, 560, 132), Color(0.04, 0.09, 0.12, 0.94))
@@ -1635,6 +1680,7 @@ func smoke_test():
 	controls.tests(self)
 	movement_recovery_tests()
 	homing_tests()
+	abilities.tests()
 	art.tests(self)
 	balance.tests(self)
 	adventure.tests()
@@ -1922,6 +1968,7 @@ func replacement(friendly: bool, index: int) -> Dictionary:
 	fighter.transformed = false
 	fighter.entering = true
 	fighter.heading = Vector2(fighter.face, 0)
+	abilities.assign(fighter.data,not friendly and not enemy_party.is_empty())
 	Conditions.init(fighter)
 	fighter.erase("healing_pp")
 	fighter["protect_chain"]=0
@@ -2108,6 +2155,7 @@ func activate_player(slot: int):
 	player.face = 1.0
 	player.heading = Vector2.RIGHT
 	player.entering = true
+	player["ability_entered"]=false
 	player.dash = Vector2.ZERO
 	player.dash_time = 0
 	player.inv = 0
@@ -2129,6 +2177,9 @@ func request_switch(slot: int) -> bool:
 		notice = "SWITCH READY IN %.1fs" % switch_cooldown
 		notice_time = 1.5
 		return false
+	if abilities.trapped(player,enemy):
+		Conditions.note(player,"ABILITY / TRAPPED"); return false
+	abilities.withdrawn(player)
 	player["saved_cooldowns"] = cooldowns.duplicate()
 	player_states[player_active] = player
 	player.volatile.clear()
@@ -2181,7 +2232,7 @@ func draw_switch_menu():
 		var rect = switch_card(i)
 		var accent = MINT if i == player_active else GOLD if f.hp > 0 else Color("546574")
 		panel(rect, Color("172c3b"), accent)
-		var texture = portraits.get(int(f.data.id))
+		var texture = portrait(f.data)
 		var size = texture.get_size() * 60.0 / maxf(texture.get_width(), texture.get_height())
 		draw_texture_rect(texture, Rect2(rect.position + Vector2(48, 52) - size / 2, size), false, Color.WHITE if f.hp > 0 else Color(0.3, 0.3, 0.3))
 		label_at("%d  %s" % [i + 1, f.data.name], rect.position + Vector2(90, 28), 20, accent)
@@ -3034,4 +3085,33 @@ func capture_finale():
 	get_viewport().get_texture().get_image().save_png("res://captures/kanto-guide.png")
 	for suffix in ["", ".bak", ".tmp"]:
 		if FileAccess.file_exists(adventure.save_path+suffix): DirAccess.remove_absolute(ProjectSettings.globalize_path(adventure.save_path+suffix))
+	get_tree().quit()
+
+func capture_shiny():
+	set_process(false)
+	frontend.layer.visible=false
+	selection_controls.visible=false
+	pick(6,130)
+	player.data.shiny=true
+	enemy.data.shiny=true
+	player.pos=Vector2(1000,650)
+	enemy.pos=Vector2(1380,650)
+	update_camera(10)
+	countdown=SEND_OUT_TIME-1.8
+	DirAccess.make_dir_recursive_absolute("res://captures")
+	queue_redraw()
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://captures/shiny-entry.png")
+	selecting=true
+	countdown=0
+	selection_controls.visible=true
+	player_index=Dex.find_id(roster,19)
+	enemy_index=Dex.find_id(roster,130)
+	queue_redraw()
+	await get_tree().process_frame
+	abilities.open(roster[player_index],true,0)
+	abilities.popup.position=Vector2i(240,570)
+	await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://captures/ability-selection.png")
 	get_tree().quit()

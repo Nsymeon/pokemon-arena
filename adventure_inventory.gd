@@ -37,6 +37,7 @@ func migrate():
 		a.data.brock_tm = false
 		if a.data.badge: award_brock()
 	for mon in a.data.party+a.data.storage:
+		a.c.abilities.assign(mon)
 		if not mon.has("moves"): mon.moves = starting(int(mon.id),int(mon.level))
 		if not mon.has("pending"): mon.pending = []
 		if not mon.has("ailment"): mon.ailment = ""

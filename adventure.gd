@@ -65,6 +65,9 @@ func valid(value) -> bool:
 		if not value.get(key) is Array or value[key].size() > (6 if key == "party" else 100): return false
 		for mon in value[key]:
 			if not mon is Dictionary: return false
+			if mon.has("gender") and mon.gender not in ["M","F","N"]: return false
+			if mon.has("shiny") and not mon.shiny is bool: return false
+			if mon.has("ability_slot") and (not (mon.ability_slot is int or mon.ability_slot is float) or mon.ability_slot!=int(mon.ability_slot) or int(mon.ability_slot) not in [0,1]): return false
 			for field in ["id","level","xp","hp"]:
 				if not (mon.get(field) is float or mon.get(field) is int) or not is_finite(mon[field]): return false
 			if mon.id != int(mon.id) or c.Dex.find_id(c.roster,int(mon.id)) < 0 or not c.roster.any(func(m):return int(m.id)==int(mon.id)): return false
@@ -91,6 +94,7 @@ func load_save():
 			inventory.migrate()
 			for key in ["map","starter","balls","money","healing_map"]: data[key] = int(data[key])
 			for mon in data.party + data.storage:
+				c.abilities.assign(mon)
 				mon.id = int(mon.id)
 				mon.level = int(mon.level)
 				mon.xp = int(mon.xp)
@@ -329,7 +333,9 @@ func interact():
 	dialog = "Move closer to a person or wild Pokemon, then press "+c.controls.text("interact")+"."
 
 func new_mon(id: int, level: int) -> Dictionary:
-	return {"id":id,"level":level,"xp":0,"hp":1.0,"moves":inventory.starting(id,level),"pending":[],"ailment":""}
+	var mon={"id":id,"level":level,"xp":0,"hp":1.0,"moves":inventory.starting(id,level),"pending":[],"ailment":""}
+	c.abilities.assign(mon,true)
+	return mon
 
 func choose_starter(id: int):
 	if data.starter != 0 or id not in STARTERS: return
@@ -350,13 +356,16 @@ func heal():
 	dialog = "Your team is fully healed. See you again!"
 	save()
 
-func battle_mon(id: int, level: int) -> Dictionary:
+func battle_mon(id: int, level: int, individual: Dictionary={}) -> Dictionary:
 	var mon: Dictionary = c.roster[c.Dex.find_id(c.roster,id)].duplicate(true)
 	var scale = 0.55+level*0.06
 	mon.hp = roundf(mon.hp*scale)
 	for key in mon.base_stats: mon.base_stats[key] = roundf(mon.base_stats[key]*scale)
 	mon.moves = inventory.definitions(inventory.starting(id,level))
 	mon["level"] = level
+	for key in ["shiny","ability_slot","gender"]:
+		if individual.has(key): mon[key]=individual[key]
+	c.abilities.assign(mon,individual.is_empty())
 	return mon
 
 func begin_battle(kind: String, ids: Array, levels: Array):
@@ -398,7 +407,7 @@ func begin_battle(kind: String, ids: Array, levels: Array):
 	c.reset()
 	for i in range(data.party.size()):
 		var fighter = c.player_states[i]
-		fighter.data = battle_mon(int(data.party[i].id),int(data.party[i].level))
+		fighter.data = battle_mon(int(data.party[i].id),int(data.party[i].level),data.party[i])
 		fighter.data.moves = inventory.definitions(data.party[i].moves)
 		fighter.hp = fighter.data.hp*float(data.party[i].hp)
 		fighter.ailment = data.party[i].ailment
@@ -441,12 +450,19 @@ func return_world(caught: bool = false):
 	var message = ""
 	if caught:
 		var mon = new_mon(int(encounter.ids[0]),int(encounter.levels[0]))
+		for key in ["shiny","ability_slot","gender"]: mon[key]=c.enemy.data.get(key, false if key=="shiny" else "N" if key=="gender" else 0)
+		c.abilities.assign(mon)
 		var joins_party = data.party.size() < 6
 		if joins_party: data.party.append(mon)
 		else: data.storage.append(mon)
 		message = mon_name(mon.id)+" caught! "+("Added to your party." if joins_party else "Check Party / Storage with P.")
 	else:
 		message = reward(win)
+		if win:
+			for member in data.party:
+				if member.get("ability","")=="Pickup" and c.abilities.random.randf()<0.1:
+					data.bag["potion"]=mini(999,int(data.bag.get("potion",0))+1)
+					message+=" Pickup found a Potion!"
 		if not win:
 			data.map = int(data.healing_map)
 			position_world = Vector2(800,760)
@@ -547,7 +563,7 @@ func party_menu():
 	panel("YOUR TEAM / choose a lead Pokemon")
 	for i in range(data.party.size()):
 		var mon = data.party[i]
-		ui_button("%s  Lv.%d  / HP %d%% / XP %d%s" % [mon_name(mon.id),mon.level,roundi(mon.hp*100),mon.xp," / LEAD" if i==0 else ""],Vector2(180,230+i*66),Vector2(680,54),set_lead.bind(i))
+		ui_button("%s\nLv.%d  / HP %d%% / XP %d%s" % [mon_name(mon.id)+(" *" if mon.get("shiny",false) else "")+" / "+c.abilities.legal(mon.id)[int(mon.get("ability_slot",0))%c.abilities.legal(mon.id).size()],mon.level,roundi(mon.hp*100),mon.xp," / LEAD" if i==0 else ""],Vector2(180,230+i*66),Vector2(680,54),set_lead.bind(i))
 	ui_button("MOVESETS",Vector2(890,310),Vector2(210,55),inventory.move_party)
 	ui_button("BAG / "+c.controls.text("bag"),Vector2(890,390),Vector2(210,55),inventory.bag)
 	ui_button("STORAGE (%d)" % data.storage.size(),Vector2(890,230),Vector2(210,55),storage_menu)
@@ -571,7 +587,7 @@ func storage_menu():
 	for i in range(data.storage.size()):
 		var mon = data.storage[i]
 		var b = Button.new()
-		b.text = "%s / Lv.%d / HP %d%%" % [mon_name(mon.id),mon.level,roundi(mon.hp*100)]
+		b.text = "%s / Lv.%d / HP %d%%" % [mon_name(mon.id)+(" *" if mon.get("shiny",false) else "")+" / "+c.abilities.legal(mon.id)[int(mon.get("ability_slot",0))%c.abilities.legal(mon.id).size()],mon.level,roundi(mon.hp*100)]
 		b.custom_minimum_size = Vector2(850,55)
 		b.pressed.connect(withdraw.bind(i))
 		list.add_child(b)
@@ -709,7 +725,7 @@ func _draw():
 	for i in range(data.party.size()):
 		var mon = data.party[i]
 		var x = 25+i*208
-		draw_texture_rect(c.portraits[mon.id],Rect2(x,805,48,48),false)
+		draw_texture_rect(c.portrait(mon),Rect2(x,805,48,48),false)
 		words(mon_name(mon.id),Vector2(x+52,825),16)
 		words("Lv.%d / HP %d%%" % [mon.level,roundi(mon.hp*100)],Vector2(x+52,847),14)
 		draw_rect(Rect2(x+10,862,180,5),Color("354c50"))
@@ -759,6 +775,9 @@ func tests():
 	c.player.action_lock = 0
 	c.enemy.hp = c.enemy.data.hp
 	var healthy_chance = catch_chance()
+	c.enemy.data.shiny=true
+	c.enemy.data.ability_slot=1
+	c.abilities.assign(c.enemy.data)
 	c.enemy.hp = 1
 	c.check(catch_chance()>healthy_chance,"Weakening wild Pokemon improves capture probability")
 	throw_ball()
@@ -766,10 +785,12 @@ func tests():
 	capture_success = true
 	tick_capture(2)
 	c.check(data.party.size()==2 and data.party[1].id==16 and exploring,"Captured Pokemon joins saved party")
+	c.check(data.party[1].shiny and data.party[1].ability_slot==1,"Capture preserves shiny and ability identity")
 	data.party[0].hp = 0.4
 	save()
 	data.money = 999
 	load_save()
+	c.check(data.party[1].shiny and int(data.party[1].ability_slot)==1,"Shiny and ability survive save/load")
 	c.check(data.money!=999 and is_equal_approx(data.party[0].hp,0.4),"Adventure save restores health and inventory")
 	save()
 	var corrupt = FileAccess.open(save_path,FileAccess.WRITE)
@@ -845,7 +866,7 @@ func show_evolution():
 	panel("EVOLUTION / "+mon_name(pair[0])+" → "+mon_name(pair[1]))
 	for i in range(2):
 		var picture = TextureRect.new()
-		picture.texture = c.portraits[pair[i]]
+		picture.texture = c.portrait({"id":pair[i],"shiny":pair[2] if pair.size()>2 else false})
 		picture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		picture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		picture.position = Vector2(240+i*500,295)
@@ -876,8 +897,9 @@ func grant_xp(amount: int) -> String:
 			mon.hp = minf(1,mon.hp+0.2)
 			message += mon_name(mon.id)+" reached Lv."+str(mon.level)+"! "
 			if EVOLUTIONS.has(int(mon.id)) and mon.level >= EVOLUTIONS[int(mon.id)][0]:
-				evolutions.append([int(mon.id),int(EVOLUTIONS[int(mon.id)][1])])
+				evolutions.append([int(mon.id),int(EVOLUTIONS[int(mon.id)][1]),mon.get("shiny",false)])
 				mon.id = EVOLUTIONS[int(mon.id)][1]
+				c.abilities.assign(mon)
 				message += "Evolved into "+mon_name(mon.id)+"! "
 			var known_before = mon.moves.duplicate()
 			var pending_before = mon.pending.duplicate()
@@ -908,7 +930,7 @@ func record_knockout():
 		var fighter = c.player_states[i]
 		var mon = data.party[i]
 		if not fighter.get("transformed",false):
-			fighter.data = battle_mon(int(mon.id),int(mon.level))
+			fighter.data = battle_mon(int(mon.id),int(mon.level),mon)
 			fighter.data.moves = inventory.definitions(mon.moves)
 		fighter.hp = fighter.data.hp*mon.hp
 	progress_lines = [mon_name(int(encounter.ids[c.enemy_active]))+" defeated! +"+str(amount)+" EXP to standing teammates."]

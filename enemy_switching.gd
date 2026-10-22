@@ -30,6 +30,7 @@ func activate(c,slot):
 	c.enemy.face = -1
 	c.enemy.heading = Vector2.LEFT
 	c.enemy.entering = true
+	c.enemy["ability_entered"]=false
 	c.enemy.fainted = false
 	for key in ["inv","flash","dash_time","attack_time","walk_time"]: c.enemy[key] = 0.0
 	c.enemy.dash_move = {}
@@ -42,6 +43,8 @@ func request(c,slot) -> bool:
 	if c.Conditions.immobilized(c.enemy) or c.enemy.volatile.get("partiallytrapped",0)>0 or c.enemy.action_lock>0 or c.enemy.dash_time>0: return false
 	# Do not erase or evade already launched attacks through a trainer substitution.
 	if c.shots.any(func(s):return s.life>0): return false
+	if c.abilities.trapped(c.enemy,c.player): return false
+	c.abilities.withdrawn(c.enemy)
 	c.enemy["saved_cooldowns"] = c.enemy_cooldowns.duplicate()
 	c.enemy.volatile.clear()
 	c.enemy["protect_chain"]=0
@@ -94,7 +97,7 @@ func draw_recall(c):
 	var progress = smoothstep(0,0.7,timer)
 	var center = p.lerp(hand,progress)
 	c.draw_line(hand,center,Color(1,0.4,0.5,0.7),4,true)
-	var texture = c.portraits.get(int(c.enemy.data.id))
+	var texture = c.portrait(c.enemy.data)
 	if texture:
 		var size = texture.get_size()*78.0/maxf(texture.get_width(),texture.get_height())*(1-progress)
 		c.draw_texture_rect(texture,Rect2(center-size/2,size),false,Color(1,0.4,0.5,1-progress))

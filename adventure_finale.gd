@@ -231,7 +231,7 @@ static func reward(a,victory: bool) -> String:
 			return "League battle won! Speak to the next challenger. Team HP is preserved; leaving resets the run."
 		state(a)["champion"]=true
 		state(a)["league"]=0
-		a.data["hall_of_fame"]=a.data.party.map(func(mon):return {"id":int(mon.id),"level":int(mon.level)})
+		a.data["hall_of_fame"]=a.data.party.map(func(mon):return {"id":int(mon.id),"level":int(mon.level),"shiny":mon.get("shiny",false),"ability_slot":int(mon.get("ability_slot",0))})
 		return "KANTO CHAMPION! Your winning team is saved in the Hall of Fame. Enter the Hall from this chamber."
 	if TASKS.has(key): return complete(a,key)
 	return ""
@@ -242,7 +242,7 @@ static func hall(a):
 	for i in range(party.size()):
 		var mon=party[i]
 		var picture=TextureRect.new()
-		picture.texture=a.c.portraits[int(mon.id)]
+		picture.texture=a.c.portrait(mon)
 		picture.position=Vector2(205+(i%3)*300,245+int(i/3)*180)
 		picture.size=Vector2(90,90)
 		picture.expand_mode=TextureRect.EXPAND_IGNORE_SIZE

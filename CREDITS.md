@@ -7,3 +7,6 @@
 - Animated battle sprites: [PMD SpriteCollab](https://github.com/PMDCollab/SpriteCollab). All 158 species have local Idle, Walk, Attack, Shoot and Hurt sheets where provided. See [per-species artist credits](assets/animated/CREDITS.md), original credit histories, and pinned source revision in `assets/animated/source.json`. Community contributions are covered by the repository's noncommercial attribution policy (CC BY-NC 4.0); original Mystery Dungeon artwork is credited to Chunsoft and the respective rights holders.
 
 This is an unofficial Pokémon fan prototype. The project does not claim ownership of Pokémon artwork or affiliation with the franchise.
+
+
+Shiny variants: PokeAPI/sprites portraits and PMDCollab/SpriteCollab animations, pinned to the same revision as assets/animated/source.json. Artist credits are preserved in assets/shiny/<species>/CREDITS.md. Normal ability slots use pret/pokefirered src/data/pokemon/species_info.h; later guest slots and move flags use the existing Pokemon Showdown source snapshot. See docs/shinies-and-abilities.md.

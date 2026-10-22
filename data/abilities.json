@@ -1,0 +1,533 @@
+{
+  "1": [
+    "Overgrow"
+  ],
+  "2": [
+    "Overgrow"
+  ],
+  "3": [
+    "Overgrow"
+  ],
+  "4": [
+    "Blaze"
+  ],
+  "5": [
+    "Blaze"
+  ],
+  "6": [
+    "Blaze"
+  ],
+  "7": [
+    "Torrent"
+  ],
+  "8": [
+    "Torrent"
+  ],
+  "9": [
+    "Torrent"
+  ],
+  "10": [
+    "Shield Dust"
+  ],
+  "11": [
+    "Shed Skin"
+  ],
+  "12": [
+    "Compound Eyes"
+  ],
+  "13": [
+    "Shield Dust"
+  ],
+  "14": [
+    "Shed Skin"
+  ],
+  "15": [
+    "Swarm"
+  ],
+  "16": [
+    "Keen Eye"
+  ],
+  "17": [
+    "Keen Eye"
+  ],
+  "18": [
+    "Keen Eye"
+  ],
+  "19": [
+    "Run Away",
+    "Guts"
+  ],
+  "20": [
+    "Run Away",
+    "Guts"
+  ],
+  "21": [
+    "Keen Eye"
+  ],
+  "22": [
+    "Keen Eye"
+  ],
+  "23": [
+    "Intimidate",
+    "Shed Skin"
+  ],
+  "24": [
+    "Intimidate",
+    "Shed Skin"
+  ],
+  "25": [
+    "Static"
+  ],
+  "26": [
+    "Static"
+  ],
+  "27": [
+    "Sand Veil"
+  ],
+  "28": [
+    "Sand Veil"
+  ],
+  "29": [
+    "Poison Point"
+  ],
+  "30": [
+    "Poison Point"
+  ],
+  "31": [
+    "Poison Point"
+  ],
+  "32": [
+    "Poison Point"
+  ],
+  "33": [
+    "Poison Point"
+  ],
+  "34": [
+    "Poison Point"
+  ],
+  "35": [
+    "Cute Charm"
+  ],
+  "36": [
+    "Cute Charm"
+  ],
+  "37": [
+    "Flash Fire"
+  ],
+  "38": [
+    "Flash Fire"
+  ],
+  "39": [
+    "Cute Charm"
+  ],
+  "40": [
+    "Cute Charm"
+  ],
+  "41": [
+    "Inner Focus"
+  ],
+  "42": [
+    "Inner Focus"
+  ],
+  "43": [
+    "Chlorophyll"
+  ],
+  "44": [
+    "Chlorophyll"
+  ],
+  "45": [
+    "Chlorophyll"
+  ],
+  "46": [
+    "Effect Spore"
+  ],
+  "47": [
+    "Effect Spore"
+  ],
+  "48": [
+    "Compound Eyes"
+  ],
+  "49": [
+    "Shield Dust"
+  ],
+  "50": [
+    "Sand Veil",
+    "Arena Trap"
+  ],
+  "51": [
+    "Sand Veil",
+    "Arena Trap"
+  ],
+  "52": [
+    "Pickup"
+  ],
+  "53": [
+    "Limber"
+  ],
+  "54": [
+    "Damp",
+    "Cloud Nine"
+  ],
+  "55": [
+    "Damp",
+    "Cloud Nine"
+  ],
+  "56": [
+    "Vital Spirit"
+  ],
+  "57": [
+    "Vital Spirit"
+  ],
+  "58": [
+    "Intimidate",
+    "Flash Fire"
+  ],
+  "59": [
+    "Intimidate",
+    "Flash Fire"
+  ],
+  "60": [
+    "Water Absorb",
+    "Damp"
+  ],
+  "61": [
+    "Water Absorb",
+    "Damp"
+  ],
+  "62": [
+    "Water Absorb",
+    "Damp"
+  ],
+  "63": [
+    "Synchronize",
+    "Inner Focus"
+  ],
+  "64": [
+    "Synchronize",
+    "Inner Focus"
+  ],
+  "65": [
+    "Synchronize",
+    "Inner Focus"
+  ],
+  "66": [
+    "Guts"
+  ],
+  "67": [
+    "Guts"
+  ],
+  "68": [
+    "Guts"
+  ],
+  "69": [
+    "Chlorophyll"
+  ],
+  "70": [
+    "Chlorophyll"
+  ],
+  "71": [
+    "Chlorophyll"
+  ],
+  "72": [
+    "Clear Body",
+    "Liquid Ooze"
+  ],
+  "73": [
+    "Clear Body",
+    "Liquid Ooze"
+  ],
+  "74": [
+    "Rock Head",
+    "Sturdy"
+  ],
+  "75": [
+    "Rock Head",
+    "Sturdy"
+  ],
+  "76": [
+    "Rock Head",
+    "Sturdy"
+  ],
+  "77": [
+    "Run Away",
+    "Flash Fire"
+  ],
+  "78": [
+    "Run Away",
+    "Flash Fire"
+  ],
+  "79": [
+    "Oblivious",
+    "Own Tempo"
+  ],
+  "80": [
+    "Oblivious",
+    "Own Tempo"
+  ],
+  "81": [
+    "Magnet Pull",
+    "Sturdy"
+  ],
+  "82": [
+    "Magnet Pull",
+    "Sturdy"
+  ],
+  "83": [
+    "Keen Eye",
+    "Inner Focus"
+  ],
+  "84": [
+    "Run Away",
+    "Early Bird"
+  ],
+  "85": [
+    "Run Away",
+    "Early Bird"
+  ],
+  "86": [
+    "Thick Fat"
+  ],
+  "87": [
+    "Thick Fat"
+  ],
+  "88": [
+    "Stench",
+    "Sticky Hold"
+  ],
+  "89": [
+    "Stench",
+    "Sticky Hold"
+  ],
+  "90": [
+    "Shell Armor"
+  ],
+  "91": [
+    "Shell Armor"
+  ],
+  "92": [
+    "Levitate"
+  ],
+  "93": [
+    "Levitate"
+  ],
+  "94": [
+    "Levitate"
+  ],
+  "95": [
+    "Rock Head",
+    "Sturdy"
+  ],
+  "96": [
+    "Insomnia"
+  ],
+  "97": [
+    "Insomnia"
+  ],
+  "98": [
+    "Hyper Cutter",
+    "Shell Armor"
+  ],
+  "99": [
+    "Hyper Cutter",
+    "Shell Armor"
+  ],
+  "100": [
+    "Soundproof",
+    "Static"
+  ],
+  "101": [
+    "Soundproof",
+    "Static"
+  ],
+  "102": [
+    "Chlorophyll"
+  ],
+  "103": [
+    "Chlorophyll"
+  ],
+  "104": [
+    "Rock Head",
+    "Lightning Rod"
+  ],
+  "105": [
+    "Rock Head",
+    "Lightning Rod"
+  ],
+  "106": [
+    "Limber"
+  ],
+  "107": [
+    "Keen Eye"
+  ],
+  "108": [
+    "Own Tempo",
+    "Oblivious"
+  ],
+  "109": [
+    "Levitate"
+  ],
+  "110": [
+    "Levitate"
+  ],
+  "111": [
+    "Lightning Rod",
+    "Rock Head"
+  ],
+  "112": [
+    "Lightning Rod",
+    "Rock Head"
+  ],
+  "113": [
+    "Natural Cure",
+    "Serene Grace"
+  ],
+  "114": [
+    "Chlorophyll"
+  ],
+  "115": [
+    "Early Bird"
+  ],
+  "116": [
+    "Swift Swim"
+  ],
+  "117": [
+    "Poison Point"
+  ],
+  "118": [
+    "Swift Swim",
+    "Water Veil"
+  ],
+  "119": [
+    "Swift Swim",
+    "Water Veil"
+  ],
+  "120": [
+    "Illuminate",
+    "Natural Cure"
+  ],
+  "121": [
+    "Illuminate",
+    "Natural Cure"
+  ],
+  "122": [
+    "Soundproof"
+  ],
+  "123": [
+    "Swarm"
+  ],
+  "124": [
+    "Oblivious"
+  ],
+  "125": [
+    "Static"
+  ],
+  "126": [
+    "Flame Body"
+  ],
+  "127": [
+    "Hyper Cutter"
+  ],
+  "128": [
+    "Intimidate"
+  ],
+  "129": [
+    "Swift Swim"
+  ],
+  "130": [
+    "Intimidate"
+  ],
+  "131": [
+    "Water Absorb",
+    "Shell Armor"
+  ],
+  "132": [
+    "Limber"
+  ],
+  "133": [
+    "Run Away"
+  ],
+  "134": [
+    "Water Absorb"
+  ],
+  "135": [
+    "Volt Absorb"
+  ],
+  "136": [
+    "Flash Fire"
+  ],
+  "137": [
+    "Trace"
+  ],
+  "138": [
+    "Swift Swim",
+    "Shell Armor"
+  ],
+  "139": [
+    "Swift Swim",
+    "Shell Armor"
+  ],
+  "140": [
+    "Swift Swim",
+    "Battle Armor"
+  ],
+  "141": [
+    "Swift Swim",
+    "Battle Armor"
+  ],
+  "142": [
+    "Rock Head",
+    "Pressure"
+  ],
+  "143": [
+    "Immunity",
+    "Thick Fat"
+  ],
+  "144": [
+    "Pressure"
+  ],
+  "145": [
+    "Pressure"
+  ],
+  "146": [
+    "Pressure"
+  ],
+  "147": [
+    "Shed Skin"
+  ],
+  "148": [
+    "Shed Skin"
+  ],
+  "149": [
+    "Inner Focus"
+  ],
+  "150": [
+    "Pressure"
+  ],
+  "151": [
+    "Synchronize"
+  ],
+  "152": [
+    "Overgrow"
+  ],
+  "185": [
+    "Sturdy",
+    "Rock Head"
+  ],
+  "197": [
+    "Synchronize"
+  ],
+  "355": [
+    "Levitate"
+  ],
+  "361": [
+    "Inner Focus"
+  ],
+  "599": [
+    "Plus",
+    "Minus"
+  ],
+  "821": [
+    "Keen Eye",
+    "Unnerve"
+  ]
+}

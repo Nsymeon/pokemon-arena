@@ -10,6 +10,9 @@ static func types(f) -> Array:
 	return current
 
 static func init(f):
+	f["ability_entered"]=false
+	f.erase("copied_ability")
+	f.erase("flash_fire")
 	f["movement_lock"] = 0.0
 	f["action_lock"] = 0.0
 	f["charge_left"] = 0.0
@@ -49,6 +52,7 @@ static func attempt(c, f, move) -> bool:
 	if f.ailment == "freeze" and move.get("defrost", false): f.ailment = ""; f.ailment_time = 0
 	if immobilized(f): note(f, "FROZEN" if f.ailment == "freeze" else "ASLEEP" if f.ailment == "sleep" else "FLINCH"); return false
 	if f.ailment == "paralysis" and c.rng.randf() < 0.25: note(f, "PARALYZED!"); return false
+	if f.volatile.get("attract",0)>0 and c.rng.randf()<0.5: note(f,"INFATUATED"); return false
 	if f.volatile.get("confusion", 0) > 0 and c.rng.randf() < 1.0 / 3.0:
 		f.hp = maxf(0, f.hp - f.data.hp * 0.03)
 		note(f, "CONFUSED! SELF HIT")
@@ -59,6 +63,7 @@ static func apply(c, f, payload, move, hostile: bool = true) -> bool:
 	if f.hp <= 0 or (not move.is_empty() and avoids(f,move)): return false
 	if hostile and c.support.blocks(f,move): note(f,"PROTECTED"); return false
 	var status: String = NAMES.get(payload.get("status", ""), "")
+	if c.abilities.status_block(f,status,payload.get("volatileStatus",""),move): return false
 	var team: Dictionary = c.support.side(c,f)
 	if hostile and team.has("safeguard") and (status!="" or payload.get("volatileStatus","")=="confusion"):
 		note(f,"SAFEGUARD"); return false
@@ -71,6 +76,7 @@ static func apply(c, f, payload, move, hostile: bool = true) -> bool:
 		if f.ailment != "": note(f, "ALREADY AFFLICTED"); return false
 		f.ailment = status
 		f.ailment_time = c.rng.randf_range(2.0,3.0) if status=="sleep" else 3.0 if status=="paralysis" else float(c.rng.randi_range(1,5)) if status=="freeze" else 8.0
+		if status=="sleep" and c.abilities.name_of(f)=="Early Bird": f.ailment_time*=0.5
 		f.dot_tick = 1.0
 		f.toxic_tick = 0
 		if status in ["sleep", "freeze"]:
@@ -79,6 +85,9 @@ static func apply(c, f, payload, move, hostile: bool = true) -> bool:
 			f.pending_move = {}
 		note(f, status.to_upper())
 		changed = true
+		if hostile and c.abilities.name_of(f)=="Synchronize" and status in ["burn","poison","toxic","paralysis"] and not payload.get("reflected",false):
+			var other=c.enemy if f==c.player else c.player
+			apply(c,other,{"status":payload.get("status",""),"reflected":true},{})
 	var volatile_status: String = payload.get("volatileStatus", "")
 	if volatile_status == "leechseed":
 		if "Grass" in types(f): note(f,"IMMUNE"); return false
@@ -86,8 +95,8 @@ static func apply(c, f, payload, move, hostile: bool = true) -> bool:
 		f["seed_tick"] = 1.0
 		note(f,"SEEDED")
 		changed = true
-	if volatile_status in ["confusion", "flinch", "partiallytrapped", "focusenergy"]:
-		f.volatile[volatile_status] = 0.4 if volatile_status == "flinch" else 5.0 if volatile_status == "partiallytrapped" else 6.0
+	if volatile_status in ["attract", "confusion", "flinch", "partiallytrapped", "focusenergy"]:
+		f.volatile[volatile_status] = 0.4 if volatile_status == "flinch" else 5.0 if volatile_status in ["partiallytrapped","attract"] else 6.0
 		if volatile_status == "partiallytrapped": f.trap_tick = 1.0
 		if volatile_status == "flinch":
 			f.dash_time = 0
@@ -98,6 +107,8 @@ static func apply(c, f, payload, move, hostile: bool = true) -> bool:
 	for stat in payload.get("boosts", {}):
 		if hostile and team.has("mist") and int(payload.boosts[stat])<0:
 			note(f,"MIST / BLOCKED"); continue
+		if hostile and int(payload.boosts[stat])<0 and c.abilities.blocks_drop(f,stat):
+			c.abilities.announce(f); continue
 		f.stages[stat] = clampi(int(f.stages.get(stat, 0)) + int(payload.boosts[stat]), -6, 6)
 		note(f, stat.to_upper() + (" UP" if payload.boosts[stat] > 0 else " DOWN"))
 		changed = true
