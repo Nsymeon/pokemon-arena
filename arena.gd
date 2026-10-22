@@ -350,6 +350,7 @@ func use_move(user: Dictionary, target: Dictionary, index: int, direction: Vecto
 	return true
 
 func execute_move(user: Dictionary, target: Dictionary, move: Dictionary, direction: Vector2, friendly: bool):
+	user["movement_lock"] = 0.4
 	move = weather.prepare(move)
 	if move.id == "mirrormove":
 		var copied: Dictionary = target.get("last_move", {})
@@ -1561,7 +1562,42 @@ func homing_tests():
 		check(straight.vel==Vector2.LEFT*580 and straight.life==2.6,"Other projectiles keep their original trajectory and lifetime")
 		reset()
 
+func movement_recovery_tests():
+	pick(25,7)
+	rocks.clear()
+	player.pos=Vector2(800,550)
+	enemy.pos=Vector2(1300,650)
+	var move=move_editor.book.moves.swift.duplicate(true)
+	execute_move(player,enemy,move,Vector2.RIGHT,true)
+	execute_move(enemy,player,move,Vector2.LEFT,false)
+	var origin: Vector2=player.pos
+	var cpu_origin: Vector2=enemy.pos
+	var energy: float=player.energy
+	ai_timer=99
+	sprint_movement(Vector2.RIGHT,0.1,true)
+	update_ai(0.1)
+	check(player.pos==origin and enemy.pos==cpu_origin,"Post-move recovery blocks player sprint and AI walking/dodges")
+	check(player.energy==energy,"Blocked sprint does not consume energy")
+	for fighter in [player,enemy]:
+		Conditions.tick(fighter,0.39)
+		check(Conditions.speed(fighter)==0,"Movement stays locked for the first 0.39 seconds")
+		Conditions.tick(fighter,0.011)
+		check(Conditions.speed(fighter)>0 and fighter.action_lock>0,"Movement resumes after 0.4 seconds while the one-second attack gate remains")
+	sprint_movement(Vector2.RIGHT,0.1,true)
+	update_ai(0.1)
+	check(player.pos!=origin and enemy.pos!=cpu_origin,"Both fighters can move again after recovery")
+	shots.clear()
+	move=move_editor.book.moves.quickattack.duplicate(true)
+	execute_move(player,enemy,move,Vector2.RIGHT,true)
+	origin=player.pos
+	update_projectiles(0.1)
+	check(player.pos!=origin and player.movement_lock>0,"Recovery does not cancel attack-driven Quick Attack movement")
+	Conditions.init(player)
+	check(player.movement_lock==0,"New fighter initialization clears movement recovery")
+	reset()
+
 func smoke_test():
+	movement_recovery_tests()
 	homing_tests()
 	art.tests(self)
 	balance.tests(self)

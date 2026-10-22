@@ -10,6 +10,7 @@ static func types(f) -> Array:
 	return current
 
 static func init(f):
+	f["movement_lock"] = 0.0
 	f["action_lock"] = 0.0
 	f["charge_left"] = 0.0
 	f["pending_move"] = {}
@@ -37,6 +38,7 @@ static func avoids(f,move) -> bool:
 	return f.get("volatile",{}).get("underground",0)>0 and move.get("id","") not in ["earthquake","magnitude","fissure"]
 
 static func immobilized(f) -> bool:
+	if f.get("movement_lock",0.0)>0: return true
 	return f.get("volatile",{}).get("underground",0)>0 or f.get("volatile",{}).get("airborne",0)>0 or f.ailment in ["sleep", "freeze"] or f.get("volatile", {}).get("flinch", 0) > 0 or f.get("charge_left", 0.0) > 0
 
 static func speed(f) -> float:
@@ -96,6 +98,7 @@ static func apply(c, f, payload, move) -> bool:
 	return changed
 
 static func tick(f, dt: float):
+	f["movement_lock"] = maxf(0,f.get("movement_lock",0.0)-dt)
 	f.action_lock = maxf(0, f.action_lock - dt)
 	f.condition_note_time = maxf(0, f.condition_note_time - dt)
 	# Count only time actually spent afflicted, including the last partial tick.
