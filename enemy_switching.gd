@@ -44,6 +44,7 @@ func request(c,slot) -> bool:
 	if c.shots.any(func(s):return s.life>0): return false
 	c.enemy["saved_cooldowns"] = c.enemy_cooldowns.duplicate()
 	c.enemy.volatile.clear()
+	c.enemy["protect_chain"]=0
 	c.enemy.stages.clear()
 	c.enemy.toxic_tick = 0
 	c.enemy.attack_time = 0

@@ -94,11 +94,14 @@ var selection_controls: CanvasLayer
 var query = ""
 var test_failures: Array = []
 
+var support = preload("res://team_support.gd").new()
+
 var controls = preload("res://keybinds.gd").new()
 
 func _ready():
 	add_child(controls)
 	controls.install()
+	if "--capture-support" in OS.get_cmdline_user_args(): call_deferred("capture_support")
 	if "--capture-controls" in OS.get_cmdline_user_args(): call_deferred("capture_controls")
 	if "--audit-vfx" in OS.get_cmdline_user_args(): call_deferred("audit_vfx")
 	rng.seed = 47
@@ -151,6 +154,7 @@ func _ready():
 		call_deferred("capture_persistent")
 
 func reset():
+	support.reset()
 	click_move = false
 	clash_effects.clear()
 	weather.reset(weather_choice.selected if weather_choice != null else 0)
@@ -331,14 +335,19 @@ func use_move(user: Dictionary, target: Dictionary, index: int, direction: Vecto
 		return false
 	if timers[index] > 0 or user.dash_time > 0 or user.get("action_lock", 0.0) > 0 or user.get("charge_left", 0.0) > 0:
 		return false
+	if support.pp_limit(move)>0 and support.pp(user,move)<=0:
+		Conditions.note(user,"NO PP")
+		return false
 	if user.energy < move.cost:
 		if friendly:
 			notice = "LOW ENERGY — reposition and recover"
 			notice_time = 1.5
 		return false
 	user.action_lock = 1.0
-	if not Conditions.attempt(self, user, move): return false
-	timers[index] = move.cooldown
+	if not Conditions.attempt(self, user, move):
+		user["protect_chain"]=0
+		return false
+	timers[index] = 12.0 if move.id in support.PROTECT else move.cooldown
 	user.energy -= move.cost
 	if move.get("charge_time", 0.0) > 0 and move.id not in ["fly","dig"]:
 		user.charge_left = float(move.charge_time)
@@ -368,6 +377,11 @@ func execute_move(user: Dictionary, target: Dictionary, move: Dictionary, direct
 			user.pending_move = {"move":move,"direction":direction,"friendly":friendly}
 			user.action_lock = 1.0
 			return
+	if not support.consume(user,move):
+		Conditions.note(user,"NO PP")
+		return
+	if move.get("kind","")=="heal" or move.get("drain",false): user.movement_lock=1.0
+	if move.id not in support.PROTECT: user["protect_chain"]=0
 	user["last_move"] = move.duplicate(true)
 	user.action_lock = float(move.get("action_delay", 1.0))
 	var accuracy = 1.0 if move.get("accuracy", true) is bool else float(move.accuracy) / 100.0 * Conditions.stage(user, "accuracy")
@@ -387,6 +401,9 @@ func execute_move(user: Dictionary, target: Dictionary, move: Dictionary, direct
 	user.face = signf(direction.x) if absf(direction.x) > 0.1 else user.face
 	var color = Dex.color(move.type)
 	if move.id == "disable":
+		if support.blocks(target,move):
+			Conditions.note(target,"PROTECTED")
+			return
 		if user.pos.distance_to(target.pos)<260 and not target.get("last_move",{}).is_empty():
 			target["disabled_move"] = target.last_move.id
 			target.volatile["disabled"] = 4.0
@@ -436,6 +453,7 @@ func execute_move(user: Dictionary, target: Dictionary, move: Dictionary, direct
 			hit(target,user.get("last_physical_damage",0.0)*2,direction,friendly,move,user)
 		else: Conditions.note(user,"NO HIT TO COUNTER")
 		return
+	if support.cast(self,user,move,friendly): return
 	if weather.MOVES.has(move.id):
 		weather.set_weather(weather.MOVES[move.id])
 		Conditions.note(user, move.name.to_upper())
@@ -462,7 +480,7 @@ func execute_move(user: Dictionary, target: Dictionary, move: Dictionary, direct
 				apply_status(target, move)
 		"buff":
 			user.boost = 5.0
-			Conditions.apply(self, user, status_payload(move), move)
+			Conditions.apply(self, user, status_payload(move), move, false)
 		"splash":
 			user.energy = minf(100, user.energy + 15)
 			user.inv = 0.2
@@ -477,7 +495,7 @@ func execute_move(user: Dictionary, target: Dictionary, move: Dictionary, direct
 			for i in range(4): timers[i] = 0.5
 		"guard":
 			if move.get("stat_changes", {}).is_empty(): user.guard = 3.0
-			else: Conditions.apply(self, user, status_payload(move), move)
+			else: Conditions.apply(self, user, status_payload(move), move, false)
 			rings.append({"pos": user.pos, "radius": 25.0, "max": 55.0, "life": 0.6, "color": color})
 		"heal":
 			if move.id=="roost":
@@ -498,7 +516,7 @@ func sprint_movement(direction: Vector2, dt: float, requested: bool):
 		return
 	sprinting = requested and direction.length_squared() > 0 and player.energy >= 12.0 * dt and not Conditions.immobilized(player)
 	if sprinting: player.energy = maxf(0, player.energy - 12.0 * dt)
-	move_fighter(player, direction * player.data.speed * (1.35 if sprinting else 1.0) * Conditions.speed(player) * fields.movement(player) * dt)
+	move_fighter(player, direction * player.data.speed * (1.35 if sprinting else 1.0) * Conditions.speed(player) * (2.0 if support.side(self,player).has("tailwind") else 1.0) * fields.movement(player) * dt)
 
 func projectile(origin: Vector2, direction: Vector2, speed: float, damage: float, radius: float, friendly: bool, color: Color, move: Dictionary = {}) :
 	move = weather.prepare(move)
@@ -571,6 +589,7 @@ func update_battle(dt: float):
 	if player.hp <= 0 or enemy.hp <= 0:
 		finish_round()
 		return
+	support.tick(dt)
 	weather.tick(self, dt)
 	if player.hp <= 0 or enemy.hp <= 0:
 		finish_round()
@@ -691,7 +710,7 @@ func update_ai(dt: float):
 	var dodge_direction = balance.dodge(self,dt)
 	if enemy.dash_time <= 0 and not skills.riding(self, enemy):
 		var velocity = dodge_direction*1.35 if dodge_direction!=Vector2.ZERO else walk.limit_length()*0.75
-		move_fighter(enemy, velocity * enemy.data.speed * Conditions.speed(enemy) * fields.movement(enemy) * dt)
+		move_fighter(enemy, velocity * enemy.data.speed * Conditions.speed(enemy) * (2.0 if support.side(self,enemy).has("tailwind") else 1.0) * fields.movement(enemy) * dt)
 	ai_timer -= dt * (0.4 if enemy.stun > 0 else 1.0)
 	if ai_timer <= 0:
 		ai_timer = rng.randf_range(0.55, 1.0)
@@ -701,7 +720,7 @@ func update_ai(dt: float):
 		for i in choices:
 			if i >= enemy.data.moves.size(): continue
 			var move: Dictionary = enemy.data.moves[i]
-			if enemy_cooldowns[i] > 0 or enemy.energy < move.cost:
+			if enemy_cooldowns[i] > 0 or enemy.energy < move.cost or (support.pp_limit(move)>0 and support.pp(enemy,move)<=0):
 				continue
 			var score = Dex.effectiveness(move.type, Conditions.types(player)) * (1.5 if move.type in Conditions.types(enemy) else 1.0)
 			if move.kind == "dash" and distance > (420 if move.id == "extremespeed" else 320 if move.id in skills.RUSHES else 200): continue
@@ -714,6 +733,7 @@ func update_ai(dt: float):
 			if move.kind == "teleport": score = 2.0 if distance < 100 else -1.0
 			if move.kind == "heal": score = 3.0 if enemy.hp < enemy.data.hp * 0.65 else -1.0
 			if move.kind == "guard": score = 1.8 if enemy.guard <= 0 and distance < 280 else -1.0
+			if move.id in support.SCREENS: score = 1.7 if not support.side(self,enemy).has(move.id) else -1.0
 			if weather.MOVES.has(move.id): score = 2.2 if weather.kind != weather.MOVES[move.id] else -1.0
 			if move.id == "dreameater" and player.ailment != "sleep": score = -1.0
 			if move.id == "counter" and round_time-enemy.get("last_physical_time",-100.0)>2: score = -1.0
@@ -757,10 +777,13 @@ func damage_amount(attacker: Dictionary, target: Dictionary, base_damage: float,
 	var multiplier = Dex.effectiveness(move_type, Conditions.types(target))
 	var boost = float(move.get("weather_power", weather.power(move)))
 	if physical and attacker.ailment == "burn": boost *= 0.5
-	return snappedf(base_damage * ratio * stab * multiplier * boost * (0.5 if target.guard > 0 else 1.0), 0.1)
+	return snappedf(base_damage * ratio * stab * multiplier * boost * (0.5 if target.guard > 0 else 1.0) * support.multiplier(self,target,move), 0.1)
 
 func hit(target: Dictionary, damage: float, direction: Vector2, friendly: bool, move: Dictionary = {}, owner: Dictionary = {}, attack_snapshot: Dictionary = {}) -> float:
 	if target.inv > 0 or target.hp <= 0 or Conditions.avoids(target,move): return 0.0
+	if support.blocks(target,move):
+		Conditions.note(target,"PROTECTED")
+		return 0.0
 	if move.get("id", "") == "dreameater" and target.ailment != "sleep": return 0.0
 	var attacker = owner if not owner.is_empty() else player if friendly else enemy
 	var offense = attack_snapshot if not attack_snapshot.is_empty() else attacker
@@ -800,7 +823,9 @@ func hit(target: Dictionary, damage: float, direction: Vector2, friendly: bool, 
 		target.ailment_time = 0
 		Conditions.note(target, "THAWED")
 	apply_hit_effects(attacker, target, move)
-	if move.get("drain", false) and attacker.hp > 0: attacker.hp = minf(attacker.data.hp, attacker.hp + actual_damage * 0.4)
+	if move.get("drain", false) and attacker.hp > 0:
+		attacker.hp = minf(attacker.data.hp, attacker.hp + actual_damage * 0.4)
+		attacker.movement_lock=maxf(attacker.get("movement_lock",0),1.0)
 	if move.get("recoil", false): attacker.hp = maxf(0, attacker.hp - actual_damage * 0.2)
 	tone(190 if friendly else 100, 0.045)
 	return damage
@@ -822,7 +847,7 @@ func apply_hit_effects(attacker: Dictionary, target: Dictionary, move: Dictionar
 		if move.get("tri_status", false):
 			Conditions.apply(self, target, {"status": ["brn", "par", "frz"][rng.randi_range(0, 2)]}, move)
 		else: Conditions.apply(self, target, effect, move)
-		if effect.has("self"): Conditions.apply(self, attacker, effect.self, move)
+		if effect.has("self"): Conditions.apply(self, attacker, effect.self, move, false)
 
 func burst(pos: Vector2, color: Color, count: int):
 	for i in range(count):
@@ -1092,7 +1117,9 @@ func draw_creature(fighter: Dictionary, friendly: bool):
 		label_at(text, p + Vector2(-width / 2, -96), 15, fighter.get("move_color", GOLD))
 	if fighter.inv > 0:
 		draw_arc(p, 30, 0, TAU, 24, Color(WHITE, 0.6), 2)
-	if not selecting: draw_conditions(fighter)
+	if not selecting:
+		draw_conditions(fighter)
+		support.draw(self,fighter,p)
 	if fighter.get("boost", 0) > 0: label_at("BOOST", p + Vector2(-22, -60), 11, MINT)
 	if fighter.guard > 0: draw_arc(p + Vector2(0, -20), 40, 0, TAU, 32, MINT, 3)
 	if not selecting:
@@ -1253,9 +1280,10 @@ func draw_moves():
 		label_at(move.name.to_upper(), Vector2(x + 12, 721), 15)
 		label_at(move_description(move, Conditions.types(enemy)), Vector2(x + 12, 742), 11, Color("91a6a7"))
 		label_at(str(int(move.cost)) + " EN", Vector2(x + 185, 698), 10, Color("91a6a7"))
+		if support.pp_limit(move)>0: label_at("PP %d/%d"%[support.pp(player,move),support.pp_limit(move)],Vector2(x+170,742),10,GOLD)
 		var remaining = maxf(cooldowns[i], player.get("action_lock", 0.0))
 		if remaining > 0:
-			bar(Vector2(x, 753), 233, 1 - cooldowns[i] / move.cooldown, type_color, 3)
+			bar(Vector2(x, 753), 233, 1 - cooldowns[i] / (12.0 if move.id in support.PROTECT else move.cooldown), type_color, 3)
 			label_at("%.1fs" % remaining, Vector2(x + 184, 720), 12, GOLD)
 	panel(Rect2(1028, 678, 212, 78), Color("142831"))
 	label_at(controls.text("sprint")+" / SPRINT", Vector2(1042, 704), 16, MINT)
@@ -1264,6 +1292,8 @@ func draw_moves():
 	label_at(controls.text("switch")+": Team  "+controls.text("roster")+": Roster  Esc: Pause", Vector2(945, 783), 11, Color("91a6a7"))
 
 func move_description(move: Dictionary, target_types) -> String:
+	if move.id in support.PROTECT: return "BLOCK 1.5s / CD 12s / %d%%"%roundi(support.protect_chance(player)*100)
+	if move.id in support.SCREENS: return "TEAM / 60s"
 	if weather.MOVES.has(move.id): return "WEATHER / 20s / WHOLE ARENA"
 	if move.id == "solarbeam" and weather.kind == "sun": return "INSTANT BEAM / SUN"
 	if move.id=="roost": return "Heal / NO FLYING 1.5s"
@@ -1599,6 +1629,7 @@ func movement_recovery_tests():
 	reset()
 
 func smoke_test():
+	support.tests(self)
 	controls.tests(self)
 	movement_recovery_tests()
 	homing_tests()
@@ -1679,7 +1710,7 @@ func type_tests():
 			check(cooldowns[slot] > 0, "Move has cooldown")
 			check(not use_move(player, enemy, slot, Vector2.RIGHT, true), "Repeat blocked by cooldown")
 			if move.kind == "heal": check(player.hp > player.data.hp * 0.4, "Heal restores HP")
-			if move.kind == "guard": check(player.guard > 0 or not player.stages.is_empty(), "Guard or defense stages enabled")
+			if move.kind == "guard": check(player.guard > 0 or not player.stages.is_empty() or player.volatile.get("protect",0)>0 or not support.side(self,player).is_empty(), "Guard or defense stages enabled")
 			if move.kind == "buff": check(player.boost > 0, "Buff enabled")
 		pick(143, int(roster[i].id))
 		for frame in range(120):
@@ -1890,6 +1921,8 @@ func replacement(friendly: bool, index: int) -> Dictionary:
 	fighter.entering = true
 	fighter.heading = Vector2(fighter.face, 0)
 	Conditions.init(fighter)
+	fighter.erase("healing_pp")
+	fighter["protect_chain"]=0
 	fighter.erase("last_move")
 	fighter.erase("last_physical_time")
 	fighter.erase("last_physical_damage")
@@ -2087,7 +2120,7 @@ func activate_player(slot: int):
 func request_switch(slot: int) -> bool:
 	if not team_mode or paused or countdown > 0 or result != "" or switch_time >= 0 or enemy_bench.timer>=0: return false
 	if slot < 0 or slot >= player_states.size() or slot == player_active or player_states[slot].hp <= 0: return false
-	if player.get("charge_left", 0.0) > 0 or player.get("volatile", {}).get("partiallytrapped", 0) > 0 or player.get("volatile",{}).get("airborne",0)>0 or player.get("volatile",{}).get("underground",0)>0:
+	if player.get("movement_lock",0)>0 or player.get("charge_left", 0.0) > 0 or player.get("volatile", {}).get("partiallytrapped", 0) > 0 or player.get("volatile",{}).get("airborne",0)>0 or player.get("volatile",{}).get("underground",0)>0:
 		Conditions.note(player, "CANNOT SWITCH")
 		return false
 	if switch_cooldown > 0:
@@ -2097,6 +2130,7 @@ func request_switch(slot: int) -> bool:
 	player["saved_cooldowns"] = cooldowns.duplicate()
 	player_states[player_active] = player
 	player.volatile.clear()
+	player["protect_chain"]=0
 	player.stages.clear()
 	player.toxic_tick = 0
 	player.attack_time = 0
@@ -2415,7 +2449,10 @@ func update_resolution(delta: float):
 	while left > 0.00001 and not resolution_ready():
 		var dt = minf(left, 0.04)
 		left -= dt
+		support.tick(dt)
 		for fighter in [player, enemy]:
+			if fighter.volatile.has("protect"):
+				fighter.volatile.protect=maxf(0,fighter.volatile.protect-dt)
 			fighter.inv = maxf(0, fighter.inv - dt)
 			fighter.flash = maxf(0, fighter.flash - dt)
 			fighter.guard = maxf(0, fighter.guard - dt)
@@ -2902,3 +2939,29 @@ func audit_vfx():
 		report.store_csv_line(PackedStringArray([id,art.vfx.family(move)," / ".join(routes),str(player.attack_time>0)]))
 	print("PASS: executed all %d catalog moves through live cast dispatch"%move_editor.book.moves.size() if test_failures.is_empty() else str(test_failures))
 	get_tree().quit(0 if test_failures.is_empty() else 1)
+
+func capture_support():
+	set_process(false)
+	frontend.layer.visible=false
+	campaign.layer.visible=false
+	pick(6,9)
+	selecting=false
+	countdown=0
+	selection_controls.visible=false
+	rocks.clear()
+	player.pos=Vector2(1000,650)
+	enemy.pos=Vector2(1250,650)
+	update_camera(10)
+	for i in range(4): player.data.moves[i]=move_editor.book.moves[["protect","recover","reflect","lightscreen"][i]].duplicate(true)
+	support.cast(self,player,move_editor.book.moves.reflect,true)
+	support.cast(self,player,move_editor.book.moves.lightscreen,true)
+	support.protection(self,enemy,0)
+	player.stages={"atk":2,"def":-1,"spa":1}
+	player.hp=player.data.hp*0.6
+	support.consume(player,move_editor.book.moves.recover)
+	DirAccess.make_dir_recursive_absolute("res://captures")
+	queue_redraw()
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://captures/team-support.png")
+	get_tree().quit()

@@ -55,9 +55,13 @@ static func attempt(c, f, move) -> bool:
 		return false
 	return true
 
-static func apply(c, f, payload, move) -> bool:
+static func apply(c, f, payload, move, hostile: bool = true) -> bool:
 	if f.hp <= 0 or (not move.is_empty() and avoids(f,move)): return false
+	if hostile and c.support.blocks(f,move): note(f,"PROTECTED"); return false
 	var status: String = NAMES.get(payload.get("status", ""), "")
+	var team: Dictionary = c.support.side(c,f)
+	if hostile and team.has("safeguard") and (status!="" or payload.get("volatileStatus","")=="confusion"):
+		note(f,"SAFEGUARD"); return false
 	var changed = false
 	if status != "":
 		var immune = (status == "burn" and "Fire" in types(f)) or (status in ["poison", "toxic"] and ("Poison" in types(f) or "Steel" in types(f))) or (status == "paralysis" and "Electric" in types(f)) or (status == "freeze" and "Ice" in types(f))
@@ -92,6 +96,8 @@ static func apply(c, f, payload, move) -> bool:
 		note(f, "TRAPPED" if volatile_status == "partiallytrapped" else volatile_status.to_upper())
 		changed = true
 	for stat in payload.get("boosts", {}):
+		if hostile and team.has("mist") and int(payload.boosts[stat])<0:
+			note(f,"MIST / BLOCKED"); continue
 		f.stages[stat] = clampi(int(f.stages.get(stat, 0)) + int(payload.boosts[stat]), -6, 6)
 		note(f, stat.to_upper() + (" UP" if payload.boosts[stat] > 0 else " DOWN"))
 		changed = true
