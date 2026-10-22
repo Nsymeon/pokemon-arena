@@ -101,6 +101,7 @@ var controls = preload("res://keybinds.gd").new()
 func _ready():
 	add_child(controls)
 	controls.install()
+	if "--capture-story" in OS.get_cmdline_user_args(): call_deferred("capture_story")
 	if "--capture-support" in OS.get_cmdline_user_args(): call_deferred("capture_support")
 	if "--capture-controls" in OS.get_cmdline_user_args(): call_deferred("capture_controls")
 	if "--audit-vfx" in OS.get_cmdline_user_args(): call_deferred("audit_vfx")
@@ -2964,4 +2965,32 @@ func capture_support():
 	await get_tree().process_frame
 	await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png("res://captures/team-support.png")
+	get_tree().quit()
+
+func capture_story():
+	set_process(false)
+	frontend.layer.visible=false
+	adventure.save_path="user://adventure-story-capture.json"
+	adventure.loaded=true
+	adventure.enter()
+	adventure.choose_starter(4)
+	adventure.data.rival=true
+	adventure.data.bug_catcher=true
+	adventure.data.badge=true
+	adventure.data["rocket"]=true
+	adventure.data["cascade"]=true
+	adventure.data["story"]={"bridge_blue":true,"bridge":2,"ticket":true,"cut":true}
+	adventure.clear_ui()
+	adventure.dialog=""
+	for map in [26,27,28,29]:
+		adventure.data.story={"bridge_blue":true,"bridge":2} if map==26 else {"bridge_blue":true,"bridge":5,"bridge_rocket":true} if map==27 else {"bridge_blue":true,"bridge":5,"bridge_rocket":true,"ticket":true} if map==28 else {"bridge_blue":true,"bridge":5,"bridge_rocket":true,"ticket":true,"ship_blue":true,"cut":true}
+		adventure.data.map=map
+		adventure.position_world=Vector2(800,700)
+		adventure.camera=Vector2(160,100)
+		adventure.queue_redraw()
+		await get_tree().process_frame
+		await RenderingServer.frame_post_draw
+		get_viewport().get_texture().get_image().save_png("res://captures/adventure-story-%d.png"%map)
+	for suffix in ["", ".bak", ".tmp"]:
+		if FileAccess.file_exists(adventure.save_path+suffix): DirAccess.remove_absolute(ProjectSettings.globalize_path(adventure.save_path+suffix))
 	get_tree().quit()

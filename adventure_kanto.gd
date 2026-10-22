@@ -6,7 +6,7 @@ const HEALING_MAPS = [0,2,4,8,10,12,14,16,18,20,23]
 # [landmark, city color, resident dialogue]
 const CITIES = {
 	10:["SILPH CO.","d0b26b","Saffron: Silph Co. towers above the city. Routes connect to Cerulean, Vermilion, Celadon and Lavender. Heal and stock up before exploring."],
-	12:["S.S. ANNE / HARBOR","d8a45c","Vermilion: Welcome to the harbor! Lt. Surge's challenge is available in Gym Leaders mode. The coastal road leads toward Lavender."],
+	12:["S.S. ANNE / HARBOR","d8a45c","Vermilion: North leads to S.S. Anne; west to Lt. Surge's Gym. Bill at Sea Cottage has a ticket. The Captain can give you Cut."],
 	14:["POKEMON TOWER","a995bd","Lavender: Pokemon Tower watches over this quiet town. Rock Tunnel leads toward Cerulean; the coastal road continues to Fuchsia."],
 	16:["DEPARTMENT STORE","6aaa91","Celadon: Gardens and the department store welcome travelers. Our shop sells supplies and TMs. Cycling Road leads to Fuchsia."],
 	18:["SAFARI ZONE GATE","bd82a0","Fuchsia: The Safari Zone gate is a landmark for now. Explore the coastal routes for wild Pokemon. The southern ferry path leads to Cinnabar."],
@@ -16,9 +16,9 @@ const CITIES = {
 # n/s/e/w exit directions. Early chapter layouts stay compatible; routes are compact adaptations.
 const LINKS = {
 	0:{1:1,-1:21},1:{1:2,-1:0},2:{1:3,-1:1,-2:22},3:{1:4,-1:2},4:{1:5,-1:3},5:{1:6,-1:4},6:{1:7,-1:5},7:{1:8,-1:6},
-	8:{-1:7,1:9,2:24},9:{-1:8,1:10},10:{-1:9,1:11,2:13,-2:15},11:{-1:10,1:12},12:{-1:11,2:25},
+	8:{-1:7,1:9,2:24,-2:26},9:{-1:8,1:10},10:{-1:9,1:11,2:13,-2:15},11:{-1:10,1:12},12:{-1:11,2:25,1:28,-2:29},
 	13:{-2:10,2:14},14:{-2:13,1:24,-1:25},15:{2:10,-2:16},16:{2:15,-1:17},17:{1:16,-1:18},
-	18:{1:17,2:25,-1:19},19:{1:18,-1:20},20:{1:19,-2:21},21:{2:20,1:0},22:{2:2,1:23},23:{-1:22},24:{-2:8,-1:14},25:{-2:12,1:14,-1:18}
+	18:{1:17,2:25,-1:19},19:{1:18,-1:20},20:{1:19,-2:21},21:{2:20,1:0},22:{2:2,1:23},23:{-1:22},24:{-2:8,-1:14},25:{-2:12,1:14,-1:18},26:{2:8,1:27},27:{-1:26},28:{-1:12},29:{2:12}
 }
 const WILD = {9:[16,43,52],11:[43,52,56],13:[37,58,63],15:[37,43,69],17:[21,84,20],19:[72,116,90],21:[72,114,120],22:[56,22,75],24:[66,74,95,41],25:[48,44,70,132]}
 
@@ -75,7 +75,7 @@ static func guide(a):
 	for i in range(HEALING_MAPS.size()):
 		a.ui_label(a.MAPS[HEALING_MAPS[i]],Vector2(180+(i%3)*300,465+int(i/3)*40),18)
 	a.ui_label("Beyond Cerulean opens after Misty. Compact routes; sea crossings use ferry paths.",Vector2(180,655),17)
-	a.ui_label("New city landmarks are exterior areas; later story quests are still in development.",Vector2(180,690),17)
+	a.ui_label("Story: Nugget Bridge, Bill, S.S. Anne and Lt. Surge. Later chapters are in development.",Vector2(180,690),17)
 
 static func tests(a):
 	var seen = [0]
@@ -93,6 +93,7 @@ static func tests(a):
 	a.c.check(a.data.map==8,"Misty gates new Kanto exploration")
 	a.data.cascade = true
 	a.data["rocket"] = true
+	a.data["story"]={"bridge_rocket":true,"ticket":true,"cut":true}
 	a.data.rival = true
 	a.data.bug_catcher = true
 	a.data.badge = true

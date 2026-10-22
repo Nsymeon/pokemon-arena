@@ -1,8 +1,9 @@
 extends Node2D
 
 const SAVE_PATH = "user://adventure-v1.json"
+const Story = preload("res://adventure_story.gd")
 const Kanto = preload("res://adventure_kanto.gd")
-var MAPS = ["PALLET TOWN", "ROUTE 1", "VIRIDIAN CITY", "VIRIDIAN FOREST", "PEWTER CITY", "ROUTE 3", "MT. MOON", "ROUTE 4", "CERULEAN CITY"] + Kanto.EXTRA_MAPS
+var MAPS = ["PALLET TOWN", "ROUTE 1", "VIRIDIAN CITY", "VIRIDIAN FOREST", "PEWTER CITY", "ROUTE 3", "MT. MOON", "ROUTE 4", "CERULEAN CITY"] + Kanto.EXTRA_MAPS + Story.MAPS
 const STARTERS = [1,4,7]
 const WILD = {1:[16,19],3:[10,13,25,16],5:[21,39,29,32],6:[41,74,46,35],7:[19,21,23,27]}
 const EVOLUTIONS = {1:[16,2],4:[16,5],7:[16,8],10:[7,11],11:[10,12],13:[7,14],14:[10,15],16:[18,17],19:[20,20],21:[20,22],29:[16,30],32:[16,33],41:[22,42],46:[24,47],74:[25,75]}
@@ -69,7 +70,7 @@ func valid(value) -> bool:
 			if mon.level != int(mon.level) or mon.level < 1 or mon.level > 30 or mon.xp < 0 or mon.xp > 100000 or mon.hp < 0 or mon.hp > 1: return false
 	if value.starter != 0 and value.party.is_empty(): return false
 	if value.starter == 0 and (not value.party.is_empty() or not value.storage.is_empty() or value.map != 0): return false
-	return inventory.valid(value)
+	return inventory.valid(value) and Story.valid(value)
 
 func load_save():
 	loaded = true
@@ -167,9 +168,10 @@ func objective() -> String:
 	if not data.badge: return "Reach Pewter City and defeat Brock for the Boulder Badge."
 	if not data.get("rocket",false): return "Boulder Badge earned! Head north: Route 3, then Mt. Moon."
 	if not data.get("cascade",false): return "Cross Route 4 to Cerulean City. Challenge Misty for the Cascade Badge."
-	return "Explore Kanto! M opens the region guide; follow the exit signs."
+	return Story.objective(self)
 
 func buildings() -> Array:
+	if int(data.map)>=26: return Story.buildings(int(data.map))
 	if Kanto.CITIES.has(int(data.map)): return Kanto.buildings(int(data.map))
 	match int(data.map):
 		0: return [[Rect2(250,380,310,230),"YOUR HOME",Color("5a83ab")],[Rect2(1000,350,350,250),"OAK'S LAB",Color("b86a54")]]
@@ -179,6 +181,7 @@ func buildings() -> Array:
 	return []
 
 func npcs() -> Array:
+	if int(data.map)>=26: return Story.npcs(self)
 	if Kanto.CITIES.has(int(data.map)): return Kanto.npcs(int(data.map))
 	match int(data.map):
 		0: return [[Vector2(1120,655),"Professor Oak","oak"],[Vector2(800,230),"Blue","rival"],[Vector2(405,660),"Mom / Heal","heal"]]
@@ -198,6 +201,8 @@ func wild_spawns() -> Array:
 	return [[Vector2(450,650),pool[wild_cycle%pool.size()],level],[Vector2(1100,450),pool[(wild_cycle+1)%pool.size()],level+1],[Vector2(470,270),pool[(wild_cycle+2)%pool.size()],level]]
 
 func blocked(point: Vector2) -> bool:
+	if data.map==29 and int(Story.state(self).get("switch",0))<2 and point.y>=310 and point.y<=340: return true
+	if data.map==26 and Rect2(210,110,1180,670).has_point(point) and (point.x<705 or point.x>895): return true
 	if point.x < 70 or point.x > 1530 or point.y < 45 or point.y > 955: return true
 	for building in buildings():
 		if building[0].grow(12).has_point(point): return true
@@ -251,6 +256,11 @@ func travel(step: int):
 		dialog = "Earn Misty's Cascade Badge in Cerulean to explore the rest of Kanto."
 		position_world = Vector2(800,500)
 		return
+	var gate = Story.gate(self,destination)
+	if gate!="":
+		dialog=gate
+		position_world=Vector2(800,820)
+		return
 	var arrival = Kanto.LINKS[destination].find_key(int(data.map))
 	position_world = {1:Vector2(800,140),-1:Vector2(800,860),2:Vector2(1460,820),-2:Vector2(140,820)}.get(arrival,Vector2(800,500))
 	data.map = destination
@@ -288,6 +298,7 @@ func interact():
 	c.click_move = false
 	for npc in npcs():
 		if position_world.distance_to(npc[0]) <= 100:
+			if Story.interact(self,npc[2]): return
 			match npc[2]:
 				"oak":
 					if data.starter == 0: starter_menu()
@@ -374,6 +385,7 @@ func begin_battle(kind: String, ids: Array, levels: Array):
 	for i in range(ids.size()): c.enemy_party.append(battle_mon(ids[i],levels[i]))
 	c.opponent_identity = "wild" if kind=="wild" else "blue" if kind=="rival" else "brock" if kind=="brock" else "misty" if kind=="misty" else "giovanni" if kind=="rocket" else "bug_catcher"
 	c.arena_choice.select(4 if kind=="misty" else 0 if data.map==6 else 3 if kind=="brock" else 6 if data.map==3 else 2)
+	Story.prepare(self,kind)
 	c.weather_choice.select(0)
 	c.reset()
 	for i in range(data.party.size()):
@@ -393,7 +405,7 @@ func sync_health():
 
 func reward(victory: bool) -> String:
 	if not victory: return ""
-	var message = ""
+	var message = Story.reward(self,encounter.kind)
 	data.money = mini(999999,int(data.money)+(40 if encounter.kind=="wild" else 150))
 	match encounter.kind:
 		"rival": data.rival = true
@@ -640,6 +652,7 @@ func _draw():
 	if forest:
 		for y in range(120,1000,160):
 			for x in [260,620,1000,1320]: tree(Vector2(x,y))
+	Story.draw(self)
 	for building in buildings():
 		var r: Rect2 = building[0]
 		draw_rect(Rect2(r.position+Vector2(12,15),r.size),Color(0,0,0,0.18))
@@ -659,7 +672,12 @@ func _draw():
 		if position_world.distance_to(p)<95: words("E / BATTLE",p+Vector2(-45,-75),18,Color("ffe499"))
 	for npc in npcs():
 		var id = "brock" if npc[2]=="brock" else "giovanni" if npc[2]=="rocket" else ("blue" if npc[2] in ["rival","bug"] else ("blaine" if npc[2]=="oak" else "misty"))
-		person(npc[0],id)
+		if npc[2]=="story_surge": id="surge"
+		if npc[2] in ["story_bridge","story_shipblue","story_bill"]: id="blue"
+		if npc[2]=="story_bridge" and Story.state(self).get("bridge_blue",false): id="giovanni" if int(Story.state(self).get("bridge",0))==5 else "brock" if int(Story.state(self).get("bridge",0))%2==0 else "misty"
+		if npc[2]=="story_captain": id="blaine"
+		if npc[2]=="story_sailor": id="surge"
+		if not npc[2].begins_with("story_switch") and npc[2]!="story_console": person(npc[0],id)
 		words(npc[1],npc[0]+Vector2(-70,25),17)
 		if position_world.distance_to(npc[0])<100: words("E / TALK",npc[0]+Vector2(-35,-78),18,Color("ffe499"))
 	person(position_world,"red",facing,absf(sin(walk_age*12))*4)
@@ -669,7 +687,7 @@ func _draw():
 	draw_rect(Rect2(0,0,1280,90),Color("112b32"))
 	words(MAPS[data.map],Vector2(30,34),26,Color("ffdf92"))
 	words(objective(),Vector2(30,66),18)
-	words("BALLS %d   $%d   BADGES %d/2" % [data.balls,data.money,int(data.badge)+int(data.get("cascade",false))],Vector2(850,35),18)
+	words("BALLS %d   $%d   BADGES %d/8" % [data.balls,data.money,int(data.badge)+int(data.get("cascade",false))+int(Story.state(self).get("thunder",false))],Vector2(850,35),18)
 	draw_rect(Rect2(0,790,1280,170),Color("112b32"))
 	for i in range(data.party.size()):
 		var mon = data.party[i]
@@ -776,6 +794,7 @@ func tests():
 	c.check(data.badge and c.campaign.data==saved_campaign,"Boulder Badge stays independent from League progress")
 	inventory.tests()
 	chapter_tests()
+	Story.tests(self)
 	Kanto.tests(self)
 	reset_tests()
 	leave()
