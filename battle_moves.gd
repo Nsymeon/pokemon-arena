@@ -66,6 +66,9 @@ func click(mouse: Vector2) -> bool:
 	for friendly in [true,false]:
 		if not friendly and c.opponent_choice.selected>0: continue
 		var origin = Vector2(40 if friendly else 652,544)
+		if c.abilities.shiny_enabled() and Rect2(origin+Vector2(524,7),Vector2(52,29)).has_point(mouse):
+			c.abilities.toggle_shiny(c.roster[c.player_index if friendly else c.enemy_index],friendly,c.team_slot if c.team_mode else 0)
+			return true
 		if Rect2(origin+Vector2(12,154),Vector2(560,28)).has_point(mouse):
 			c.abilities.open(c.roster[c.player_index if friendly else c.enemy_index],friendly,c.team_slot if c.team_mode else 0)
 			return true

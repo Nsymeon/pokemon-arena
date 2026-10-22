@@ -30,3 +30,5 @@ Context-only passives are labeled in the selector tooltips: FRLG Lightning Rod, 
 - [PokeAPI shiny portraits](https://github.com/PokeAPI/sprites), [PMDCollab animations](https://github.com/PMDCollab/SpriteCollab), pinned to the revision in `assets/animated/source.json`. Per-species shiny artist credits are in `assets/shiny/<id>/CREDITS.md`. Re-fetch with `python tools/fetch-shinies.py`.
 
 Validation includes equal-slot sampling with a fixed test RNG, illegal loadout rejection, battle hooks, capture/save/load identity, evolved-slot resolution, portrait/animation coverage and rendered entrance/selector screenshots. The test RNG is separate from battle RNG and randomized again after tests.
+
+Free Battles also offers a double-sparkle toggle in the upper-right corner of each editable moves panel. Gold means shiny, outlined gray means normal. The cosmetic preference persists per species, side and team slot in battle-shinies.json, and is ignored by Adventure and Gym campaign battles.

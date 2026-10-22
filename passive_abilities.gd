@@ -5,6 +5,7 @@ extends RefCounted
 var book: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/abilities.json"))
 var random = RandomNumberGenerator.new()
 var choices = {}
+var shiny_choices = {}
 var c
 var popup: PopupMenu
 var editing = {}
@@ -21,6 +22,38 @@ func install(context):
 	if OS.get_cmdline_user_args().is_empty() and FileAccess.file_exists("user://battle-abilities.json"):
 		var saved=JSON.parse_string(FileAccess.get_file_as_string("user://battle-abilities.json"))
 		if saved is Dictionary: choices=saved
+	if OS.get_cmdline_user_args().is_empty() and FileAccess.file_exists("user://battle-shinies.json"):
+		var saved=JSON.parse_string(FileAccess.get_file_as_string("user://battle-shinies.json"))
+		if saved is Dictionary:
+			for key in saved:
+				if saved[key] is bool: shiny_choices[key]=saved[key]
+
+func shiny_enabled() -> bool:
+	return not c.campaign.active and not c.adventure.in_battle
+
+func toggle_shiny(mon,friendly,slot):
+	if not shiny_enabled(): return
+	var key=c.move_editor.identity(mon,friendly,slot)
+	shiny_choices[key]=not bool(shiny_choices.get(key,false))
+	if OS.get_cmdline_user_args().is_empty():
+		var file=FileAccess.open("user://battle-shinies.json",FileAccess.WRITE)
+		if file: file.store_string(JSON.stringify(shiny_choices))
+	c.queue_redraw()
+
+func draw_shiny_toggle(mon,pos):
+	var enabled=bool(mon.get("shiny",false))
+	var color=c.GOLD if enabled else Color("78929c")
+	var box=Rect2(pos+Vector2(524,7),Vector2(52,29))
+	c.draw_rect(box,Color("453e24") if enabled else Color("182f39"))
+	c.draw_rect(box,color,false,1)
+	for star in [[Vector2(544,21),9.0],[Vector2(561,16),5.0]]:
+		var points=PackedVector2Array()
+		for i in range(8):
+			points.append(pos+star[0]+Vector2.from_angle(-PI/2+i*PI/4)*float(star[1])*(1.0 if i%2==0 else 0.3))
+		if enabled: c.draw_colored_polygon(points,color)
+		else:
+			points.append(points[0])
+			c.draw_polyline(points,color,1.4,true)
 
 func legal(id) -> Array:
 	return book.get(str(int(id)),[])
@@ -38,6 +71,7 @@ func configured(mon,friendly,slot):
 	var result=mon.duplicate(true)
 	assign(result)
 	var key=c.move_editor.identity(mon,friendly,slot)
+	if shiny_enabled(): result.shiny=bool(shiny_choices.get(key,false))
 	var selected=choices.get(key,"")
 	if selected in legal(mon.id):
 		result.ability_slot=legal(mon.id).find(selected)
@@ -198,6 +232,16 @@ func tests():
 	c.check(trapped(c.player,c.enemy),"Arena Trap blocks grounded switches")
 	c.player.data.ability="Levitate"
 	c.check(not trapped(c.player,c.enemy),"Levitate escapes Arena Trap")
+	var saved_shinies=shiny_choices.duplicate(true)
+	shiny_choices.clear()
+	var charizard=c.roster[c.Dex.find_id(c.roster,6)]
+	toggle_shiny(charizard,true,0)
+	c.check(configured(charizard,true,0).shiny and not configured(charizard,true,1).shiny and not configured(charizard,false,0).shiny,"Shiny toggle isolates side and team slot")
+	c.pick(6,130)
+	c.check(c.player.data.shiny,"Selected shiny reaches the actual fighter")
+	toggle_shiny(charizard,true,0)
+	c.check(not configured(charizard,true,0).shiny,"Shiny toggle returns to normal")
+	shiny_choices=saved_shinies
 	var config=choices.duplicate(true)
 	var mon=c.roster[c.Dex.find_id(c.roster,19)]
 	choices[c.move_editor.identity(mon,true,0)]="Guts"

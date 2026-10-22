@@ -1572,7 +1572,8 @@ func selection_details(mon: Dictionary, rival: Dictionary, pos: Vector2, friendl
 	if friendly or opponent_choice.selected==0: mon = move_editor.configured(mon,friendly,team_slot if team_mode else 0)
 	panel(Rect2(pos, Vector2(588, 185)), Color("10232c"))
 	label_at(("YOU / " if friendly else "CPU / ") + mon.name.to_upper(), pos + Vector2(16, 25), 18, Dex.color(mon.type))
-	label_at(Dex.type_label(mon), pos + Vector2(400, 24), 12, Dex.color(mon.type))
+	label_at(Dex.type_label(mon), pos + Vector2(340, 24), 12, Dex.color(mon.type))
+	if abilities.shiny_enabled() and (friendly or opponent_choice.selected==0): abilities.draw_shiny_toggle(mon,pos)
 	var s: Dictionary = mon.base_stats
 	label_at("BASE   HP %d   ATK %d   DEF %d   SPA %d   SPD %d   SPE %d" % [s.hp, s.atk, s.def, s.spa, s.spd, s.spe], pos + Vector2(16, 46), 11, WHITE)
 	for i in range(mon.moves.size()):
@@ -3110,8 +3111,9 @@ func capture_shiny():
 	enemy_index=Dex.find_id(roster,130)
 	queue_redraw()
 	await get_tree().process_frame
-	abilities.open(roster[player_index],true,0)
-	abilities.popup.position=Vector2i(240,570)
+	abilities.toggle_shiny(roster[player_index],true,0)
+	queue_redraw()
+	await get_tree().process_frame
 	await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png("res://captures/ability-selection.png")
 	get_tree().quit()
