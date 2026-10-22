@@ -8,22 +8,26 @@ const GROUPS = {
 	"warp": "teleport allyswitch transform substitute doubleteam minimize",
 	"aura": "aurasphere focusblast",
 	"needle": "poisonsting pinmissile spikes toxicspikes spikecannon iciclespear twinneedle",
-	"leaf": "razorleaf magicalleaf leafstorm leafage petalblizzard petaldance leafblade solarblade",
+	"leaf": "razorleaf magicalleaf leafstorm leafage petalblizzard petaldance",
+	"blade": "leafblade solarblade sacredsword razorshell",
+	"energy": "solarbeam meteorbeam flashcannon signalbeam chargebeam absorb megadrain gigadrain",
+	"smoke": "smokescreen haze clearsmog mist",
 	"vine": "vinewhip powerwhip grassknot bind wrap constrict",
 	"bubble": "bubble bubblebeam sparklingaria",
 	"seed": "bulletseed seedbomb leechseed worryseed eggbomb barrage",
 	"sound": "growl roar sing screech supersonic hypervoice round echoedvoice uproar snarl disarmingvoice boomburst perishsong metalsound healbell bugbuzz",
 	"hypnosis": "hypnosis confusion psybeam psychic psystrike dreameater extrasensory futuresight storedpower synchronoise",
-	"powder": "sleeppowder poisonpowder stunspore spore powder cottonspore powdersnow sweetscent",
+	"powder": "sleeppowder poisonpowder stunspore spore powder cottonspore powdersnow sweetscent ragepowder pollenpuff",
 	"web": "spiderweb stickyweb stringshot electroweb infestation",
 	"heart": "attract charm sweetkiss drainingkiss lovelykiss playrough babydolleyes",
-	"star": "swift wish healingwish meteorbeam meteormash cometpunch",
+	"star": "swift wish healingwish meteormash",
 	"bite": "bite crunch firefang icefang thunderfang poisonfang psychicfangs hyperfang superfang bugbite leechlife",
-	"claw": "scratch slash nightslash shadowclaw metalclaw dragonclaw furycutter xscissor crosspoison airslash aircutter cut furyswipes sacredsword razorshell",
+	"claw": "scratch slash nightslash shadowclaw metalclaw dragonclaw furycutter xscissor crosspoison airslash aircutter cut furyswipes",
 	"wing": "wingattack steelwing dualwingbeat aerialace acrobatics peck drillpeck pluck bravebird",
 	"spin": "rapidspin gyroball icespinner rollout iceball defensecurl steelroller darkestlariat",
 	"eye": "leer meanlook glare scaryface foresight miracleeye lockon mindreader",
-	"shield": "protect detect reflect lightscreen safeguard mist wideguard quickguard craftyshield matblock arena_guard",
+	"shield": "protect detect reflect lightscreen safeguard wideguard quickguard craftyshield matblock arena_guard endure",
+	"boost": "psychup bellydrum focusenergy",
 	"heal": "recover roost rest synthesis moonlight morningsun softboiled slackoff lifedew healpulse",
 }
 
@@ -39,7 +43,7 @@ func family(move: Dictionary) -> String:
 	if move.get("type", "") == "Grass" and move.get("kind", "") in ["orb", "bolt"] and id != "energyball": return "leaf"
 	if "punch" in id: return "punch"
 	if "kick" in id: return "kick"
-	if "tail" in id: return "tail"
+	if "tail" in id and move.get("kind", "") == "dash": return "tail"
 	if "dance" in id or move.get("kind", "") == "buff": return "boost"
 	if move.get("kind", "") == "heal": return "heal"
 	if move.get("kind", "") == "guard": return "shield"
@@ -75,6 +79,14 @@ func motif(c, group: String, p: Vector2, d: Vector2, t: float, r: float, color: 
 	var n = d.orthogonal()
 	match group:
 		"leaf": leaf(c,p,d.angle()+t*9,r,color.a)
+		"blade":
+			var ray=d.rotated(-0.8+t*2)
+			c.draw_colored_polygon(PackedVector2Array([p-ray*r,p+ray*r*2,p+ray.orthogonal()*r*0.4]),color)
+			c.draw_line(p-ray*r,p+ray*r*2,Color("f4ffe1",color.a),2,true)
+		"energy":
+			stroke(c,PackedVector2Array([p-d*r*3,p]),color,r*0.7)
+			c.draw_line(p-d*r*3,p,Color("ffffdc",color.a),r*0.25,true)
+			c.draw_circle(p,r*0.6,Color("ffffdc",color.a))
 		"needle":
 			c.draw_line(p-d*r*2,p,color,3,true)
 			c.draw_colored_polygon(PackedVector2Array([p+d*r,p-d*r+n*r*0.25,p-d*r-n*r*0.25]),Color(color.lightened(0.5),color.a))
@@ -173,6 +185,11 @@ func motif(c, group: String, p: Vector2, d: Vector2, t: float, r: float, color: 
 				var q = p+Vector2.from_angle(i*2.4+t)*r*0.65
 				c.draw_circle(q,r*0.45,Color(color,color.a*0.25))
 				c.draw_circle(q,2.5,Color(color.lightened(0.4),color.a))
+		"smoke":
+			for i in range(7):
+				var q=p+Vector2.from_angle(i*2.4+t)*r
+				c.draw_circle(q,r*0.7,Color("b6bfca",color.a*0.25))
+				c.draw_arc(q,r*0.7,t+i,t+i+PI,16,Color("e0e7ee",color.a*0.3),1,true)
 		_:
 			c.draw_circle(p,r*1.5,Color(color,color.a*0.12))
 			c.draw_circle(p,r,Color("302540",color.a) if group in ["ghost","dark"] else color.darkened(0.3))
@@ -247,9 +264,23 @@ func cast(c, fighter):
 			stroke(c,PackedVector2Array([p-d*12,p+d*reach*0.5-n*15,q]),color,8)
 			c.draw_line(q-n*12,q+n*17,Color("fff0d9",color.a),10,true)
 			c.draw_arc(q,25,d.angle()-1.5,d.angle()+1.5,24,color,2,true)
-		"tail", "claw", "wing", "body", "spin":
+		"blade":
+			motif(c,"blade",p+d*24,d,t,38,color)
+			c.draw_arc(p,60,d.angle()-1.4+t*2,d.angle()-0.2+t*2,24,Color(color,color.a*0.5),6,true)
+		"spin":
+			for i in range(3): c.draw_arc(p,32+i*9,t*TAU*2+i*2,t*TAU*2+i*2+PI*1.5,32,Color(color,color.a*(1-i*0.2)),4,true)
+		"tail":
+			var points=PackedVector2Array()
+			for i in range(20):
+				var u=i/19.0
+				points.append(p+Vector2.from_angle(d.angle()-2+t*3+u*1.5)*(15+u*50))
+			stroke(c,points,color,7)
+		"body":
+			stroke(c,PackedVector2Array([p-d*55,p-d*20]),Color(color,color.a*0.5),5)
+			c.draw_arc(p+d*20,30+reach*0.25,d.angle()-1.35,d.angle()+1.35,28,color,5,true)
+			for sign in [-1,1]: c.draw_line(p-d*30+n*sign*20,p+d*10+n*sign*20,Color("fff9e6",color.a),2,true)
+		"claw", "wing":
 			motif(c,"claw",p+d*22,d,t,35+reach*0.3,color)
-			if group=="body": stroke(c,PackedVector2Array([p-d*55,p-d*20]),color,5)
 		"shield":
 			var points = PackedVector2Array()
 			for i in range(7): points.append(p+Vector2.from_angle(i*TAU/6-PI/2)*57)

@@ -12,6 +12,11 @@ func _ready():
 	for id in book.moves:
 		if id not in ids: ids.append(id)
 	DirAccess.make_dir_recursive_absolute("res://captures")
+	var report=FileAccess.open("res://captures/vfx-catalog.csv",FileAccess.WRITE)
+	report.store_csv_line(PackedStringArray(["id","name","kind","visual_family","explicit_move_override"]))
+	for id in ids:
+		var move: Dictionary=book.moves[id]
+		report.store_csv_line(PackedStringArray([id,move.name,move.kind,vfx.family(move),str(vfx.families.has(id))]))
 	for phase in [0.12,0.3,0.47]:
 		age=phase
 		for index in range(ceili(ids.size()/24.0)):
@@ -19,6 +24,7 @@ func _ready():
 			queue_redraw()
 			await RenderingServer.frame_post_draw
 			if index==0: get_viewport().get_texture().get_image().save_png("res://captures/vfx-%.2f.png"%phase)
+			if is_equal_approx(phase,0.3): get_viewport().get_texture().get_image().save_png("res://captures/vfx-page-%02d.png"%index)
 	print("PASS: rendered cast, projectile and impact for all %d moves at three phases"%ids.size())
 	get_tree().quit()
 

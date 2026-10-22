@@ -100,6 +100,7 @@ func _ready():
 	add_child(controls)
 	controls.install()
 	if "--capture-controls" in OS.get_cmdline_user_args(): call_deferred("capture_controls")
+	if "--audit-vfx" in OS.get_cmdline_user_args(): call_deferred("audit_vfx")
 	rng.seed = 47
 	sound = AudioStreamPlayer.new()
 	add_child(sound)
@@ -2873,4 +2874,31 @@ func capture_controls():
 	check(player.action_lock>0,"Remapped attack reaches live battle input handler")
 	controls.reset_defaults(false)
 	print("PASS: title, instructions, settings, key capture and live rebound attack" if test_failures.is_empty() else str(test_failures))
+	get_tree().quit(0 if test_failures.is_empty() else 1)
+
+func audit_vfx():
+	set_process(false)
+	DirAccess.make_dir_recursive_absolute("res://captures")
+	var report=FileAccess.open("res://captures/vfx-runtime.csv",FileAccess.WRITE)
+	report.store_csv_line(PackedStringArray(["id","family","runtime_effects","cast_visible"]))
+	for id in move_editor.book.moves:
+		pick(25,7)
+		rocks.clear()
+		player.pos=Vector2(900,550)
+		enemy.pos=Vector2(1050,550)
+		enemy.last_move=move_editor.book.moves.swift.duplicate(true)
+		enemy.ailment="sleep"
+		var move: Dictionary=move_editor.book.moves[id].duplicate(true)
+		# Exercise visual emission deterministically; accuracy is tested by combat tests.
+		move.accuracy=true
+		execute_move(player,enemy,move,Vector2.RIGHT,true)
+		var routes=[]
+		for shot in shots: routes.append(shot.get("skill","projectile"))
+		if not rings.is_empty(): routes.append("ring")
+		if not particles.is_empty(): routes.append("particles")
+		if not impacts.is_empty(): routes.append("impact")
+		if player.charge_left>0: routes.append("charge")
+		check(player.attack_time>0 or player.charge_left>0,"Runtime cast exists: "+id)
+		report.store_csv_line(PackedStringArray([id,art.vfx.family(move)," / ".join(routes),str(player.attack_time>0)]))
+	print("PASS: executed all %d catalog moves through live cast dispatch"%move_editor.book.moves.size() if test_failures.is_empty() else str(test_failures))
 	get_tree().quit(0 if test_failures.is_empty() else 1)

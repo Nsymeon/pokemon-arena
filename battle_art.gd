@@ -67,6 +67,8 @@ func tests(c):
 		if entry.has("Hurt"): c.check(hurt.texture==entry.Hurt.texture,"Hurt animation remains available outside attacks")
 	var expected={"razorleaf":"leaf","vinewhip":"vine","bubblebeam":"bubble","hypnosis":"hypnosis","sleeppowder":"powder","crunch":"bite","thunderpunch":"punch","megakick":"kick","aurasphere":"aura"}
 	for id in expected: c.check(vfx.family(c.move_editor.book.moves[id])==expected[id],"Recognizable VFX family: "+id)
+	for pair in [["leafblade","blade"],["solarblade","blade"],["cometpunch","punch"],["rapidspin","spin"],["irontail","tail"],["tailwind","flying"],["solarbeam","energy"],["meteorbeam","energy"]]:
+		c.check(vfx.family(c.move_editor.book.moves[pair[0]])==pair[1],"Visual identity regression: "+pair[0])
 	for move in c.move_editor.book.moves.values(): c.check(not vfx.family(move).is_empty(),"VFX coverage: "+move.id)
 
 func arena(c):

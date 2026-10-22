@@ -1,0 +1,602 @@
+id,family,runtime_effects,cast_visible
+razorleaf,leaf,projectile / particles,true
+sludgebomb,poison,projectile / particles,true
+energyball,grass,projectile / particles,true
+synthesis,heal,particles,true
+acidspray,poison,projectile / particles,true
+amnesia,shield,ring / particles,true
+attract,heart,ring / particles,true
+bide,body,charge,true
+bind,vine,particles,true
+block,normal,ring / particles,true
+bodyslam,body,particles,true
+bulletseed,seed,projectile / particles,true
+captivate,normal,ring / particles,true
+celebrate,normal,ring / particles,true
+charm,heart,ring / particles,true
+confide,normal,ring / particles,true
+curse,ghost,ring / particles,true
+cut,claw,particles,true
+defensecurl,spin,ring / particles,true
+doubleedge,body,particles,true
+doubleteam,warp,particles,true
+echoedvoice,sound,projectile / particles,true
+endure,shield,ring / particles,true
+facade,body,particles,true
+falseswipe,body,particles,true
+flash,normal,ring / particles,true
+frenzyplant,leaf,projectile / particles,true
+frustration,body,particles,true
+furycutter,claw,particles,true
+gigadrain,energy,projectile / particles,true
+grassknot,vine,particles,true
+grasspledge,leaf,projectile / particles,true
+grasswhistle,grass,ring / particles,true
+grassyglide,body,particles,true
+grassyterrain,grass,ring / particles,true
+growl,sound,ring / particles,true
+growth,boost,particles,true
+headbutt,body,particles,true
+helpinghand,normal,ring / particles,true
+hiddenpower,normal,projectile / particles,true
+ingrain,grass,ring / particles,true
+knockoff,body,particles,true
+leafstorm,leaf,projectile / particles,true
+leechseed,seed,ring / particles,true
+lightscreen,shield,ring / particles,true
+magicalleaf,leaf,projectile / particles,true
+megadrain,energy,projectile / particles,true
+mimic,normal,ring / particles,true
+mudslap,ground,projectile / particles,true
+naturalgift,normal,projectile / particles,true
+naturepower,normal,ring / particles,true
+outrage,body,particles,true
+petaldance,leaf,particles,true
+poisonpowder,powder,ring / particles,true
+powerwhip,vine,particles,true
+protect,shield,ring / particles,true
+rage,body,particles,true
+razorwind,normal,projectile / particles,true
+reflect,shield,ring / particles,true
+rest,heal,particles,true
+return,body,particles,true
+rocksmash,body,particles,true
+round,sound,projectile / particles,true
+safeguard,shield,ring / particles,true
+secretpower,normal,projectile / particles,true
+seedbomb,seed,projectile / particles,true
+skullbash,body,particles,true
+sleeppowder,powder,ring / particles,true
+sleeptalk,normal,ring / particles,true
+sludge,poison,projectile / particles,true
+snore,normal,projectile / particles,true
+solarbeam,energy,beam,true
+strength,body,particles,true
+stringshot,web,ring / particles,true
+substitute,warp,ring / particles,true
+sunnyday,sun,,true
+swagger,normal,ring / particles,true
+sweetscent,powder,ring / particles,true
+swordsdance,boost,particles,true
+tackle,body,particles,true
+takedown,body,particles,true
+terablast,normal,projectile / particles,true
+toxic,poison,ring / particles,true
+trailblaze,body,particles,true
+venoshock,poison,projectile / particles,true
+vinewhip,vine,particles,true
+weatherball,normal,projectile / particles,true
+workup,boost,particles,true
+worryseed,seed,ring / particles,true
+roar,sound,ring,true
+bulldoze,ground,ring / particles / impact,true
+earthpower,ground,projectile / particles,true
+earthquake,ground,quake,true
+gigaimpact,body,particles,true
+hyperbeam,normal,beam,true
+petalblizzard,leaf,projectile / particles,true
+poisonjab,body,particles,true
+rockclimb,body,particles,true
+scaryface,eye,ring / particles,true
+stompingtantrum,body,particles,true
+terrainpulse,normal,projectile / particles,true
+ember,fire,projectile / particles,true
+dragonclaw,claw,particles,true
+flamethrower,fire,beam,true
+smokescreen,smoke,ring / particles,true
+acrobatics,wing,particles,true
+aerialace,wing,particles,true
+aircutter,claw,projectile / particles,true
+ancientpower,rock,projectile / particles,true
+beatup,dark,projectile / particles,true
+bellydrum,boost,ring / particles,true
+bite,bite,particles,true
+blastburn,fire,projectile / particles,true
+breakingswipe,body,particles,true
+brickbreak,body,particles,true
+counter,body,,true
+crunch,bite,particles,true
+dig,body,dig,true
+dragonbreath,dragon,projectile / particles,true
+dragondance,boost,particles,true
+dragonpulse,dragon,projectile / particles,true
+dragonrage,dragon,projectile / particles,true
+dragonrush,body,particles,true
+dragontail,tail,particles,true
+dynamicpunch,punch,particles,true
+fireblast,fire,projectile / particles,true
+firefang,bite,particles,true
+firepledge,fire,projectile / particles,true
+firepunch,punch,particles,true
+firespin,fire,projectile / particles,true
+flameburst,fire,projectile / particles,true
+flamecharge,body,particles,true
+flareblitz,body,particles,true
+fling,dark,projectile / particles,true
+focusblast,aura,projectile / particles,true
+focuspunch,punch,particles,true
+furyswipes,claw,particles,true
+heatwave,fire,projectile / particles,true
+honeclaws,boost,particles,true
+howl,normal,ring / particles,true
+incinerate,fire,projectile / particles,true
+inferno,fire,projectile / particles,true
+irontail,tail,particles,true
+leer,eye,ring / particles,true
+megakick,kick,particles,true
+megapunch,punch,particles,true
+metalclaw,claw,particles,true
+overheat,fire,projectile / particles,true
+poweruppunch,punch,particles,true
+quickattack,body,rush,true
+rockslide,rock,rocks,true
+rocktomb,rock,projectile / particles,true
+scratch,claw,particles,true
+seismictoss,body,particles,true
+shadowclaw,claw,particles,true
+slash,claw,particles,true
+submission,body,particles,true
+swift,star,projectile / particles,true
+temperflare,body,particles,true
+thunderpunch,punch,particles,true
+willowisp,fire,ring / particles,true
+wingattack,wing,particles,true
+airslash,claw,projectile / particles,true
+roost,heal,particles,true
+blazekick,kick,particles,true
+brutalswing,body,particles,true
+defog,flying,ring / particles,true
+dragoncheer,dragon,ring / particles,true
+dualwingbeat,wing,particles,true
+fissure,ground,projectile / particles,true
+fly,body,fly,true
+heatcrash,body,particles,true
+holdhands,normal,ring / particles,true
+hurricane,flying,vortex,true
+mysticalfire,fire,projectile / particles,true
+ominouswind,ghost,projectile / particles,true
+sandstorm,sand,,true
+scaleshot,dragon,projectile / particles,true
+scorchingsands,sand,projectile / particles,true
+skydrop,body,particles,true
+steelwing,wing,particles,true
+tailwind,flying,ring / particles,true
+twister,dragon,projectile / particles,true
+watergun,water,projectile / particles,true
+icebeam,ice,beam,true
+withdraw,shield,ring / particles,true
+aquajet,body,rush,true
+aquaring,water,ring / particles,true
+aquatail,tail,particles,true
+aurasphere,aura,projectile / particles,true
+blizzard,snow,projectile / particles,true
+brine,water,projectile / particles,true
+bubble,bubble,projectile / particles,true
+bubblebeam,bubble,projectile / particles,true
+chillingwater,water,projectile / particles,true
+confusion,hypnosis,projectile / particles,true
+dive,body,particles,true
+fakeout,body,particles,true
+flail,body,particles,true
+flipturn,body,particles,true
+followme,normal,ring / particles,true
+foresight,eye,ring / particles,true
+gyroball,spin,particles,true
+hail,snow,,true
+haze,smoke,ring,true
+hydrocannon,water,projectile / particles,true
+hydropump,water,beam,true
+icepunch,punch,particles,true
+icespinner,spin,particles,true
+icywind,ice,ring / particles / impact,true
+irondefense,shield,ring / particles,true
+lifedew,heal,particles,true
+liquidation,body,particles,true
+mirrorcoat,psychic,projectile / particles,true
+mist,smoke,ring / particles,true
+muddywater,water,projectile / particles,true
+mudshot,ground,projectile / particles,true
+mudsport,ground,ring / particles,true
+raindance,rain,,true
+rapidspin,spin,particles,true
+refresh,normal,ring / particles,true
+rollout,spin,particles,true
+scald,water,projectile / particles,true
+shellsmash,boost,particles,true
+surf,water,wave,true
+tailwhip,normal,ring / particles,true
+waterfall,body,particles,true
+waterpledge,water,projectile / particles,true
+waterpulse,water,projectile / particles,true
+waterspout,water,projectile / particles,true
+wavecrash,body,particles,true
+whirlpool,water,whirlpool,true
+yawn,normal,ring / particles,true
+zenheadbutt,body,particles,true
+avalanche,body,particles,true
+bodypress,body,particles,true
+darkpulse,dark,projectile / particles,true
+flashcannon,energy,projectile / particles,true
+signalbeam,energy,projectile / particles,true
+smackdown,rock,projectile / particles,true
+bugbite,bite,particles,true
+electroweb,web,projectile / particles,true
+harden,shield,ring / particles,true
+bugbuzz,sound,projectile / particles,true
+psychic,hypnosis,psychic,true
+batonpass,normal,ring / particles,true
+drainingkiss,heart,projectile / particles,true
+dreameater,hypnosis,projectile / particles,true
+gust,flying,projectile / particles,true
+infestation,web,particles,true
+morningsun,heal,particles,true
+nightmare,ghost,ring / particles,true
+pollenpuff,powder,projectile / particles,true
+psybeam,hypnosis,projectile / particles,true
+psychup,boost,ring / particles,true
+psywave,psychic,projectile / particles,true
+quiverdance,boost,particles,true
+ragepowder,powder,ring / particles,true
+shadowball,ghost,projectile / particles,true
+silverwind,bug,projectile / particles,true
+skillswap,psychic,ring / particles,true
+strugglebug,bug,projectile / particles,true
+stunspore,powder,ring / particles,true
+supersonic,sound,ring / particles,true
+teleport,warp,particles,true
+thief,body,particles,true
+uturn,body,particles,true
+whirlwind,normal,ring,true
+poisonsting,needle,projectile / particles,true
+twineedle,bug,projectile / particles,true
+xscissor,claw,particles,true
+drillrun,body,particles,true
+agility,boost,particles,true
+assurance,body,particles,true
+endeavor,body,particles,true
+fellstinger,body,particles,true
+focusenergy,boost,particles,true
+furyattack,body,particles,true
+laserfocus,normal,ring / particles,true
+payback,body,particles,true
+peck,wing,particles,true
+pinmissile,needle,projectile / particles,true
+pursuit,body,particles,true
+throatchop,body,particles,true
+toxicspikes,needle,ring / particles,true
+bravebird,wing,particles,true
+detect,shield,ring / particles,true
+featherdance,boost,ring / particles,true
+feintattack,body,particles,true
+mirrormove,flying,projectile / particles,true
+pluck,wing,particles,true
+sandattack,sand,ring / particles,true
+skyattack,flying,projectile / particles,true
+uproar,sound,projectile / particles,true
+hyperfang,bite,particles,true
+chargebeam,energy,projectile / particles,true
+covet,body,particles,true
+finalgambit,fighting,projectile / particles,true
+flamewheel,body,particles,true
+lastresort,body,particles,true
+mefirst,normal,ring / particles,true
+retaliate,body,particles,true
+revenge,body,particles,true
+reversal,body,particles,true
+screech,sound,ring / particles,true
+shockwave,electric,projectile / particles,true
+suckerpunch,punch,particles,true
+superfang,bite,particles,true
+taunt,dark,ring / particles,true
+thunder,electric,lightning,true
+thunderbolt,electric,lightning,true
+thunderwave,electric,ring / particles,true
+wildcharge,body,particles,true
+astonish,body,particles,true
+drillpeck,wing,particles,true
+triattack,normal,projectile / particles,true
+glare,eye,ring / particles,true
+acid,poison,projectile / particles,true
+belch,poison,projectile / particles,true
+coil,boost,particles,true
+disable,normal,,true
+gastroacid,poison,ring / particles,true
+gunkshot,poison,projectile / particles,true
+lashout,body,particles,true
+leechlife,bite,particles,true
+mudbomb,ground,projectile / particles,true
+poisonfang,bite,particles,true
+poisontail,tail,particles,true
+psychicfangs,bite,particles,true
+skittersmack,body,particles,true
+slam,body,particles,true
+sludgewave,poison,projectile / particles,true
+snarl,sound,projectile / particles,true
+snatch,dark,ring / particles,true
+spite,ghost,ring / particles,true
+spitup,normal,projectile / particles,true
+stockpile,normal,ring / particles,true
+swallow,normal,ring / particles,true
+switcheroo,dark,ring / particles,true
+torment,dark,ring / particles,true
+wrap,vine,particles,true
+icefang,bite,particles,true
+painsplit,normal,ring / particles,true
+thunderfang,bite,particles,true
+thundershock,electric,projectile / particles,true
+alluringvoice,fairy,projectile / particles,true
+bestow,normal,ring / particles,true
+calmmind,boost,particles,true
+charge,boost,particles,true
+disarmingvoice,sound,projectile / particles,true
+discharge,electric,projectile / particles,true
+doublekick,kick,particles,true
+eerieimpulse,electric,ring / particles,true
+electricterrain,electric,ring / particles,true
+electroball,electric,projectile / particles,true
+encore,normal,ring / particles,true
+extremespeed,body,rush,true
+faketears,dark,ring / particles,true
+feint,normal,projectile / particles,true
+happyhour,normal,ring / particles,true
+heartstamp,body,particles,true
+magnetrise,electric,ring / particles,true
+nastyplot,boost,particles,true
+nuzzle,body,particles,true
+payday,normal,projectile / particles,true
+playnice,normal,ring / particles,true
+playrough,heart,particles,true
+present,normal,projectile / particles,true
+risingvoltage,electric,projectile / particles,true
+sing,sound,ring / particles,true
+spark,body,particles,true
+sweetkiss,heart,ring / particles,true
+teeterdance,boost,ring / particles,true
+upperhand,body,particles,true
+voltswitch,electric,projectile / particles,true
+volttackle,body,particles,true
+wish,star,ring / particles,true
+zapcannon,electric,projectile / particles,true
+doubleslap,body,particles,true
+luckychant,normal,ring / particles,true
+tickle,normal,ring / particles,true
+speedswap,psychic,ring / particles,true
+sandtomb,sand,projectile / particles,true
+chipaway,body,particles,true
+crushclaw,body,particles,true
+highhorsepower,body,particles,true
+lowkick,kick,particles,true
+magnitude,ground,projectile / particles,true
+nightslash,claw,particles,true
+rototiller,ground,ring / particles,true
+spikes,needle,ring / particles,true
+stealthrock,rock,ring / particles,true
+steelroller,spin,particles,true
+stoneedge,rock,projectile / particles,true
+flatter,dark,ring / particles,true
+venomdrench,poison,ring / particles,true
+horndrill,body,particles,true
+hex,ghost,projectile / particles,true
+quash,dark,ring / particles,true
+rockblast,rock,projectile / particles,true
+superpower,body,particles,true
+hornattack,body,particles,true
+headsmash,body,particles,true
+smartstrike,body,particles,true
+thrash,body,particles,true
+megahorn,body,particles,true
+moonblast,fairy,projectile / particles,true
+moonlight,heal,particles,true
+afteryou,normal,ring / particles,true
+allyswitch,warp,ring / particles,true
+bounce,body,particles,true
+copycat,normal,ring / particles,true
+cosmicpower,boost,particles,true
+dazzlinggleam,fairy,projectile / particles,true
+drainpunch,punch,particles,true
+gravity,psychic,ring / particles,true
+healbell,sound,ring / particles,true
+healingwish,star,ring / particles,true
+hypervoice,sound,projectile / particles,true
+imprison,psychic,ring / particles,true
+magiccoat,psychic,ring / particles,true
+meteorbeam,energy,projectile / particles,true
+meteormash,star,particles,true
+metronome,normal,ring / particles,true
+minimize,warp,particles,true
+mistyexplosion,fairy,projectile / particles,true
+mistyterrain,fairy,ring / particles,true
+nightshade,ghost,projectile / particles,true
+pound,body,particles,true
+psyshock,psychic,projectile / particles,true
+recycle,normal,ring / particles,true
+roleplay,psychic,ring / particles,true
+softboiled,heal,particles,true
+splash,normal,particles,true
+spotlight,normal,ring / particles,true
+storedpower,hypnosis,projectile / particles,true
+telekinesis,psychic,ring / particles,true
+trick,psychic,ring / particles,true
+wakeupslap,body,particles,true
+wonderroom,psychic,ring / particles,true
+aromatherapy,grass,ring / particles,true
+healpulse,heal,ring / particles,true
+futuresight,hypnosis,projectile / particles,true
+babydolleyes,heart,ring / particles,true
+burningjealousy,fire,projectile / particles,true
+confuseray,ghost,ring / particles,true
+extrasensory,hypnosis,projectile / particles,true
+foulplay,body,particles,true
+grudge,ghost,ring / particles,true
+hypnosis,hypnosis,ring / particles,true
+memento,dark,ring / particles,true
+powerswap,psychic,ring / particles,true
+tailslap,tail,particles,true
+psychicnoise,psychic,projectile / particles,true
+selfdestruct,normal,ring / particles / impact,true
+perishsong,sound,ring / particles,true
+punishment,body,particles,true
+expandingforce,psychic,projectile / particles,true
+magicroom,psychic,ring / particles,true
+absorb,energy,projectile / particles,true
+meanlook,eye,ring / particles,true
+quickguard,shield,ring / particles,true
+strengthsap,grass,ring / particles,true
+corrosivegas,poison,ring / particles,true
+solarblade,blade,particles,true
+spore,powder,ring / particles,true
+crosspoison,claw,particles,true
+wideguard,shield,ring / particles,true
+lunge,body,particles,true
+pounce,body,particles,true
+assist,normal,ring / particles,true
+odorsleuth,normal,ring / particles,true
+powergem,rock,projectile / particles,true
+embargo,dark,ring / particles,true
+clearsmog,smoke,projectile / particles,true
+crosschop,body,particles,true
+lowsweep,body,particles,true
+simplebeam,normal,ring / particles,true
+soak,water,ring / particles,true
+synchronoise,hypnosis,projectile / particles,true
+vacuumwave,fighting,projectile / particles,true
+watersport,water,ring / particles,true
+karatechop,body,particles,true
+bulkup,boost,particles,true
+closecombat,body,particles,true
+dualchop,body,particles,true
+meditate,boost,particles,true
+powertrip,body,particles,true
+smellingsalts,body,particles,true
+ragefist,body,particles,true
+burnup,fire,projectile / particles,true
+ragingfury,fire,projectile / particles,true
+ironhead,body,particles,true
+iceball,spin,particles,true
+mindreader,eye,ring / particles,true
+circlethrow,body,particles,true
+coaching,fighting,ring / particles,true
+darkestlariat,spin,particles,true
+barrier,boost,particles,true
+guardsplit,psychic,ring / particles,true
+guardswap,psychic,ring / particles,true
+powertrick,psychic,ring / particles,true
+psychicterrain,psychic,ring / particles,true
+psychoshift,psychic,ring / particles,true
+trickroom,psychic,ring / particles,true
+recover,heal,particles,true
+kinesis,psychic,ring / particles,true
+miracleeye,eye,ring / particles,true
+psychocut,psychic,projectile / particles,true
+bulletpunch,punch,particles,true
+heavyslam,body,particles,true
+rollingkick,kick,particles,true
+vitalthrow,body,particles,true
+wringout,body,particles,true
+leafblade,blade,particles,true
+leaftornado,leaf,projectile / particles,true
+acidarmor,shield,ring / particles,true
+acupressure,normal,ring / particles,true
+aurorabeam,ice,beam,true
+constrict,vine,particles,true
+reflecttype,normal,ring / particles,true
+rockthrow,rock,projectile / particles,true
+autotomize,boost,particles,true
+explosion,normal,projectile / particles,true
+hammerarm,body,particles,true
+rockpolish,boost,particles,true
+hardpress,body,particles,true
+steamroller,body,particles,true
+stomp,body,particles,true
+slackoff,heal,particles,true
+snowscape,snow,,true
+razorshell,blade,particles,true
+mirrorshot,steel,projectile / particles,true
+lockon,eye,ring / particles,true
+magnetbomb,steel,projectile / particles,true
+metalsound,sound,ring / particles,true
+sonicboom,normal,projectile / particles,true
+steelbeam,steel,projectile / particles,true
+firstimpression,body,particles,true
+trumpcard,body,particles,true
+doublehit,body,particles,true
+jumpkick,kick,particles,true
+entrainment,normal,ring / particles,true
+iceshard,ice,projectile / particles,true
+iciclespear,needle,projectile / particles,true
+lick,body,particles,true
+tripleaxel,body,particles,true
+frostbreath,ice,projectile / particles,true
+sheercold,ice,projectile / particles,true
+poisongas,poison,ring / particles,true
+shadowpunch,punch,particles,true
+shadowsneak,body,particles,true
+clamp,body,particles,true
+iciclecrash,ice,projectile / particles,true
+spikecannon,needle,projectile / particles,true
+destinybond,ghost,ring / particles,true
+poltergeist,ghost,projectile / particles,true
+smog,poison,projectile / particles,true
+phantomforce,body,particles,true
+powersplit,psychic,ring / particles,true
+visegrip,body,particles,true
+crabhammer,body,particles,true
+guillotine,body,particles,true
+magneticflux,electric,ring / particles,true
+supercellslam,body,particles,true
+barrage,seed,projectile / particles,true
+eggbomb,seed,projectile / particles,true
+woodhammer,body,particles,true
+bonemerang,ground,projectile / particles,true
+boneclub,ground,projectile / particles,true
+bonerush,ground,projectile / particles,true
+highjumpkick,kick,particles,true
+axekick,kick,particles,true
+machpunch,punch,particles,true
+cometpunch,punch,particles,true
+dizzypunch,punch,particles,true
+skyuppercut,body,particles,true
+metalburst,steel,projectile / particles,true
+octazooka,water,projectile / particles,true
+camouflage,normal,ring / particles,true
+powdersnow,powder,projectile / particles,true
+lovelykiss,heart,ring / particles,true
+auroraveil,ice,ring / particles,true
+lavaplume,fire,projectile / particles,true
+stormthrow,body,particles,true
+ragingbull,body,particles,true
+freezedry,ice,projectile / particles,true
+sparklingaria,bubble,projectile / particles,true
+transform,warp,particles,true
+arena_reposition,normal,particles,true
+arena_struggle,body,particles,true
+arena_guard,shield,ring / particles,true
+conversion,normal,ring / particles,true
+conversion2,normal,ring / particles,true
+sharpen,boost,particles,true
+holdback,body,particles,true
+dracometeor,dragon,projectile / particles,true
+psystrike,hypnosis,psychic,true
+tearfullook,normal,ring / particles,true
+geargrind,body,particles,true
+shiftgear,boost,particles,true
