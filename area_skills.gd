@@ -3,7 +3,7 @@ extends RefCounted
 func launch(c,user,target,move,friendly) -> bool:
 	if move.id not in ["fly","dig","whirlpool"]: return false
 	var flying = move.id in ["fly","dig"]
-	var radius = 115.0 if flying else c.balance.bounds(c).size.x/6.0
+	var radius = 100.0 if flying else c.balance.bounds(c).size.x/6.0
 	var position: Vector2 = target.pos if flying else user.pos
 	var court = c.balance.bounds(c)
 	position = position.clamp(court.position,court.end)
@@ -27,6 +27,9 @@ func tick(c,s,dt):
 			if s.owner.hp>0:
 				c.move_fighter(s.owner,s.pos-s.owner.pos)
 				s.owner.volatile.erase("underground" if s.skill=="dig" else "airborne")
+				# Recovery starts at impact, even if the opponent dodged the move.
+				s.owner.movement_lock = maxf(s.owner.get("movement_lock",0),0.8)
+				s.owner.action_lock = maxf(s.owner.get("action_lock",0),0.8)
 			if target.pos.distance_to(s.pos)<=s.radius: c.hit(target,s.damage,(target.pos-s.pos).normalized(),s.friendly,s.move,s.owner,s.attack_snapshot)
 			s.hit_done = true
 			c.burst(s.pos,s.color,25)
@@ -124,6 +127,24 @@ func dig_tests(c):
 	c.check(c.enemy.hp==hp,"Leaving the Dig warning avoids emergence damage")
 
 func tests(c):
+	for id in ["fly","dig"]:
+		for friendly in [true,false]:
+			c.pick(6,9)
+			c.rocks.clear()
+			var owner = c.player if friendly else c.enemy
+			var target = c.enemy if friendly else c.player
+			launch(c,owner,target,{"id":id,"type":"Normal","damage":20},friendly)
+			var landing = c.shots.back()
+			c.check(landing.radius==100,"Smaller warning and damage radius: "+id)
+			c.Conditions.tick(owner,1.5)
+			tick(c,landing,1.5)
+			c.check(is_equal_approx(owner.movement_lock,0.8) and owner.action_lock>=0.8,"Landing blocks movement and attacks for 0.8s on either side: "+id)
+			c.Conditions.tick(owner,0.79)
+			c.check(c.Conditions.immobilized(owner) and owner.action_lock>0,"Recovery lasts through 0.79s: "+id)
+			c.Conditions.tick(owner,0.02)
+			c.check(not c.Conditions.immobilized(owner) and owner.action_lock==0,"Movement and attacks unlock after recovery: "+id)
+			tick(c,landing,0.02)
+			c.check(owner.movement_lock==0,"Lingering landing effect cannot restart recovery: "+id)
 	c.enemy_bench.tests(c)
 	dig_tests(c)
 	c.pick(6,9)

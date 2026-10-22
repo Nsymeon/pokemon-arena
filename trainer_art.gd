@@ -11,7 +11,7 @@ func _init():
 			push_error("Missing trainer sprite: "+id)
 			continue
 		var used = pixels.get_used_rect()
-		var scale = 92.0 / used.size.y
+		var scale = 110.0 / used.size.y
 		var original = ImageTexture.create_from_image(pixels)
 		pixels.flip_x()
 		sprites[id] = {"left":original,"right":ImageTexture.create_from_image(pixels),"scale":scale,"bottom":float(used.end.y),"size":original.get_size()}
@@ -37,5 +37,5 @@ func draw(c, feet: Vector2, identity: String, facing: float, hand: Vector2, ball
 	var pos = feet+Vector2(-size.x/2,-sprite.bottom*sprite.scale)+shift
 	c.draw_ellipse(feet+Vector2(0,3),Vector2(23,7),Color(0.04,0.04,0.08,0.35))
 	c.draw_texture_rect(sprite.right if facing>0 else sprite.left,Rect2(pos,size),false)
-	if ball: c.draw_pokeball(hand,3.2)
+	if ball: c.draw_pokeball(hand,4.2)
 

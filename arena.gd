@@ -984,43 +984,43 @@ func draw_hud():
 		label_at("ADVENTURE / G: BALL (%d) / I: BAG / weaken wild Pokemon first" % adventure.data.balls, Vector2(40,945),18,GOLD)
 	for friendly in [true, false]:
 		var f = player if friendly else enemy
-		var x = 40 if friendly else 755
+		var x = 40 if friendly else 720
 		var accent = MINT if friendly else Color("f18c71")
-		panel(Rect2(x, 85, 485, 85), Color("152734"), Color("607989"))
-		panel(Rect2(x + 6, 91, 66, 66), Color("304557"), GOLD)
+		panel(Rect2(x, 75, 520, 100), Color("152734"), Color("607989"))
+		panel(Rect2(x + 6, 82, 80, 80), Color("304557"), GOLD)
 		var texture = portraits.get(int(f.data.id))
 		if texture:
-			var size = texture.get_size() * 58.0 / maxf(texture.get_width(), texture.get_height())
-			draw_texture_rect(texture, Rect2(Vector2(x + 39, 124) - size / 2, size), false, Color.WHITE if f.hp > 0 else Color(0.3, 0.3, 0.3))
-		label_at(f.data.name.to_upper() + (" Lv."+str(f.data.get("level",5)) if adventure.in_battle else ""), Vector2(x + 82, 110), 20, WHITE)
-		var type_x = x + 82
+			var size = texture.get_size() * 72.0 / maxf(texture.get_width(), texture.get_height())
+			draw_texture_rect(texture, Rect2(Vector2(x + 46, 122) - size / 2, size), false, Color.WHITE if f.hp > 0 else Color(0.3, 0.3, 0.3))
+		label_at(f.data.name.to_upper() + (" Lv."+str(f.data.get("level",5)) if adventure.in_battle else ""), Vector2(x + 96, 100), 20, WHITE)
+		var type_x = x + 96
 		for type in Conditions.types(f):
-			draw_rect(Rect2(type_x, 115, 78, 14), Dex.color(type))
-			label_at(type.to_upper(), Vector2(type_x + 5, 126), 10, INK)
+			draw_rect(Rect2(type_x, 107, 78, 14), Dex.color(type))
+			label_at(type.to_upper(), Vector2(type_x + 5, 118), 10, INK)
 			type_x += 83
 		var ratio: float = f.hp / f.data.hp
-		bar(Vector2(x + 82, 135), 310, ratio, MINT if ratio > 0.5 else GOLD if ratio > 0.2 else Color("f7756b"), 13)
-		label_at("%d" % f.hp, Vector2(x + 402, 147), 15)
-		bar(Vector2(x + 82, 153), 310, f.energy / 100.0, Color("6fb9f4"), 3)
-		label_at((Conditions.summary(f)+(" / SPRINT" if f.get("sprinting",false) else "")).left(55), Vector2(x + 82, 167), 9, GOLD)
+		bar(Vector2(x + 96, 140), 330, ratio, MINT if ratio > 0.5 else GOLD if ratio > 0.2 else Color("f7756b"), 19)
+		label_at("%d" % f.hp, Vector2(x + 437, 157), 18)
+		bar(Vector2(x + 96, 165), 330, f.energy / 100.0, Color("6fb9f4"), 3)
+		label_at((Conditions.summary(f)+(" / SPRINT" if f.get("sprinting",false) else "")).left(55), Vector2(x + 96, 134), 10, GOLD)
 		var active = player_active if friendly else enemy_active
 		for i in range((player_states.size() if friendly else enemy_party_size()) if team_mode else 1):
-			var pos = Vector2(x + 410 + (i % 3) * 20, 102 + (i / 3) * 20)
+			var pos = Vector2(x + 435 + (i % 3) * 32, 93 + (i / 3) * 30)
 			if friendly:
-				pos = Vector2(x + 410 + (i % 3)*26,101+(i/3)*28)
+				pos = Vector2(x + 435 + (i % 3)*32,93+(i/3)*30)
 				var member = player_states[i] if team_mode else player
 				var alive = member.hp>0
-				draw_pokeball(pos,11)
+				draw_pokeball(pos,13)
 				var face_texture = portraits.get(int(member.data.id))
 				if face_texture:
-					var face_size = face_texture.get_size()*18.0/maxf(face_texture.get_width(),face_texture.get_height())
+					var face_size = face_texture.get_size()*23.0/maxf(face_texture.get_width(),face_texture.get_height())
 					draw_texture_rect(face_texture,Rect2(pos-face_size/2,face_size),false,Color.WHITE if alive else Color(0.3,0.3,0.3,0.8))
 				if not alive: draw_line(pos-Vector2(7,7),pos+Vector2(7,7),Color("ed8272"),2)
-				if i==active: draw_arc(pos,13,0,TAU,24,accent,2)
+				if i==active: draw_arc(pos,15,0,TAU,24,accent,2)
 			else:
-				if (enemy_bench.states[i].hp<=0 if team_mode and i<enemy_bench.states.size() else f.hp<=0): draw_circle(pos,5,Color("3d4d56"))
-				else: draw_pokeball(pos,5)
-				if i==active: draw_arc(pos,8,0,TAU,16,accent,1)
+				if (enemy_bench.states[i].hp<=0 if team_mode and i<enemy_bench.states.size() else f.hp<=0): draw_circle(pos,11,Color("3d4d56"))
+				else: draw_pokeball(pos,12)
+				if i==active: draw_arc(pos,14,0,TAU,16,accent,1)
 
 	label_at("VS", Vector2(621, 115), 25, GOLD)
 	label_at("%02d:%02d" % [int(round_time) / 60, int(round_time) % 60], Vector2(610, 147), 18)
@@ -1216,17 +1216,17 @@ func draw_ball_sequence(fighter: Dictionary, friendly: bool):
 		if elapsed >= 0.25 and elapsed < BALL_RELEASE_TIME:
 			var ball = throw_position(friendly, destination, elapsed)
 			draw_line(ball - Vector2(16 if friendly else -16, -6), ball, Color(WHITE, 0.5), 3)
-			draw_pokeball(ball, 9)
+			draw_pokeball(ball, 11)
 		elif elapsed >= BALL_RELEASE_TIME and elapsed < SUMMON_END_TIME:
 			var growth = summon_progress(elapsed)
 			draw_arc(destination, 15 + growth * 55, 0, TAU, 40, Color(0.8, 0.95, 1, 1.0 - growth), 4)
 			for i in range(10):
 				var ray = Vector2.from_angle(i * TAU / 10 + growth) * (20 + growth * 50)
 				draw_line(destination + ray * 0.7, destination + ray, Color(1, 0.95, 0.8, 1.0 - growth), 3)
-			draw_pokeball(destination, 8, true)
+			draw_pokeball(destination, 10, true)
 		elif elapsed >= SUMMON_END_TIME and elapsed < 2.4:
 			var back = smoothstep(SUMMON_END_TIME, 2.4, elapsed)
-			draw_pokeball(destination.lerp(hand, back) + Vector2(0, -sin(back * PI) * 50), 7)
+			draw_pokeball(destination.lerp(hand, back) + Vector2(0, -sin(back * PI) * 50), 9)
 	var faint_elapsed = maxf(0, result_time - fighter.get("faint_delay", 0.0))
 	if fighter.get("fainted", false) and faint_elapsed >= FAINT_FADE_START:
 		var recall = recall_progress(faint_elapsed)
@@ -1236,7 +1236,7 @@ func draw_ball_sequence(fighter: Dictionary, friendly: bool):
 			draw_line(hand, energy, Color(1, 0.12, 0.3, 0.22), 14)
 			draw_line(hand, energy, Color(1, 0.3, 0.4, 0.85), 4)
 			draw_circle(energy, 9 * (1.0 - recall) + 2, Color("ffb8c6"))
-			draw_pokeball(hand, 7, true)
+			draw_pokeball(hand, 9, true)
 		else:
 			var glow = 1.0 - clampf((faint_elapsed - FAINT_HIDE_TIME) / (FAINT_RESULT_TIME - FAINT_HIDE_TIME), 0, 1)
 			draw_arc(hand, 10 + glow * 10, 0, TAU, 24, Color(1, 0.5, 0.6, glow), 2)
@@ -2163,7 +2163,7 @@ func draw_switch_recall():
 	draw_line(hand, center, Color(1, 0.5, 0.5, 0.8), 3)
 	if progress < 0.99:
 		draw_texture_rect_region(frame.texture, Rect2(center - size / 2, size), frame.region, Color(1, 0.2, 0.3, 1 - progress))
-	draw_pokeball(hand, 7, true)
+	draw_pokeball(hand, 9, true)
 
 func control_tests():
 	pick(6, 9)
