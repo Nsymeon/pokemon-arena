@@ -185,12 +185,18 @@ func shot(c, s):
 	var p: Vector2 = s.pos-Vector2(0,42)
 	var color: Color = s.color
 	var id: String = s.move.get("id", "")
-	if id == "aurasphere":
+	if s.has("trail") or id == "aurasphere":
 		var trail: Array = s.get("trail", [])
+		var trail_color = Color("65ceff") if id == "aurasphere" else Color("ffe78b") if id == "swift" else color.lightened(0.35)
 		for i in range(1,trail.size()):
 			var alpha = float(i)/trail.size()
-			c.draw_line(trail[i-1]-Vector2(0,42),trail[i]-Vector2(0,42),Color("65ceff",alpha*0.4),2+alpha*9,true)
-		motif(c,"aura",p,d,s.age,clampf(s.radius+4,8,23),color)
+			c.draw_line(trail[i-1]-Vector2(0,42),trail[i]-Vector2(0,42),Color(trail_color,alpha*0.3),2+alpha*7,true)
+			if id in ["swift","magicalleaf"] and i%5==0:
+				var point: Vector2 = trail[i]-Vector2(0,42)+d.orthogonal()*sin(s.age*9+i)*7
+				motif(c,group,point,d,s.age+i*0.1,7+alpha*4,Color(color,0.45+alpha*0.55))
+		motif(c,group,p,d,s.age,clampf(s.radius+4,8,23),color)
+		if id in ["swift","magicalleaf"]:
+			for sign in [-1,1]: motif(c,group,p-d*12+d.orthogonal()*sign*14,d,s.age+sign*0.2,9,color)
 		return
 	if id == "fireblast":
 		# The anime's five-stroke fire figure (大), not a spinning star.

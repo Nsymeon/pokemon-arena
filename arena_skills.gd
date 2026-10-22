@@ -4,6 +4,10 @@ var areas = preload("res://area_skills.gd").new()
 
 const BEAMS = ["solarbeam", "hyperbeam", "icebeam", "aurorabeam", "hydropump", "flamethrower"]
 const RUSHES = ["quickattack", "extremespeed", "aquajet"]
+const SEEKERS = ["aurasphere", "swift", "magicalleaf", "shockwave", "disarmingvoice", "clearsmog", "magnetbomb"]
+
+func homing(move: Dictionary) -> bool:
+	return move.get("id", "") in SEEKERS
 
 func rush_position(s, progress: float) -> Vector2:
 	var t = clampf(progress, 0, 1)
@@ -79,7 +83,7 @@ func beam_half_width(s) -> float:
 	return (20.0 if s.get("move",{}).get("id","")=="icebeam" else 28.0 if s.get("move",{}).get("id","") == "flamethrower" else 34.0 if s.get("move",{}).get("id","") == "hydropump" else 48.0) * s.get("scale",1.0)
 
 func description(move) -> String:
-	if move.id == "aurasphere": return "HOMING / 3s"
+	if homing(move): return "HOMING / 3s"
 	if move.id in RUSHES: return "ZIGZAG RUSH" if move.id == "quickattack" else "WATER JET" if move.id == "aquajet" else "STRAIGHT RUSH"
 	if move.id in BEAMS: return "BEAM / " + str(int(beam_range(move)))
 	if move.id in ["psychic", "psystrike"]: return "PSYCHIC BURST"

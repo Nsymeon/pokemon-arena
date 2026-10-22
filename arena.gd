@@ -501,13 +501,13 @@ func projectile(origin: Vector2, direction: Vector2, speed: float, damage: float
 	move = weather.prepare(move)
 	radius *= move.get("area_scale", 1.0)
 	shots.append({"pos": origin + direction * 27, "origin": origin, "age": 0.0, "vel": direction * speed, "damage": damage, "radius": radius, "friendly": friendly, "owner": player if friendly else enemy, "attack_snapshot": (player if friendly else enemy).duplicate(true), "color": color, "life": 2.6, "move": move.duplicate(true)})
-	if move.get("id", "") == "aurasphere":
+	if skills.homing(move):
 		shots.back().vel = direction.normalized() * 360.0
 		shots.back().life = 3.0
 		shots.back()["trail"] = []
 
-func steer_aura(shot: Dictionary, dt: float):
-	if shot.life <= 0 or shot.get("move", {}).get("id", "") != "aurasphere": return
+func steer_homing(shot: Dictionary, dt: float):
+	if shot.life <= 0 or not skills.homing(shot.get("move", {})): return
 	var target = enemy if shot.friendly else player
 	if target.hp > 0:
 		var delta: Vector2 = target.pos-shot.pos
@@ -623,7 +623,7 @@ func update_battle(dt: float):
 	if player.hp <= 0 or enemy.hp <= 0: finish_round()
 
 func update_projectiles(dt: float):
-	for shot in shots: steer_aura(shot, dt)
+	for shot in shots: steer_homing(shot, dt)
 	clashes.prepare(self,dt)
 	for shot in shots:
 		if shot.life <= 0: continue
@@ -1525,43 +1525,44 @@ func pick(number: int, rival: int):
 	countdown = 0
 	selecting = false
 
-func aura_tests():
-	var move = move_editor.book.moves.aurasphere.duplicate(true)
-	for friendly in [true,false]:
+func homing_tests():
+	for id in skills.SEEKERS:
+		var move = move_editor.book.moves[id].duplicate(true)
+		for friendly in [true,false]:
+			pick(25,7)
+			rocks.clear()
+			player.pos=Vector2(900,550)
+			enemy.pos=Vector2(1250,650)
+			var attacker = player if friendly else enemy
+			var target = enemy if friendly else player
+			projectile(attacker.pos,Vector2.RIGHT if friendly else Vector2.LEFT,360,30,18,friendly,Dex.color(move.type),move)
+			var shot = shots.back()
+			var before: Vector2=shot.vel
+			steer_homing(shot,0.02)
+			check(absf(before.angle_to(shot.vel))>0 and absf(before.angle_to(shot.vel))<=0.0361,id+": steers gradually for either side")
+			var hp: float=target.hp
+			attacker.hp=0
+			for frame in range(180): update_projectiles(1.0/60)
+			check(target.hp<hp and shots.is_empty(),id+": tracks and hits after caster faints")
 		pick(25,7)
 		rocks.clear()
-		player.pos=Vector2(900,550)
-		enemy.pos=Vector2(1250,650)
-		var attacker = player if friendly else enemy
-		var target = enemy if friendly else player
-		projectile(attacker.pos,Vector2.RIGHT if friendly else Vector2.LEFT,360,30,18,friendly,Dex.color("Fighting"),move)
-		var shot = shots.back()
-		var before: Vector2=shot.vel
-		steer_aura(shot,0.02)
-		check(absf(before.angle_to(shot.vel))>0 and absf(before.angle_to(shot.vel))<=0.0361,"Aura Sphere steers gradually for either side")
-		var hp: float=target.hp
-		attacker.hp=0
-		for frame in range(180): update_projectiles(1.0/60)
-		check(target.hp<hp and shots.is_empty(),"Committed Aura Sphere tracks and hits after caster faints")
-	pick(25,7)
-	rocks.clear()
-	player.pos=Vector2(800,550)
-	enemy.pos=Vector2(800,770)
-	var hp: float=player.hp
-	projectile(enemy.pos,Vector2.UP,360,30,18,false,Dex.color("Fighting"),move)
-	for frame in range(190):
-		sprint_movement(Vector2.RIGHT,1.0/60,true)
-		update_projectiles(1.0/60)
-	check(player.hp==hp and shots.is_empty(),"Sideways Space sprint can evade Aura Sphere until its three-second expiry")
-	check(player.inv==0 and player.dash_time==0,"Aura evasion does not grant sprint invulnerability")
-	projectile(player.pos,Vector2.LEFT,580,20,7,true,Color.WHITE,{"id":"ember","type":"Fire"})
-	var straight=shots.back()
-	steer_aura(straight,0.1)
-	check(straight.vel==Vector2.LEFT*580 and straight.life==2.6,"Other projectiles keep their original trajectory and lifetime")
-	reset()
+		player.pos=Vector2(800,550)
+		enemy.pos=Vector2(800,770)
+		var hp: float=player.hp
+		projectile(enemy.pos,Vector2.UP,360,30,18,false,Dex.color(move.type),move)
+		for frame in range(190):
+			sprint_movement(Vector2.RIGHT,1.0/60,true)
+			update_projectiles(1.0/60)
+		check(player.hp==hp and shots.is_empty(),id+": sideways sprint evades until expiry")
+		check(player.inv==0 and player.dash_time==0,"Aura evasion does not grant sprint invulnerability")
+		projectile(player.pos,Vector2.LEFT,580,20,7,true,Color.WHITE,{"id":"ember","type":"Fire"})
+		var straight=shots.back()
+		steer_homing(straight,0.1)
+		check(straight.vel==Vector2.LEFT*580 and straight.life==2.6,"Other projectiles keep their original trajectory and lifetime")
+		reset()
 
 func smoke_test():
-	aura_tests()
+	homing_tests()
 	art.tests(self)
 	balance.tests(self)
 	adventure.tests()

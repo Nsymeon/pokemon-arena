@@ -33,5 +33,9 @@ func _draw():
 		draw_rect(Rect2(origin,Vector2(307,143)),Color("1f3b48"))
 		draw_string(font,origin+Vector2(10,22),move.name+" / "+vfx.family(move),HORIZONTAL_ALIGNMENT_LEFT,-1,15,Color.WHITE)
 		vfx.cast(self,{"last_move":move,"attack_time":0.55-age,"pos":origin+Vector2(58,112),"attack_heading":Vector2.RIGHT,"move_color":color})
-		vfx.shot(self,{"move":move,"vel":Vector2.RIGHT*400,"pos":origin+Vector2(175,120),"age":age,"radius":12,"color":color})
+		var shot={"move":move,"vel":Vector2.RIGHT*400,"pos":origin+Vector2(175,120),"age":age,"radius":12,"color":color}
+		if move.id in preload("res://arena_skills.gd").SEEKERS:
+			shot["trail"]=[]
+			for i in range(20): shot.trail.append(shot.pos+Vector2((i-19)*3,sin((19-i)*0.1)*20))
+		vfx.shot(self,shot)
 		vfx.impact(self,{"move":move,"pos":origin+Vector2(265,84),"age":age})

@@ -54,6 +54,14 @@ the projectile sooner. A committed sphere continues after its caster faints.
 Regression tests cover both sides, caster fainting, sprint evasion, expiration,
 and unchanged behavior for ordinary projectiles.
 
+Swift, Magical Leaf, Shock Wave, Disarming Voice, Clear Smog and Magnet Bomb
+share this bounded homing behavior. Swift's stars and Magical Leaf's leaves
+follow the recorded curved path, with one damage event per cast, not one per
+decorative star/leaf. Close-contact never-miss moves keep their existing melee
+behavior; the homing list is explicitly limited to suitable ranged attacks.
+Reference: [moves that cannot miss](https://bulbapedia.bulbagarden.net/wiki/Category:Moves_that_cannot_miss).
+The homing/sprint/expiry tests run for all seven projectiles on both sides.
+
 `--headless --path . -- --smoke-test` includes regression coverage for attack
 frame priority and key move classifications, alongside existing combat tests.
 `--path . res://tools/vfx-gallery.tscn` renders every catalog move's cast,
