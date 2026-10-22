@@ -185,6 +185,13 @@ func shot(c, s):
 	var p: Vector2 = s.pos-Vector2(0,42)
 	var color: Color = s.color
 	var id: String = s.move.get("id", "")
+	if id == "aurasphere":
+		var trail: Array = s.get("trail", [])
+		for i in range(1,trail.size()):
+			var alpha = float(i)/trail.size()
+			c.draw_line(trail[i-1]-Vector2(0,42),trail[i]-Vector2(0,42),Color("65ceff",alpha*0.4),2+alpha*9,true)
+		motif(c,"aura",p,d,s.age,clampf(s.radius+4,8,23),color)
+		return
 	if id == "fireblast":
 		# The anime's five-stroke fire figure (大), not a spinning star.
 		for line in [[Vector2(-28,-14),Vector2(28,-14)],[Vector2(0,-38),Vector2(0,-6)],[Vector2(0,-6),Vector2(-29,34)],[Vector2(0,-6),Vector2(30,34)]]:

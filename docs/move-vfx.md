@@ -46,6 +46,14 @@ copied):
 
 ## Verification
 
+Aura Sphere now tracks the opposing active fighter for up to three seconds at
+360 units/second, turning at most 1.8 radians/second. Its curved trail shows
+the actual traveled path. A sideways Space sprint can evade it; sprint still
+grants no invulnerability. Impacts, scenery, clashes and arena bounds can end
+the projectile sooner. A committed sphere continues after its caster faints.
+Regression tests cover both sides, caster fainting, sprint evasion, expiration,
+and unchanged behavior for ordinary projectiles.
+
 `--headless --path . -- --smoke-test` includes regression coverage for attack
 frame priority and key move classifications, alongside existing combat tests.
 `--path . res://tools/vfx-gallery.tscn` renders every catalog move's cast,
