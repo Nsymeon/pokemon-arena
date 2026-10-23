@@ -14,6 +14,7 @@ var save_path = SAVE_PATH
 var save_error = ""
 var save_allowed = true
 var c
+var world=preload("res://kanto_world.gd").new()
 var inventory = preload("res://adventure_inventory.gd").new()
 var exploring = false
 var in_battle = false
@@ -39,6 +40,7 @@ var font: Font
 
 func install(context):
 	c = context
+	world.install(self)
 	inventory.install(self)
 	font = ThemeDB.fallback_font
 	z_index = 100
@@ -56,7 +58,11 @@ func valid(value) -> bool:
 	if int(value.starter) not in [0,1,4,7] or value.balls < 0 or value.balls > 999 or value.money < 0 or value.money > 999999: return false
 	for key in ["x","y"]:
 		if not (value.get(key) is float or value.get(key) is int) or not is_finite(value[key]): return false
-	if value.x < 24 or value.x > 1576 or value.y < 24 or value.y > 976: return false
+	if value.has("world_map"):
+		if not value.world_map is String or not world.maps.has(value.world_map): return false
+		var room=world.maps[value.world_map]
+		if value.x<0 or value.y<0 or value.x>=room.width*world.TILE or value.y>=room.height*world.TILE: return false
+	elif value.x < 24 or value.x > 1576 or value.y < 24 or value.y > 976: return false
 	for key in ["rocket","cascade"]:
 		if value.has(key) and not value[key] is bool: return false
 	for key in ["rival","bug_catcher","badge"]:
@@ -150,7 +156,8 @@ func enter():
 	in_battle = false
 	visible = true
 	position_world = Vector2(data.x,data.y)
-	dialog = "Welcome to Pallet Town! Find Professor Oak outside his lab and press "+c.controls.text("interact")+"." if data.starter == 0 else "Adventure loaded. " + objective()
+	if OS.get_cmdline_user_args().is_empty(): world.activate()
+	dialog = "Welcome to Pallet Town! Find Professor Oak inside his lab and press "+c.controls.text("interact")+"." if data.starter == 0 else "Adventure loaded. " + objective()
 	queue_redraw()
 
 func leave():
@@ -189,6 +196,7 @@ func buildings() -> Array:
 	return []
 
 func npcs() -> Array:
+	if world.enabled: return world.quest_actors()
 	return base_npcs()+Finale.npcs(self)
 
 func base_npcs() -> Array:
@@ -205,6 +213,7 @@ func base_npcs() -> Array:
 	return []
 
 func wild_spawns() -> Array:
+	if world.enabled: return world.wild()
 	if Kanto.WILD.has(int(data.map)): return Kanto.wild_spawns(int(data.map),wild_cycle)
 	if not WILD.has(int(data.map)): return []
 	var pool: Array = WILD[int(data.map)]
@@ -212,6 +221,7 @@ func wild_spawns() -> Array:
 	return [[Vector2(450,650),pool[wild_cycle%pool.size()],level],[Vector2(1100,450),pool[(wild_cycle+1)%pool.size()],level+1],[Vector2(470,270),pool[(wild_cycle+2)%pool.size()],level]]
 
 func blocked(point: Vector2) -> bool:
+	if world.enabled: return world.blocked(point)
 	if data.map==29 and int(Story.state(self).get("switch",0))<2 and point.y>=310 and point.y<=340: return true
 	if data.map==26 and Rect2(210,110,1180,670).has_point(point) and (point.x<705 or point.x>895): return true
 	if point.x < 70 or point.x > 1530 or point.y < 45 or point.y > 955: return true
@@ -221,6 +231,7 @@ func blocked(point: Vector2) -> bool:
 
 func tick(dt):
 	if not exploring: return
+	if world.enabled: world.tick(dt); return
 	time += dt
 	if dialog == "" and modal == "":
 		var direction: Vector2 = c.movement_input()
@@ -307,6 +318,7 @@ func handle_input(event):
 
 func interact():
 	c.click_move = false
+	if world.enabled and world.interact(): return
 	for npc in npcs():
 		if position_world.distance_to(npc[0]) <= 100:
 			if Finale.interact(self,npc[2]) or Story.interact(self,npc[2]): return
@@ -466,6 +478,7 @@ func return_world(caught: bool = false):
 		if not win:
 			data.map = int(data.healing_map)
 			position_world = Vector2(800,760)
+			if world.enabled: world.enter(world.names.get(world.LEGACY[int(data.map)],"MAP_PALLET_TOWN"),Vector2(12,16)*world.TILE)
 			for mon in data.party:
 				mon.hp = 1.0
 				mon.ailment = ""
@@ -634,6 +647,7 @@ func person(at: Vector2, identity: String, direction = 1.0, bob = 0.0):
 
 func _draw():
 	if not exploring: return
+	if world.enabled: world.draw(); return
 	draw_rect(Rect2(0,0,1280,960),Color("142e32"))
 	draw_set_transform(Vector2(0,90)-camera)
 	var forest = data.map==3
@@ -1035,12 +1049,17 @@ func reset_adventure() -> bool:
 	var previous = data.duplicate(true)
 	var previous_position = position_world
 	var previous_allowed = save_allowed
+	var previous_world=world.enabled
+	world.enabled=false
 	data = INITIAL_DATA.duplicate(true)
 	inventory.migrate()
 	position_world = Vector2(data.x,data.y)
+	if previous_world: world.activate()
 	save_allowed = true
 	if not save():
 		data = previous
+		world.enabled=previous_world
+		if previous_world: world.current=data.get("world_map","MAP_PALLET_TOWN")
 		position_world = previous_position
 		save_allowed = previous_allowed
 		clear_ui()
@@ -1067,7 +1086,7 @@ func reset_adventure() -> bool:
 	c.paused = false
 	c.switch_menu = false
 	clear_ui()
-	dialog = "New adventure started! Find Professor Oak outside his lab and press "+c.controls.text("interact")+"."
+	dialog = "New adventure started! Find Professor Oak inside his lab and press "+c.controls.text("interact")+"."
 	if not backup_ok: dialog += " Save succeeded; backup could not be refreshed."
 	queue_redraw()
 	return true

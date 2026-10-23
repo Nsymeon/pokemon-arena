@@ -123,7 +123,9 @@ func _ready():
 	adventure.install(self)
 	campaign.install(self)
 	frontend.install(self)
-	if "--capture-shiny" in OS.get_cmdline_user_args():
+	if "--capture-world" in OS.get_cmdline_user_args():
+		call_deferred("capture_kanto_world")
+	elif "--capture-shiny" in OS.get_cmdline_user_args():
 		call_deferred("capture_shiny")
 	elif "--smoke-test" in OS.get_cmdline_user_args():
 		call_deferred("smoke_test")
@@ -1684,6 +1686,7 @@ func smoke_test():
 	abilities.tests()
 	art.tests(self)
 	balance.tests(self)
+	adventure.world.tests()
 	adventure.tests()
 	campaign.tests(self)
 	clashes.tests(self)
@@ -3115,4 +3118,22 @@ func capture_shiny():
 	await get_tree().process_frame
 	await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png("res://captures/ability-selection.png")
+	get_tree().quit()
+
+func capture_kanto_world():
+	set_process(false)
+	frontend.layer.visible=false
+	selection_controls.visible=false
+	adventure.loaded=true
+	adventure.enter()
+	adventure.world.enabled=true
+	adventure.dialog=""
+	for id in ["MAP_PALLET_TOWN","MAP_VIRIDIAN_FOREST","MAP_CELADON_CITY","MAP_MT_MOON_1F"]:
+		adventure.world.current=id
+		adventure.position_world=adventure.world.walkable(adventure.world.size()/2)
+		adventure.world.update_camera()
+		adventure.queue_redraw()
+		await get_tree().process_frame
+		await RenderingServer.frame_post_draw
+		get_viewport().get_texture().get_image().save_png("res://captures/"+id+".png")
 	get_tree().quit()

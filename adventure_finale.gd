@@ -287,6 +287,7 @@ static func info_row(list,text):
 	list.add_child(label)
 
 static func guide(a):
+	if a.world.enabled: a.world.guide(); return
 	var list=a.inventory.page("KANTO GUIDE / "+a.MAPS[a.data.map])
 	info_row(list,a.objective())
 	for direction in a.Kanto.LINKS.get(int(a.data.map),{}):

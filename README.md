@@ -314,3 +314,13 @@ The level cap is 100 with all Gen I level-based evolutions. League health persis
 ### Shinies and passive abilities
 
 Adventure now assigns persistent normal ability slots (equal odds) and shininess (FireRed base rate 1/8192). All 158 species have shiny animations and a brief send-out sparkle. In Free/Gym setup, click ABILITY below the moves to select a legal normal ability for that team slot. Existing Adventure saves are retained. This is the FRLG ability roster, without Hidden Abilities; passives for doubles, held items or deferred encounter systems remain contextual. See [rules, adaptations and sources](docs/shinies-and-abilities.md).
+
+
+### Canonical Kanto overworld (current)
+Adventure now renders 256 FireRed map layouts: towns, routes, building interiors, caves and League rooms. Walk with the existing movement bindings/right click; approach doors, stairs, trainers or visible wild Pokemon and press the interact binding (default E). M lists local connections. No random grass/cave encounters or trainer sight-trigger encounters were added.
+
+Existing saves migrate to a walkable position in their corresponding area. Subsequent saves retain the exact map/floor and coordinates. Existing campaign quests, badges, gifts, party, bag, shininess and abilities are retained. There are 288 imported trainer placements with parsed FireRed party species/levels, alongside the existing campaign encounters; battle moves continue to use this game's level-aware loadouts.
+
+This is a spatial/art conversion, not a full FireRed event-engine port. Story dialogue, quest consoles and League progression remain adapted; conditional NPC visibility, ledge rules, movable boulders, animated map tiles, elevators and cartridge-specific scripted puzzles are not faithfully reproduced yet. Original script-only or conditional battles are not all imported. Trade/link rooms and Sevii are outside this map set. Existing visible wild encounter tables are retained rather than replaced with FireRed random tables.
+
+Map provenance is recorded in assets/kanto/source.json. Rebuild with tools/import-kanto.py after placing the pinned pret/pokefirered checkout under data/source/pokefirered (ignored by Git). Runtime builds include compiled images and JSON, not the source checkout. Use --capture-world for canonical-world screenshots; --capture-kanto retains the legacy preview utility.

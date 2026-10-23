@@ -10,3 +10,5 @@ This is an unofficial Pokémon fan prototype. The project does not claim ownersh
 
 
 Shiny variants: PokeAPI/sprites portraits and PMDCollab/SpriteCollab animations, pinned to the same revision as assets/animated/source.json. Artist credits are preserved in assets/shiny/<species>/CREDITS.md. Normal ability slots use pret/pokefirered src/data/pokemon/species_info.h; later guest slots and move flags use the existing Pokemon Showdown source snapshot. See docs/shinies-and-abilities.md.
+
+- Kanto map layouts, metatiles, palettes and overworld character sprites: original Pokémon FireRed artwork/data, Game Freak / Nintendo / Creatures, reconstructed from [pret/pokefirered](https://github.com/pret/pokefirered). Pinned revision and generated map count: assets/kanto/source.json. The pret project provides the decompilation; original artwork is not claimed as original or freely licensed by this prototype.
