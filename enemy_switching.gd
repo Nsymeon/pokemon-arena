@@ -34,7 +34,7 @@ func activate(c,slot):
 	c.enemy.fainted = false
 	for key in ["inv","flash","dash_time","attack_time","walk_time"]: c.enemy[key] = 0.0
 	c.enemy.dash_move = {}
-	c.enemy_cooldowns = c.enemy.get("saved_cooldowns",[0.0,0.0,0.0,0.0]).duplicate()
+	c.enemy_cooldowns = [0.0,0.0,0.0,0.0]
 	c.ai_timer = 1.0
 
 func request(c,slot) -> bool:
@@ -45,7 +45,6 @@ func request(c,slot) -> bool:
 	if c.shots.any(func(s):return s.life>0): return false
 	if c.abilities.trapped(c.enemy,c.player): return false
 	c.abilities.withdrawn(c.enemy)
-	c.enemy["saved_cooldowns"] = c.enemy_cooldowns.duplicate()
 	c.enemy.volatile.clear()
 	c.enemy["protect_chain"]=0
 	c.enemy.stages.clear()
@@ -125,7 +124,7 @@ func tests(c):
 		c.enemy.action_lock = 0
 		c.check(request(c,slot),"Opponent can voluntarily switch within three-change budget")
 		complete(c)
-	c.check(first.hp==80 and first.energy==45 and first.saved_cooldowns[0]==2,"Enemy reserves keep HP, energy and cooldowns")
+	c.check(first.hp==80 and first.energy==45,"Enemy reserves keep HP and energy")
 	cooldown = 0
 	c.countdown = 0
 	c.check(not request(c,0) and used==3,"Fourth voluntary enemy switch is rejected")
@@ -134,7 +133,7 @@ func tests(c):
 	c.check(next==0,"Fainted enemy can return to an earlier living reserve")
 	activate(c,next)
 	c.check(c.enemy==first and c.enemy.hp==80,"Returning enemy receives no free healing")
-	c.check(c.enemy_cooldowns[0]==2,"Returning enemy restores its move cooldowns")
+	c.check(c.enemy_cooldowns==[0.0,0.0,0.0,0.0],"Returning enemy resets every move cooldown")
 	for f in states: f.hp = 0
 	c.check(reserve(c)==-1,"Enemy party exhausts only after every member faints")
 	c.pick(25,7)

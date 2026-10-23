@@ -2164,7 +2164,7 @@ func activate_player(slot: int):
 	player.attack_time = 0
 	player.walk_time = 0
 	player.dash_move = {}
-	cooldowns = player.get("saved_cooldowns", [0.0, 0.0, 0.0, 0.0]).duplicate()
+	cooldowns = [0.0, 0.0, 0.0, 0.0]
 	quick_attack_active = false
 	sprinting = false
 
@@ -2181,7 +2181,6 @@ func request_switch(slot: int) -> bool:
 	if abilities.trapped(player,enemy):
 		Conditions.note(player,"ABILITY / TRAPPED"); return false
 	abilities.withdrawn(player)
-	player["saved_cooldowns"] = cooldowns.duplicate()
 	player_states[player_active] = player
 	player.volatile.clear()
 	player["protect_chain"]=0
@@ -2288,7 +2287,7 @@ func control_tests():
 	switch_cooldown = 0
 	check(request_switch(0), "Can return to earlier slot")
 	complete_switch()
-	check(player.hp == 50 and player.energy == 35 and cooldowns[0] == 2.0, "Switch preserves HP, energy and move cooldowns")
+	check(player.hp == 50 and player.energy == 35 and cooldowns == [0.0,0.0,0.0,0.0], "Returning player keeps HP and energy but resets every move cooldown")
 	countdown = 0
 	switch_cooldown = 0
 	player_states[1].hp = 0
