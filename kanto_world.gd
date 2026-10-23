@@ -11,19 +11,23 @@ var current="MAP_PALLET_TOWN"
 var actor_paths: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://assets/kanto/actors.json"))
 var actor_textures={}
 var heading=Vector2.DOWN
+var events=preload("res://kanto_events.gd").new()
 
 func install(adventure):
 	a=adventure
+	events.install(self)
 	for id in maps: names[maps[id].name]=id
 
 func activate():
 	enabled=true
 	current=a.data.get("world_map",names.get(LEGACY[int(a.data.map)],"MAP_PALLET_TOWN"))
 	if not maps.has(current): current="MAP_PALLET_TOWN"
+	events.refresh()
 	if not a.data.has("world_map"):
 		a.position_world=walkable(Vector2(12,16)*TILE)
 	else: a.position_world=walkable(Vector2(a.data.x,a.data.y))
 	a.data["world_map"]=current
+	events.refresh()
 	update_camera()
 
 func room() -> Dictionary:
@@ -35,6 +39,8 @@ func size() -> Vector2:
 func blocked(p: Vector2) -> bool:
 	var x=floori(p.x/TILE); var y=floori(p.y/TILE)
 	if x<0 or y<0 or x>=room().width or y>=room().height: return true
+	var override=events.collision(p)
+	if override>=0: return override!=0
 	return (int(room().cells[y*int(room().width)+x])&0xC00)!=0
 
 func walkable(p: Vector2) -> Vector2:
@@ -53,7 +59,10 @@ func update_camera():
 
 func enter(id: String, at: Vector2):
 	if not maps.has(id): return
+	if current in events.LEAGUE and id not in events.LEAGUE and id!="MAP_POKEMON_LEAGUE_HALL_OF_FAME": a.Finale.state(a)["league"]=0
 	current=id
+	events.spin=Vector2.ZERO
+	events.refresh()
 	a.data["world_map"]=id
 	var logical=LEGACY.find(room().name)
 	if logical>=0: a.data.map=logical
@@ -66,6 +75,8 @@ func enter(id: String, at: Vector2):
 func tick(dt):
 	a.time+=dt
 	if a.dialog=="" and a.modal=="":
+		if events.tick(dt):
+			update_camera(); a.queue_redraw(); return
 		var direction=a.c.movement_input()
 		var motion=direction*(220 if a.c.controls.held("sprint") else 160)*minf(dt,0.05)
 		if direction!=Vector2.ZERO:
@@ -109,7 +120,8 @@ func actors() -> Array:
 	var result=[]
 	var quests=quest_actors()
 	for object in room().objects:
-		if object.get("graphics_id","").contains("ITEM_BALL") or object.get("graphics_id","").contains("BOULDER"): continue
+		if object.get("graphics_id","").contains("ITEM_BALL") or object.get("graphics_id","").contains("BOULDER") or object.get("graphics_id","").contains("CUT_TREE"): continue
+		if "Snorlax" in str(object.get("script","")) and events.done("snorlax:"+current): continue
 		var npc=object.duplicate(true)
 		npc["pos"]=Vector2(float(object.x)+0.5,float(object.y)+0.5)*TILE
 		if quests.any(func(q):return q[0].distance_to(npc.pos)<TILE*0.5): continue
@@ -117,7 +129,7 @@ func actors() -> Array:
 	return result
 
 func quest_actors() -> Array:
-	var logical={"PewterCity_Gym":4,"CeruleanCity_Gym":8,"PalletTown_ProfessorOaksLab":0,"Route25_SeaCottage":27,"PalletTown_PlayersHouse_1F":0}.get(room().name,LEGACY.find(room().name))
+	var logical={"PewterCity_Gym":4,"CeruleanCity_Gym":8,"PalletTown_ProfessorOaksLab":0,"Route25_SeaCottage":27,"PalletTown_PlayersHouse_1F":0,"SSAnne_CaptainsRoom":28,"SSAnne_2F_Corridor":28}.get(room().name,LEGACY.find(room().name))
 	var result=[]
 	# Existing campaign interactions remain available, without automatic encounters.
 	if logical>=0:
@@ -126,6 +138,10 @@ func quest_actors() -> Array:
 		for npc in a.base_npcs()+a.Finale.npcs(a):
 			if str(npc[2]).begins_with("late_enter_"): continue
 			var action=str(npc[2])
+			if action.begins_with("story_switch") or action in ["late_warp","late_quiz","late_task_mansion_switch","late_task_card_key","late_task_secret_key","late_task_victory_boulder","late_task_snorlax","late_task_seafoam_boulder","late_league"]: continue
+			if action in ["story_bill","story_console"] and room().name!="Route25_SeaCottage": continue
+			if action=="story_captain" and room().name!="SSAnne_CaptainsRoom": continue
+			if action=="story_shipblue" and room().name!="SSAnne_2F_Corridor": continue
 			if action=="oak" and room().name!="PalletTown_ProfessorOaksLab": continue
 			if action=="rival" and room().name!="PalletTown": continue
 			if action=="heal" and room().name!="PalletTown_PlayersHouse_1F" and logical!=28: continue
@@ -134,7 +150,7 @@ func quest_actors() -> Array:
 			if action=="misty" and room().name!="CeruleanCity_Gym": continue
 			var copy=npc.duplicate(true)
 			copy[0]=walkable(Vector2(npc[0])*size()/Vector2(1600,1000))
-			var graphic={"oak":"PROF_OAK","brock":"BROCK","misty":"MISTY","heal":"MOM","story_bill":"BILL","story_surge":"LT_SURGE","late_task_erika":"ERIKA","late_task_koga":"KOGA","late_task_sabrina":"SABRINA","late_task_blaine":"BLAINE","late_task_giovanni":"GIOVANNI"}.get(action,"")
+			var graphic={"oak":"PROF_OAK","brock":"BROCK","misty":"MISTY","heal":"MOM","story_captain":"CAPTAIN","story_shipblue":"BLUE","late_task_flute":"MR_FUJI","late_task_hideout_boss":"GIOVANNI","late_task_silph_boss":"GIOVANNI","story_bill":"BILL","story_surge":"LT_SURGE","late_task_erika":"ERIKA","late_task_koga":"KOGA","late_task_sabrina":"SABRINA","late_task_blaine":"BLAINE","late_task_giovanni":"GIOVANNI"}.get(action,"")
 			for original in room().objects:
 				if graphic!="" and original.get("graphics_id","")=="OBJ_EVENT_GFX_"+graphic:
 					copy[0]=Vector2(float(original.x)+0.5,float(original.y)+0.5)*TILE
@@ -154,6 +170,7 @@ func wild() -> Array:
 	return source
 
 func interact() -> bool:
+	if events.interact(): return true
 	for door in room().warps:
 		var at=Vector2(float(door.x)+0.5,float(door.y)+0.5)*TILE
 		if a.position_world.distance_to(at)>TILE*1.4: continue
@@ -164,6 +181,7 @@ func interact() -> bool:
 				enter(str(back.map),Vector2(float(back.x),float(back.y)))
 			else: a.dialog="This passage is outside Kanto."
 			return true
+		if not events.allow_door(dest): return true
 		var index=int(door.dest_warp_id)
 		var target=Vector2(TILE*2,TILE*2)
 		if index>=0 and index<maps[dest].warps.size():
@@ -174,15 +192,21 @@ func interact() -> bool:
 		enter(dest,target)
 		return true
 	for npc in quest_actors():
-		if a.position_world.distance_to(npc[0])<=100: return false
+		if a.position_world.distance_to(npc[0])<=100:
+			if npc[2]=="oak" and events.npc_interact({"graphics_id":"OBJ_EVENT_GFX_PROF_OAK"}): return true
+			if npc[2]=="late_task_sabrina": a.Finale.state(a)["warp"]=true
+			return false
 	for npc in actors():
 		if a.position_world.distance_to(npc.pos)>TILE*1.5: continue
+		if events.npc_interact(npc): return true
 		var gfx=str(npc.get("graphics_id",""))
 		if gfx.contains("PROF_OAK"):
 			a.starter_menu() if a.data.starter==0 else a.heal()
 		elif gfx.contains("NURSE"): a.heal()
 		elif room().name.contains("Mart"): a.inventory.shop()
 		elif npc.has("battle"):
+			if events.done("trainer:"+str(npc.script)):
+				a.dialog="We already battled. Good luck on your journey!"; return true
 			var ids=[]; var levels=[]
 			for member in npc.battle.party: ids.append(member[0]); levels.append(member[1])
 			a.begin_battle("world_"+str(npc.script),ids,levels)
@@ -192,6 +216,11 @@ func interact() -> bool:
 
 func guide():
 	var list=a.inventory.page("KANTO / "+room().name.replace("_"," / "))
+	if not events.rocks().is_empty():
+		var reset=Button.new()
+		reset.text="Reset Seafoam boulders and currents on ALL floors" if current.begins_with("MAP_SEAFOAM_ISLANDS_") else "Reset this room's boulders"
+		reset.pressed.connect(events.reset_rocks)
+		list.add_child(reset)
 	for link in room().connections:
 		if maps.has(link.map): a.Finale.info_row(list,str(link.direction).to_upper()+" > "+maps[link.map].name)
 	var destinations=[]
@@ -252,14 +281,17 @@ func draw():
 	a.draw_rect(Rect2(0,0,1280,960),Color("152f32"))
 	a.draw_set_transform(Vector2(0,90)-a.camera)
 	a.draw_texture_rect(textures[current],Rect2(Vector2.ZERO,size()),false)
+	events.draw()
 	for door in room().warps:
 		var p=Vector2(float(door.x)+0.5,float(door.y)+0.5)*TILE
 		if a.position_world.distance_to(p)<TILE*1.5: a.words(a.c.controls.text("interact")+" / ENTER",p+Vector2(-35,-22),14,Color("fff0b0"))
 	for npc in actors():
-		person(npc.pos,str(npc.get("graphics_id","OBJ_EVENT_GFX_WOMAN_1")).trim_prefix("OBJ_EVENT_GFX_"))
+		if "Snorlax" in str(npc.get("script","")):
+			a.draw_texture_rect(a.c.portraits[143],Rect2(npc.pos-Vector2(38,60),Vector2(76,76)),false)
+		else: person(npc.pos,str(npc.get("graphics_id","OBJ_EVENT_GFX_WOMAN_1")).trim_prefix("OBJ_EVENT_GFX_"))
 		if a.position_world.distance_to(npc.pos)<TILE*1.5: a.words(a.c.controls.text("interact")+" / "+(str(npc.battle.name) if npc.has("battle") else "TALK"),npc.pos+Vector2(-35,-65),14,Color("fff0b0"))
 	for npc in quest_actors():
-		var identity={"oak":"prof_oak","rival":"blue","heal":"nurse","shop":"man","brock":"brock","misty":"misty","bug":"bug_catcher","rocket":"rocket_m","guide":"man","story_bill":"bill","story_surge":"lt_surge","late_task_erika":"erika","late_task_koga":"koga","late_task_sabrina":"sabrina","late_task_blaine":"blaine","late_task_giovanni":"giovanni","late_task_flute":"mr_fuji","late_task_hideout_boss":"giovanni","late_task_silph_boss":"giovanni","late_task_silph_blue":"blue","late_league":"lorelei"}.get(npc[2],"scientist")
+		var identity={"oak":"prof_oak","rival":"blue","heal":"nurse","shop":"man","brock":"brock","misty":"misty","bug":"bug_catcher","rocket":"rocket_m","guide":"man","story_captain":"captain","story_shipblue":"blue","story_bill":"bill","story_surge":"lt_surge","late_task_erika":"erika","late_task_koga":"koga","late_task_sabrina":"sabrina","late_task_blaine":"blaine","late_task_giovanni":"giovanni","late_task_flute":"mr_fuji","late_task_hideout_boss":"giovanni","late_task_silph_boss":"giovanni","late_task_silph_blue":"blue","late_league":"lorelei"}.get(npc[2],"scientist")
 		if npc[2]=="late_league": identity=["lorelei","bruno","agatha","lance","blue"][clampi(int(a.Finale.state(a).get("league",0)),0,4)]
 		person(npc[0],identity)
 		a.words(npc[1],npc[0]+Vector2(-45,20),12)

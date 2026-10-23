@@ -324,3 +324,22 @@ Existing saves migrate to a walkable position in their corresponding area. Subse
 This is a spatial/art conversion, not a full FireRed event-engine port. Story dialogue, quest consoles and League progression remain adapted; conditional NPC visibility, ledge rules, movable boulders, animated map tiles, elevators and cartridge-specific scripted puzzles are not faithfully reproduced yet. Original script-only or conditional battles are not all imported. Trade/link rooms and Sevii are outside this map set. Existing visible wild encounter tables are retained rather than replaced with FireRed random tables.
 
 Map provenance is recorded in assets/kanto/source.json. Rebuild with tools/import-kanto.py after placing the pinned pret/pokefirered checkout under data/source/pokefirered (ignored by Git). Runtime builds include compiled images and JSON, not the source checkout. Use --capture-world for canonical-world screenshots; --capture-kanto retains the legacy preview utility.
+
+
+### Kanto events and physical puzzles
+The canonical overworld now has a persistent event layer. Press E beside bins, statues, card doors, items and boulders. Event geometry uses the original FireRed metatiles and changes both artwork and collision.
+
+- Vermilion: 15 bins, randomized first switch and adjacent second switch; a wrong second choice resets the locks. The electric barrier physically opens.
+- Cinnabar: six original quiz topics; correct answers or victories over their trainers open the corresponding doors. Incorrect answers initiate the associated trainer battle.
+- Saffron: use the actual warp-pad layout to reach Sabrina instead of the former two-button shortcut. Koga's invisible walls retain the map collision.
+- Silph Co.: find the Card Key on 5F and unlock individual doors; their states persist. Elevators in Silph, the department store and Rocket Hideout have floor selection; Rocket's lift needs its key.
+- Rocket Hideout: the Game Corner poster reveals its entrance; directional tiles force movement, and the B4F guards control Giovanni's barrier. The lift-key grunt awards the key on victory.
+- Mansion: statue switches alternate the original door sets across floors; the Secret Key is a map pickup.
+- Victory Road: push boulders with Strength onto the original floor switches to remove barriers. M resets a room's boulders while retaining completed switches.
+- Seafoam: boulders fall into the lower floors through the original holes. Two boulders calm each current and apply the original stopped-current layout. M explicitly resets ALL Seafoam boulders/currents together to recover from a bad push.
+- Field/story events: Cut trees, Surf water access, Oak's parcel delivery flag, sleeping Snorlax/Poke Flute battle and catch, Bill/Captain placement, defeated overworld trainers, and usable item/TM/key pickups persist. Unsupported item kinds remain visible and explain that they cannot be used yet.
+- Elite Four/Champion battles now use their separate rooms; victory unlocks the next chamber and leaving resets the current run. Hall of Fame requires the Champion title.
+
+This is still an adapted event system, not an interpreter for every FireRed script. Cinematic sequences, all incidental NPC dialogue/visibility conditions, ledge jumps, fossil revival, every original item effect and the exact Victory Road falling-boulder sequence remain unfinished. Existing campaign party presets and several quest requirements are retained. Random encounters and sight-triggered battles remain disabled.
+
+Rebuild event assets with tools/import-kanto-events.py (also refreshes base maps). Event regression checks run with --smoke-test; --capture-events renders Surge's barrier before/after. Source remains the pinned pret/pokefirered revision in assets/kanto/source.json.

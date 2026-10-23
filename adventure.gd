@@ -50,6 +50,7 @@ func install(context):
 	add_child(ui)
 
 func valid(value) -> bool:
+	if value is Dictionary and not world.events.valid(value): return false
 	if not value is Dictionary or value.get("version",0) != 1: return false
 	for key in ["map","starter","balls","money","healing_map"]:
 		if not value.get(key) is float and not value.get(key) is int: return false
@@ -470,6 +471,7 @@ func return_world(caught: bool = false):
 		message = mon_name(mon.id)+" caught! "+("Added to your party." if joins_party else "Check Party / Storage with P.")
 	else:
 		message = reward(win)
+		if world.enabled: world.events.battle_reward(str(encounter.kind),win)
 		if win:
 			for member in data.party:
 				if member.get("ability","")=="Pickup" and c.abilities.random.randf()<0.1:
@@ -484,6 +486,7 @@ func return_world(caught: bool = false):
 				mon.ailment = ""
 			message = "Your team recovered at the last healing town. Try again!"
 		elif message == "": message = "Battle won! Earned money and experience."
+	if world.enabled: world.events.result(str(encounter.kind),win,caught)
 	in_battle = false
 	exploring = true
 	visible = true

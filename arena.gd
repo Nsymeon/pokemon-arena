@@ -123,7 +123,9 @@ func _ready():
 	adventure.install(self)
 	campaign.install(self)
 	frontend.install(self)
-	if "--capture-world" in OS.get_cmdline_user_args():
+	if "--capture-events" in OS.get_cmdline_user_args():
+		call_deferred("capture_world_events")
+	elif "--capture-world" in OS.get_cmdline_user_args():
 		call_deferred("capture_kanto_world")
 	elif "--capture-shiny" in OS.get_cmdline_user_args():
 		call_deferred("capture_shiny")
@@ -1687,6 +1689,7 @@ func smoke_test():
 	art.tests(self)
 	balance.tests(self)
 	adventure.world.tests()
+	adventure.world.events.tests()
 	adventure.tests()
 	campaign.tests(self)
 	clashes.tests(self)
@@ -3136,4 +3139,21 @@ func capture_kanto_world():
 		await get_tree().process_frame
 		await RenderingServer.frame_post_draw
 		get_viewport().get_texture().get_image().save_png("res://captures/"+id+".png")
+	get_tree().quit()
+
+
+func capture_world_events():
+	set_process(false)
+	frontend.layer.visible=false; selection_controls.visible=false
+	adventure.loaded=true; adventure.save_allowed=false; adventure.enter()
+	adventure.world.enabled=true; adventure.dialog=""
+	for opened in [false,true]:
+		adventure.world.current="MAP_VERMILION_CITY_GYM"
+		adventure.Story.state(adventure)["switch"]=2 if opened else 0
+		adventure.world.events.refresh()
+		adventure.position_world=Vector2(5.5,9.5)*48
+		adventure.world.update_camera(); adventure.queue_redraw()
+		await get_tree().process_frame
+		await RenderingServer.frame_post_draw
+		get_viewport().get_texture().get_image().save_png("res://captures/surge-"+("open" if opened else "closed")+".png")
 	get_tree().quit()
