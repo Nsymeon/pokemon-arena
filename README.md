@@ -343,3 +343,6 @@ The canonical overworld now has a persistent event layer. Press E beside bins, s
 This is still an adapted event system, not an interpreter for every FireRed script. Cinematic sequences, all incidental NPC dialogue/visibility conditions, ledge jumps, fossil revival, every original item effect and the exact Victory Road falling-boulder sequence remain unfinished. Existing campaign party presets and several quest requirements are retained. Random encounters and sight-triggered battles remain disabled.
 
 Rebuild event assets with tools/import-kanto-events.py (also refreshes base maps). Event regression checks run with --smoke-test; --capture-events renders Surge's barrier before/after. Source remains the pinned pret/pokefirered revision in assets/kanto/source.json.
+
+
+Adventure walking uses cardinal tile-to-tile steps (including right-click movement); sprint changes the step speed. Battle movement is unchanged. Face an NPC and press E to talk across a single original counter tile, including the Center nurse and Mart clerks. Interaction prompts use the same counter reach rule.

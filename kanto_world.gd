@@ -11,6 +11,8 @@ var current="MAP_PALLET_TOWN"
 var actor_paths: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://assets/kanto/actors.json"))
 var actor_textures={}
 var heading=Vector2.DOWN
+var stepping=false
+var step_target=Vector2.ZERO
 var events=preload("res://kanto_events.gd").new()
 
 func install(adventure):
@@ -19,6 +21,7 @@ func install(adventure):
 	for id in maps: names[maps[id].name]=id
 
 func activate():
+	stepping=false
 	enabled=true
 	current=a.data.get("world_map",names.get(LEGACY[int(a.data.map)],"MAP_PALLET_TOWN"))
 	if not maps.has(current): current="MAP_PALLET_TOWN"
@@ -60,6 +63,7 @@ func update_camera():
 func enter(id: String, at: Vector2):
 	if not maps.has(id): return
 	if current in events.LEAGUE and id not in events.LEAGUE and id!="MAP_POKEMON_LEAGUE_HALL_OF_FAME": a.Finale.state(a)["league"]=0
+	stepping=false
 	current=id
 	events.spin=Vector2.ZERO
 	events.refresh()
@@ -75,10 +79,13 @@ func enter(id: String, at: Vector2):
 func tick(dt):
 	a.time+=dt
 	if a.dialog=="" and a.modal=="":
+		if stepping:
+			advance_step(dt)
+			update_camera(); a.queue_redraw(); return
 		if events.tick(dt):
 			update_camera(); a.queue_redraw(); return
-		var direction=a.c.movement_input()
-		var motion=direction*(220 if a.c.controls.held("sprint") else 160)*minf(dt,0.05)
+		var direction=cardinal(a.c.movement_input(),a.c.click_move)
+		var motion=direction*TILE
 		if direction!=Vector2.ZERO:
 			heading=direction
 			a.walk_age+=dt
@@ -109,8 +116,12 @@ func tick(dt):
 					a.dialog="Speak to Professor Oak and choose a starter before leaving Pallet Town."
 					return
 				enter(link.map,target); return
-		if not blocked(a.position_world+Vector2(motion.x,0)): a.position_world.x+=motion.x
-		if not blocked(a.position_world+Vector2(0,motion.y)): a.position_world.y+=motion.y
+		if direction!=Vector2.ZERO:
+			step_target=a.position_world+motion
+			if not blocked(step_target):
+				stepping=true
+				advance_step(dt)
+			elif a.c.click_move: a.c.click_move=false
 		a.autosave+=dt
 		if a.autosave>=5: a.autosave=0; a.save()
 	update_camera()
@@ -197,13 +208,13 @@ func interact() -> bool:
 			if npc[2]=="late_task_sabrina": a.Finale.state(a)["warp"]=true
 			return false
 	for npc in actors():
-		if a.position_world.distance_to(npc.pos)>TILE*1.5: continue
+		if not can_talk(npc.pos): continue
 		if events.npc_interact(npc): return true
 		var gfx=str(npc.get("graphics_id",""))
 		if gfx.contains("PROF_OAK"):
 			a.starter_menu() if a.data.starter==0 else a.heal()
 		elif gfx.contains("NURSE"): a.heal()
-		elif room().name.contains("Mart"): a.inventory.shop()
+		elif room().name.contains("Mart") or (room().name.contains("DepartmentStore") and gfx.contains("CLERK")): a.inventory.shop()
 		elif npc.has("battle"):
 			if events.done("trainer:"+str(npc.script)):
 				a.dialog="We already battled. Good luck on your journey!"; return true
@@ -236,6 +247,9 @@ func tests():
 	var old_enabled=enabled
 	var old_current=current
 	var old_camera=a.camera
+	var old_heading=heading
+	var old_stepping=stepping
+	var old_target=step_target
 	var old_dialog=a.dialog
 	var old_save_allowed=a.save_allowed
 	a.save_allowed=false
@@ -267,12 +281,41 @@ func tests():
 	var outside=room().warps.filter(func(w):return w.dest_map=="MAP_PALLET_TOWN")[0]
 	a.position_world=Vector2(float(outside.x)+0.5,float(outside.y)+0.5)*TILE
 	a.c.check(interact() and current=="MAP_PALLET_TOWN","Canonical lab exit returns to Pallet")
+	for input in [Vector2(1,1),Vector2(-1,1),Vector2(1,-1),Vector2(-1,-1)]:
+		var chosen=cardinal(input)
+		a.c.check(chosen.length()==1.0 and (chosen.x==0 or chosen.y==0),"Overworld diagonal input resolves to one cardinal direction")
+	current="MAP_PALLET_TOWN"; events.refresh()
+	a.position_world=Vector2(12.5,16.5)*TILE
+	var start=a.position_world
+	step_target=start+Vector2.RIGHT*TILE; stepping=true
+	advance_step(0.03)
+	a.c.check(a.position_world.y==start.y and a.position_world.x>start.x and a.position_world.x<step_target.x,"Walking interpolates one horizontal tile")
+	for i in range(12): advance_step(0.03)
+	a.c.check(a.position_world==step_target and not stepping,"Walking stops exactly on tile center without overshoot")
+	current="MAP_VIRIDIAN_CITY_POKEMON_CENTER_1F"; events.refresh()
+	a.position_world=Vector2(7.5,4.5)*TILE; heading=Vector2.UP
+	var nurse=Vector2(7.5,2.5)*TILE
+	a.c.check(can_talk(nurse),"Nurse reachable across original counter metatile")
+	a.c.check(interact() and a.dialog.contains("fully healed"),"Interacting across Center counter actually heals")
+	heading=Vector2.DOWN
+	a.c.check(not can_talk(nurse),"Counter conversation requires facing the NPC")
+	a.position_world=Vector2(6.5,4.5)*TILE; heading=Vector2.UP
+	a.c.check(not can_talk(nurse),"Counter conversation cannot reach diagonally")
+	current="MAP_VIRIDIAN_CITY_MART"; events.refresh()
+	a.position_world=Vector2(4.5,3.5)*TILE; heading=Vector2.LEFT
+	a.c.check(can_talk(Vector2(2.5,3.5)*TILE),"Mart clerk reachable across horizontal counter")
+	a.position_world=Vector2(4.5,2.5)*TILE
+	a.c.check(not can_talk(Vector2(2.5,2.5)*TILE+Vector2(0,TILE*3)),"Interaction cannot reach a distant NPC through walls")
 	for name in LEGACY: a.c.check(names.has(name),"Canonical migration destination: "+name)
 	enabled=old_enabled
 	current=old_current
 	a.data=before
 	a.position_world=location
 	a.camera=old_camera
+	heading=old_heading
+	stepping=old_stepping
+	step_target=old_target
+	events.refresh()
 	a.dialog=old_dialog
 	a.save_allowed=old_save_allowed
 
@@ -289,7 +332,7 @@ func draw():
 		if "Snorlax" in str(npc.get("script","")):
 			a.draw_texture_rect(a.c.portraits[143],Rect2(npc.pos-Vector2(38,60),Vector2(76,76)),false)
 		else: person(npc.pos,str(npc.get("graphics_id","OBJ_EVENT_GFX_WOMAN_1")).trim_prefix("OBJ_EVENT_GFX_"))
-		if a.position_world.distance_to(npc.pos)<TILE*1.5: a.words(a.c.controls.text("interact")+" / "+(str(npc.battle.name) if npc.has("battle") else "TALK"),npc.pos+Vector2(-35,-65),14,Color("fff0b0"))
+		if can_talk(npc.pos): a.words(a.c.controls.text("interact")+" / "+(str(npc.battle.name) if npc.has("battle") else "TALK"),npc.pos+Vector2(-35,-65),14,Color("fff0b0"))
 	for npc in quest_actors():
 		var identity={"oak":"prof_oak","rival":"blue","heal":"nurse","shop":"man","brock":"brock","misty":"misty","bug":"bug_catcher","rocket":"rocket_m","guide":"man","story_captain":"captain","story_shipblue":"blue","story_bill":"bill","story_surge":"lt_surge","late_task_erika":"erika","late_task_koga":"koga","late_task_sabrina":"sabrina","late_task_blaine":"blaine","late_task_giovanni":"giovanni","late_task_flute":"mr_fuji","late_task_hideout_boss":"giovanni","late_task_silph_boss":"giovanni","late_task_silph_blue":"blue","late_league":"lorelei"}.get(npc[2],"scientist")
 		if npc[2]=="late_league": identity=["lorelei","bruno","agatha","lance","blue"][clampi(int(a.Finale.state(a).get("league",0)),0,4)]
@@ -329,7 +372,45 @@ func person(at: Vector2, identity: String, player: bool=false):
 	if player:
 		frame=1 if heading.y<0 else 2 if absf(heading.x)>0.1 else 0
 		flip=frame==2 and heading.x>0
-		if (a.c.click_move or a.c.controls.held("up") or a.c.controls.held("down") or a.c.controls.held("left") or a.c.controls.held("right")): frame=3+frame*2+int(a.walk_age*8)%2
+		if stepping or events.spin!=Vector2.ZERO: frame=3+frame*2+int(a.walk_age*8)%2
 	frame=mini(frame,int(texture.get_width()/16)-1)
 	var extent=Vector2(48,texture.get_height()*3)
 	a.draw_texture_rect_region(texture,Rect2(at+Vector2(24 if flip else -24,-extent.y+24),Vector2(-48 if flip else 48,extent.y)),Rect2(frame*16,0,16,texture.get_height()))
+
+
+func cardinal(input: Vector2, mouse: bool=false) -> Vector2:
+	if input==Vector2.ZERO: return Vector2.ZERO
+	if mouse:
+		var delta=a.c.click_destination-a.position_world
+		# Finish one axis before the other instead of alternating diagonal micro-steps.
+		if absf(delta.x)>=TILE*0.5: return Vector2(signf(delta.x),0)
+		if absf(delta.y)>=TILE*0.5: return Vector2(0,signf(delta.y))
+		a.c.click_move=false
+		return Vector2.ZERO
+	if absf(input.y)>=absf(input.x): return Vector2(0,signf(input.y))
+	return Vector2(signf(input.x),0)
+
+func advance_step(dt: float):
+	var speed=360.0 if a.c.controls.held("sprint") else 240.0
+	a.position_world=a.position_world.move_toward(step_target,speed*minf(dt,0.05))
+	a.walk_age+=dt
+	a.autosave+=dt
+	if a.position_world.is_equal_approx(step_target):
+		a.position_world=step_target
+		stepping=false
+		if a.autosave>=5: a.autosave=0; a.save()
+
+func can_talk(at: Vector2) -> bool:
+	var delta=at-a.position_world
+	var direction=cardinal(delta)
+	if direction==Vector2.ZERO: return true
+	if heading.dot(direction)<0.5: return false
+	var sideways=absf(delta.x) if direction.y!=0 else absf(delta.y)
+	if sideways>TILE*0.35: return false
+	var distance=absf(delta.y) if direction.y!=0 else absf(delta.x)
+	if distance<=TILE*1.3: return true
+	if distance>TILE*2.25: return false
+	var counter=a.position_world+direction*TILE
+	var x=floori(counter.x/TILE); var y=floori(counter.y/TILE)
+	if x<0 or y<0 or x>=room().width or y>=room().height: return false
+	return int(events.catalog[current].behavior[y*int(room().width)+x])==0x80
