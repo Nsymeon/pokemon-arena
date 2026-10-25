@@ -360,7 +360,7 @@ func person(at: Vector2, identity: String, player: bool=false, look: Vector2=Vec
 	var key=identity.to_lower().replace("_","")
 	if not actor_paths.has(key): key="boy"
 	if not actor_textures.has(key): actor_textures[key]=ImageTexture.create_from_image(Image.load_from_file(actor_paths[key]))
-	var texture=actor_textures[key]
+	var texture=a.avatar.texture(a.avatar.config()) if player and a.data.has("avatar") else actor_textures[key]
 	var frame=0
 	var flip=false
 	if not player and look!=Vector2.ZERO:

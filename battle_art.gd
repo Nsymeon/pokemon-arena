@@ -172,7 +172,7 @@ func trainer_shape(c, p: Vector2, facing: float, points: Array, color: Color):
 
 func trainer(c, friendly: bool):
 	var feet: Vector2 = c.trainer_position(friendly)
-	var identity = "red" if friendly else c.opponent_identity
+	var identity = c.player_trainer_identity() if friendly else c.opponent_identity
 	var fighter = c.player if friendly else c.enemy
 	var elapsed = c.SEND_OUT_TIME - c.countdown
 	var ball = not fighter.get("entering", true) or c.countdown <= 0 or elapsed < 0.25 or elapsed >= 2.4

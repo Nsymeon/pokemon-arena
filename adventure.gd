@@ -14,6 +14,7 @@ var save_path = SAVE_PATH
 var save_error = ""
 var save_allowed = true
 var c
+var avatar=preload("res://adventure_avatar.gd").new()
 var world=preload("res://kanto_world.gd").new()
 var inventory = preload("res://adventure_inventory.gd").new()
 var exploring = false
@@ -40,6 +41,7 @@ var font: Font
 
 func install(context):
 	c = context
+	avatar.a = self
 	world.install(self)
 	inventory.install(self)
 	font = ThemeDB.fallback_font
@@ -50,6 +52,7 @@ func install(context):
 	add_child(ui)
 
 func valid(value) -> bool:
+	if value is Dictionary and value.has("avatar") and not avatar.valid(value.avatar): return false
 	if value is Dictionary and not world.events.valid(value): return false
 	if not value is Dictionary or value.get("version",0) != 1: return false
 	for key in ["map","starter","balls","money","healing_map"]:
@@ -160,6 +163,7 @@ func enter():
 	if OS.get_cmdline_user_args().is_empty(): world.activate()
 	dialog = "Welcome to Pallet Town! Find Professor Oak inside his lab and press "+c.controls.text("interact")+"." if data.starter == 0 else "Adventure loaded. " + objective()
 	if world.enabled: dialog=""
+	if not data.has("avatar") and OS.get_cmdline_user_args().is_empty(): avatar.show_creator(self)
 	queue_redraw()
 
 func leave():
@@ -308,6 +312,7 @@ func handle_input(event):
 	if not (event is InputEventKey or event is InputEventMouseButton) or not event.pressed: return
 	if event is InputEventKey and event.echo: return
 	if modal != "":
+		if modal=="CREATE YOUR TRAINER": return
 		if event is InputEventKey and event.keycode == KEY_ESCAPE:
 			if modal.begins_with("EVOLUTION"): next_evolution()
 			else: clear_ui()
@@ -1098,10 +1103,12 @@ func reset_adventure() -> bool:
 	clear_ui()
 	dialog = "New adventure started! Find Professor Oak inside his lab and press "+c.controls.text("interact")+"."
 	if not backup_ok: dialog += " Save succeeded; backup could not be refreshed."
+	if OS.get_cmdline_user_args().is_empty(): avatar.show_creator(self)
 	queue_redraw()
 	return true
 
 func reset_tests():
+	data["avatar"] = avatar.DEFAULT.duplicate(true)
 	var campaign_before = c.campaign.data.duplicate(true)
 	data.party = [new_mon(4,16)]
 	data.storage = [new_mon(25,12)]
@@ -1125,6 +1132,7 @@ func reset_tests():
 	c.check(reset_adventure(),"Confirmed reset succeeds")
 	c.check(data.party.is_empty() and data.storage.is_empty() and data.starter==0 and data.map==0 and data.money==300 and data.balls==10,"Reset restores Pallet and initial inventory")
 	c.check(not data.badge and not data.get("cascade",false) and not data.get("rocket",false) and data.tms.is_empty(),"Reset clears adventure badges, TMs and story flags")
+	c.check(not data.has("avatar"),"Adventure reset clears character appearance")
 	c.check(not data.has("journey") and not data.has("hall_of_fame"),"Adventure reset clears full Kanto and Hall of Fame")
 	c.check(c.campaign.data==campaign_before,"Adventure reset leaves Gym Leaders progress untouched")
 	load_save()

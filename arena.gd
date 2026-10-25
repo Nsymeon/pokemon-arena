@@ -123,7 +123,9 @@ func _ready():
 	adventure.install(self)
 	campaign.install(self)
 	frontend.install(self)
-	if "--capture-scenes" in OS.get_cmdline_user_args():
+	if "--capture-avatar" in OS.get_cmdline_user_args():
+		call_deferred("capture_avatar")
+	elif "--capture-scenes" in OS.get_cmdline_user_args():
 		call_deferred("capture_world_scene")
 	elif "--capture-events" in OS.get_cmdline_user_args():
 		call_deferred("capture_world_events")
@@ -1223,13 +1225,16 @@ func load_portraits():
 func trainer_position(friendly: bool) -> Vector2:
 	return FIELD.size * Vector2(0.032 if friendly else 0.968, 0.54)
 
+func player_trainer_identity() -> String:
+	return "leaf" if adventure.in_battle and adventure.avatar.config().gender=="girl" else "red"
+
 func trainer_hand(friendly: bool) -> Vector2:
 	var fighter = player if friendly else enemy
 	var elapsed = SEND_OUT_TIME - countdown
 	var lift = 0.0
 	if countdown > 0 and fighter.get("entering", true):
 		lift = sin(clampf(elapsed / 1.05, 0, 1) * PI) * 18
-	var identity = "red" if friendly else opponent_identity
+	var identity = player_trainer_identity() if friendly else opponent_identity
 	return trainer_position(friendly) + art.trainers.hand_offset(identity,1.0 if friendly else -1.0) + art.trainers.pose_shift(lift)
 
 func summon_progress(time: float) -> float:
@@ -1692,6 +1697,7 @@ func smoke_test():
 	balance.tests(self)
 	adventure.world.tests()
 	adventure.world.events.tests()
+	adventure.avatar.tests(adventure)
 	adventure.world.scenes.tests()
 	adventure.tests()
 	campaign.tests(self)
@@ -3185,4 +3191,31 @@ func capture_world_scene():
 		await RenderingServer.frame_post_draw
 		get_viewport().get_texture().get_image().save_png("res://captures/trainer-approach.png")
 	else: push_error("No trainer preview position found")
+	get_tree().quit()
+
+func capture_avatar():
+	set_process(false)
+	frontend.layer.visible=false; selection_controls.visible=false
+	adventure.loaded=true; adventure.save_allowed=false; adventure.enter()
+	adventure.world.activate()
+	adventure.avatar.show_creator(adventure)
+	for gender in ["boy","girl"]:
+		adventure.avatar.set_gender(gender)
+		adventure.avatar.change_color(Color("8362cb"),"shirt")
+		adventure.avatar.change_color(Color("ecbd63"),"hair")
+		adventure.avatar.change_color(Color("384d78"),"pants")
+		adventure.avatar.change_color(Color("e85266"),"shoes")
+		adventure.queue_redraw()
+		await get_tree().process_frame
+		await RenderingServer.frame_post_draw
+		get_viewport().get_texture().get_image().save_png("res://captures/avatar-"+gender+".png")
+	adventure.data["avatar"]=adventure.avatar.draft.duplicate(true)
+	adventure.choose_starter(4)
+	adventure.begin_battle("wild",[16],[3])
+	countdown=0
+	camera_offset=Vector2(0,300)
+	queue_redraw()
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://captures/avatar-battle.png")
 	get_tree().quit()

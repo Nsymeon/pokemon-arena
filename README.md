@@ -6,6 +6,10 @@ Godot 4.3 desktop arena prototype. All 151 original Kanto species are playable, 
 
 [Download the latest tested build](https://github.com/Nsymeon/pokemon-arena/releases/latest). Choose PokemonArena-Windows.zip, extract the entire ZIP and run PLAY.bat. No Godot installation is needed. CHECK-FOR-UPDATES.bat opens the same page for future updates. Single-player against AI.
 
+## Adventure character
+
+On the first Play → Adventure entry, choose boy/girl and independent shirt, shoes, hair and trouser colors. The creator previews three map directions and the battle trainer live. Save & Start Adventure stores the appearance in your adventure save and uses it on the map and in battle (including Poké Ball throw positioning). Existing saves show the creator once without resetting progress. Reset Adventure removes the appearance along with that run, allowing a new character. Back to Menu discards unfinished appearance choices. Gym Leaders and Free Battles retain their usual trainers.
+
 ## Play
 
 Double-click `play.bat`, or import `project.godot` in Godot and press F5. All assets and roster data are local; playing needs no network access.
