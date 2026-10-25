@@ -160,7 +160,7 @@ func actors() -> Array:
 	var result=[]
 	var quests=quest_actors()
 	for object in room().objects:
-		if object.get("graphics_id","").contains("ITEM_BALL") or object.get("graphics_id","").contains("BOULDER") or object.get("graphics_id","").contains("CUT_TREE"): continue
+		if object.get("graphics_id","").contains("ITEM_BALL") or object.get("graphics_id","").contains("BOULDER") or object.get("graphics_id","").contains("CUT_TREE") or object.get("graphics_id","").contains("ROCK_SMASH_ROCK"): continue
 		if "Snorlax" in str(object.get("script","")) and events.done("snorlax:"+current): continue
 		var npc=object.duplicate(true)
 		npc["pos"]=scenes.positions.get(str(object.get("script","")),Vector2(float(object.x)+0.5,float(object.y)+0.5)*TILE)

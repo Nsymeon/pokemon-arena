@@ -70,10 +70,13 @@ func collision(p: Vector2) -> int:
 	if index>=0 and index<catalog[w.current].behavior.size():
 		var behavior=int(catalog[w.current].behavior[index])
 		if behavior in [0x10,0x11,0x12,0x15,0x50,0x51,0x52,0x53] and not a.Finale.has(a,"surf"): return 1
+	for item in catalog[w.current].items:
+		if Vector2i(int(item.x),int(item.y))==cell and not done(w.current+"item"+str(item.id)): return 1
 	for rock in rocks():
 		if Vector2i(rock.x,rock.y)==cell: return 1
 	for o in w.room().objects:
 		if "Snorlax" in str(o.get("script","")) and not done("snorlax:"+w.current) and Vector2i(int(o.x),int(o.y))==cell: return 1
+		if "ROCK_SMASH_ROCK" in str(o.graphics_id) and Vector2i(int(o.x),int(o.y))==cell: return 1
 		if "CUT_TREE" in str(o.graphics_id) and not done(w.current+"tree"+str(o.x)+":"+str(o.y)) and Vector2i(int(o.x),int(o.y))==cell: return 1
 	if patches.has(cell): return int(patches[cell].solid)
 	return -1
@@ -189,13 +192,17 @@ func interact() -> bool:
 		if not done(w.current+"item"+str(item.id)): nearby.append({"pos":point(item),"kind":"item","data":item})
 	for rock in rocks(): nearby.append({"pos":point(rock),"kind":"rock","data":rock})
 	for o in w.room().objects:
+		if "ROCK_SMASH_ROCK" in str(o.graphics_id): nearby.append({"pos":point(o),"kind":"smash","data":o})
 		if "CUT_TREE" in str(o.graphics_id) and not done(w.current+"tree"+str(o.x)+":"+str(o.y)): nearby.append({"pos":point(o),"kind":"tree","data":o})
+	# Object interaction uses the adjacent tile in front, never a diagonal or through a wall.
+	nearby=nearby.filter(func(event):return Vector2(event.pos).distance_to(a.position_world+w.heading*w.TILE)<w.TILE*0.2)
 	nearby.sort_custom(func(x,y):return a.position_world.distance_squared_to(x.pos)<a.position_world.distance_squared_to(y.pos))
 	if nearby.is_empty() or a.position_world.distance_to(nearby[0].pos)>w.TILE*1.45: return false
 	var event=nearby[0]; var o=event.data
 	match event.kind:
 		"item": pickup(o)
 		"rock": push(o)
+		"smash": a.dialog="A cracked rock blocks the path. Rock Smash field use is not available in this build yet."
 		"tree":
 			if a.Story.state(a).get("cut",false):
 				finish(w.current+"tree"+str(o.x)+":"+str(o.y)); a.dialog="Cut cleared the tree!"; a.save()
@@ -221,6 +228,11 @@ func draw():
 		if not textures.has(tile.image): textures[tile.image]=ImageTexture.create_from_image(Image.load_from_file(tile.image))
 		a.draw_texture_rect(textures[tile.image],Rect2(Vector2(tile.x,tile.y)*w.TILE,Vector2.ONE*w.TILE),false)
 	for o in w.room().objects:
+		if "ROCK_SMASH_ROCK" in str(o.graphics_id):
+			var p=point(o)
+			a.draw_circle(p+Vector2(0,7),18,Color("343d40"))
+			a.draw_circle(p,17,Color("ad9980"))
+			a.draw_polyline(PackedVector2Array([p+Vector2(-4,-15),p+Vector2(4,-5),p+Vector2(-3,2),p+Vector2(7,13)]),Color("514b48"),3)
 		if "CUT_TREE" in str(o.graphics_id) and not done(w.current+"tree"+str(o.x)+":"+str(o.y)):
 			var p=point(o)
 			a.draw_rect(Rect2(p+Vector2(-5,0),Vector2(10,20)),Color("947347"))
@@ -298,6 +310,51 @@ func tests():
 	var old_allowed=a.save_allowed
 	a.save_allowed=false
 	a.data.erase("world_events")
+	a.inventory.migrate()
+	var old_heading=w.heading
+	w.current="MAP_MT_MOON_1F"; refresh()
+	var item=catalog[w.current].items.filter(func(i):return i.item=="POTION")[0]
+	var item_at=point(item)
+	a.c.check(w.blocked(item_at),"Uncollected item ball blocks its tile")
+	a.position_world=item_at+Vector2.DOWN*w.TILE; w.heading=Vector2.DOWN
+	interact()
+	a.c.check(not done(w.current+"item"+str(item.id)),"Cannot collect an item behind the player")
+	a.position_world=item_at+Vector2.ONE*w.TILE; w.heading=Vector2.UP
+	interact()
+	a.c.check(not done(w.current+"item"+str(item.id)),"Cannot collect an item diagonally")
+	a.position_world=item_at+Vector2.DOWN*w.TILE; w.heading=Vector2.UP
+	var count=int(a.data.bag.get("potion",0))
+	interact()
+	a.c.check(not w.blocked(item_at) and int(a.data.bag.get("potion",0))==count+1,"Facing item pickup grants it and frees the tile")
+	pickup(item)
+	a.c.check(int(a.data.bag.get("potion",0))==count+1,"Collected items cannot be picked up twice")
+	w.current="MAP_CELADON_CITY"; refresh()
+	var tree=w.room().objects.filter(func(o):return str(o.graphics_id).contains("CUT_TREE") and int(o.x)>=0)[0]
+	var tree_at=point(tree)
+	a.Story.state(a)["cut"]=false
+	a.position_world=tree_at+Vector2.DOWN*w.TILE; w.heading=Vector2.UP
+	interact()
+	a.c.check(w.blocked(tree_at),"Tree remains solid without Cut")
+	a.Story.state(a)["cut"]=true
+	interact()
+	a.c.check(not w.blocked(tree_at),"Cut removes the tree collision")
+	w.current="MAP_CERULEAN_CAVE_1F"; refresh()
+	var smash=w.room().objects.filter(func(o):return str(o.graphics_id).contains("ROCK_SMASH_ROCK"))[0]
+	a.c.check(w.blocked(point(smash)),"Rock Smash rocks block walking")
+	a.c.check(not w.actors().any(func(o):return str(o.graphics_id).contains("ROCK_SMASH_ROCK")),"Rock Smash rocks never render as fallback people")
+	w.current="MAP_VICTORY_ROAD_1F"; refresh()
+	var solid_rock=rocks()[0]
+	a.c.check(w.blocked(point(solid_rock)),"Strength boulder blocks its current position")
+	var occupied=point(solid_rock)
+	var item_block=catalog[w.current].items[0]
+	state().rocks[solid_rock.key]={"x":int(item_block.x)-1,"y":int(item_block.y)}
+	a.position_world=point(item_block)-Vector2(2*w.TILE,0)
+	a.Finale.state(a)["strength"]=true
+	push(rocks().filter(func(r):return r.key==solid_rock.key)[0])
+	a.c.check(int(state().rocks[solid_rock.key].x)==int(item_block.x)-1,"Strength cannot push onto an item ball")
+	state().rocks.erase(solid_rock.key)
+	a.c.check(w.blocked(occupied),"Restored boulder retains collision")
+	w.heading=old_heading
 	w.current="MAP_VERMILION_CITY_GYM"
 	a.Story.state(a)["switch"]=0
 	state().trash_first=7

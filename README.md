@@ -6,6 +6,10 @@ Godot 4.3 desktop arena prototype. All 151 original Kanto species are playable, 
 
 [Download the latest tested build](https://github.com/Nsymeon/pokemon-arena/releases/latest). Choose PokemonArena-Windows.zip, extract the entire ZIP and run PLAY.bat. No Godot installation is needed. CHECK-FOR-UPDATES.bat opens the same page for future updates. Single-player against AI.
 
+## Map object collision
+
+Visible item balls block their tile until collected. Face an adjacent object and press the interaction key (E by default); diagonal and behind-the-player interactions do not activate objects. Cut trees and Strength boulders stay solid until removed or moved, and boulders cannot be pushed onto item balls. Rock Smash rocks render as cracked stones and block passage; Rock Smash field use is not yet implemented.
+
 ## Adventure movement performance
 
 All four walking directions share the same foot anchor, including mirrored right-facing sprites. Nearby walkable placement searches outward rather than scanning an entire cave for every story NPC each frame, while retaining nearest-tile selection and live puzzle collision. Use `--profile-world` for repeatable NPC-placement timings in Mt. Moon, Victory Road and Cerulean Cave; `--capture-walk` captures direction previews.
