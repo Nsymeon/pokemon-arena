@@ -123,7 +123,11 @@ func _ready():
 	adventure.install(self)
 	campaign.install(self)
 	frontend.install(self)
-	if "--capture-avatar" in OS.get_cmdline_user_args():
+	if "--capture-walk" in OS.get_cmdline_user_args():
+		call_deferred("capture_world_walk")
+	elif "--profile-world" in OS.get_cmdline_user_args():
+		call_deferred("profile_world")
+	elif "--capture-avatar" in OS.get_cmdline_user_args():
 		call_deferred("capture_avatar")
 	elif "--capture-scenes" in OS.get_cmdline_user_args():
 		call_deferred("capture_world_scene")
@@ -3218,4 +3222,35 @@ func capture_avatar():
 	await get_tree().process_frame
 	await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png("res://captures/avatar-battle.png")
+	get_tree().quit()
+
+func profile_world():
+	set_process(false)
+	adventure.loaded=true; adventure.save_allowed=false; adventure.enter()
+	adventure.choose_starter(4)
+	adventure.world.enabled=true
+	for id in ["MAP_MT_MOON_1F","MAP_VICTORY_ROAD_3F","MAP_CERULEAN_CAVE_1F"]:
+		adventure.world.current=id; adventure.world.events.refresh()
+		var start=Time.get_ticks_usec()
+		for i in range(10):
+			adventure.world.actors()
+			adventure.world.quest_actors()
+		print("WORLD PROFILE ",id," actors + quests ms: ",(Time.get_ticks_usec()-start)/10000.0)
+	get_tree().quit()
+
+func capture_world_walk():
+	set_process(false)
+	frontend.layer.visible=false; selection_controls.visible=false
+	adventure.loaded=true; adventure.save_allowed=false; adventure.enter()
+	adventure.choose_starter(4); adventure.dialog=""
+	adventure.data["avatar"]=adventure.avatar.DEFAULT.duplicate(true)
+	var w=adventure.world
+	w.enabled=true; w.current="MAP_MT_MOON_1F"; w.events.refresh()
+	adventure.position_world=w.walkable(Vector2(12.5,16.5)*w.TILE)
+	w.update_camera(); w.stepping=true; adventure.walk_age=0.2
+	for direction in [Vector2.LEFT,Vector2.RIGHT,Vector2.UP,Vector2.DOWN]:
+		w.heading=direction; adventure.queue_redraw()
+		await get_tree().process_frame
+		await RenderingServer.frame_post_draw
+		get_viewport().get_texture().get_image().save_png("res://captures/world-walk-"+str(direction.x)+"-"+str(direction.y)+".png")
 	get_tree().quit()

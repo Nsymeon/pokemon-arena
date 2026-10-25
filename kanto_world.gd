@@ -54,13 +54,26 @@ func blocked(p: Vector2) -> bool:
 	return (int(room().cells[y*int(room().width)+x])&0xC00)!=0
 
 func walkable(p: Vector2) -> Vector2:
+	# Search nearby rings instead of scanning every map tile for each NPC every frame.
+	# Keep exact nearest-distance selection and consult live puzzle collision.
+	var width=int(room().width); var height=int(room().height)
+	var origin=Vector2i(clampi(floori(p.x/TILE),0,width-1),clampi(floori(p.y/TILE),0,height-1))
+	var center=(Vector2(origin)+Vector2.ONE*0.5)*TILE
+	var offset=maxf(absf(p.x-center.x),absf(p.y-center.y))
 	var best=Vector2(TILE*1.5,TILE*1.5)
 	var distance=INF
-	for y in range(int(room().height)):
-		for x in range(int(room().width)):
-			var candidate=Vector2(x+0.5,y+0.5)*TILE
-			if not blocked(candidate) and candidate.distance_squared_to(p)<distance:
-				best=candidate; distance=candidate.distance_squared_to(p)
+	for radius in range(maxi(width,height)):
+		for y in range(maxi(0,origin.y-radius),mini(height-1,origin.y+radius)+1):
+			for x in range(maxi(0,origin.x-radius),mini(width-1,origin.x+radius)+1):
+				if maxi(absi(x-origin.x),absi(y-origin.y))!=radius: continue
+				var candidate=Vector2(x+0.5,y+0.5)*TILE
+				var squared=candidate.distance_squared_to(p)
+				if squared>distance: continue
+				if not blocked(candidate) and (squared<distance or candidate.y<best.y or (candidate.y==best.y and candidate.x<best.x)):
+					best=candidate; distance=squared
+		# Any unvisited center is at least this far away along one axis.
+		var remaining=maxf(0,(radius+1)*TILE-offset)
+		if distance<remaining*remaining: return best
 	return best
 
 func update_camera():
@@ -253,7 +266,23 @@ func tests():
 		for npc in room().objects:
 			if npc.has("battle"):
 				for member in npc.battle.party: a.c.check(a.c.roster.any(func(mon):return int(mon.id)==int(member[0])),"FRLG trainer species supported")
+	for cave in ["MAP_MT_MOON_1F","MAP_VICTORY_ROAD_3F","MAP_CERULEAN_CAVE_1F"]:
+		current=cave; events.refresh()
+		for target in [Vector2(12.1,16.9)*TILE,Vector2(1.5,1.5)*TILE,Vector2(-2,5)*TILE]:
+			var expected=Vector2(TILE*1.5,TILE*1.5)
+			var nearest=INF
+			for y in range(int(room().height)):
+				for x in range(int(room().width)):
+					var cell=Vector2(x+0.5,y+0.5)*TILE
+					if not blocked(cell) and cell.distance_squared_to(target)<nearest:
+						expected=cell; nearest=cell.distance_squared_to(target)
+			a.c.check(walkable(target)==expected,"Nearby search matches exhaustive nearest walkable tile: "+cave)
+	for direction in [Vector2.LEFT,Vector2.RIGHT,Vector2.UP,Vector2.DOWN]:
+		a.position_world=Vector2(500,500); step_target=a.position_world+direction*TILE; stepping=true
+		for i in range(11): advance_step(0.02)
+		a.c.check(not stepping and a.position_world==Vector2(500,500)+direction*TILE,"All four directions finish one equal-sized step")
 	current="MAP_PALLET_TOWN"
+	events.refresh()
 	a.position_world=walkable(Vector2(12,16)*TILE)
 	a.data["world_map"]=current
 	a.data.x=a.position_world.x; a.data.y=a.position_world.y
@@ -372,7 +401,20 @@ func person(at: Vector2, identity: String, player: bool=false, look: Vector2=Vec
 		if stepping or events.spin!=Vector2.ZERO: frame=3+frame*2+int(a.walk_age*8)%2
 	frame=mini(frame,int(texture.get_width()/16)-1)
 	var extent=Vector2(48,texture.get_height()*3)
-	a.draw_texture_rect_region(texture,Rect2(at+Vector2(24 if flip else -24,-extent.y+24),Vector2(-48 if flip else 48,extent.y)),Rect2(frame*16,0,16,texture.get_height()))
+	if flip:
+		if player and a.data.has("avatar"):
+			texture=a.avatar.texture(a.avatar.config(),false,true)
+		else:
+			var mirrored_key=key+":right"
+			if not actor_textures.has(mirrored_key):
+				var pixels=texture.get_image()
+				pixels.flip_x()
+				actor_textures[mirrored_key]=ImageTexture.create_from_image(pixels)
+			texture=actor_textures[mirrored_key]
+		# Mirroring the strip also reverses its frame order.
+		frame=int(texture.get_width()/16)-1-frame
+	# Every direction shares the same foot anchor and positive-sized destination.
+	a.draw_texture_rect_region(texture,Rect2(at+Vector2(-24,-extent.y+24),extent),Rect2(frame*16,0,16,texture.get_height()))
 
 
 func cardinal(input: Vector2, mouse: bool=false) -> Vector2:
