@@ -123,7 +123,9 @@ func _ready():
 	adventure.install(self)
 	campaign.install(self)
 	frontend.install(self)
-	if "--capture-events" in OS.get_cmdline_user_args():
+	if "--capture-scenes" in OS.get_cmdline_user_args():
+		call_deferred("capture_world_scene")
+	elif "--capture-events" in OS.get_cmdline_user_args():
 		call_deferred("capture_world_events")
 	elif "--capture-world" in OS.get_cmdline_user_args():
 		call_deferred("capture_kanto_world")
@@ -1690,6 +1692,7 @@ func smoke_test():
 	balance.tests(self)
 	adventure.world.tests()
 	adventure.world.events.tests()
+	adventure.world.scenes.tests()
 	adventure.tests()
 	campaign.tests(self)
 	clashes.tests(self)
@@ -3156,4 +3159,30 @@ func capture_world_events():
 		await get_tree().process_frame
 		await RenderingServer.frame_post_draw
 		get_viewport().get_texture().get_image().save_png("res://captures/surge-"+("open" if opened else "closed")+".png")
+	get_tree().quit()
+
+
+func capture_world_scene():
+	set_process(false)
+	frontend.layer.visible=false; selection_controls.visible=false
+	adventure.loaded=true; adventure.save_allowed=false; adventure.enter()
+	adventure.choose_starter(4); adventure.dialog=""; adventure.world.enabled=true
+	var w=adventure.world
+	w.current="MAP_ROUTE3"; w.events.refresh()
+	var found=false
+	for npc in w.actors():
+		if not npc.has("battle"): continue
+		adventure.position_world=Vector2(npc.pos)+w.scenes.trainer_direction(npc)*w.TILE*2
+		if w.blocked(adventure.position_world) or not w.scenes.sees(npc): continue
+		found=w.scenes.detect_trainer(); break
+	if found:
+		w.scenes.tick(0.1); w.update_camera(); adventure.queue_redraw()
+		await get_tree().process_frame
+		await RenderingServer.frame_post_draw
+		get_viewport().get_texture().get_image().save_png("res://captures/trainer-spotted.png")
+		w.scenes.tick(0.7); w.scenes.tick(0.15); adventure.queue_redraw()
+		await get_tree().process_frame
+		await RenderingServer.frame_post_draw
+		get_viewport().get_texture().get_image().save_png("res://captures/trainer-approach.png")
+	else: push_error("No trainer preview position found")
 	get_tree().quit()

@@ -96,7 +96,7 @@ func show_instructions():
 	background()
 	label("HOW TO PLAY",Vector2(430,65),42,Color("f9d86b"))
 	var sections=[
-		["ADVENTURE", "Start in Pallet Town, choose a starter, catch Pokemon and earn XP.\nLearn moves, evolve, use your Bag and TMs. Your journey autosaves.\nComplete eight badges, stop Team Rocket and challenge the Elite Four and Champion."],
+		["ADVENTURE", "Walk through doors automatically. Trainers spot you and approach to battle.\nPress your interact key in grass, water or caves to seek a wild Pokemon.\nChoose a starter, earn eight badges and become Champion. Your journey autosaves."],
 		["GYM LEADERS", "Challenge the eight Kanto Gym Leaders, Elite Four and Blue.\nBuild your team and choose its moves. League progress saves separately\nfrom Adventure."],
 		["FREE BATTLES", "Choose Pokemon, moves, opponents and arenas for practice matches.\nExperiment with team combinations without changing Adventure progress."],
 		["REAL-TIME COMBAT", "Aim with the mouse. Use four moves, sprint and switch Pokemon.\nMoves have energy costs and cooldowns: normally 1 second between attacks.\nAfter casting, walking/sprint pauses for 0.4 seconds. Sprint gives no invulnerability.\nHoming attacks can chase for 3 seconds: sprint sideways to evade them."],

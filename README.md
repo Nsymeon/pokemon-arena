@@ -346,3 +346,13 @@ Rebuild event assets with tools/import-kanto-events.py (also refreshes base maps
 
 
 Adventure walking uses cardinal tile-to-tile steps (including right-click movement); sprint changes the step speed. Battle movement is unchanged. Face an NPC and press E to talk across a single original counter tile, including the Center nurse and Mart clerks. Interaction prompts use the same counter reach rule.
+
+
+### Automatic travel, scenes and player-triggered wild searches (current)
+Doors, stairs and warp pads now activate when stepped on; blocked door graphics also accept walking into them. Arrival is latched until the player leaves that tile, preventing immediate return loops. Ordinary map entry has no dismiss-to-continue dialog. Interaction pressed during a walking step is buffered until the tile center.
+
+Normal overworld trainers use their imported facing direction and sight distance, reject obstructed paths, show an alert, approach, then start the existing arena battle with their existing party. Defeated trainers retain their saved flag. Gym leaders and story quest characters still have their own interaction rules. Roaming trainer rotations are not simulated yet.
+
+Wild encounters are ONLY requested by the interact binding (default E) in grass, surf water or eligible cave floor tiles. Walking alone never rolls a wild battle. The old visible wild markers are removed. FireRed land/surf slots, slot weights and level ranges are exported for 66 Kanto maps by tools/import-kanto-encounters.py; explicit E replaces the cartridge's per-step encounter chance. Fishing/rock-smash encounters are not added. Shininess, abilities, catching and arena combat keep their existing rules.
+
+Timed, skippable scenes now cover Oak's warning/escort and lab introduction, Bill's transporter, the Captain's Cut reward, Fuji's rescue, the Silph President and Hall of Fame, plus trainer approaches. Dialogue advances automatically; Enter/interact advances a line, Esc skips to the outcome. Story completion flags persist; the scene layer is cleaned up when leaving the application. These are adapted in-engine scenes, not every original FireRed cinematic or NPC script. Use --capture-scenes for the trainer alert/approach preview.

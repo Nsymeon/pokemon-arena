@@ -159,6 +159,7 @@ func enter():
 	position_world = Vector2(data.x,data.y)
 	if OS.get_cmdline_user_args().is_empty(): world.activate()
 	dialog = "Welcome to Pallet Town! Find Professor Oak inside his lab and press "+c.controls.text("interact")+"." if data.starter == 0 else "Adventure loaded. " + objective()
+	if world.enabled: dialog=""
 	queue_redraw()
 
 func leave():
@@ -291,6 +292,12 @@ func travel(step: int):
 	save()
 
 func handle_input(event):
+	if world.enabled and world.scenes.active:
+		if (event is InputEventKey or event is InputEventMouseButton) and event.pressed:
+			if event is InputEventKey and event.echo: return
+			if event is InputEventKey and event.keycode==KEY_ESCAPE: world.scenes.finish()
+			elif c.controls.matches(event,"interact") or (event is InputEventKey and event.keycode==KEY_ENTER): world.scenes.elapsed=1000.0
+		return
 	if c.controls.matches(event,"click_move"):
 		if modal=="" and dialog=="" and Rect2(0,90,1280,700).has_point(c.get_global_mouse_position()):
 			var target = c.get_global_mouse_position()-Vector2(0,90)+camera
@@ -343,7 +350,7 @@ func interact():
 		if position_world.distance_to(wild[0]) <= 95:
 			begin_battle("wild",[wild[1]],[wild[2]])
 			return
-	dialog = "Move closer to a person or wild Pokemon, then press "+c.controls.text("interact")+"."
+	dialog = "Stand in grass, water or a cave and press "+c.controls.text("interact")+" to search, or face a nearby person to talk." if world.enabled else "Move closer to a person or wild Pokemon, then press "+c.controls.text("interact")+"."
 
 func new_mon(id: int, level: int) -> Dictionary:
 	var mon={"id":id,"level":level,"xp":0,"hp":1.0,"moves":inventory.starting(id,level),"pending":[],"ailment":""}
@@ -1130,3 +1137,7 @@ func reset_tests():
 		if file.begins_with(save_path.get_file()+".before-reset-"):
 			directory.remove(file)
 	clear_ui()
+
+
+func _exit_tree():
+	world.scenes.reset()

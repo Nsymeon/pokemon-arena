@@ -12,15 +12,22 @@ var actor_paths: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res
 var actor_textures={}
 var heading=Vector2.DOWN
 var stepping=false
+var pending_interact=false
 var step_target=Vector2.ZERO
 var events=preload("res://kanto_events.gd").new()
+var scenes=preload("res://kanto_scenes.gd").new()
+var warp_latch=""
 
 func install(adventure):
 	a=adventure
 	events.install(self)
+	scenes.install(self)
 	for id in maps: names[maps[id].name]=id
 
 func activate():
+	pending_interact=false
+	scenes.reset()
+	warp_latch=""
 	stepping=false
 	enabled=true
 	current=a.data.get("world_map",names.get(LEGACY[int(a.data.map)],"MAP_PALLET_TOWN"))
@@ -63,6 +70,8 @@ func update_camera():
 func enter(id: String, at: Vector2):
 	if not maps.has(id): return
 	if current in events.LEAGUE and id not in events.LEAGUE and id!="MAP_POKEMON_LEAGUE_HALL_OF_FAME": a.Finale.state(a)["league"]=0
+	scenes.reset()
+	pending_interact=false
 	stepping=false
 	current=id
 	events.spin=Vector2.ZERO
@@ -72,16 +81,22 @@ func enter(id: String, at: Vector2):
 	if logical>=0: a.data.map=logical
 	a.position_world=walkable(at)
 	a.c.click_move=false
-	a.dialog=room().name.replace("_"," / ")+" / Approach a person or Pokemon and press "+a.c.controls.text("interact")+"."
+	a.dialog=""
+	warp_latch=warp_key(a.position_world)
 	update_camera()
 	a.save()
+	if OS.get_cmdline_user_args().is_empty(): scenes.entrance()
 
 func tick(dt):
 	a.time+=dt
+	if scenes.tick(dt):
+		update_camera(); a.queue_redraw(); return
 	if a.dialog=="" and a.modal=="":
 		if stepping:
 			advance_step(dt)
 			update_camera(); a.queue_redraw(); return
+		if try_warp(): return
+		if scenes.detect_trainer(): return
 		if events.tick(dt):
 			update_camera(); a.queue_redraw(); return
 		var direction=cardinal(a.c.movement_input(),a.c.click_move)
@@ -113,7 +128,7 @@ func tick(dt):
 					target=Vector2(TILE*1.5,proposed.y-offset)
 			if crossing and target.x>=0 and target.y>=0 and target.x<next.width*TILE and target.y<next.height*TILE:
 				if a.data.starter==0:
-					a.dialog="Speak to Professor Oak and choose a starter before leaving Pallet Town."
+					scenes.oak_rescue()
 					return
 				enter(link.map,target); return
 		if direction!=Vector2.ZERO:
@@ -121,6 +136,7 @@ func tick(dt):
 			if not blocked(step_target):
 				stepping=true
 				advance_step(dt)
+			elif try_warp(false,step_target): return
 			elif a.c.click_move: a.c.click_move=false
 		a.autosave+=dt
 		if a.autosave>=5: a.autosave=0; a.save()
@@ -134,7 +150,7 @@ func actors() -> Array:
 		if object.get("graphics_id","").contains("ITEM_BALL") or object.get("graphics_id","").contains("BOULDER") or object.get("graphics_id","").contains("CUT_TREE"): continue
 		if "Snorlax" in str(object.get("script","")) and events.done("snorlax:"+current): continue
 		var npc=object.duplicate(true)
-		npc["pos"]=Vector2(float(object.x)+0.5,float(object.y)+0.5)*TILE
+		npc["pos"]=scenes.positions.get(str(object.get("script","")),Vector2(float(object.x)+0.5,float(object.y)+0.5)*TILE)
 		if quests.any(func(q):return q[0].distance_to(npc.pos)<TILE*0.5): continue
 		result.append(npc)
 	return result
@@ -165,45 +181,21 @@ func quest_actors() -> Array:
 			for original in room().objects:
 				if graphic!="" and original.get("graphics_id","")=="OBJ_EVENT_GFX_"+graphic:
 					copy[0]=Vector2(float(original.x)+0.5,float(original.y)+0.5)*TILE
+			copy[0]=scenes.positions.get("quest:"+action,copy[0])
 			result.append(copy)
 		a.data.map=previous
 	return result
 
 func wild() -> Array:
-	if room().type not in ["MAP_TYPE_ROUTE","MAP_TYPE_UNDERGROUND"]: return []
-	var logical=LEGACY.find(room().name)
-	if logical<0: return []
-	var source=a.Kanto.wild_spawns(logical,a.wild_cycle) if a.Kanto.WILD.has(logical) else []
-	if a.WILD.has(logical):
-		var pool=a.WILD[logical]
-		for i in range(3): source.append([Vector2(450+i*300,500),pool[(a.wild_cycle+i)%pool.size()],{1:4,3:6,5:10,6:12,7:14}.get(logical,6)+(1 if i==1 else 0)])
-	for spawn in source: spawn[0]=walkable(spawn[0]*size()/Vector2(1600,1000))
-	return source
+	return []
 
 func interact() -> bool:
+	if stepping: pending_interact=true; return true
 	if events.interact(): return true
-	for door in room().warps:
-		var at=Vector2(float(door.x)+0.5,float(door.y)+0.5)*TILE
-		if a.position_world.distance_to(at)>TILE*1.4: continue
-		var dest=door.dest_map
-		if not maps.has(dest):
-			if dest=="MAP_DYNAMIC" and a.data.has("world_return"):
-				var back=a.data.world_return
-				enter(str(back.map),Vector2(float(back.x),float(back.y)))
-			else: a.dialog="This passage is outside Kanto."
-			return true
-		if not events.allow_door(dest): return true
-		var index=int(door.dest_warp_id)
-		var target=Vector2(TILE*2,TILE*2)
-		if index>=0 and index<maps[dest].warps.size():
-			var exit=maps[dest].warps[index]
-			target=Vector2(float(exit.x)+0.5,float(exit.y)+1.5)*TILE
-		if maps[dest].warps.any(func(w): return w.dest_map=="MAP_DYNAMIC"):
-			a.data["world_return"]={"map":current,"x":a.position_world.x,"y":a.position_world.y}
-		enter(dest,target)
-		return true
+	if try_warp(true): return true
 	for npc in quest_actors():
 		if a.position_world.distance_to(npc[0])<=100:
+			if scenes.quest(str(npc[2])): return true
 			if npc[2]=="oak" and events.npc_interact({"graphics_id":"OBJ_EVENT_GFX_PROF_OAK"}): return true
 			if npc[2]=="late_task_sabrina": a.Finale.state(a)["warp"]=true
 			return false
@@ -223,7 +215,7 @@ func interact() -> bool:
 			a.begin_battle("world_"+str(npc.script),ids,levels)
 		else: a.dialog="Welcome to "+room().name.replace("_"," / ")+". Explore the marked doors and passages."
 		return true
-	return false
+	return scenes.seek_wild()
 
 func guide():
 	var list=a.inventory.page("KANTO / "+room().name.replace("_"," / "))
@@ -239,7 +231,7 @@ func guide():
 		if maps.has(door.dest_map) and door.dest_map not in destinations:
 			destinations.append(door.dest_map)
 			a.Finale.info_row(list,"DOOR / STAIRS > "+maps[door.dest_map].name)
-	a.Finale.info_row(list,"Approach a door or stairs and press "+a.c.controls.text("interact")+". Battles begin only when you interact.")
+	a.Finale.info_row(list,"Walk onto doors/stairs. Trainers approach on sight. Press "+a.c.controls.text("interact")+" in grass, water or caves to seek a wild Pokemon.")
 
 func tests():
 	var before=a.data.duplicate(true)
@@ -268,7 +260,7 @@ func tests():
 	a.c.check(not blocked(a.position_world) and a.valid(a.data),"Canonical map position is walkable and save-valid")
 	a.c.check(blocked(Vector2(-1,-1)),"Canonical world prevents leaving collision bounds")
 	current="MAP_VIRIDIAN_FOREST"
-	a.c.check(not wild().is_empty(),"Canonical forest keeps visible manual wild encounters")
+	a.c.check(scenes.encounters.has(current),"Canonical forest has manual habitat encounter slots")
 	current="MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB"
 	a.c.check(quest_actors().any(func(q):return q[2]=="oak"),"Starter interaction exists inside Oak lab")
 	current="MAP_PEWTER_CITY_GYM"
@@ -327,11 +319,11 @@ func draw():
 	events.draw()
 	for door in room().warps:
 		var p=Vector2(float(door.x)+0.5,float(door.y)+0.5)*TILE
-		if a.position_world.distance_to(p)<TILE*1.5: a.words(a.c.controls.text("interact")+" / ENTER",p+Vector2(-35,-22),14,Color("fff0b0"))
+		if a.position_world.distance_to(p)<TILE*1.5: a.words("ENTER",p+Vector2(-35,-22),14,Color("fff0b0"))
 	for npc in actors():
 		if "Snorlax" in str(npc.get("script","")):
 			a.draw_texture_rect(a.c.portraits[143],Rect2(npc.pos-Vector2(38,60),Vector2(76,76)),false)
-		else: person(npc.pos,str(npc.get("graphics_id","OBJ_EVENT_GFX_WOMAN_1")).trim_prefix("OBJ_EVENT_GFX_"))
+		else: person(npc.pos,str(npc.get("graphics_id","OBJ_EVENT_GFX_WOMAN_1")).trim_prefix("OBJ_EVENT_GFX_"),false,scenes.trainer_direction(npc))
 		if can_talk(npc.pos): a.words(a.c.controls.text("interact")+" / "+(str(npc.battle.name) if npc.has("battle") else "TALK"),npc.pos+Vector2(-35,-65),14,Color("fff0b0"))
 	for npc in quest_actors():
 		var identity={"oak":"prof_oak","rival":"blue","heal":"nurse","shop":"man","brock":"brock","misty":"misty","bug":"bug_catcher","rocket":"rocket_m","guide":"man","story_captain":"captain","story_shipblue":"blue","story_bill":"bill","story_surge":"lt_surge","late_task_erika":"erika","late_task_koga":"koga","late_task_sabrina":"sabrina","late_task_blaine":"blaine","late_task_giovanni":"giovanni","late_task_flute":"mr_fuji","late_task_hideout_boss":"giovanni","late_task_silph_boss":"giovanni","late_task_silph_blue":"blue","late_league":"lorelei"}.get(npc[2],"scientist")
@@ -356,19 +348,24 @@ func draw():
 		a.draw_rect(Rect2(34+i*205,862,180*mon.hp,5),Color("77e2b0"))
 		a.draw_rect(Rect2(34+i*205,875,180,4),Color("354c50"))
 		a.draw_rect(Rect2(34+i*205,875,180*a.xp_ratio(mon),4),Color("79aaff"))
-	a.words("Move: WASD / right click   Talk / doors: "+a.c.controls.text("interact")+"   Team: P   Bag: I   Menu: Esc",Vector2(24,910),17)
+	if not scenes.pool().is_empty(): a.words(a.c.controls.text("interact")+" / SEARCH FOR A WILD POKEMON",Vector2(24,780),16,Color("ffe19a"))
+	a.words("Move: WASD / right click   Talk / search: "+a.c.controls.text("interact")+"   Team: P   Bag: I   Menu: Esc",Vector2(24,910),17)
 	if a.save_error!="": a.words(a.save_error,Vector2(24,950),14,Color("ff9999"))
 	if a.dialog!="":
 		a.draw_rect(Rect2(80,630,1120,145),Color("10252f"))
 		a.draw_multiline_string(a.font,Vector2(105,665),a.wrapped(a.dialog),HORIZONTAL_ALIGNMENT_LEFT,1060,20,4,Color("eef4de"))
+	scenes.draw()
 
-func person(at: Vector2, identity: String, player: bool=false):
+func person(at: Vector2, identity: String, player: bool=false, look: Vector2=Vector2.ZERO):
 	var key=identity.to_lower().replace("_","")
 	if not actor_paths.has(key): key="boy"
 	if not actor_textures.has(key): actor_textures[key]=ImageTexture.create_from_image(Image.load_from_file(actor_paths[key]))
 	var texture=actor_textures[key]
 	var frame=0
 	var flip=false
+	if not player and look!=Vector2.ZERO:
+		frame=1 if look.y<0 else 2 if absf(look.x)>0.1 else 0
+		flip=frame==2 and look.x>0
 	if player:
 		frame=1 if heading.y<0 else 2 if absf(heading.x)>0.1 else 0
 		flip=frame==2 and heading.x>0
@@ -398,6 +395,9 @@ func advance_step(dt: float):
 	if a.position_world.is_equal_approx(step_target):
 		a.position_world=step_target
 		stepping=false
+		if pending_interact:
+			pending_interact=false
+			a.interact()
 		if a.autosave>=5: a.autosave=0; a.save()
 
 func can_talk(at: Vector2) -> bool:
@@ -414,3 +414,35 @@ func can_talk(at: Vector2) -> bool:
 	var x=floori(counter.x/TILE); var y=floori(counter.y/TILE)
 	if x<0 or y<0 or x>=room().width or y>=room().height: return false
 	return int(events.catalog[current].behavior[y*int(room().width)+x])==0x80
+
+
+func warp_key(at: Vector2) -> String:
+	return current+":"+str(floori(at.x/TILE))+":"+str(floori(at.y/TILE))
+
+func try_warp(nearby: bool=false, probe: Vector2=Vector2.INF) -> bool:
+	if probe==Vector2.INF: probe=a.position_world
+	var key=warp_key(probe)
+	if not nearby and key==warp_latch: return false
+	if warp_key(a.position_world)!=warp_latch: warp_latch=""
+	for door in room().warps:
+		var at=Vector2(float(door.x)+0.5,float(door.y)+0.5)*TILE
+		if probe.distance_to(at)>(TILE*1.4 if nearby else TILE*0.35): continue
+		warp_latch=key
+		var dest=door.dest_map
+		if not maps.has(dest):
+			if dest=="MAP_DYNAMIC" and a.data.has("world_return"):
+				var back=a.data.world_return
+				enter(str(back.map),Vector2(float(back.x),float(back.y)))
+			else: a.dialog="This passage is outside Kanto."
+			return true
+		if not events.allow_door(dest): return true
+		var index=int(door.dest_warp_id)
+		var target=Vector2(TILE*2,TILE*2)
+		if index>=0 and index<maps[dest].warps.size():
+			var exit=maps[dest].warps[index]
+			target=Vector2(float(exit.x)+0.5,float(exit.y)+1.5)*TILE
+		if maps[dest].warps.any(func(w): return w.dest_map=="MAP_DYNAMIC"):
+			a.data["world_return"]={"map":current,"x":a.position_world.x,"y":a.position_world.y}
+		enter(dest,target)
+		return true
+	return false
