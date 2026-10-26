@@ -1,0 +1,17 @@
+{
+  "VictoryRoad_2F_EventScript_DoubleEdgeTutor": "doubleedge",
+  "RockTunnel_B1F_EventScript_RockSlideTutor": "rockslide",
+  "MtEmber_Exterior_EventScript_ExplosionTutor": "explosion",
+  "Route4_EventScript_MegaPunchTutor": "megapunch",
+  "Route4_EventScript_MegaKickTutor": "megakick",
+  "FuchsiaCity_EventScript_SubstituteTutor": "substitute",
+  "SevenIsland_EventScript_SwordsDanceTutor": "swordsdance",
+  "PewterCity_Museum_1F_EventScript_SeismicTossTutor": "seismictoss",
+  "FourIsland_House1_EventScript_BodySlamTutor": "bodyslam",
+  "CeladonCity_EventScript_SoftboiledTutor": "softboiled",
+  "CeladonCity_DepartmentStore_3F_EventScript_CounterTutor": "counter",
+  "CinnabarIsland_PokemonLab_ResearchRoom_EventScript_MetronomeTutor": "metronome",
+  "SilphCo_2F_EventScript_ThunderWaveTutor": "thunderwave",
+  "ViridianCity_EventScript_DreamEaterTutor": "dreameater",
+  "SaffronCity_CopycatsHouse_2F_EventScript_Copycat": "mimic"
+}

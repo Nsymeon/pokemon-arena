@@ -5,7 +5,41 @@ var riding=false
 var escape_point={}
 var trades: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://assets/kanto/trades.json"))
 var pending_static=""
-const LEGENDS={"Articuno":144,"Zapdos":145,"Mewtwo":150}
+var learning: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://assets/kanto/field-learning.json"))
+const KEY_TOOLS={"cut":["Cut Shears","Cascade"],"strength":["Power Gloves","Rainbow"],"flash":["Lantern","Boulder"],"rocksmash":["Rock Hammer","Marsh"],"waterfall":["Waterfall Climber","Volcano"]}
+
+func owns(tool) -> bool:
+	if tool=="cut": return a.Story.state(a).get("cut",false)
+	if tool in ["strength","surf"]: return a.Finale.has(a,tool)
+	return done("field:"+tool)
+
+func badge(tool) -> bool:
+	if tool=="flash": return a.data.badge
+	if tool=="cut": return a.data.get("cascade",false)
+	return a.Finale.has(a,{"fly":"thunder","strength":"rainbow","surf":"soul","rocksmash":"marsh","waterfall":"volcano"}.get(tool,""))
+
+func can_use(tool) -> bool:
+	return owns(tool) and badge(tool) and (knows(tool) if tool in ["fly","surf"] else true)
+
+func key_items():
+	var list=a.inventory.page("KEY ITEMS / permanent tools")
+	for tool in KEY_TOOLS:
+		var spec=KEY_TOOLS[tool]
+		a.inventory.row(list,spec[0]+" / "+tool.to_upper()+" / "+("OWNED" if owns(tool) else "NOT FOUND")+" / "+spec[1]+" Badge "+("OK" if badge(tool) else "REQUIRED"),flash if tool=="flash" else func():pass,tool!="flash" or not can_use(tool))
+	for move in ["fly","surf"]:
+		a.inventory.row(list,"TEACH "+move.to_upper()+" / reusable HM / Pokemon move required",hm_menu.bind(move),not owns(move))
+	for key in a.Finale.keys(a): a.inventory.row(list,str(key),func():pass,true)
+
+func hm_menu(move):
+	if a.in_battle or not owns(move) or move not in ["fly","surf"]: return
+	var list=a.inventory.page("TEACH "+move.to_upper()+" / choose partner")
+	for i in range(a.data.party.size()):
+		var mon=a.data.party[i]
+		a.inventory.row(list,a.mon_name(mon.id),a.inventory.replace_menu.bind(i,move,""),not hm_eligible(mon,move))
+
+func hm_eligible(mon,move) -> bool:
+	return move in ["fly","surf"] and owns(move) and move in learning.get(str(int(mon.id)),{}).get("hms",[])
+const LEGENDS={"Moltres":146,"Articuno":144,"Zapdos":145,"Mewtwo":150}
 const FOSSILS={"helix":138,"dome":140,"amber":142}
 
 func w(): return a.world
@@ -15,8 +49,8 @@ func smash_key(o): return "smashed:"+w().current+":"+str(o.x)+":"+str(o.y)
 
 func smash(o):
 	if done(smash_key(o)): return
-	if not done("field:rocksmash"):
-		a.dialog="A cracked rock. After earning the Boulder Badge, ask the museum researcher in Pewter for Rock Smash."
+	if not can_use("rocksmash"):
+		a.dialog="A cracked rock. Obtain the Rock Hammer at Pewter Museum and earn the Marsh Badge to use it."
 		return
 	var key=smash_key(o)
 	w().scenes.play([{"text":"ROCK SMASH! Cracks spread through the stone...","duration":0.65,"flash":true,"effect":"smash","point":w().events.point(o)}],func():
@@ -28,10 +62,14 @@ func reward(key: String, text: String):
 
 func hidden(o) -> bool:
 	var script=str(o.get("script",""))
+	if script=="ThreeIsland_BerryForest_EventScript_Lostelle" and a.sevii.done("lostelle_saved"): return true
+	if script=="TwoIsland_JoyfulGameCorner_EventScript_Lostelle" and not a.sevii.done("lostelle_saved"): return true
+	if script.begins_with("ThreeIsland_EventScript_Biker") and a.sevii.done("bikers"): return true
 	if done("static:"+script): return true
 	return (script.ends_with("DomeFossil") or script.ends_with("HelixFossil")) and done("fossil:chosen") or script.ends_with("_OldAmber") and done("fossil:amber")
 
 func npc(npc) -> bool:
+	if a.services.npc(npc) or a.sevii.npc(npc): return true
 	var script=str(npc.get("script",""))
 	if trades.has(script): trade_menu(script); return true
 	for name in LEGENDS:
@@ -53,7 +91,7 @@ func npc(npc) -> bool:
 		return true
 	if script=="PewterCity_Museum_1F_EventScript_Scientist1":
 		if not a.data.badge: a.dialog="RESEARCHER: Earn Brock's Boulder Badge, then I can teach you to break cracked rocks."
-		else: reward("field:rocksmash","RESEARCHER: Use ROCK SMASH on cracked stones! Face the rock and press your interaction key. Strength still moves the large boulders.")
+		else: reward("field:rocksmash","Received ROCK HAMMER! With the Marsh Badge, face cracked stones and interact. No move slot is required.")
 		return true
 	if script.ends_with("OldAmberScientist") or script.ends_with("_OldAmber"):
 		if not a.Story.state(a).get("cut",false): a.dialog="SCIENTIST: Return with Cut to reach our fossil collection."
@@ -76,7 +114,7 @@ func npc(npc) -> bool:
 		else: a.dialog="The chairman of Vermilion's Pokemon Fan Club has a Bicycle Voucher."
 		return true
 	if script=="Route16_House_EventScript_Woman":
-		reward("field:fly","Take FLY! Once you have the Thunder Badge, use BAG / FIELD TOOLS to return to towns you have visited."); return true
+		reward("field:fly","Received HM FLY! Teach it in BAG / KEY ITEMS. A healthy partner knowing Fly and the Thunder Badge are required."); return true
 	if script=="Route2_EastBuilding_EventScript_Aide":
 		var species=[]
 		for mon in a.data.party+a.data.storage:
@@ -84,7 +122,7 @@ func npc(npc) -> bool:
 		for mon in a.c.roster:
 			if done("seen:"+str(int(mon.id))) and int(mon.id) not in species: species.append(int(mon.id))
 		if species.size()<10: a.dialog="OAK'S AIDE: See 10 different Pokemon and I will give you Flash. Seen: "+str(species.size())
-		else: reward("field:flash","OAK'S AIDE: Take FLASH! You can now illuminate Rock Tunnel from BAG / FIELD TOOLS.")
+		else: reward("field:flash","OAK'S AIDE: Take this LANTERN! With the Boulder Badge, illuminate Rock Tunnel from BAG / KEY ITEMS. No move slot needed.")
 		return true
 	return false
 
@@ -115,6 +153,8 @@ func outdoor() -> bool:
 	return w().room().type in ["MAP_TYPE_TOWN","MAP_TYPE_CITY","MAP_TYPE_ROUTE"]
 
 func entered(previous, at: Vector2):
+	if previous.begins_with("MAP_SAFARI_ZONE") and not w().current.begins_with("MAP_SAFARI_ZONE"):
+		a.services.state().safari=false; a.services.safari_mon={}
 	riding=false
 	if w().maps[previous].type in ["MAP_TYPE_TOWN","MAP_TYPE_CITY","MAP_TYPE_ROUTE"] and not outdoor():
 		escape_point={"map":previous,"x":at.x,"y":at.y}
@@ -122,12 +162,18 @@ func entered(previous, at: Vector2):
 	if outdoor(): finish("visited:"+w().current)
 
 func tools_menu():
-	var list=a.inventory.page("FIELD TOOLS / KANTO")
+	var list=a.inventory.page("FIELD TOOLS / KANTO & SEVII")
+	a.inventory.row(list,"SEVII STORY JOURNAL",a.sevii.journal)
+	if a.sevii.at_port(): a.inventory.row(list,"SEAGALLOP FERRY",a.sevii.ferry_menu)
+	if a.world.current.contains("GAME_CORNER"): a.inventory.row(list,"GAME CORNER",a.services.game_menu)
+	if a.world.current.contains("POKEMON_DAY_CARE"): a.inventory.row(list,"DAY CARE",a.services.daycare_menu)
+	if a.world.current.contains("SAFARI_ZONE_ENTRANCE"): a.inventory.row(list,"SAFARI ADMISSION",a.services.safari_menu)
+	a.inventory.row(list,"KEY ITEMS / tools, badges and HM teaching",key_items)
 	a.inventory.row(list,"QUEST JOURNAL / where to find tools and rewards",journal)
-	a.inventory.row(list,"ROCK SMASH / "+("face a cracked rock and interact" if done("field:rocksmash") else "Pewter museum researcher / Boulder Badge"),func():pass,true)
+	a.inventory.row(list,"ROCK HAMMER / "+("face a cracked rock / Marsh Badge required" if done("field:rocksmash") else "Pewter museum researcher"),func():pass,true)
 	a.inventory.row(list,"BICYCLE / "+("DISMOUNT" if riding else "RIDE OUTDOORS"),toggle_bike,not done("field:bicycle"))
-	a.inventory.row(list,"FLY / VISITED TOWNS",fly_menu,not done("field:fly") or not a.Finale.has(a,"thunder"))
-	a.inventory.row(list,"FLASH / LIGHT ROCK TUNNEL",flash,not done("field:flash"))
+	a.inventory.row(list,"FLY / VISITED TOWNS",fly_menu,not can_use("fly"))
+	a.inventory.row(list,"FLASH / LIGHT ROCK TUNNEL",flash,not can_use("flash"))
 	a.inventory.row(list,"DIG / ESCAPE CAVE",escape.bind(false),not knows("dig"))
 	a.inventory.row(list,"TELEPORT / LAST HEALING TOWN",teleport,not knows("teleport"))
 	for rod in ["old_rod","good_rod","super_rod"]:
@@ -144,19 +190,19 @@ func toggle_bike():
 	riding=not riding; a.clear_ui(); a.dialog="Mounted the bicycle." if riding else "Dismounted."
 
 func flash():
-	if a.in_battle or not done("field:flash"): return
+	if a.in_battle or not can_use("flash"): return
 	a.clear_ui()
 	if not w().current.contains("ROCK_TUNNEL"): a.dialog="It is already bright enough here."; return
 	reward("lit:"+w().current,"FLASH! Light fills the tunnel.")
 
 func fly_menu():
-	if a.in_battle or not done("field:fly") or not a.Finale.has(a,"thunder"): return
+	if a.in_battle or not can_use("fly"): return
 	var list=a.inventory.page("FLY / VISITED TOWNS")
 	for id in w().maps:
 		if w().maps[id].type in ["MAP_TYPE_TOWN","MAP_TYPE_CITY"] and done("visited:"+id): a.inventory.row(list,w().maps[id].name,fly.bind(id))
 
 func fly(id):
-	if a.in_battle or not done("field:fly") or not a.Finale.has(a,"thunder") or not done("visited:"+id): return
+	if a.in_battle or not can_use("fly") or not done("visited:"+id): return
 	if not outdoor(): a.clear_ui(); a.dialog="Go outside before using Fly."; return
 	a.clear_ui()
 	w().scenes.play([{"text":"FLY! Your partner carries you toward "+w().maps[id].name+".","duration":1.5,"flash":true}],func():w().enter(id,Vector2(12.5,12.5)*w().TILE))
@@ -216,13 +262,14 @@ func ghost() -> bool:
 	return true
 
 func battle_result(kind,won,caught):
+	a.sevii.result(kind,won)
 	if pending_static!="":
 		if kind=="wild" and (won or caught): finish(pending_static)
 		pending_static=""
 
 func journal():
 	var list=a.inventory.page("KANTO / QUEST JOURNAL")
-	for entry in [["field:rocksmash","Rock Smash: Boulder Badge, then Pewter Museum researcher."],["field:bicycle","Bicycle: Vermilion Fan Club voucher, then Cerulean Bike Shop."],["fossil:chosen","Fossils: defeat Miguel in Mt. Moon B2F; choose one fossil."],["fossil:amber","Old Amber: return to Pewter Museum after obtaining Cut."],["field:fly","Fly: speak to the woman in Route 16's house; Thunder Badge required."],["field:flash","Flash: see 10 different species to Oak's aide in Route 2 East Building."],["field:old_rod","Old Rod: Vermilion City's fishing guru."],["field:good_rod","Good Rod: Fuchsia City's fishing guru."],["field:super_rod","Super Rod: fishing house on Route 12."]]:
+	for entry in [["field:rocksmash","Rock Hammer: Pewter Museum researcher; Marsh Badge required to use."],["field:bicycle","Bicycle: Vermilion Fan Club voucher, then Cerulean Bike Shop."],["fossil:chosen","Fossils: defeat Miguel in Mt. Moon B2F; choose one fossil."],["fossil:amber","Old Amber: return to Pewter Museum after obtaining Cut."],["field:fly","Fly: speak to the woman in Route 16's house; Thunder Badge required."],["field:flash","Flash: see 10 different species to Oak's aide in Route 2 East Building."],["field:old_rod","Old Rod: Vermilion City's fishing guru."],["field:good_rod","Good Rod: Fuchsia City's fishing guru."],["field:super_rod","Super Rod: fishing house on Route 12."]]:
 		a.inventory.row(list,("DONE / " if done(entry[0]) else "NEXT / ")+entry[1],func():pass,true)
 	a.inventory.row(list,"Revive fossils: Cinnabar Lab / Experiment Room. Make room in party or storage.",func():pass,true)
 	a.inventory.row(list,"Pokemon Tower: obtain Silph Scope, calm Marowak, then rescue Mr. Fuji.",func():pass,true)
@@ -236,7 +283,7 @@ func tests():
 	var rock=w().room().objects.filter(func(o):return str(o.graphics_id).contains("ROCK_SMASH_ROCK"))[0]
 	smash(rock)
 	a.c.check(not w().scenes.active and w().blocked(w().events.point(rock)),"Rock Smash requires its field unlock")
-	finish("field:rocksmash"); smash(rock)
+	finish("field:rocksmash"); a.Finale.state(a)["marsh"]=true; smash(rock)
 	a.c.check(w().scenes.active,"Rock Smash plays an action scene")
 	w().scenes.finish()
 	a.c.check(done(smash_key(rock)) and not w().blocked(w().events.point(rock)),"Rock Smash removes live collision and saves removal")
@@ -308,3 +355,11 @@ func trade(script,slot):
 		if held!="": a.data.bag[held]=int(a.data.bag.get(held,0))+1
 		a.data.party[slot]=received; finish("trade:"+script); finish("seen:"+str(int(received.id)))
 		a.dialog="Trade complete! "+offer.nickname+" ("+a.mon_name(received.id)+") joined your team."; a.save())
+
+func losing_surf(slot, replacement) -> bool:
+	if not a.world.enabled or a.world.scenes.habitat()!="water_mons": return false
+	for i in range(a.data.party.size()):
+		var mon=replacement if i==slot else a.data.party[i]
+		if mon.hp>0 and "surf" in mon.moves: return false
+	a.dialog="Reach land before removing your last partner that knows Surf."
+	return true

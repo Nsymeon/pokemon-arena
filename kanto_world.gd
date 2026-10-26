@@ -156,6 +156,7 @@ func tick(dt):
 				enter(link.map,target); return
 		if direction!=Vector2.ZERO:
 			step_target=a.position_world+motion
+			if a.sevii.waterfall(direction): return
 			if try_ledge(direction):
 				advance_step(dt)
 			elif not blocked(step_target):
@@ -239,12 +240,14 @@ func interact() -> bool:
 			var ids=[]; var levels=[]
 			for member in npc.battle.party: ids.append(member[0]); levels.append(member[1])
 			a.begin_battle("world_"+str(npc.script),ids,levels)
-		else: a.dialog="Welcome to "+room().name.replace("_"," / ")+". Explore the marked doors and passages."
+		else: a.dialog=a.sevii.dialogue.get(str(npc.get("script","")),"Welcome to "+room().name.replace("_"," / ")+". Explore the marked doors and passages.")
 		return true
 	return scenes.seek_wild()
 
 func guide():
 	var list=a.inventory.page("KANTO / "+room().name.replace("_"," / "))
+	if a.sevii.at_port(): a.inventory.row(list,"SEAGALLOP FERRY / SEVII",a.sevii.ferry_menu)
+	a.inventory.row(list,"SEVII QUEST JOURNAL",a.sevii.journal)
 	if not events.rocks().is_empty():
 		var reset=Button.new()
 		reset.text="Reset Seafoam boulders and currents on ALL floors" if current.begins_with("MAP_SEAFOAM_ISLANDS_") else "Reset this room's boulders"
@@ -379,9 +382,12 @@ func draw():
 	for npc in actors():
 		if str(npc.get("graphics_id","")).contains("FOSSIL") or str(npc.get("graphics_id","")).contains("OLD_AMBER"):
 			a.draw_circle(npc.pos,15,Color("c7a46e")); a.draw_arc(npc.pos,9,0,TAU*0.8,20,Color("685141"),3)
-		elif str(npc.get("graphics_id","")).trim_prefix("OBJ_EVENT_GFX_") in ["ARTICUNO","ZAPDOS","MEWTWO"]:
-			var species={"ARTICUNO":144,"ZAPDOS":145,"MEWTWO":150}[str(npc.graphics_id).trim_prefix("OBJ_EVENT_GFX_")]
+		elif str(npc.get("graphics_id","")).trim_prefix("OBJ_EVENT_GFX_") in ["ARTICUNO","ZAPDOS","MEWTWO","MOLTRES"]:
+			var species={"ARTICUNO":144,"ZAPDOS":145,"MEWTWO":150,"MOLTRES":146}[str(npc.graphics_id).trim_prefix("OBJ_EVENT_GFX_")]
 			a.draw_texture_rect(a.c.portraits[species],Rect2(npc.pos-Vector2(38,60),Vector2(76,76)),false)
+		elif str(npc.get("script","")).ends_with("EventScript_Ruby") or str(npc.get("script","")).ends_with("EventScript_Sapphire"):
+			var gem=Color("eb5568") if str(npc.script).ends_with("Ruby") else Color("629df5")
+			a.draw_colored_polygon(PackedVector2Array([npc.pos+Vector2(0,-22),npc.pos+Vector2(14,0),npc.pos+Vector2(0,14),npc.pos+Vector2(-14,0)]),gem)
 		elif str(npc.get("script","")).ends_with("EeveeBall"):
 			a.draw_circle(npc.pos,10,Color("f5eee0")); a.draw_arc(npc.pos,9,PI,TAU,12,Color("e75151"),9)
 		elif "Snorlax" in str(npc.get("script","")):
@@ -417,6 +423,7 @@ func draw():
 	if a.dialog!="":
 		a.draw_rect(Rect2(80,630,1120,145),Color("10252f"))
 		a.draw_multiline_string(a.font,Vector2(105,665),a.wrapped(a.dialog),HORIZONTAL_ALIGNMENT_LEFT,1060,20,4,Color("eef4de"))
+	if a.services.state().safari: a.words("SAFARI / "+str(a.services.state().safari_steps)+" steps / "+str(a.services.state().safari_balls)+" balls",Vector2(820,32),18,Color("ffe19a"))
 	a.field.draw()
 	scenes.draw()
 
@@ -486,6 +493,8 @@ func advance_step(dt: float):
 		a.position_world=step_target
 		stepping=false
 		jumping=false
+		a.services.steps()
+		if a.sevii.on_step(): return
 		if int(a.data.get("repel_steps",0))>0:
 			a.data.repel_steps-=1
 			if a.data.repel_steps==0: a.dialog="Repel wore off."

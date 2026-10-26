@@ -112,6 +112,7 @@ func bag():
 	for id in ITEMS:
 		var count = int(a.data.bag.get(id,0))
 		if count>0 or not a.extras.catalog.has(id): row(list,ITEMS[id].name+"  x"+str(count),targets.bind(id),count<=0)
+	row(list,"KEY ITEMS / tools, badges, teach Fly and Surf",a.field.key_items,a.in_battle)
 	row(list,"FIELD TOOLS / bicycle, Fly, Flash, Dig, Teleport",a.field.tools_menu,a.in_battle)
 	row(list,"TM CASE",tm_case, a.in_battle)
 	row(list,a.Story.keys(a),func():pass,true)
@@ -211,6 +212,8 @@ func move_party():
 func moves_menu(slot):
 	var mon = a.data.party[slot]
 	var list = page(a.mon_name(mon.id)+" / MOVES / level "+str(mon.level))
+	for move in ["fly","surf"]:
+		if a.field.hm_eligible(mon,move) and move not in mon.moves: row(list,"HM / "+move.to_upper(),replace_menu.bind(slot,move,""))
 	for id in mon.moves: row(list,"KNOWN / "+book.moves[id].name+" / "+book.moves[id].type,func():pass,true)
 	for id in mon.pending:
 		if id not in mon.moves: row(list,"NEW / "+book.moves[id].name,replace_menu.bind(slot,id,""))
@@ -232,7 +235,11 @@ func teach(slot,id,index,tm="") -> bool:
 	if id in mon.moves or index<0 or index>mon.moves.size() or index>=4: return false
 	if tm!="":
 		if not book.tms.has(tm) or int(a.data.tms.get(tm,0))<=0 or tm not in book.species[str(mon.id)].tms or book.tms[tm].move!=id: return false
-	elif id not in eligible(mon.id,mon.level) and id not in mon.pending: return false
+	elif id not in eligible(mon.id,mon.level) and id not in mon.pending and not a.field.hm_eligible(mon,id): return false
+	var candidate=mon.duplicate(true)
+	if index==candidate.moves.size(): candidate.moves.append(id)
+	else: candidate.moves[index]=id
+	if a.field.losing_surf(slot,candidate): a.clear_ui(); return false
 	if index==mon.moves.size(): mon.moves.append(id)
 	else: mon.moves[index]=id
 	mon.pending.erase(id)

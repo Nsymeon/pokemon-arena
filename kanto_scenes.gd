@@ -142,6 +142,8 @@ func seek_wild() -> bool:
 	var slots=pool()
 	if slots.is_empty(): return false
 	var mon=roll(slots)
+	if w.current.begins_with("MAP_SAFARI_ZONE"):
+		a.services.safari_encounter(mon); return true
 	var leader=a.data.party.filter(func(member):return member.hp>0)
 	if not leader.is_empty():
 		if int(a.data.get("repel_steps",0))>0 and mon.level<leader[0].level:

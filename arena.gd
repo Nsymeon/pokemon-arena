@@ -123,6 +123,9 @@ func _ready():
 	adventure.install(self)
 	campaign.install(self)
 	frontend.install(self)
+	if "--capture-services" in OS.get_cmdline_user_args():
+		capture_services.call_deferred()
+		return
 	if "--capture-field" in OS.get_cmdline_user_args():
 		call_deferred("capture_field_progress")
 	elif "--capture-walk" in OS.get_cmdline_user_args():
@@ -420,6 +423,7 @@ func execute_move(user: Dictionary, target: Dictionary, move: Dictionary, direct
 	accuracy = weather.accuracy(move, accuracy)
 	if not move.get("accuracy",true) is bool: accuracy=abilities.accuracy(user,target,accuracy)
 	if not move.get("accuracy",true) is bool: accuracy /= Conditions.stage(target,"evasion")
+	if target.data.get("held_item","")=="laxincense" and not move.get("accuracy",true) is bool: accuracy*=0.95
 	if rng.randf() > accuracy:
 		Conditions.note(user, "MISS")
 		return
@@ -813,7 +817,9 @@ func damage_amount(attacker: Dictionary, target: Dictionary, base_damage: float,
 	var stab = 1.5 if move_type in Conditions.types(attacker) else 1.0
 	var multiplier = Dex.effectiveness(move_type, Conditions.types(target))
 	var boost = float(move.get("weather_power", weather.power(move)))
-	if attacker.data.get("held_item","")=="blackglasses" and move_type=="Dark": boost*=1.1
+	var held=str(attacker.data.get("held_item",""))
+	if {"blackglasses":"Dark","silkscarf":"Normal","seaincense":"Water","metalcoat":"Steel","nevermeltice":"Ice"}.get(held,"")==move_type: boost*=1.05 if held=="seaincense" else 1.1
+	if (attacker.get("dire_hit",false) or held=="luckypunch" and int(attacker.data.id)==113) and rng.randf()<0.25: boost*=1.5
 	if physical and attacker.ailment == "burn" and abilities.name_of(attacker)!="Guts": boost *= 0.5
 	return snappedf(base_damage * ratio * stab * multiplier * boost * abilities.damage(attacker,target,move) * (0.5 if target.guard > 0 else 1.0) * support.multiplier(self,target,move), 0.1)
 
@@ -881,6 +887,7 @@ func apply_status(target: Dictionary, move: Dictionary):
 	if Conditions.apply(self, target, status_payload(move), move): burst(target.pos, Dex.color(move.type), 12)
 
 func apply_hit_effects(attacker: Dictionary, target: Dictionary, move: Dictionary):
+	if attacker.data.get("held_item","")=="kingsrock" and rng.randf()<0.1: Conditions.apply(self,target,{"volatileStatus":"flinch"},move)
 	if move.get("volatile_status", "") != "": Conditions.apply(self, target, status_payload(move), move)
 	for effect in move.get("secondaries", []):
 		if rng.randf() * 100 >= effect.get("chance", 100)*(2 if abilities.name_of(attacker)=="Serene Grace" else 1): continue
@@ -1709,6 +1716,7 @@ func smoke_test():
 	adventure.avatar.tests(adventure)
 	adventure.world.scenes.tests()
 	adventure.field.tests()
+	adventure.services.tests()
 	adventure.extras.tests()
 	adventure.tests()
 	campaign.tests(self)
@@ -3278,4 +3286,27 @@ func capture_field_progress():
 	adventure.clear_ui(); adventure.field.finish("fossil:helix"); adventure.field.fossil_menu()
 	adventure.queue_redraw(); await get_tree().process_frame; await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png("res://captures/field-fossils.png")
+	get_tree().quit()
+
+func capture_services():
+	set_process(false); frontend.layer.visible=false; selection_controls.visible=false
+	adventure.loaded=true; adventure.save_allowed=false; adventure.enter(); adventure.choose_starter(7)
+	adventure.data.badge=true; adventure.data.cascade=true; adventure.data.money=20000
+	adventure.Story.state(adventure)["cut"]=true
+	adventure.Finale.state(adventure)["surf"]=true
+	adventure.Finale.state(adventure)["volcano"]=true
+	var w=adventure.world
+	w.enabled=true; w.enter("MAP_ONE_ISLAND",Vector2(10.5,12.5)*48)
+	adventure.dialog=""; adventure.field.key_items()
+	adventure.queue_redraw(); await get_tree().process_frame; await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://captures/key-items.png")
+	adventure.clear_ui(); adventure.services.start_safari()
+	adventure.services.safari_encounter({"id":113,"level":25})
+	adventure.queue_redraw(); await get_tree().process_frame; await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://captures/safari.png")
+	adventure.clear_ui(); adventure.services.state().safari=false
+	w.enter("MAP_ONE_ISLAND",Vector2(10.5,12.5)*48)
+	adventure.dialog=""; adventure.sevii.journal()
+	adventure.queue_redraw(); await get_tree().process_frame; await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://captures/sevii-journal.png")
 	get_tree().quit()

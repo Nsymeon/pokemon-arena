@@ -15,6 +15,8 @@ var save_error = ""
 var save_allowed = true
 var c
 var extras=preload("res://adventure_items.gd").new()
+var sevii=preload("res://adventure_sevii.gd").new()
+var services=preload("res://adventure_services.gd").new()
 var field=preload("res://adventure_field.gd").new()
 var avatar=preload("res://adventure_avatar.gd").new()
 var world=preload("res://kanto_world.gd").new()
@@ -45,6 +47,8 @@ func install(context):
 	c = context
 	extras.a = self
 	field.a = self
+	services.a = self
+	sevii.a = self
 	avatar.a = self
 	world.install(self)
 	inventory.install(self)
@@ -97,7 +101,7 @@ func valid(value) -> bool:
 	if not Finale.valid(value): return false
 	for member in value.get("hall_of_fame",[]):
 		if not c.roster.any(func(mon):return int(mon.id)==int(member.id)): return false
-	return inventory.valid(value) and extras.valid(value) and Story.valid(value)
+	return inventory.valid(value) and extras.valid(value) and Story.valid(value) and services.valid(value)
 
 func load_save():
 	loaded = true
@@ -633,7 +637,9 @@ func storage_menu():
 		list.add_child(b)
 
 func withdraw(slot):
+	if in_battle or slot<0 or slot>=data.storage.size(): return
 	var mon = data.storage[slot]
+	if data.party.size()>=6 and field.losing_surf(0,mon): clear_ui(); return
 	if data.party.size()<6:
 		data.party.append(mon)
 		data.storage.remove_at(slot)

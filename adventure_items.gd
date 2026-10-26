@@ -4,7 +4,7 @@ const STONES={"moonstone":{30:31,33:34,35:36,39:40},"firestone":{37:38,58:59,133
 const VITAMINS={"hpup":"hp","protein":"atk","iron":"def","calcium":"spa","zinc":"spd","carbos":"spe"}
 const XITEMS={"xattack":"atk","xdefend":"def","xspecial":"spa","xspeed":"spe","xaccuracy":"accuracy"}
 const TREASURES={"nugget":5000,"bigpearl":3750,"pearl":700,"stardust":1000,"starpiece":4900}
-const HELD=["blackglasses","quickclaw","cleansetag"]
+const HELD=["blackglasses","quickclaw","cleansetag","silkscarf","laxincense","seaincense","metalcoat","nevermeltice","kingsrock","luckypunch","dragonscale"]
 var catalog={
 	"hyperpotion":{"name":"Hyper Potion / heal 80%","price":1200,"heal":0.8},
 	"maxpotion":{"name":"Max Potion / full HP","price":2500,"heal":1.0},
@@ -18,6 +18,11 @@ var catalog={
 	"elixir":{"name":"Elixir / energy + recovery PP","price":0},
 	"maxelixir":{"name":"Max Elixir / full energy + recovery PP","price":0},
 	"ppup":{"name":"PP Up / extra recovery PP","price":0},
+	"pokedoll":{"name":"Poke Doll / gift for Copycat to learn Mimic","price":1000},
+	"maxrepel":{"name":"Max Repel / 250 steps","price":700},
+	"direhit":{"name":"Dire Hit / critical boost for this battle","price":650},
+	"upgrade":{"name":"Up-Grade / stored for Porygon trade evolution (species not yet in roster)","price":0},
+	"sunstone":{"name":"Sun Stone / stored for later-generation evolutions","price":0},
 	"guardspec":{"name":"Guard Spec. / team Mist 60s","price":700}
 }
 
@@ -30,7 +35,7 @@ func _init():
 
 func valid(data) -> bool:
 	var steps=data.get("repel_steps",0)
-	if not (steps is float or steps is int) or steps!=int(steps) or steps<0 or steps>100: return false
+	if not (steps is float or steps is int) or steps!=int(steps) or steps<0 or steps>250: return false
 	for mon in data.party+data.storage:
 		if mon.has("held_item") and mon.held_item not in HELD+[""]: return false
 		for field in ["training","ppups"]:
@@ -46,12 +51,12 @@ func valid(data) -> bool:
 	return true
 
 func targets(id):
-	if a.in_battle and (id in STONES or id in VITAMINS or id in HELD or id in TREASURES or id in ["rarecandy","ppup","escaperope","repel"]):
+	if a.in_battle and (id in STONES or id in VITAMINS or id in HELD or id in TREASURES or id in ["rarecandy","ppup","escaperope","repel","maxrepel","upgrade","sunstone"]):
 		a.clear_ui(); a.c.notice="Use this item outside battle."; a.c.notice_time=2; return
 	if id=="escaperope": a.field.escape(); return
-	if id=="repel":
+	if id in ["repel","maxrepel"]:
 		if int(a.data.bag.get(id,0))>0:
-			a.data["repel_steps"]=100; consume(id); a.dialog="Repel active for 100 steps. Lower-level wild Pokemon will stay away."
+			a.data["repel_steps"]=250 if id=="maxrepel" else 100; consume(id); a.dialog="Repel active for "+str(a.data.repel_steps)+" steps."
 		return
 	if id in TREASURES:
 		if int(a.data.bag.get(id,0))>0 and a.data.money<999999:
@@ -107,6 +112,8 @@ func use(id,slot) -> bool:
 	elif id in XITEMS and a.in_battle and slot==a.c.player_active and mon.hp>0:
 		var stat=XITEMS[id]
 		if int(fighter.stages.get(stat,0))<6: fighter.stages[stat]=mini(6,int(fighter.stages.get(stat,0))+1); success=true
+	elif id=="direhit" and a.in_battle and slot==a.c.player_active and mon.hp>0:
+		fighter["dire_hit"]=true; success=true
 	elif id=="guardspec" and a.in_battle and mon.hp>0:
 		a.c.support.side(a.c,a.c.player)["mist"]=60.0; success=true
 	elif id in ["ether","maxether","elixir","maxelixir"] and a.in_battle and mon.hp>0:
@@ -156,7 +163,7 @@ func tests():
 	for area in a.world.events.catalog.values():
 		for item in area.items:
 			var id=str(item.item)
-			a.c.check(id in ["POKE_BALL","GREAT_BALL","ULTRA_BALL","CARD_KEY","SECRET_KEY","LIFT_KEY","GOLD_TEETH"] or a.inventory.book.tms.has(id) or a.inventory.ITEMS.has(id.to_lower().replace("_","")),"Every current map pickup has a usable handler: "+id)
+			a.c.check(id in ["POKE_BALL","GREAT_BALL","ULTRA_BALL","CARD_KEY","SECRET_KEY","LIFT_KEY","GOLD_TEETH","HM07"] or a.inventory.book.tms.has(id) or a.inventory.ITEMS.has(id.to_lower().replace("_","")),"Every current map pickup has a usable handler: "+id)
 	var candy=a.data.bag.rarecandy
 	a.c.check(use("rarecandy",0) and a.data.party[0].id==5 and a.data.party[0].level==16,"Rare Candy levels and evolves the chosen Pokemon")
 	a.c.check(a.data.bag.rarecandy==candy-1 and a.data.party[1].level==10,"Rare Candy consumes once and leaves teammates unchanged")

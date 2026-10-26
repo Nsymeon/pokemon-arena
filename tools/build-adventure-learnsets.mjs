@@ -33,7 +33,7 @@ for(const mon of roster) {
 }
 const existing=new Map(roster.flatMap(p=>p.moves.map(m=>[m.id,m])));
 const catalog={};
-const ids=new Set([...Object.values(species).flatMap(s=>s.levels.map(l=>l.move)),...Object.values(tms).map(t=>t.move)]);
+const ids=new Set(["fly","surf","megapunch","megakick","swordsdance","bodyslam","doubleedge","counter","seismictoss","mimic","metronome","softboiled","dreameater","thunderwave","explosion","rockslide","substitute",...Object.values(species).flatMap(s=>s.levels.map(l=>l.move)),...Object.values(tms).map(t=>t.move)]);
 for(const id of ids){
  const m=moves[id];if(!m)throw Error('Missing move '+id);
  if(existing.has(id)){catalog[id]={...existing.get(id),pp:m.pp};continue;}

@@ -41,6 +41,9 @@ func geometry(label: String):
 func refresh():
 	patches.clear()
 	var name=str(w.room().name)
+	if name=="MtEmber_Exterior" and a.sevii.done("network_quest"): geometry("MtEmber_Exterior_EventScript_OpenCave")
+	if name=="SixIsland_RuinValley" and a.field.can_use("cut"): geometry("SixIsland_RuinValley_EventScript_OpenDottedHoleDoor")
+	if name=="FiveIsland_Meadow" and a.sevii.done("sapphire_stolen"): geometry("FiveIsland_Meadow_EventScript_SetWarehouseDoorUnlocked")
 	if name.begins_with("SeafoamIslands_") and done("calm:"+w.current): geometry("calm")
 	if name=="CeladonCity_GameCorner": geometry(name+"_EventScript_"+("OpenRocketHideout" if done("poster") else "HideRocketHideout"))
 	if name=="RocketHideout_B4F":
@@ -69,7 +72,8 @@ func collision(p: Vector2) -> int:
 	var index=cell.y*int(w.room().width)+cell.x
 	if index>=0 and index<catalog[w.current].behavior.size():
 		var behavior=int(catalog[w.current].behavior[index])
-		if behavior in [0x10,0x11,0x12,0x15,0x50,0x51,0x52,0x53] and not a.Finale.has(a,"surf"): return 1
+		if behavior==0x13: return 1 # Waterfall is traversed only through its field action.
+		if behavior in [0x10,0x11,0x12,0x15,0x50,0x51,0x52,0x53] and not a.field.can_use("surf"): return 1
 	for item in catalog[w.current].items:
 		if Vector2i(int(item.x),int(item.y))==cell and not done(w.current+"item"+str(item.id)): return 1
 	for rock in rocks():
@@ -77,7 +81,7 @@ func collision(p: Vector2) -> int:
 	for o in w.room().objects:
 		var gfx=str(o.graphics_id); var script=str(o.get("script",""))
 		var present=not a.field.hidden(o) and not (script.ends_with("EeveeBall") and done("gift:eevee"))
-		if present and (gfx.contains("FOSSIL") or gfx.contains("OLD_AMBER") or script.ends_with("EeveeBall") or gfx in ["OBJ_EVENT_GFX_ARTICUNO","OBJ_EVENT_GFX_ZAPDOS","OBJ_EVENT_GFX_MEWTWO"]) and Vector2i(int(o.x),int(o.y))==cell: return 1
+		if present and (gfx.contains("FOSSIL") or gfx.contains("OLD_AMBER") or script.ends_with("EeveeBall") or gfx in ["OBJ_EVENT_GFX_ARTICUNO","OBJ_EVENT_GFX_ZAPDOS","OBJ_EVENT_GFX_MEWTWO","OBJ_EVENT_GFX_MOLTRES"]) and Vector2i(int(o.x),int(o.y))==cell: return 1
 		if "Snorlax" in str(o.get("script","")) and not done("snorlax:"+w.current) and Vector2i(int(o.x),int(o.y))==cell: return 1
 		if "ROCK_SMASH_ROCK" in str(o.graphics_id) and not done(a.field.smash_key(o)) and Vector2i(int(o.x),int(o.y))==cell: return 1
 		if "CUT_TREE" in str(o.graphics_id) and not done(w.current+"tree"+str(o.x)+":"+str(o.y)) and Vector2i(int(o.x),int(o.y))==cell: return 1
@@ -100,8 +104,8 @@ func rocks() -> Array:
 	return result
 
 func push(rock):
-	if not a.Finale.has(a,"strength"):
-		a.dialog="A heavy boulder. Obtain Strength from the Warden first."; return
+	if not a.field.can_use("strength"):
+		a.dialog="A heavy boulder. Obtain Power Gloves from the Warden and the Rainbow Badge."; return
 	var delta=point(rock)-a.position_world
 	var step=Vector2i(signi(int(delta.x)),0) if absf(delta.x)>absf(delta.y) else Vector2i(0,signi(int(delta.y)))
 	var next=Vector2i(rock.x,rock.y)+step
@@ -109,6 +113,7 @@ func push(rock):
 		a.dialog="The boulder cannot move that way. M lets you reset this room's boulders."; return
 	state().rocks[rock.key]={"x":next.x,"y":next.y}
 	if fall_boulder(rock,next): refresh(); a.save(); return
+	a.sevii.boulder_puzzle()
 	for trigger in catalog[w.current].triggers:
 		if "FloorSwitch" in str(trigger.get("script","")) and next==Vector2i(int(trigger.x),int(trigger.y)):
 			finish(trigger.script)
@@ -180,7 +185,8 @@ func pickup(item):
 	if done(key): return
 	var id=str(item.item)
 	var story={"CARD_KEY":"card_key","SECRET_KEY":"secret_key","LIFT_KEY":"lift_key","GOLD_TEETH":"gold_teeth"}
-	if story.has(id): a.Finale.state(a)[story[id]]=true
+	if id=="HM07": a.field.finish("field:waterfall")
+	elif story.has(id): a.Finale.state(a)[story[id]]=true
 	elif id.begins_with("TM") and a.inventory.book.tms.has(id): a.data.tms[id]=mini(999,int(a.data.tms.get(id,0))+1)
 	elif id in ["POKE_BALL","GREAT_BALL","ULTRA_BALL"]: a.data.balls=mini(999,int(a.data.balls)+1)
 	else:
@@ -214,9 +220,9 @@ func interact() -> bool:
 		"rock": push(o)
 		"smash": a.field.smash(o)
 		"tree":
-			if a.Story.state(a).get("cut",false):
+			if a.field.can_use("cut"):
 				finish(w.current+"tree"+str(o.x)+":"+str(o.y)); a.dialog="Cut cleared the tree!"; a.save()
-			else: a.dialog="A small tree blocks the way. Obtain Cut from the Captain."
+			else: a.dialog="A small tree blocks the way. Obtain Cut Shears from the Captain and the Cascade Badge."
 		"sign":
 			var script=str(o.script)
 			if "_Poster" in script:
@@ -234,6 +240,11 @@ func interact() -> bool:
 	return true
 
 func draw():
+	if w.current=="MAP_FOUR_ISLAND_ICEFALL_CAVE_1F":
+		for key in state().done:
+			if str(key).begins_with("sevii:ice:"):
+				var coordinates=str(key).split(":"); var at=(Vector2(int(coordinates[2]),int(coordinates[3]))+Vector2.ONE*0.5)*w.TILE
+				a.draw_polyline(PackedVector2Array([at+Vector2(-18,-18),at+Vector2(6,-4),at+Vector2(-4,8),at+Vector2(18,18)]),Color("466b92"),3)
 	for tile in patches.values():
 		if not textures.has(tile.image): textures[tile.image]=ImageTexture.create_from_image(Image.load_from_file(tile.image))
 		a.draw_texture_rect(textures[tile.image],Rect2(Vector2(tile.x,tile.y)*w.TILE,Vector2.ONE*w.TILE),false)
@@ -261,6 +272,9 @@ func draw():
 
 
 func allow_door(destination: String) -> bool:
+	if not a.sevii.gate(destination): return false
+	if destination.begins_with("MAP_SAFARI_ZONE") and not a.services.state().safari:
+		a.services.safari_menu(); return false
 	if destination=="MAP_POKEMON_TOWER_7F" and a.field.ghost(): return false
 	if destination in LEAGUE:
 		var need=a.Finale.missing(a,["eight","league_rival"])
@@ -271,7 +285,9 @@ func allow_door(destination: String) -> bool:
 		a.dialog="Defeat Champion Blue first."; return false
 	if destination=="MAP_ROCKET_HIDEOUT_B1F" and w.current=="MAP_CELADON_CITY_GAME_CORNER" and not done("poster"):
 		a.dialog="Search the poster for a hidden switch."; return false
-	var needed={"MAP_VERMILION_CITY_GYM":"cut","MAP_SS_ANNE_1F_CORRIDOR":"ticket","MAP_CINNABAR_ISLAND_GYM":"secret_key","MAP_CERULEAN_CAVE_1F":"champion"}.get(destination,"")
+	if destination=="MAP_VERMILION_CITY_GYM" and not a.field.can_use("cut"):
+		a.dialog="The Gym entrance requires Cut Shears and the Cascade Badge."; return false
+	var needed={"MAP_SS_ANNE_1F_CORRIDOR":"ticket","MAP_CINNABAR_ISLAND_GYM":"secret_key","MAP_CERULEAN_CAVE_1F":"champion"}.get(destination,"")
 	if needed!="" and not (a.Story.state(a).get(needed,false) or a.Finale.has(a,needed)):
 		a.dialog="This entrance requires "+str(needed).replace("_"," ")+"."; return false
 	if destination=="MAP_SAFFRON_CITY_GYM" and not a.Finale.has(a,"silph_saved"):
@@ -346,7 +362,7 @@ func tests():
 	a.position_world=tree_at+Vector2.DOWN*w.TILE; w.heading=Vector2.UP
 	interact()
 	a.c.check(w.blocked(tree_at),"Tree remains solid without Cut")
-	a.Story.state(a)["cut"]=true
+	a.Story.state(a)["cut"]=true; a.data.cascade=true
 	interact()
 	a.c.check(not w.blocked(tree_at),"Cut removes the tree collision")
 	w.current="MAP_CERULEAN_CAVE_1F"; refresh()
@@ -360,7 +376,7 @@ func tests():
 	var item_block=catalog[w.current].items[0]
 	state().rocks[solid_rock.key]={"x":int(item_block.x)-1,"y":int(item_block.y)}
 	a.position_world=point(item_block)-Vector2(2*w.TILE,0)
-	a.Finale.state(a)["strength"]=true
+	a.Finale.state(a)["strength"]=true; a.Finale.state(a)["rainbow"]=true
 	push(rocks().filter(func(r):return r.key==solid_rock.key)[0])
 	a.c.check(int(state().rocks[solid_rock.key].x)==int(item_block.x)-1,"Strength cannot push onto an item ball")
 	state().rocks.erase(solid_rock.key)
@@ -397,7 +413,7 @@ func tests():
 	var saved=JSON.parse_string(JSON.stringify(a.data))
 	a.c.check(saved.world_events.done[w.current+label],"Event progress survives JSON save round trip")
 	w.current="MAP_VICTORY_ROAD_1F"
-	a.Finale.state(a)["strength"]=true
+	a.Finale.state(a)["strength"]=true; a.Finale.state(a)["rainbow"]=true
 	var rock=rocks()[0]
 	state().rocks[rock.key]={"x":19,"y":16}
 	a.position_world=Vector2(18.5,16.5)*w.TILE
