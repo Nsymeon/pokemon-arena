@@ -6,9 +6,26 @@ Godot 4.3 desktop arena prototype. All 151 original Kanto species are playable, 
 
 [Download the latest tested build](https://github.com/Nsymeon/pokemon-arena/releases/latest). Choose PokemonArena-Windows.zip, extract the entire ZIP and run PLAY.bat. No Godot installation is needed. CHECK-FOR-UPDATES.bat opens the same page for future updates. Single-player against AI.
 
+## Field tools, items and quest expansion (current)
+
+- **Rock Smash:** earn the Boulder Badge, then speak to the researcher at the entrance of Pewter Museum. Cracked rocks play a debris scene and permanently clear their tile. This is a deliberate Kanto-only acquisition adaptation; cartridge FireRed gives HM06 at Ember Spa on One Island. Existing Cut, Surf and Strength field progression remains intact.
+- **Bicycle:** claim the Fan Club voucher, redeem it at Cerulean Bike Shop, then use Bag → Field Tools outdoors. Riding moves at 480 world units/sec and dismounts on map transitions.
+- **Fly / Flash / Dig / Teleport:** Route 16's woman grants Fly; Thunder Badge and a visited town are required. Route 2 East Building's aide grants Flash after 10 seen/owned species; it lights Rock Tunnel. A healthy party member knowing Dig can escape caves without a rope; Teleport returns outdoors to the last healing town. Escape Rope records the last outdoor entrance; older saves already inside a cave should leave/re-enter once to establish it.
+- **Fishing:** receive Old Rod in Vermilion, Good Rod in Fuchsia, Super Rod on Route 12. Face water and choose a rod in Field Tools. Species, level ranges and slot probabilities come from the pinned FireRed source tables; encounters still require the player's action.
+- **Fossils:** beat Miguel in Mt. Moon B2F, choose Helix or Dome, then visit Cinnabar Lab's Experiment Room. Old Amber comes from Pewter Museum after Cut. Revival scenes grant Omanyte, Kabuto or Aerodactyl at level 5 once, to party or storage; full storage preserves the reward.
+- **Story and NPCs:** Marowak's uncatchable level-30 spirit guards Tower 7F until revealed with the Silph Scope and defeated. Articuno, Zapdos and Mewtwo use their placed overworld sprites, intro scenes and one-shot battles/captures; losing leaves them available. Eevee's Celadon gift and the Silph employee's Lapras are one-shot. All nine imported FireRed NPC trades offer a selection and explicit confirmation, retain the given Pokemon's level and return its held item before replacing it.
+- **Traversal:** original directional ledges can be jumped only toward a clear landing tile. Victory Road's 3F boulder falls into 2F and can reach its floor switch; resetting Victory Road boulders resets both floor positions without duplicating it. Opened switches stay open.
+- **Bag:** every item kind in the current 129 imported map pickups is handled. Added Hyper/Max Potions, Full Restore, Max Revive, Rare Candy, evolution stones, training vitamins, Ether/Elixir variants, PP Up, Repel, X items, Guard Spec., held items and treasure selling. Failed/incompatible uses keep the item; battle items spend the action gate. Rare Candy changes only the selected Pokemon and uses existing learn/evolution presentation. Vitamins add 10 training points up to 100/stat and 510 total, with a visible effect on arena-scaled battle stats.
+- **Arena adaptations:** HP medicine values are percentages; attacks retain energy/cooldowns. Ether/Elixir variants restore energy and limited healing PP; PP Up adds up to three recovery PP. Black Glasses boosts Dark damage by 10%; Quick Claw has a 20% chance to halve the action lock; Cleanse Tag cancels one third of manual wild searches. Repel lasts 100 walking tiles and rejects lower-level encounters. Guard Spec. uses the existing team Mist shield for 60 seconds. Healing PP remains battle-local. These are explicit real-time adaptations, not claims of cartridge-identical item mechanics.
+- **Journal / saves:** Bag → Field Tools → Quest Journal lists acquisition locations. Tools, smashed rocks, fossils, trades, static encounters, held items, training and PP upgrades persist. Reset Adventure removes them with that run. Existing saves need no reset.
+
+Sources: the pinned `pret/pokefirered` checkout in `data/source/pokefirered`, specifically map scripts, `src/data/ingame_trades.h`, `src/data/wild_encounters.json` and metatile behaviors. `tools/import-kanto-trades.py` exports the nine FireRed offers; `tools/import-kanto-encounters.py` exports land, surf and rod slots. `--smoke-test` covers one-shot rewards, storage bounds, collision, trade cancellation, held-item recovery, item effects and traversal; `--capture-field` provides scene/menu screenshots.
+
+Remaining beyond this adapted Kanto coverage: cartridge Safari catching/step-limit rules, Game Corner minigames, Day Care, all move-tutor interactions and incidental original NPC scripts, plus Sevii Islands and their postgame story. This update does not claim a complete one-to-one FireRed remake.
+
 ## Map object collision
 
-Visible item balls block their tile until collected. Face an adjacent object and press the interaction key (E by default); diagonal and behind-the-player interactions do not activate objects. Cut trees and Strength boulders stay solid until removed or moved, and boulders cannot be pushed onto item balls. Rock Smash rocks render as cracked stones and block passage; Rock Smash field use is not yet implemented.
+Visible item balls block their tile until collected. Face an adjacent object and press the interaction key (E by default); diagonal and behind-the-player interactions do not activate objects. Cut trees and Strength boulders stay solid until removed or moved, and boulders cannot be pushed onto item balls. Rock Smash rocks render as cracked stones and block passage until smashed. After the Boulder Badge, the Pewter Museum researcher teaches the field tool; face a cracked rock and interact. The removal persists in the save.
 
 ## Adventure movement performance
 
@@ -218,17 +235,17 @@ message. Automated tests use separate temporary saves, never your campaign.
 
 ## Adventure chapter 1: Pallet to Pewter
 
-Choose **Play → Adventure** on the title screen. This is a playable first chapter, not a complete FireRed remake. The existing Arena and saved League remain separate modes.
+Choose **Play → Adventure** on the title screen. This is the Kanto adventure with imported maps and adapted story events, not a complete cartridge script interpreter. The existing Arena and saved League remain separate modes.
 
-- Speak to Oak outside the lab to choose Bulbasaur, Charmander or Squirtle. Battle Blue on the north path to unlock Route 1.
+- Speak to Oak inside the lab to choose Bulbasaur, Charmander or Squirtle. Battle Blue on the north path to unlock Route 1.
 - Travel north through Route 1, Viridian City and Viridian Forest. Beat the Bug Catcher to reach Pewter City and challenge Brock's Geodude and Onix for the Boulder Badge.
-- WASD/arrows or right-click move; hold Space to run. E interacts with nearby people or visible wild Pokemon. E also closes dialogue. P opens your party/storage, F5 saves, Esc opens the adventure menu.
+- WASD/arrows or right-click move; hold Space to run. E talks to the person you face or requests a wild encounter in grass, water or a cave. E also closes dialogue. P opens your party/storage, F5 saves, Esc opens the adventure menu.
 - Battles retain the existing arena controls. G throws a Poke Ball at a wild Pokemon; lower HP and status improve the chance. Trainer Pokemon cannot be caught. After the whole encounter ends, R or Enter returns to the map.
 - Captures fill your six-member party, then storage (100 slots). In P, choose your lead; storage adds to a free slot or swaps with your lead when the party is full.
 - HP persists between encounters. Mom and Pokemon Centers heal for free. Defeat returns you to your last healing town. The Viridian shop sells five balls for $100; victories award money.
-- Survivors gain shared XP, levels up to 30, and supported early-route evolutions. Level scaling remains adapted for the arena. Kanto Adventure moves now follow FireRed level-up learnsets (see below).
+- Survivors gain shared XP, levels up to 100, and supported level/stone evolutions. Level scaling remains adapted for the arena. Kanto Adventure moves now follow FireRed level-up learnsets (see below).
 - Adventure autosaves on the world map and after encounters in `user://adventure-v1.json`, with a validated backup. Closing during combat resumes from the encounter checkpoint; mid-battle positions and attacks are not saved. League progress uses a separate file.
-- Buildings are currently exterior interaction points. Town graphics and some NPC sprite stand-ins are prototype art. Later routes, interiors, story chapters and the remaining badges are not yet part of Adventure.
+- The canonical Kanto map includes interiors, cave floors, eight gyms and League chambers. See the current field-tools and quest coverage below.
 
 Development validation: `--smoke-test` covers adventure progression, one-member battles, capture, save reload/backup, defeat healing, evolution, Brock's second Pokemon, and isolation from League. `--capture-adventure` saves preview images using a separate test save.
 
@@ -239,11 +256,11 @@ Press **I** on the map or when ready to act in a battle to open the Bag. Battles
 
 **P → MOVESETS** shows current moves, new moves waiting for a slot, relearnable level-up moves, and future levels. New moves fill empty slots automatically; a full set never loses a move without your choice. Relearning eligible level-up moves is free. Evolved Pokemon retain learned moves. Starters and wild/trainer encounters use level-appropriate sets; e.g. Charmander starts with Scratch/Growl and learns Ember at 7 and Metal Claw at 13. Existing adventure saves gain appropriate moves and a starter medicine kit once, retaining progress, HP, money and captured Pokemon.
 
-**I → TM CASE** checks compatibility, lets you choose a move slot, and consumes a TM only on successful teaching. The data contains all 50 Gen III TMs; this chapter offers TM09, TM17 and TM40 in the Mart, and Brock awards TM39 once. Existing Boulder Badge saves receive that reward once on migration. Later TM locations are not implemented. The Mart also sells medicines and Poké Balls. Misty awards TM03 once in the Cerulean chapter.
+**I → TM CASE** checks compatibility, lets you choose a move slot, and consumes a TM only on successful teaching. The data contains all 50 Gen III TMs; this chapter offers TM09, TM17 and TM40 in the Mart, and Brock awards TM39 once. Existing Boulder Badge saves receive that reward once on migration. Original TM item-ball locations are imported across Kanto. The Mart also sells medicines and Poké Balls. Misty awards TM03 once in the Cerulean chapter.
 
 Learnset and TM compatibility sources: [pret/pokefirered level-up tables](https://github.com/pret/pokefirered/blob/master/src/data/pokemon/level_up_learnsets.h) and [TM/HM tables](https://github.com/pret/pokefirered/blob/master/src/data/pokemon/tmhm_learnsets.h). Retained species absent from FireRed use the latest recorded level-up generation from the existing Showdown snapshot, with modern machine compatibility mapped to the same move names. `node tools/build-adventure-learnsets.mjs` regenerates the compact runtime catalog from checked-in sources.
 
-Move eligibility is cartridge-based; execution remains the real-time arena adaptation with modern typings/categories, energy and cooldowns rather than PP. Specialized move effects are not all exact cartridge equivalents. Leech Seed now drains HP and heals the opposing active Pokemon over eight seconds, with Grass immunity. The Adventure level cap is now 30.
+Move eligibility is cartridge-based; execution remains the real-time arena adaptation with modern typings/categories, energy and cooldowns rather than PP. Specialized move effects are not all exact cartridge equivalents. Leech Seed now drains HP and heals the opposing active Pokemon over eight seconds, with Grass immunity. The Adventure level cap is 100.
 
 The friendly team HUD now displays each Pokemon portrait inside its Poké Ball, with an active outline and crossed-out fainted icons, across all battle modes.
 
@@ -261,7 +278,7 @@ The friendly team HUD now displays each Pokemon portrait inside its Poké Ball, 
 
 The game starts with **Play**, then **Adventure / Gym Leaders / Free Battles**. Gym Leaders keeps the separate saved League progression (gyms, Elite Four, Champion). The roster screen and Gym Leaders hub offer a return to modes; exiting Adventure restores the arena team before returning to modes.
 
-Adventure now continues from Pewter through **Route 3, Mt. Moon and Route 4 to Cerulean City**. Brock gates the Route 3 exit; a Team Rocket Grunt must be defeated to leave Mt. Moon. Route 3 also has a Lass. New wild species include Spearow, Jigglypuff, Nidoran, Zubat, Geodude, Paras, Clefairy, Ekans and Sandshrew. Cerulean has healing, supplies and Misty's Staryu/Starmie battle. The Cascade Badge and TM03 Water Pulse are awarded once. Existing saves remain compatible; the level cap is now 100 and additional early evolutions are supported. Routes are compact connected prototype maps, not full cartridge layouts or interior story recreations.
+Adventure now continues from Pewter through **Route 3, Mt. Moon and Route 4 to Cerulean City**. Brock gates the Route 3 exit; a Team Rocket Grunt must be defeated to leave Mt. Moon. Route 3 also has a Lass. New wild species include Spearow, Jigglypuff, Nidoran, Zubat, Geodude, Paras, Clefairy, Ekans and Sandshrew. Cerulean has healing, supplies and Misty's Staryu/Starmie battle. The Cascade Badge and TM03 Water Pulse are awarded once. Existing saves remain compatible; the level cap is now 100 and additional early evolutions are supported. Maps now use the imported FireRed layouts; the earlier compact maps remain only as legacy progression references.
 
 XP is awarded once **per opposing Pokemon knocked out**, after committed attacks and the KO animation resolve and before the next enemy enters. Standing party members share the reward; their live stats, HP and learned moves update immediately. Finishing the trainer battle awards money/progression without awarding the same XP twice. Level-up and learned/pending skill messages appear during battle. A blue EXP bar appears under the friendly battle HUD and under each party member on the world map. Pending move replacements remain available through **P → MOVESETS** after the battle. Evolution portraits display when returning to the map.
 
@@ -282,7 +299,7 @@ Adventure now connects all ten Kanto towns/cities plus Indigo Plateau across 57 
 
 After Misty's Cascade Badge, follow the signed exits from Cerulean; **M** or the pause menu opens the Kanto guide with current connections. Other links return through Pallet and Viridian. North/south exits are at the central path; east/west exits use the lower crossroad. This is a compact adapted layout, not a tile-for-tile FireRed map. Sea routes currently use walkable ferry paths without an HM requirement. Town healing points persist and are used after defeat. Existing saves keep their map IDs and progress.
 
-New landmarks are exterior exploration areas: building interiors, Safari gameplay, Silph/Tower/Mansion quests and the later Adventure gym/League campaign are not yet implemented. All gym leaders and the Elite Four/Blue remain available in the separate Gym Leaders mode.
+Landmarks now use canonical interiors and adapted Silph/Tower/Mansion and gym/League quests. Safari still uses the regular manual-encounter arena rules rather than the cartridge Safari minigame.
 
 Location reference: [FireRed/LeafGreen Kanto world map](https://pokedream.com/games/fireleaf/worldmap/index.php).
 
@@ -349,10 +366,10 @@ The canonical overworld now has a persistent event layer. Press E beside bins, s
 - Mansion: statue switches alternate the original door sets across floors; the Secret Key is a map pickup.
 - Victory Road: push boulders with Strength onto the original floor switches to remove barriers. M resets a room's boulders while retaining completed switches.
 - Seafoam: boulders fall into the lower floors through the original holes. Two boulders calm each current and apply the original stopped-current layout. M explicitly resets ALL Seafoam boulders/currents together to recover from a bad push.
-- Field/story events: Cut trees, Surf water access, Oak's parcel delivery flag, sleeping Snorlax/Poke Flute battle and catch, Bill/Captain placement, defeated overworld trainers, and usable item/TM/key pickups persist. Unsupported item kinds remain visible and explain that they cannot be used yet.
+- Field/story events: Cut trees, Surf water access, Oak's parcel delivery flag, sleeping Snorlax/Poke Flute battle and catch, Bill/Captain placement, defeated overworld trainers, and usable item/TM/key pickups persist. Every currently imported item-ball kind has a pickup and use/sale/key-item handler.
 - Elite Four/Champion battles now use their separate rooms; victory unlocks the next chamber and leaving resets the current run. Hall of Fame requires the Champion title.
 
-This is still an adapted event system, not an interpreter for every FireRed script. Cinematic sequences, all incidental NPC dialogue/visibility conditions, ledge jumps, fossil revival, every original item effect and the exact Victory Road falling-boulder sequence remain unfinished. Existing campaign party presets and several quest requirements are retained. Random encounters and sight-triggered battles remain disabled.
+This is still an adapted event system, not an interpreter for every FireRed script. Coverage includes timed scenes, ledge jumps, fossil revival, current pickup handlers and the Victory Road falling boulder. Not every incidental NPC dialogue/visibility condition or cartridge minigame is implemented. Existing campaign party presets and several quest requirements are retained. Wild encounters require explicit interaction; normal trainers approach when they see the player.
 
 Rebuild event assets with tools/import-kanto-events.py (also refreshes base maps). Event regression checks run with --smoke-test; --capture-events renders Surge's barrier before/after. Source remains the pinned pret/pokefirered revision in assets/kanto/source.json.
 
@@ -365,6 +382,6 @@ Doors, stairs and warp pads now activate when stepped on; blocked door graphics 
 
 Normal overworld trainers use their imported facing direction and sight distance, reject obstructed paths, show an alert, approach, then start the existing arena battle with their existing party. Defeated trainers retain their saved flag. Gym leaders and story quest characters still have their own interaction rules. Roaming trainer rotations are not simulated yet.
 
-Wild encounters are ONLY requested by the interact binding (default E) in grass, surf water or eligible cave floor tiles. Walking alone never rolls a wild battle. The old visible wild markers are removed. FireRed land/surf slots, slot weights and level ranges are exported for 66 Kanto maps by tools/import-kanto-encounters.py; explicit E replaces the cartridge's per-step encounter chance. Fishing/rock-smash encounters are not added. Shininess, abilities, catching and arena combat keep their existing rules.
+Wild encounters are ONLY requested by the interact binding (default E) in grass, surf water or eligible cave floor tiles. Walking alone never rolls a wild battle. The old visible wild markers are removed. FireRed land/surf slots, slot weights and level ranges are exported for 66 Kanto maps by tools/import-kanto-encounters.py; explicit E replaces the cartridge's per-step encounter chance. Fishing uses the original Old/Good/Super Rod tables through explicit Bag actions; smashing rocks does not trigger an unsolicited wild encounter. Shininess, abilities, catching and arena combat keep their existing rules.
 
 Timed, skippable scenes now cover Oak's warning/escort and lab introduction, Bill's transporter, the Captain's Cut reward, Fuji's rescue, the Silph President and Hall of Fame, plus trainer approaches. Dialogue advances automatically; Enter/interact advances a line, Esc skips to the outcome. Story completion flags persist; the scene layer is cleaned up when leaving the application. These are adapted in-engine scenes, not every original FireRed cinematic or NPC script. Use --capture-scenes for the trainer alert/approach preview.

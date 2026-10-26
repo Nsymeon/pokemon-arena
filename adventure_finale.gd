@@ -37,7 +37,7 @@ const TASKS = {
 	"victory_trainer":{"name":"Ace Trainer / Victory Road","map":42,"need":["victory_boulder"],"ids":[112,68,55],"levels":[47,48,48]},
 	"league_rival":{"name":"Blue / League checkpoint","map":42,"need":["victory_trainer"],"ids":[18,111,102,65,58,0],"levels":[47,45,45,47,45,53],"identity":"blue"},
 	"seafoam_boulder":{"name":"Move boulders / calm current","map":44,"need":["surf","strength"],"text":"The boulders calm the current. Seafoam's lower chamber is now quiet and accessible."},
-	"bicycle":{"name":"Fan Club / Bicycle voucher","map":54,"need":["thunder"],"text":"Received a Bicycle voucher as a key item. Keep it safe; it cannot be redeemed yet."}
+	"bicycle":{"name":"Fan Club / Bicycle voucher","map":54,"need":["thunder"],"text":"Received a Bicycle voucher as a key item. Exchange it at the Cerulean Bike Shop."}
 }
 const LABELS = {"thunder":"Thunder Badge","rainbow":"Rainbow Badge","soul":"Soul Badge","marsh":"Marsh Badge","volcano":"Volcano Badge","earth":"Earth Badge","scope":"Silph Scope","flute":"Poke Flute","gold_teeth":"Gold Teeth","surf":"Surf","strength":"Strength","card_key":"Card Key","secret_key":"Secret Key","seven":"seven badges","eight":"eight badges","champion":"Champion title","snorlax":"clear Snorlax with the flute","warp":"solve the warp panels","quiz":"answer the Gym quiz","silph_saved":"free Silph Co.","league_rival":"defeat Blue at Victory Road"}
 

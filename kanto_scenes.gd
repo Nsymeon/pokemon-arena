@@ -61,6 +61,7 @@ func oak_rescue():
 	play([{"text":"OAK: Wait! Wild Pokemon live beyond the town!","duration":1.7},{"actor":{"key":"scene_oak","gfx":"prof_oak","from":origin,"to":target},"text":"OAK: Come with me. You need a Pokemon of your own.","duration":2.2}],func():w.enter("MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB",Vector2(6.5,9.5)*w.TILE))
 
 func quest(id: String) -> bool:
+	if id=="late_task_tower_ghost": return a.field.ghost()
 	if id=="story_console" and a.Story.state(a).get("bill_help",false) and not a.Story.state(a).get("ticket",false):
 		var bill=a.position_world
 		for npc in w.quest_actors():
@@ -141,6 +142,12 @@ func seek_wild() -> bool:
 	var slots=pool()
 	if slots.is_empty(): return false
 	var mon=roll(slots)
+	var leader=a.data.party.filter(func(member):return member.hp>0)
+	if not leader.is_empty():
+		if int(a.data.get("repel_steps",0))>0 and mon.level<leader[0].level:
+			a.dialog="Repel kept a weaker wild Pokemon away."; return true
+		if leader[0].get("held_item","")=="cleansetag" and random.randf()<1.0/3.0:
+			a.dialog="Cleanse Tag kept a wild Pokemon away."; return true
 	a.begin_battle("wild",[mon.id],[mon.level])
 	return true
 
@@ -155,6 +162,16 @@ func draw():
 	a.draw_rect(Rect2(40,640,1200,140),Color(0.02,0.04,0.06,0.96))
 	a.draw_multiline_string(a.font,Vector2(65,681),a.wrapped(subtitle),HORIZONTAL_ALIGNMENT_LEFT,1140,22,3,Color("f1ecd9"))
 	a.words("SCENE / Enter or "+a.c.controls.text("interact")+": next / Esc: skip",Vector2(65,762),13,Color("a8b9bd"))
+	if index<sequence.size():
+		var step=sequence[index]
+		if step.has("portrait"):
+			a.draw_circle(Vector2(640,390),115,Color(0.8,0.95,1,0.15))
+			a.draw_texture_rect(a.c.portraits[int(step.portrait)],Rect2(540,290,200,200),false)
+		if step.get("effect","")=="smash":
+			var center=Vector2(step.point)-a.camera+Vector2(0,90)
+			for i in range(10):
+				var velocity=Vector2.from_angle(i*TAU/10)*90+Vector2(0,-70)
+				a.draw_circle(center+velocity*elapsed+Vector2(0,150*elapsed*elapsed),4,Color("ceb18b"))
 	if subtitle=="!" and not actor.is_empty():
 		var p=Vector2(positions.get(str(actor.key),a.position_world))-a.camera+Vector2(0,90)
 		a.draw_circle(p+Vector2(24,-78),19,Color("fff1be"))

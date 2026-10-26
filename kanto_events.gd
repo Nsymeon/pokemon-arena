@@ -75,8 +75,11 @@ func collision(p: Vector2) -> int:
 	for rock in rocks():
 		if Vector2i(rock.x,rock.y)==cell: return 1
 	for o in w.room().objects:
+		var gfx=str(o.graphics_id); var script=str(o.get("script",""))
+		var present=not a.field.hidden(o) and not (script.ends_with("EeveeBall") and done("gift:eevee"))
+		if present and (gfx.contains("FOSSIL") or gfx.contains("OLD_AMBER") or script.ends_with("EeveeBall") or gfx in ["OBJ_EVENT_GFX_ARTICUNO","OBJ_EVENT_GFX_ZAPDOS","OBJ_EVENT_GFX_MEWTWO"]) and Vector2i(int(o.x),int(o.y))==cell: return 1
 		if "Snorlax" in str(o.get("script","")) and not done("snorlax:"+w.current) and Vector2i(int(o.x),int(o.y))==cell: return 1
-		if "ROCK_SMASH_ROCK" in str(o.graphics_id) and Vector2i(int(o.x),int(o.y))==cell: return 1
+		if "ROCK_SMASH_ROCK" in str(o.graphics_id) and not done(a.field.smash_key(o)) and Vector2i(int(o.x),int(o.y))==cell: return 1
 		if "CUT_TREE" in str(o.graphics_id) and not done(w.current+"tree"+str(o.x)+":"+str(o.y)) and Vector2i(int(o.x),int(o.y))==cell: return 1
 	if patches.has(cell): return int(patches[cell].solid)
 	return -1
@@ -88,6 +91,7 @@ func rocks() -> Array:
 		if not "BOULDER" in str(o.graphics_id): continue
 		var key=w.current+":"+str(i)
 		if done("fallen:"+key): continue
+		if w.current=="MAP_VICTORY_ROAD_2F" and str(o.get("flag","")).contains("VICTORY_ROAD_2F_BOULDER") and not done("arrived:"+key): continue
 		if w.current.begins_with("MAP_SEAFOAM_ISLANDS_"):
 			var initial=w.current=="MAP_SEAFOAM_ISLANDS_1F" or (w.current=="MAP_SEAFOAM_ISLANDS_B3F" and not str(o.get("flag","")).ends_with("_1") and not str(o.get("flag","")).ends_with("_2"))
 			if not initial and not done("arrived:"+key): continue
@@ -113,6 +117,11 @@ func push(rock):
 	refresh(); a.save()
 
 func reset_rocks():
+	if w.current.begins_with("MAP_VICTORY_ROAD_"):
+		for key in state().done.keys():
+			if str(key).begins_with("fallen:MAP_VICTORY_ROAD") or str(key).begins_with("arrived:MAP_VICTORY_ROAD"): state().done.erase(key)
+		for key in state().rocks.keys():
+			if str(key).begins_with("MAP_VICTORY_ROAD"): state().rocks.erase(key)
 	if w.current.begins_with("MAP_SEAFOAM_ISLANDS_"):
 		for key in state().done.keys():
 			if str(key).begins_with("fallen:MAP_SEAFOAM") or str(key).begins_with("arrived:MAP_SEAFOAM") or str(key).begins_with("calm:MAP_SEAFOAM"): state().done.erase(key)
@@ -178,7 +187,8 @@ func pickup(item):
 		var bag_id=id.to_lower().replace("_","")
 		if not a.inventory.ITEMS.has(bag_id):
 			a.dialog=id.replace("_"," ")+": this item is not usable in this build yet."; return
-		a.data.bag[bag_id]=mini(999,int(a.data.bag.get(bag_id,0))+1)
+		if int(a.data.bag.get(bag_id,0))>=999: a.dialog="No room for more of this item."; return
+		a.data.bag[bag_id]=int(a.data.bag.get(bag_id,0))+1
 	finish(key); a.dialog="Found "+id.replace("_"," ")+"!"; a.save()
 
 func interact() -> bool:
@@ -192,7 +202,7 @@ func interact() -> bool:
 		if not done(w.current+"item"+str(item.id)): nearby.append({"pos":point(item),"kind":"item","data":item})
 	for rock in rocks(): nearby.append({"pos":point(rock),"kind":"rock","data":rock})
 	for o in w.room().objects:
-		if "ROCK_SMASH_ROCK" in str(o.graphics_id): nearby.append({"pos":point(o),"kind":"smash","data":o})
+		if "ROCK_SMASH_ROCK" in str(o.graphics_id) and not done(a.field.smash_key(o)): nearby.append({"pos":point(o),"kind":"smash","data":o})
 		if "CUT_TREE" in str(o.graphics_id) and not done(w.current+"tree"+str(o.x)+":"+str(o.y)): nearby.append({"pos":point(o),"kind":"tree","data":o})
 	# Object interaction uses the adjacent tile in front, never a diagonal or through a wall.
 	nearby=nearby.filter(func(event):return Vector2(event.pos).distance_to(a.position_world+w.heading*w.TILE)<w.TILE*0.2)
@@ -202,7 +212,7 @@ func interact() -> bool:
 	match event.kind:
 		"item": pickup(o)
 		"rock": push(o)
-		"smash": a.dialog="A cracked rock blocks the path. Rock Smash field use is not available in this build yet."
+		"smash": a.field.smash(o)
 		"tree":
 			if a.Story.state(a).get("cut",false):
 				finish(w.current+"tree"+str(o.x)+":"+str(o.y)); a.dialog="Cut cleared the tree!"; a.save()
@@ -228,7 +238,7 @@ func draw():
 		if not textures.has(tile.image): textures[tile.image]=ImageTexture.create_from_image(Image.load_from_file(tile.image))
 		a.draw_texture_rect(textures[tile.image],Rect2(Vector2(tile.x,tile.y)*w.TILE,Vector2.ONE*w.TILE),false)
 	for o in w.room().objects:
-		if "ROCK_SMASH_ROCK" in str(o.graphics_id):
+		if "ROCK_SMASH_ROCK" in str(o.graphics_id) and not done(a.field.smash_key(o)):
 			var p=point(o)
 			a.draw_circle(p+Vector2(0,7),18,Color("343d40"))
 			a.draw_circle(p,17,Color("ad9980"))
@@ -251,6 +261,7 @@ func draw():
 
 
 func allow_door(destination: String) -> bool:
+	if destination=="MAP_POKEMON_TOWER_7F" and a.field.ghost(): return false
 	if destination in LEAGUE:
 		var need=a.Finale.missing(a,["eight","league_rival"])
 		if need!="": a.dialog="League entry requires "+need+"."; return false
@@ -393,6 +404,15 @@ func tests():
 	refresh(); push(rocks()[0])
 	a.c.check(done("VictoryRoad_1F_EventScript_FloorSwitch"),"Strength boulder activates original floor switch")
 	a.c.check(collision(Vector2(12.5,14.5)*w.TILE)==0,"Victory Road floor switch removes rock barrier")
+	w.current="MAP_VICTORY_ROAD_2F"; refresh()
+	a.c.check(rocks().size()==2,"Victory Road lower boulder stays hidden until it falls")
+	w.current="MAP_VICTORY_ROAD_3F"; refresh()
+	var falling=rocks().filter(func(r):return int(r.x)==33 and int(r.y)==18)[0]
+	a.c.check(fall_boulder(falling,Vector2i(34,18)),"Victory Road upper boulder falls through the original hole")
+	w.current="MAP_VICTORY_ROAD_2F"; refresh()
+	a.c.check(rocks().size()==3,"Victory Road fallen boulder arrives on 2F")
+	reset_rocks()
+	a.c.check(rocks().size()==2,"Victory Road reset restores both floors without duplicating the boulder")
 	w.current="MAP_SEAFOAM_ISLANDS_1F"
 	var sea_rock=rocks()[0]
 	a.c.check(fall_boulder(sea_rock,Vector2i(21,8)),"Seafoam boulder falls through original hole")
@@ -449,6 +469,7 @@ func tick(dt: float) -> bool:
 
 
 func npc_interact(npc) -> bool:
+	if a.field.npc(npc): return true
 	var script=str(npc.get("script",""))
 	if w.current in LEAGUE and str(npc.get("graphics_id","")).trim_prefix("OBJ_EVENT_GFX_") in ["LORELEI","BRUNO","AGATHA","LANCE","BLUE"]:
 		if LEAGUE.find(w.current)==int(a.Finale.state(a).get("league",0)): a.Finale.start_league(a)
@@ -468,6 +489,7 @@ func npc_interact(npc) -> bool:
 	return false
 
 func result(kind: String, victory: bool, caught: bool):
+	a.field.battle_result(kind,victory,caught)
 	if kind=="wild" and state().has("pending_snorlax"):
 		if victory or caught:
 			finish(str(state().pending_snorlax)); a.Finale.state(a)["snorlax"]=true
@@ -492,7 +514,7 @@ func valid(data: Dictionary) -> bool:
 
 
 func fall_boulder(rock, cell: Vector2i) -> bool:
-	if not w.current.begins_with("MAP_SEAFOAM_ISLANDS_"): return false
+	if not w.current.begins_with("MAP_SEAFOAM_ISLANDS_") and w.current!="MAP_VICTORY_ROAD_3F": return false
 	var index=cell.y*int(w.room().width)+cell.x
 	if index<0 or index>=catalog[w.current].behavior.size() or int(catalog[w.current].behavior[index])!=0x66: return false
 	for warp in w.room().warps:
@@ -518,6 +540,6 @@ func fall_boulder(rock, cell: Vector2i) -> bool:
 				var flag=str(destination.objects[i].get("flag",""))
 				if "BOULDER" in flag and (flag.ends_with("_1") or flag.ends_with("_2")): both=both and done("arrived:"+str(warp.dest_map)+":"+str(i))
 			if both: finish("calm:"+str(warp.dest_map))
-		a.dialog="The boulder drops to the floor below. Two boulders block each current."
+		a.dialog="The boulder drops to the floor below. Push it onto the switch on 2F." if w.current=="MAP_VICTORY_ROAD_3F" else "The boulder drops to the floor below. Two boulders block each current."
 		return true
 	return false

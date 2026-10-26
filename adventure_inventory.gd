@@ -2,7 +2,7 @@ extends RefCounted
 
 var a
 var book: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/adventure-learnsets.json"))
-const ITEMS = {
+var ITEMS = {
 	"potion":{"name":"Potion / heal 20%","price":100,"heal":0.2},
 	"superpotion":{"name":"Super Potion / heal 50%","price":300,"heal":0.5},
 	"antidote":{"name":"Antidote / poison","price":100,"cure":["poison","toxic"]},
@@ -17,6 +17,7 @@ const SHOP_TMS = {"TM09":1000,"TM17":1200,"TM40":1500}
 
 func install(adventure):
 	a = adventure
+	ITEMS.merge(a.extras.catalog)
 
 func eligible(id, level) -> Array:
 	var result: Array = []
@@ -63,8 +64,13 @@ func valid(value) -> bool:
 		if mon.get("ailment","") not in ["","poison","toxic","paralysis","sleep","burn","freeze"]: return false
 	return true
 
-func definitions(ids: Array) -> Array:
-	return ids.map(func(id):return book.moves[id].duplicate(true))
+func definitions(ids: Array, mon: Dictionary={}) -> Array:
+	var result=[]
+	for id in ids:
+		var move=book.moves[id].duplicate(true)
+		if move.kind=="heal": move["healing_pp_max"]=5+int(mon.get("ppups",{}).get(id,0))
+		result.append(move)
+	return result
 
 func level_up(mon, old_id, level):
 	for id in [old_id,int(mon.id)]:
@@ -95,6 +101,7 @@ func row(list, title, callback: Callable, disabled = false):
 	b.text = title
 	b.custom_minimum_size = Vector2(875,48)
 	b.disabled = disabled
+	b.add_theme_color_override("font_disabled_color",Color("b9c9d1"))
 	b.pressed.connect(callback)
 	list.add_child(b)
 
@@ -104,12 +111,14 @@ func bag():
 	row(list,"POKE BALL / use G during a wild battle",func():pass,true)
 	for id in ITEMS:
 		var count = int(a.data.bag.get(id,0))
-		row(list,ITEMS[id].name+"  x"+str(count),targets.bind(id),count<=0)
+		if count>0 or not a.extras.catalog.has(id): row(list,ITEMS[id].name+"  x"+str(count),targets.bind(id),count<=0)
+	row(list,"FIELD TOOLS / bicycle, Fly, Flash, Dig, Teleport",a.field.tools_menu,a.in_battle)
 	row(list,"TM CASE",tm_case, a.in_battle)
 	row(list,a.Story.keys(a),func():pass,true)
 	for key in a.Finale.keys(a): row(list,"KEY ITEM / "+key,func():pass,true)
 
 func targets(id):
+	if a.extras.catalog.has(id): a.extras.targets(id); return
 	var list = page(ITEMS[id].name+" / CHOOSE POKEMON")
 	if a.in_battle: a.sync_health()
 	for i in range(a.data.party.size()):
@@ -117,6 +126,7 @@ func targets(id):
 		row(list,"%s / HP %d%% / %s" % [a.mon_name(mon.id),roundi(mon.hp*100),mon.get("ailment","")],use_item.bind(id,i))
 
 func use_item(id,slot) -> bool:
+	if a.extras.catalog.has(id): return a.extras.use(id,slot)
 	if not ITEMS.has(id) or slot<0 or slot>=a.data.party.size() or int(a.data.bag.get(id,0))<=0: return false
 	if a.in_battle:
 		if a.c.result!="" or a.c.countdown>0 or a.capture_time>0 or a.c.switch_time>=0 or a.c.player.get("action_lock",0)>0 or a.c.player.get("charge_left",0)>0: return false
@@ -158,6 +168,7 @@ func shop():
 	var list = page("POKE MART / $%d" % a.data.money)
 	row(list,"5 Poke Balls / $100",buy.bind("balls",100),a.data.money<100 or a.data.balls>994)
 	for id in ITEMS:
+		if int(ITEMS[id].price)<=0: continue
 		row(list,ITEMS[id].name+" / $"+str(ITEMS[id].price),buy.bind(id,ITEMS[id].price),a.data.money<ITEMS[id].price)
 	for id in SHOP_TMS:
 		row(list,book.tms[id].name+" / $"+str(SHOP_TMS[id]),buy.bind(id,SHOP_TMS[id]),a.data.money<SHOP_TMS[id])

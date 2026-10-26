@@ -17,7 +17,7 @@ func tick(dt):
 			if team[id]<=0: team.erase(id)
 
 func pp_limit(move) -> int:
-	return 5 if move.get("kind","")=="heal" else 0
+	return int(move.get("healing_pp_max",5)) if move.get("kind","")=="heal" else 0
 
 func pp(f,move) -> int:
 	return int(f.get("healing_pp",{}).get(move.id,pp_limit(move)))

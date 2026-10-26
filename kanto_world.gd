@@ -12,6 +12,8 @@ var actor_paths: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res
 var actor_textures={}
 var heading=Vector2.DOWN
 var stepping=false
+var jumping=false
+var jump_start=Vector2.ZERO
 var pending_interact=false
 var step_target=Vector2.ZERO
 var events=preload("res://kanto_events.gd").new()
@@ -25,10 +27,13 @@ func install(adventure):
 	for id in maps: names[maps[id].name]=id
 
 func activate():
+	a.field.riding=false
+	a.field.pending_static=""
 	pending_interact=false
 	scenes.reset()
 	warp_latch=""
 	stepping=false
+	jumping=false
 	enabled=true
 	current=a.data.get("world_map",names.get(LEGACY[int(a.data.map)],"MAP_PALLET_TOWN"))
 	if not maps.has(current): current="MAP_PALLET_TOWN"
@@ -37,6 +42,7 @@ func activate():
 		a.position_world=walkable(Vector2(12,16)*TILE)
 	else: a.position_world=walkable(Vector2(a.data.x,a.data.y))
 	a.data["world_map"]=current
+	if a.field.outdoor(): a.field.finish("visited:"+current)
 	events.refresh()
 	update_camera()
 
@@ -82,10 +88,13 @@ func update_camera():
 
 func enter(id: String, at: Vector2):
 	if not maps.has(id): return
+	var previous=current
+	var previous_position=a.position_world
 	if current in events.LEAGUE and id not in events.LEAGUE and id!="MAP_POKEMON_LEAGUE_HALL_OF_FAME": a.Finale.state(a)["league"]=0
 	scenes.reset()
 	pending_interact=false
 	stepping=false
+	jumping=false
 	current=id
 	events.spin=Vector2.ZERO
 	events.refresh()
@@ -93,6 +102,7 @@ func enter(id: String, at: Vector2):
 	var logical=LEGACY.find(room().name)
 	if logical>=0: a.data.map=logical
 	a.position_world=walkable(at)
+	a.field.entered(previous,previous_position)
 	a.c.click_move=false
 	a.dialog=""
 	warp_latch=warp_key(a.position_world)
@@ -146,7 +156,9 @@ func tick(dt):
 				enter(link.map,target); return
 		if direction!=Vector2.ZERO:
 			step_target=a.position_world+motion
-			if not blocked(step_target):
+			if try_ledge(direction):
+				advance_step(dt)
+			elif not blocked(step_target):
 				stepping=true
 				advance_step(dt)
 			elif try_warp(false,step_target): return
@@ -160,8 +172,9 @@ func actors() -> Array:
 	var result=[]
 	var quests=quest_actors()
 	for object in room().objects:
-		if object.get("graphics_id","").contains("ITEM_BALL") or object.get("graphics_id","").contains("BOULDER") or object.get("graphics_id","").contains("CUT_TREE") or object.get("graphics_id","").contains("ROCK_SMASH_ROCK"): continue
+		if (object.get("graphics_id","").contains("ITEM_BALL") and not str(object.get("script","")).ends_with("EeveeBall")) or object.get("graphics_id","").contains("BOULDER") or object.get("graphics_id","").contains("CUT_TREE") or object.get("graphics_id","").contains("ROCK_SMASH_ROCK"): continue
 		if "Snorlax" in str(object.get("script","")) and events.done("snorlax:"+current): continue
+		if a.field.hidden(object) or (str(object.get("script","")).ends_with("EeveeBall") and a.field.done("gift:eevee")): continue
 		var npc=object.duplicate(true)
 		npc["pos"]=scenes.positions.get(str(object.get("script","")),Vector2(float(object.x)+0.5,float(object.y)+0.5)*TILE)
 		if quests.any(func(q):return q[0].distance_to(npc.pos)<TILE*0.5): continue
@@ -277,6 +290,20 @@ func tests():
 					if not blocked(cell) and cell.distance_squared_to(target)<nearest:
 						expected=cell; nearest=cell.distance_squared_to(target)
 			a.c.check(walkable(target)==expected,"Nearby search matches exhaustive nearest walkable tile: "+cave)
+	current="MAP_ROUTE1"; events.refresh()
+	var tested_ledge=false
+	for y in range(1,int(room().height)-2):
+		if tested_ledge: break
+		for x in range(1,int(room().width)-1):
+			if int(events.catalog[current].behavior[y*int(room().width)+x])!=0x3B: continue
+			a.position_world=Vector2(x+0.5,y-0.5)*TILE
+			if blocked(a.position_world) or blocked(a.position_world+Vector2.DOWN*TILE*2): continue
+			var destination=a.position_world+Vector2.DOWN*TILE*2
+			a.c.check(not try_ledge(Vector2.UP) and try_ledge(Vector2.DOWN),"Ledge jumps only in its original permitted direction")
+			for i in range(9): advance_step(0.05)
+			a.c.check(not jumping and not stepping and a.position_world==destination,"Ledge lands on the next floor tile")
+			tested_ledge=true; break
+	a.c.check(tested_ledge,"Route 1 ledge fixture exists")
 	for direction in [Vector2.LEFT,Vector2.RIGHT,Vector2.UP,Vector2.DOWN]:
 		a.position_world=Vector2(500,500); step_target=a.position_world+direction*TILE; stepping=true
 		for i in range(11): advance_step(0.02)
@@ -350,7 +377,14 @@ func draw():
 		var p=Vector2(float(door.x)+0.5,float(door.y)+0.5)*TILE
 		if a.position_world.distance_to(p)<TILE*1.5: a.words("ENTER",p+Vector2(-35,-22),14,Color("fff0b0"))
 	for npc in actors():
-		if "Snorlax" in str(npc.get("script","")):
+		if str(npc.get("graphics_id","")).contains("FOSSIL") or str(npc.get("graphics_id","")).contains("OLD_AMBER"):
+			a.draw_circle(npc.pos,15,Color("c7a46e")); a.draw_arc(npc.pos,9,0,TAU*0.8,20,Color("685141"),3)
+		elif str(npc.get("graphics_id","")).trim_prefix("OBJ_EVENT_GFX_") in ["ARTICUNO","ZAPDOS","MEWTWO"]:
+			var species={"ARTICUNO":144,"ZAPDOS":145,"MEWTWO":150}[str(npc.graphics_id).trim_prefix("OBJ_EVENT_GFX_")]
+			a.draw_texture_rect(a.c.portraits[species],Rect2(npc.pos-Vector2(38,60),Vector2(76,76)),false)
+		elif str(npc.get("script","")).ends_with("EeveeBall"):
+			a.draw_circle(npc.pos,10,Color("f5eee0")); a.draw_arc(npc.pos,9,PI,TAU,12,Color("e75151"),9)
+		elif "Snorlax" in str(npc.get("script","")):
 			a.draw_texture_rect(a.c.portraits[143],Rect2(npc.pos-Vector2(38,60),Vector2(76,76)),false)
 		else: person(npc.pos,str(npc.get("graphics_id","OBJ_EVENT_GFX_WOMAN_1")).trim_prefix("OBJ_EVENT_GFX_"),false,scenes.trainer_direction(npc))
 		if can_talk(npc.pos): a.words(a.c.controls.text("interact")+" / "+(str(npc.battle.name) if npc.has("battle") else "TALK"),npc.pos+Vector2(-35,-65),14,Color("fff0b0"))
@@ -383,6 +417,7 @@ func draw():
 	if a.dialog!="":
 		a.draw_rect(Rect2(80,630,1120,145),Color("10252f"))
 		a.draw_multiline_string(a.font,Vector2(105,665),a.wrapped(a.dialog),HORIZONTAL_ALIGNMENT_LEFT,1060,20,4,Color("eef4de"))
+	a.field.draw()
 	scenes.draw()
 
 func person(at: Vector2, identity: String, player: bool=false, look: Vector2=Vector2.ZERO):
@@ -401,6 +436,7 @@ func person(at: Vector2, identity: String, player: bool=false, look: Vector2=Vec
 		if stepping or events.spin!=Vector2.ZERO: frame=3+frame*2+int(a.walk_age*8)%2
 	frame=mini(frame,int(texture.get_width()/16)-1)
 	var extent=Vector2(48,texture.get_height()*3)
+	if player and jumping: at.y-=sin(clampf(a.position_world.distance_to(jump_start)/(2*TILE),0,1)*PI)*22
 	if flip:
 		if player and a.data.has("avatar"):
 			texture=a.avatar.texture(a.avatar.config(),false,true)
@@ -417,6 +453,18 @@ func person(at: Vector2, identity: String, player: bool=false, look: Vector2=Vec
 	a.draw_texture_rect_region(texture,Rect2(at+Vector2(-24,-extent.y+24),extent),Rect2(frame*16,0,16,texture.get_height()))
 
 
+func try_ledge(direction: Vector2) -> bool:
+	var target=a.position_world+direction*TILE
+	var cell=Vector2i(floori(target.x/TILE),floori(target.y/TILE))
+	if cell.x<0 or cell.y<0 or cell.x>=room().width or cell.y>=room().height: return false
+	var behavior=int(events.catalog[current].behavior[cell.y*int(room().width)+cell.x])
+	var jump_direction={0x38:Vector2.RIGHT,0x39:Vector2.LEFT,0x3A:Vector2.UP,0x3B:Vector2.DOWN}.get(behavior,Vector2.ZERO)
+	if direction==Vector2.ZERO or direction!=jump_direction: return false
+	var landing=target+direction*TILE
+	if blocked(landing): return false
+	jump_start=a.position_world; step_target=landing; stepping=true; jumping=true
+	return true
+
 func cardinal(input: Vector2, mouse: bool=false) -> Vector2:
 	if input==Vector2.ZERO: return Vector2.ZERO
 	if mouse:
@@ -430,13 +478,17 @@ func cardinal(input: Vector2, mouse: bool=false) -> Vector2:
 	return Vector2(signf(input.x),0)
 
 func advance_step(dt: float):
-	var speed=360.0 if a.c.controls.held("sprint") else 240.0
+	var speed=480.0 if a.field.riding and a.field.outdoor() else 360.0 if a.c.controls.held("sprint") else 240.0
 	a.position_world=a.position_world.move_toward(step_target,speed*minf(dt,0.05))
 	a.walk_age+=dt
 	a.autosave+=dt
 	if a.position_world.is_equal_approx(step_target):
 		a.position_world=step_target
 		stepping=false
+		jumping=false
+		if int(a.data.get("repel_steps",0))>0:
+			a.data.repel_steps-=1
+			if a.data.repel_steps==0: a.dialog="Repel wore off."
 		if pending_interact:
 			pending_interact=false
 			a.interact()

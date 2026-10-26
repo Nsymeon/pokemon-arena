@@ -14,6 +14,8 @@ var save_path = SAVE_PATH
 var save_error = ""
 var save_allowed = true
 var c
+var extras=preload("res://adventure_items.gd").new()
+var field=preload("res://adventure_field.gd").new()
 var avatar=preload("res://adventure_avatar.gd").new()
 var world=preload("res://kanto_world.gd").new()
 var inventory = preload("res://adventure_inventory.gd").new()
@@ -41,6 +43,8 @@ var font: Font
 
 func install(context):
 	c = context
+	extras.a = self
+	field.a = self
 	avatar.a = self
 	world.install(self)
 	inventory.install(self)
@@ -52,6 +56,12 @@ func install(context):
 	add_child(ui)
 
 func valid(value) -> bool:
+	if value is Dictionary and value.has("field_exit"):
+		var e=value.field_exit
+		if not e is Dictionary or not world.maps.has(e.get("map","")): return false
+		for axis in ["x","y"]:
+			if not (e.get(axis) is float or e.get(axis) is int) or not is_finite(e[axis]): return false
+		if e.x<0 or e.y<0 or e.x>=world.maps[e.map].width*world.TILE or e.y>=world.maps[e.map].height*world.TILE: return false
 	if value is Dictionary and value.has("avatar") and not avatar.valid(value.avatar): return false
 	if value is Dictionary and not world.events.valid(value): return false
 	if not value is Dictionary or value.get("version",0) != 1: return false
@@ -87,7 +97,7 @@ func valid(value) -> bool:
 	if not Finale.valid(value): return false
 	for member in value.get("hall_of_fame",[]):
 		if not c.roster.any(func(mon):return int(mon.id)==int(member.id)): return false
-	return inventory.valid(value) and Story.valid(value)
+	return inventory.valid(value) and extras.valid(value) and Story.valid(value)
 
 func load_save():
 	loaded = true
@@ -385,10 +395,11 @@ func battle_mon(id: int, level: int, individual: Dictionary={}) -> Dictionary:
 	var mon: Dictionary = c.roster[c.Dex.find_id(c.roster,id)].duplicate(true)
 	var scale = 0.55+level*0.06
 	mon.hp = roundf(mon.hp*scale)
-	for key in mon.base_stats: mon.base_stats[key] = roundf(mon.base_stats[key]*scale)
+	for key in mon.base_stats: mon.base_stats[key] = roundf((mon.base_stats[key]+int(individual.get("training",{}).get(key,0))/4.0)*scale)
+	mon.hp += roundf(int(individual.get("training",{}).get("hp",0))/4.0*scale)
 	mon.moves = inventory.definitions(inventory.starting(id,level))
 	mon["level"] = level
-	for key in ["shiny","ability_slot","gender"]:
+	for key in ["shiny","ability_slot","gender","held_item"]:
 		if individual.has(key): mon[key]=individual[key]
 	c.abilities.assign(mon,individual.is_empty())
 	return mon
@@ -409,6 +420,7 @@ func begin_battle(kind: String, ids: Array, levels: Array):
 	progress_lines.clear()
 	progress_time = 0
 	save()
+	for species in ids: field.finish("seen:"+str(species))
 	encounter = {"kind":kind,"ids":ids.duplicate(),"levels":levels.duplicate(),"rewarded":[]}
 	exploring = false
 	visible = false
@@ -433,7 +445,7 @@ func begin_battle(kind: String, ids: Array, levels: Array):
 	for i in range(data.party.size()):
 		var fighter = c.player_states[i]
 		fighter.data = battle_mon(int(data.party[i].id),int(data.party[i].level),data.party[i])
-		fighter.data.moves = inventory.definitions(data.party[i].moves)
+		fighter.data.moves = inventory.definitions(data.party[i].moves,data.party[i])
 		fighter.hp = fighter.data.hp*float(data.party[i].hp)
 		fighter.ailment = data.party[i].ailment
 		fighter.ailment_time = 2.5 if fighter.ailment=="sleep" else 3.0 if fighter.ailment=="paralysis" else 5.0 if fighter.ailment=="freeze" else 8.0
@@ -960,7 +972,7 @@ func record_knockout():
 		var mon = data.party[i]
 		if not fighter.get("transformed",false):
 			fighter.data = battle_mon(int(mon.id),int(mon.level),mon)
-			fighter.data.moves = inventory.definitions(mon.moves)
+			fighter.data.moves = inventory.definitions(mon.moves,mon)
 		fighter.hp = fighter.data.hp*mon.hp
 	progress_lines = [mon_name(int(encounter.ids[c.enemy_active]))+" defeated! +"+str(amount)+" EXP to standing teammates."]
 	if message!="": progress_lines.append(message)

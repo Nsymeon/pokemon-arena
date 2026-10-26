@@ -1,0 +1,65 @@
+{
+  "CeruleanCity_House3_EventScript_Dontae": {
+    "give": 61,
+    "receive": 124,
+    "nickname": "ZYNX",
+    "trainer": "DONTAE",
+    "ability": 0
+  },
+  "CinnabarIsland_PokemonLab_ExperimentRoom_EventScript_Garett": {
+    "give": 77,
+    "receive": 86,
+    "nickname": "SEELOR",
+    "trainer": "GARETT",
+    "ability": 0
+  },
+  "CinnabarIsland_PokemonLab_Lounge_EventScript_Clifton": {
+    "give": 26,
+    "receive": 101,
+    "nickname": "ESPHERE",
+    "trainer": "CLIFTON",
+    "ability": 1
+  },
+  "CinnabarIsland_PokemonLab_Lounge_EventScript_Norma": {
+    "give": 48,
+    "receive": 114,
+    "nickname": "TANGENY",
+    "trainer": "NORMA",
+    "ability": 0
+  },
+  "Route11_EastEntrance_2F_EventScript_Turner": {
+    "give": 33,
+    "receive": 30,
+    "nickname": "NINA",
+    "trainer": "TURNER",
+    "ability": 0
+  },
+  "Route18_EastEntrance_2F_EventScript_Haden": {
+    "give": 55,
+    "receive": 108,
+    "nickname": "MARC",
+    "trainer": "HADEN",
+    "ability": 0
+  },
+  "Route2_House_EventScript_Reyley": {
+    "give": 63,
+    "receive": 122,
+    "nickname": "MIMIEN",
+    "trainer": "REYLEY",
+    "ability": 0
+  },
+  "UndergroundPath_NorthEntrance_EventScript_Saige": {
+    "give": 32,
+    "receive": 29,
+    "nickname": "MS. NIDO",
+    "trainer": "SAIGE",
+    "ability": 0
+  },
+  "VermilionCity_House2_EventScript_Elyssa": {
+    "give": 21,
+    "receive": 83,
+    "nickname": "CH'DING",
+    "trainer": "ELYSSA",
+    "ability": 0
+  }
+}

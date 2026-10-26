@@ -123,7 +123,9 @@ func _ready():
 	adventure.install(self)
 	campaign.install(self)
 	frontend.install(self)
-	if "--capture-walk" in OS.get_cmdline_user_args():
+	if "--capture-field" in OS.get_cmdline_user_args():
+		call_deferred("capture_field_progress")
+	elif "--capture-walk" in OS.get_cmdline_user_args():
 		call_deferred("capture_world_walk")
 	elif "--profile-world" in OS.get_cmdline_user_args():
 		call_deferred("profile_world")
@@ -412,6 +414,8 @@ func execute_move(user: Dictionary, target: Dictionary, move: Dictionary, direct
 	if move.id not in support.PROTECT: user["protect_chain"]=0
 	user["last_move"] = move.duplicate(true)
 	user.action_lock = float(move.get("action_delay", 1.0))
+	if user.data.get("held_item","")=="quickclaw" and rng.randf()<0.2:
+		user.action_lock*=0.5; Conditions.note(user,"QUICK CLAW")
 	var accuracy = 1.0 if move.get("accuracy", true) is bool else float(move.accuracy) / 100.0 * Conditions.stage(user, "accuracy")
 	accuracy = weather.accuracy(move, accuracy)
 	if not move.get("accuracy",true) is bool: accuracy=abilities.accuracy(user,target,accuracy)
@@ -809,6 +813,7 @@ func damage_amount(attacker: Dictionary, target: Dictionary, base_damage: float,
 	var stab = 1.5 if move_type in Conditions.types(attacker) else 1.0
 	var multiplier = Dex.effectiveness(move_type, Conditions.types(target))
 	var boost = float(move.get("weather_power", weather.power(move)))
+	if attacker.data.get("held_item","")=="blackglasses" and move_type=="Dark": boost*=1.1
 	if physical and attacker.ailment == "burn" and abilities.name_of(attacker)!="Guts": boost *= 0.5
 	return snappedf(base_damage * ratio * stab * multiplier * boost * abilities.damage(attacker,target,move) * (0.5 if target.guard > 0 else 1.0) * support.multiplier(self,target,move), 0.1)
 
@@ -1703,6 +1708,8 @@ func smoke_test():
 	adventure.world.events.tests()
 	adventure.avatar.tests(adventure)
 	adventure.world.scenes.tests()
+	adventure.field.tests()
+	adventure.extras.tests()
 	adventure.tests()
 	campaign.tests(self)
 	clashes.tests(self)
@@ -3253,4 +3260,22 @@ func capture_world_walk():
 		await get_tree().process_frame
 		await RenderingServer.frame_post_draw
 		get_viewport().get_texture().get_image().save_png("res://captures/world-walk-"+str(direction.x)+"-"+str(direction.y)+".png")
+	get_tree().quit()
+
+func capture_field_progress():
+	set_process(false); frontend.layer.visible=false; selection_controls.visible=false
+	adventure.loaded=true; adventure.save_allowed=false; adventure.enter(); adventure.choose_starter(4)
+	adventure.dialog=""; var w=adventure.world
+	w.enabled=true; w.current="MAP_CERULEAN_CAVE_1F"; w.events.refresh()
+	var rock=w.room().objects.filter(func(o):return str(o.graphics_id).contains("ROCK_SMASH_ROCK"))[0]
+	adventure.position_world=w.walkable(w.events.point(rock)+Vector2.DOWN*w.TILE); w.update_camera()
+	adventure.field.finish("field:rocksmash"); adventure.field.smash(rock); w.scenes.tick(0.25)
+	adventure.queue_redraw(); await get_tree().process_frame; await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://captures/field-rock-smash.png")
+	w.scenes.finish(); adventure.dialog=""; adventure.field.journal()
+	adventure.queue_redraw(); await get_tree().process_frame; await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://captures/field-quests.png")
+	adventure.clear_ui(); adventure.field.finish("fossil:helix"); adventure.field.fossil_menu()
+	adventure.queue_redraw(); await get_tree().process_frame; await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://captures/field-fossils.png")
 	get_tree().quit()
