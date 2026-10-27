@@ -39,8 +39,8 @@ func activate():
 	if not maps.has(current): current="MAP_PALLET_TOWN"
 	events.refresh()
 	if not a.data.has("world_map"):
-		a.position_world=walkable(Vector2(12,16)*TILE)
-	else: a.position_world=walkable(Vector2(a.data.x,a.data.y))
+		a.position_world=walkable(Vector2(12,16)*TILE,true)
+	else: a.position_world=walkable(Vector2(a.data.x,a.data.y),true)
 	a.data["world_map"]=current
 	if a.field.outdoor(): a.field.finish("visited:"+current)
 	events.refresh()
@@ -52,16 +52,28 @@ func room() -> Dictionary:
 func size() -> Vector2:
 	return Vector2(room().width,room().height)*TILE
 
+func occupied_tiles() -> Dictionary:
+	# Use the same visible actors and scene positions as rendering; hidden NPCs leave no obstacle.
+	var occupied={}
+	for npc in actors(): occupied[Vector2i((Vector2(npc.pos)/TILE).floor())]=true
+	for npc in quest_actors(): occupied[Vector2i((Vector2(npc[0])/TILE).floor())]=true
+	return occupied
+
 func blocked(p: Vector2) -> bool:
+	return terrain_blocked(p) or occupied_tiles().has(Vector2i((p/TILE).floor()))
+
+func terrain_blocked(p: Vector2) -> bool:
 	var x=floori(p.x/TILE); var y=floori(p.y/TILE)
 	if x<0 or y<0 or x>=room().width or y>=room().height: return true
 	var override=events.collision(p)
 	if override>=0: return override!=0
 	return (int(room().cells[y*int(room().width)+x])&0xC00)!=0
 
-func walkable(p: Vector2) -> Vector2:
+func walkable(p: Vector2, avoid_actors: bool=false) -> Vector2:
 	# Search nearby rings instead of scanning every map tile for each NPC every frame.
 	# Keep exact nearest-distance selection and consult live puzzle collision.
+	# NPC placement uses terrain only to avoid recursive actor placement. Arrivals also avoid people.
+	var occupied=occupied_tiles() if avoid_actors else {}
 	var width=int(room().width); var height=int(room().height)
 	var origin=Vector2i(clampi(floori(p.x/TILE),0,width-1),clampi(floori(p.y/TILE),0,height-1))
 	var center=(Vector2(origin)+Vector2.ONE*0.5)*TILE
@@ -75,7 +87,7 @@ func walkable(p: Vector2) -> Vector2:
 				var candidate=Vector2(x+0.5,y+0.5)*TILE
 				var squared=candidate.distance_squared_to(p)
 				if squared>distance: continue
-				if not blocked(candidate) and (squared<distance or candidate.y<best.y or (candidate.y==best.y and candidate.x<best.x)):
+				if not terrain_blocked(candidate) and not occupied.has(Vector2i(x,y)) and (squared<distance or candidate.y<best.y or (candidate.y==best.y and candidate.x<best.x)):
 					best=candidate; distance=squared
 		# Any unvisited center is at least this far away along one axis.
 		var remaining=maxf(0,(radius+1)*TILE-offset)
@@ -101,7 +113,7 @@ func enter(id: String, at: Vector2):
 	a.data["world_map"]=id
 	var logical=LEGACY.find(room().name)
 	if logical>=0: a.data.map=logical
-	a.position_world=walkable(at)
+	a.position_world=walkable(at,true)
 	a.field.entered(previous,previous_position)
 	a.c.click_move=false
 	a.dialog=""
@@ -290,7 +302,7 @@ func tests():
 			for y in range(int(room().height)):
 				for x in range(int(room().width)):
 					var cell=Vector2(x+0.5,y+0.5)*TILE
-					if not blocked(cell) and cell.distance_squared_to(target)<nearest:
+					if not terrain_blocked(cell) and cell.distance_squared_to(target)<nearest:
 						expected=cell; nearest=cell.distance_squared_to(target)
 			a.c.check(walkable(target)==expected,"Nearby search matches exhaustive nearest walkable tile: "+cave)
 	current="MAP_ROUTE1"; events.refresh()
@@ -313,7 +325,7 @@ func tests():
 		a.c.check(not stepping and a.position_world==Vector2(500,500)+direction*TILE,"All four directions finish one equal-sized step")
 	current="MAP_PALLET_TOWN"
 	events.refresh()
-	a.position_world=walkable(Vector2(12,16)*TILE)
+	a.position_world=walkable(Vector2(12,16)*TILE,true)
 	a.data["world_map"]=current
 	a.data.x=a.position_world.x; a.data.y=a.position_world.y
 	a.c.check(not blocked(a.position_world) and a.valid(a.data),"Canonical map position is walkable and save-valid")
@@ -357,6 +369,26 @@ func tests():
 	a.c.check(can_talk(Vector2(2.5,3.5)*TILE),"Mart clerk reachable across horizontal counter")
 	a.position_world=Vector2(4.5,2.5)*TILE
 	a.c.check(not can_talk(Vector2(2.5,2.5)*TILE+Vector2(0,TILE*3)),"Interaction cannot reach a distant NPC through walls")
+	current="MAP_PALLET_TOWN"; events.refresh()
+	var civilian=actors().filter(func(n):return not n.has("battle") and not terrain_blocked(n.pos))[0]
+	var npc_position=Vector2(civilian.pos)
+	a.c.check(blocked(npc_position),"Visible civilian occupies its walking tile")
+	a.c.check(not blocked(walkable(npc_position,true)),"Old saves and arrivals relocate off an occupied NPC tile")
+	for direction in [Vector2.LEFT,Vector2.RIGHT,Vector2.UP,Vector2.DOWN]:
+		a.position_world=npc_position-direction*TILE; heading=direction
+		a.c.check(can_talk(npc_position),"Solid NPC remains reachable from adjacent tile")
+	var scene_key=str(civilian.get("script",""))
+	var saved_positions=scenes.positions.duplicate(true)
+	var shifted=walkable(npc_position+Vector2.RIGHT*TILE*3,true)
+	scenes.positions[scene_key]=shifted
+	a.c.check(blocked(shifted) and not occupied_tiles().has(Vector2i((npc_position/TILE).floor())),"NPC collision follows scene movement and releases its old tile")
+	scenes.positions=saved_positions
+	current="MAP_PEWTER_CITY_GYM"; events.refresh()
+	var brock=quest_actors().filter(func(n):return n[2]=="brock")[0]
+	a.c.check(blocked(brock[0]),"Quest trainers occupy their visible tile")
+	current="MAP_VIRIDIAN_FOREST"; events.refresh()
+	var trainer=actors().filter(func(n):return n.has("battle"))[0]
+	a.c.check(blocked(trainer.pos),"Battle trainers block walking before being challenged")
 	for name in LEGACY: a.c.check(names.has(name),"Canonical migration destination: "+name)
 	enabled=old_enabled
 	current=old_current
