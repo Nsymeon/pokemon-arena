@@ -111,12 +111,12 @@ func show_instructions():
 
 func show_settings():
 	background()
-	label("CONTROLS",Vector2(465,50),42,Color("f9d86b"))
+	label("SETTINGS",Vector2(465,50),42,Color("f9d86b"))
 	label("Click a key, then press its replacement. Settings save automatically.",Vector2(220,110),20)
 	label("Esc: cancel   /   Backspace: clear   /   Conflicting keys in the same mode are rejected.",Vector2(160,145),18,Color("77e2b0"))
 	var scroll=ScrollContainer.new()
 	scroll.position=Vector2(165,195)
-	scroll.size=Vector2(950,610)
+	scroll.size=Vector2(950,500)
 	layer.add_child(scroll)
 	var grid=GridContainer.new()
 	grid.columns=4
@@ -143,13 +143,25 @@ func show_settings():
 			key.custom_minimum_size=Vector2(225,43)
 			key.pressed.connect(capture_key.bind(def[0],slot,def[1],key))
 			grid.add_child(key)
-	label("SOUND",Vector2(180,810),18)
-	var volume=HSlider.new(); volume.min_value=0; volume.max_value=1; volume.step=0.05; volume.value=c.audio.volume; volume.position=Vector2(280,812); volume.size=Vector2(400,25); layer.add_child(volume); volume.value_changed.connect(c.audio.set_volume)
-	var mode=OptionButton.new(); mode.position=Vector2(730,805); mode.size=Vector2(330,40)
+	var running=OptionButton.new(); running.position=Vector2(180,705); running.size=Vector2(500,40)
+	running.add_item("RUN: Hold key"); running.add_item("RUN: Toggle on / off")
+	running.selected=1 if c.controls.run_toggle else 0
+	running.item_selected.connect(func(index): c.controls.set_run_toggle(index==1)); layer.add_child(running)
+	audio_slider("MASTER",Vector2(180,760),c.audio.volume,c.audio.set_volume)
+	audio_slider("POKEMON CRIES",Vector2(180,805),c.audio.cry_volume,c.audio.set_cry_volume)
+	button("PREVIEW CRY",Rect2(730,805,330,35),func(): c.audio.cry(25))
+	var mode=OptionButton.new(); mode.position=Vector2(730,755); mode.size=Vector2(330,40)
 	for value in c.difficulty.NAMES: mode.add_item("DIFFICULTY: "+value)
 	mode.selected=c.difficulty.level; mode.item_selected.connect(c.difficulty.choose); layer.add_child(mode)
-	button("RESTORE DEFAULTS",Rect2(290,845,350,60),func(): c.controls.reset_defaults(); c.audio.set_volume(0.65); c.difficulty.choose(1); show_settings())
+	button("RESTORE DEFAULTS",Rect2(290,845,350,60),func(): c.controls.reset_defaults(); c.audio.set_volume(c.audio.DEFAULT_VOLUME); c.audio.set_cry_volume(c.audio.DEFAULT_CRY_VOLUME); c.difficulty.choose(1); show_settings())
 	button("BACK",Rect2(675,845,250,60),show_title)
+
+func audio_slider(title,pos,value,callback):
+	label(title,pos,18)
+	var slider=HSlider.new(); slider.min_value=0; slider.max_value=1; slider.step=0.05
+	slider.value=value; slider.position=pos+Vector2(190,2); slider.size=Vector2(250,25); layer.add_child(slider)
+	var percent=Label.new(); percent.position=pos+Vector2(455,0); percent.text=str(roundi(value*100))+"%"; layer.add_child(percent)
+	slider.value_changed.connect(func(amount): callback.call(amount); percent.text=str(roundi(amount*100))+"%")
 
 func capture_key(action,slot,title,key_button):
 	var shade=ColorRect.new()

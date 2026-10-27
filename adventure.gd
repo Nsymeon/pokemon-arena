@@ -343,6 +343,7 @@ func handle_input(event):
 	if dialog != "":
 		if c.controls.matches(event,"interact") or c.controls.matches(event,"sprint") or (event is InputEventKey and event.keycode in [KEY_ENTER,KEY_ESCAPE]): dialog = ""
 		return
+	c.controls.handle_run(event)
 	if c.controls.matches(event,"map"): Finale.guide(self)
 	elif c.controls.matches(event,"interact"): interact()
 	elif c.controls.matches(event,"party"): party_menu()

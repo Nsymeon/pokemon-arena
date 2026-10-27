@@ -201,6 +201,7 @@ func _ready():
 		call_deferred("capture_persistent")
 
 func reset():
+	controls.run_active=false
 	support.reset()
 	click_move = false
 	clash_effects.clear()
@@ -329,6 +330,7 @@ func _unhandled_input(event):
 		paused = not paused
 		return
 	if not paused and result == "" and countdown <= 0:
+		controls.handle_run(event)
 		for i in range(4):
 			if controls.matches(event,"move"+str(i+1)): attack(i)
 		if controls.matches(event,"switch") and team_mode: switch_menu=true

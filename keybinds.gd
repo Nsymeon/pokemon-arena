@@ -22,6 +22,9 @@ var capturing = ""
 var capture_slot = 0
 var callback: Callable
 var persistent = false
+var run_toggle = true
+var run_active = false
+const RUN_SAVE = "user://run-settings.json"
 
 func install():
 	reset_defaults(false)
@@ -29,6 +32,9 @@ func install():
 	if persistent and FileAccess.file_exists(SAVE):
 		var data = JSON.parse_string(FileAccess.get_file_as_string(SAVE))
 		load_bindings(data)
+	if persistent and FileAccess.file_exists(RUN_SAVE):
+		var run_data=JSON.parse_string(FileAccess.get_file_as_string(RUN_SAVE))
+		if run_data is Dictionary and run_data.get("toggle") is bool: run_toggle=run_data.toggle
 
 func valid_code(code: int) -> bool:
 	return code != KEY_ESCAPE and (code==0 or code in [-1,-2,-3,-8,-9] or (code>=32 and code<0x800000))
@@ -36,7 +42,9 @@ func valid_code(code: int) -> bool:
 func reset_defaults(write=true):
 	bindings.clear()
 	for def in DEFINITIONS: bindings[def[0]]=[def[3],def[4]]
-	if write: save()
+	if write:
+		save()
+		set_run_toggle(true)
 
 func save(path: String = SAVE) -> bool:
 	if not persistent: return true
@@ -72,10 +80,23 @@ func matches(event, action: String) -> bool:
 	return code!=0 and code in bindings[action]
 
 func held(action: String) -> bool:
+	if action=="sprint" and run_toggle: return run_active
 	for code in bindings[action]:
 		if code>0 and Input.is_physical_key_pressed(code): return true
 		if code<0 and Input.is_mouse_button_pressed(-code): return true
 	return false
+
+func set_run_toggle(enabled: bool):
+	run_toggle=enabled; run_active=false
+	if persistent:
+		var file=FileAccess.open(RUN_SAVE,FileAccess.WRITE)
+		if file: file.store_string(JSON.stringify({"toggle":run_toggle}))
+
+func handle_run(event):
+	if run_toggle and matches(event,"sprint"): run_active=not run_active
+
+func _notification(what):
+	if what==NOTIFICATION_APPLICATION_FOCUS_OUT: run_active=false
 
 func key_name(code: int) -> String:
 	if code==0: return "Unbound"
@@ -104,6 +125,15 @@ func _input(event):
 
 func tests(c):
 	var original=bindings.duplicate(true)
+	var old_toggle=run_toggle; var old_active=run_active
+	run_toggle=true; run_active=false
+	var run_event=InputEventKey.new(); run_event.physical_keycode=KEY_SPACE; run_event.pressed=true
+	handle_run(run_event); c.check(held("sprint"),"Toggle run starts on first press")
+	run_event.echo=true; handle_run(run_event); c.check(held("sprint"),"Held key repeat does not toggle run")
+	run_event.echo=false; run_event.pressed=false; handle_run(run_event); c.check(held("sprint"),"Toggle run survives release")
+	run_event.pressed=true; handle_run(run_event); c.check(not held("sprint"),"Second press stops toggle run")
+	run_toggle=false; handle_run(run_event); c.check(not run_active,"Hold mode does not latch run")
+	run_toggle=old_toggle; run_active=old_active
 	reset_defaults(false)
 	var event=InputEventKey.new()
 	event.physical_keycode=KEY_Q
