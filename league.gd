@@ -9,7 +9,7 @@ func party(c, choice: int) -> Array:
 		var data: Dictionary = c.roster[c.Dex.find_id(c.roster,int(member.id))].duplicate(true)
 		data.moves = member.moves.duplicate(true)
 		data["level"] = int(member.level)
-		result.append(data)
+		result.append(c.ivs.apply_values(data,c.ivs.uniform()))
 	return result
 
 func tests(c):

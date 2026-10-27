@@ -10,6 +10,8 @@ ids={norm(m['key']):m['id'] for m in json.loads((root/'data/roster.json').read_t
 records={}
 for name,body in re.findall(r'\[(INGAME_TRADE_\w+)\]\s*=\s*\{(.*?)\n    \}',text,re.S):
     records[name]={'give':ids[norm(re.search(r'\.requestedSpecies = SPECIES_(\w+)',body)[1])], 'receive':ids[norm(re.search(r'\.species = SPECIES_(\w+)',body)[1])], 'nickname':re.search(r'\.nickname = _\("(.*?)"\)',body)[1], 'trainer':re.search(r'\.otName = _\("(.*?)"\)',body)[1], 'ability':int(re.search(r'\.abilityNum = (\d+)',body)[1])}
+    values=list(map(int,re.search(r"\.ivs = \{([^}]+)\}",body)[1].split(",")))
+    records[name]["ivs"]=dict(zip(["hp","atk","def","spe","spa","spd"],values))
 result={}
 for m in json.loads((root/'assets/kanto/maps.json').read_text()).values():
     path=source/'data/maps'/m['name']/'scripts.inc'

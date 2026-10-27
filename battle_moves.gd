@@ -21,7 +21,7 @@ func identity(mon, friendly: bool, slot: int) -> String:
 	return "%s:%d:%d" % ["you" if friendly else "cpu",slot,mon.id]
 
 func configured(mon, friendly: bool, slot: int) -> Dictionary:
-	var result = c.abilities.configured(mon,friendly,slot)
+	var result = c.ivs.configured(c.abilities.configured(mon,friendly,slot),friendly,slot)
 	var ids = choices.get(identity(mon,friendly,slot),[])
 	if not ids is Array or ids.size()!=4: return result
 	var seen = []
@@ -68,6 +68,9 @@ func click(mouse: Vector2) -> bool:
 		var origin = Vector2(40 if friendly else 652,544)
 		if c.abilities.shiny_enabled() and Rect2(origin+Vector2(524,7),Vector2(52,29)).has_point(mouse):
 			c.abilities.toggle_shiny(c.roster[c.player_index if friendly else c.enemy_index],friendly,c.team_slot if c.team_mode else 0)
+			return true
+		if Rect2(origin+Vector2(465,155),Vector2(108,26)).has_point(mouse):
+			c.ivs.open(c.roster[c.player_index if friendly else c.enemy_index],friendly,c.team_slot if c.team_mode else 0)
 			return true
 		if Rect2(origin+Vector2(12,154),Vector2(560,28)).has_point(mouse):
 			c.abilities.open(c.roster[c.player_index if friendly else c.enemy_index],friendly,c.team_slot if c.team_mode else 0)

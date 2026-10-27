@@ -350,6 +350,7 @@ func trade(script,slot):
 	w().scenes.play([{"text":"Your Poke Balls enter the trading machine...","duration":1.5},{"text":offer.nickname+" is on the way!","duration":1.4,"flash":true}],func():
 		if done("trade:"+script) or a.data.party[slot]!=mon: return
 		var received=a.new_mon(int(offer.receive),int(mon.level))
+		received.ivs=offer.ivs.duplicate(true)
 		received.shiny=false; received.ability_slot=int(offer.ability); a.c.abilities.assign(received)
 		received["nickname"]=offer.nickname
 		if held!="": a.data.bag[held]=int(a.data.bag.get(held,0))+1

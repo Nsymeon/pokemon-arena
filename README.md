@@ -6,6 +6,16 @@ Godot 4.3 desktop arena prototype. All 151 original Kanto species are playable, 
 
 [Download the latest tested build](https://github.com/Nsymeon/pokemon-arena/releases/latest). Choose PokemonArena-Windows.zip, extract the entire ZIP and run PLAY.bat. No Godot installation is needed. CHECK-FOR-UPDATES.bat opens the same page for future updates. Single-player against AI.
 
+## Individual Values (IVs)
+
+Each new Adventure Pokemon receives six independent uniform IVs from 0 to 31 (HP, Attack, Defense, Sp. Atk, Sp. Def, Speed). These are permanent individual data: captures retain the fought Pokemon's values, and evolution, levels, storage, healing and Day Care preserve them. NPC trades use the fixed six IVs from FireRed's `ingame_trades.h`. Existing saves migrate without reset, including storage and Day Care; deterministic legacy assignment avoids rerolling if you restart before autosave. Invalid or partial IV blocks fail save validation rather than silently replacing them.
+
+View all owned partners under **P → IVs / Stats**, or a partner's moves page. Adventure IVs are read-only. In Free Battles and your Gym/League team, select a team slot and click **IVs [EDIT]** beside Ability. Edit six 0–31 numbers, use All 31 or Random, then Apply; closing cancels the draft. Choices persist per species, side and team slot in `battle-ivs.json`. Default free/preset trainer values are all 31; preset opponents cannot be edited. Random Adventure trainer IVs are drawn when the battle team is created.
+
+Arena scaling is preserved: IV/2 is added to each stat before Adventure's level scaling, alongside existing training/4; HP receives the corresponding scaled bonus. Speed IV/2 adds to actual movement speed without changing the global action gate. Free Battles use the same IV/2 bonuses without Adventure level scaling. This is an arena adaptation of IV influence, not the full cartridge stat/nature/EV formula. Nature effects, breeding/inheritance and Hyper Training are not added by this feature. Species base data remains unchanged.
+
+Smoke tests cover bounds, corrupt saves, stable migration, evolution, capture/save/reload, stat effects, repeated configuration, isolated slots and Apply/Cancel. `--capture-ivs` captures the interfaces without changing player saves.
+
 ## Key Items, activities and Sevii expansion (current)
 
 Open **Bag → Key Items** to inspect permanent tools, their badges, and reusable Fly/Surf teaching. Old quest flags become tool ownership automatically; no reset is needed. Tools never take a battle-move slot:

@@ -30,6 +30,7 @@ func starting(id, level) -> Array:
 	return list.slice(maxi(0,list.size()-4))
 
 func migrate():
+	a.c.ivs.migrate(a.data)
 	if not a.data.has("bag"): a.data.bag = {"potion":5,"antidote":2,"paralyzeheal":1}
 	if not a.data.has("tms"): a.data.tms = {}
 	for field in ["bag","tms"]:
@@ -212,6 +213,7 @@ func move_party():
 func moves_menu(slot):
 	var mon = a.data.party[slot]
 	var list = page(a.mon_name(mon.id)+" / MOVES / level "+str(mon.level))
+	row(list,a.c.ivs.summary(mon),func():pass,true)
 	for move in ["fly","surf"]:
 		if a.field.hm_eligible(mon,move) and move not in mon.moves: row(list,"HM / "+move.to_upper(),replace_menu.bind(slot,move,""))
 	for id in mon.moves: row(list,"KNOWN / "+book.moves[id].name+" / "+book.moves[id].type,func():pass,true)

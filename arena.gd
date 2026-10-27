@@ -23,6 +23,7 @@ var opponent_identity = "rival"
 var trainer_gallery = false
 var abilities = preload("res://passive_abilities.gd").new()
 var move_flags: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/move-flags.json"))
+var ivs=preload("res://individual_values.gd").new()
 var move_editor = preload("res://battle_moves.gd").new()
 var skills = preload("res://arena_skills.gd").new()
 var clashes = preload("res://attack_clashes.gd").new()
@@ -116,6 +117,7 @@ func _ready():
 	setup_selection_controls()
 	abilities.install(self)
 	move_editor.install(self)
+	ivs.install(self)
 	load_portraits()
 	art.load_sprites()
 	reset()
@@ -123,6 +125,9 @@ func _ready():
 	adventure.install(self)
 	campaign.install(self)
 	frontend.install(self)
+	if "--capture-ivs" in OS.get_cmdline_user_args():
+		capture_ivs.call_deferred()
+		return
 	if "--capture-services" in OS.get_cmdline_user_args():
 		capture_services.call_deferred()
 		return
@@ -232,6 +237,8 @@ func reset():
 		if team_mode:
 			for slot in range(player_states.size()): player_states[slot].data = move_editor.configured(player_states[slot].data,true,slot)
 		if enemy_party.is_empty(): enemy.data = move_editor.configured(enemy.data,false,0)
+		player.hp=player.data.hp; enemy.hp=enemy.data.hp
+		for member in player_states: member.hp=member.data.hp
 	rocks = [{"pos": Vector2(600, 240), "hp": 55.0}, {"pos": Vector2(900, 515), "hp": 55.0}, {"pos": Vector2(1150, 150), "hp": 55.0}, {"pos": Vector2(340, 590), "hp": 55.0}]
 	for rock in rocks: rock.pos *= Vector2(1.6, 1.6)
 	fields.reset(self,arena_choice.selected if arena_choice != null else 0)
@@ -1602,12 +1609,15 @@ func selection_details(mon: Dictionary, rival: Dictionary, pos: Vector2, friendl
 	label_at(Dex.type_label(mon), pos + Vector2(340, 24), 12, Dex.color(mon.type))
 	if abilities.shiny_enabled() and (friendly or opponent_choice.selected==0): abilities.draw_shiny_toggle(mon,pos)
 	var s: Dictionary = mon.base_stats
-	label_at("BASE   HP %d   ATK %d   DEF %d   SPA %d   SPD %d   SPE %d" % [s.hp, s.atk, s.def, s.spa, s.spd, s.spe], pos + Vector2(16, 46), 11, WHITE)
+	label_at("STATS HP %d   ATK %d   DEF %d   SPA %d   SPD %d   SPE %d" % [s.hp, s.atk, s.def, s.spa, s.spd, s.spe], pos + Vector2(16, 46), 11, WHITE)
 	for i in range(mon.moves.size()):
 		var move: Dictionary = mon.moves[i]
 		var offset = Vector2(16 + (i % 2) * 286, 76 + (i / 2) * 50)
 		label_at(["Q", "E", "F", "C"][i] + "  " + move.name + ("  v" if friendly or opponent_choice.selected==0 else ""), pos + offset, 14)
 		label_at(move.type.to_upper() + " / " + move_description(move, rival.types), pos + offset + Vector2(0, 17), 9, Dex.color(move.type))
+	if friendly or opponent_choice.selected==0:
+		panel(Rect2(pos+Vector2(465,155),Vector2(108,26)),Color("243c49"))
+		label_at("IVs [EDIT]",pos+Vector2(474,173),12,GOLD)
 	label_at("ABILITY: %s%s" % [mon.get("ability",abilities.legal(mon.id)[0]),"  [choose]" if friendly or opponent_choice.selected==0 else ""], pos + Vector2(16, 173), 10, Color("91a6a7"))
 
 func overlay(title: String, subtitle: String):
@@ -1718,6 +1728,7 @@ func smoke_test():
 	adventure.field.tests()
 	adventure.services.tests()
 	adventure.extras.tests()
+	ivs.tests()
 	adventure.tests()
 	campaign.tests(self)
 	clashes.tests(self)
@@ -1734,7 +1745,7 @@ func smoke_test():
 	check(Dex.effectiveness("Electric", ["Water", "Ground"]) == 0, "Immunity beats weakness")
 	pick(25, 7)
 	var special = {"type": "Electric", "category": "Special"}
-	var expected = snappedf(10.0 * 100.0 / 114.0 * 1.5 * 2.0, 0.1)
+	var expected = snappedf(10.0 * 115.5 / 129.5 * 1.5 * 2.0, 0.1)
 	check(is_equal_approx(damage_amount(player, enemy, 10, special), expected), "SpA / SpD and STAB formula")
 	var old_hp: float = enemy.hp
 	hit(enemy, 10, Vector2.RIGHT, true, special)
@@ -3309,4 +3320,20 @@ func capture_services():
 	adventure.dialog=""; adventure.sevii.journal()
 	adventure.queue_redraw(); await get_tree().process_frame; await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png("res://captures/sevii-journal.png")
+	get_tree().quit()
+
+func capture_ivs():
+	set_process(false); frontend.layer.visible=false; campaign.layer.visible=false
+	pick(6,9); selecting=true; selection_controls.visible=true
+	queue_redraw(); await get_tree().process_frame; await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://captures/ivs-selection.png")
+	ivs.open(roster[player_index],true,0); ivs.set_boxes({"hp":31,"atk":0,"def":25,"spa":31,"spd":28,"spe":31})
+	await get_tree().process_frame; await RenderingServer.frame_post_draw
+	ivs.window.get_texture().get_image().save_png("res://captures/ivs-editor.png")
+	ivs.window.hide(); selection_controls.visible=false
+	adventure.loaded=true; adventure.save_allowed=false; adventure.enter(); adventure.choose_starter(4)
+	adventure.data.party.append(adventure.new_mon(25,12)); adventure.dialog=""
+	ivs.party_menu(); adventure.queue_redraw()
+	await get_tree().process_frame; await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://captures/ivs-adventure.png")
 	get_tree().quit()

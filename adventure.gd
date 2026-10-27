@@ -91,6 +91,7 @@ func valid(value) -> bool:
 			if not mon is Dictionary: return false
 			if mon.has("gender") and mon.gender not in ["M","F","N"]: return false
 			if mon.has("shiny") and not mon.shiny is bool: return false
+			if mon.has("ivs") and not c.ivs.valid(mon.ivs): return false
 			if mon.has("ability_slot") and (not (mon.ability_slot is int or mon.ability_slot is float) or mon.ability_slot!=int(mon.ability_slot) or int(mon.ability_slot) not in [0,1]): return false
 			for field in ["id","level","xp","hp"]:
 				if not (mon.get(field) is float or mon.get(field) is int) or not is_finite(mon[field]): return false
@@ -374,6 +375,7 @@ func interact():
 func new_mon(id: int, level: int) -> Dictionary:
 	var mon={"id":id,"level":level,"xp":0,"hp":1.0,"moves":inventory.starting(id,level),"pending":[],"ailment":""}
 	c.abilities.assign(mon,true)
+	c.ivs.assign(mon)
 	return mon
 
 func choose_starter(id: int):
@@ -397,10 +399,14 @@ func heal():
 
 func battle_mon(id: int, level: int, individual: Dictionary={}) -> Dictionary:
 	var mon: Dictionary = c.roster[c.Dex.find_id(c.roster,id)].duplicate(true)
+	var values=individual.get("ivs",{})
+	if values.is_empty(): values=c.ivs.roll() if individual.is_empty() else c.ivs.uniform(0)
+	mon["ivs"]=values.duplicate(true)
+	mon.speed+=float(values.spe)/2.0
 	var scale = 0.55+level*0.06
 	mon.hp = roundf(mon.hp*scale)
-	for key in mon.base_stats: mon.base_stats[key] = roundf((mon.base_stats[key]+int(individual.get("training",{}).get(key,0))/4.0)*scale)
-	mon.hp += roundf(int(individual.get("training",{}).get("hp",0))/4.0*scale)
+	for key in mon.base_stats: mon.base_stats[key] = roundf((mon.base_stats[key]+float(values[key])/2.0+int(individual.get("training",{}).get(key,0))/4.0)*scale)
+	mon.hp += roundf((float(values.hp)/2.0+int(individual.get("training",{}).get("hp",0))/4.0)*scale)
 	mon.moves = inventory.definitions(inventory.starting(id,level))
 	mon["level"] = level
 	for key in ["shiny","ability_slot","gender","held_item"]:
@@ -492,6 +498,7 @@ func return_world(caught: bool = false):
 	if caught:
 		var mon = new_mon(int(encounter.ids[0]),int(encounter.levels[0]))
 		for key in ["shiny","ability_slot","gender"]: mon[key]=c.enemy.data.get(key, false if key=="shiny" else "N" if key=="gender" else 0)
+		mon.ivs=c.enemy.data.ivs.duplicate(true)
 		c.abilities.assign(mon)
 		var joins_party = data.party.size() < 6
 		if joins_party: data.party.append(mon)
@@ -608,6 +615,7 @@ func party_menu():
 	for i in range(data.party.size()):
 		var mon = data.party[i]
 		ui_button("%s\nLv.%d  / HP %d%% / XP %d%s" % [mon_name(mon.id)+(" *" if mon.get("shiny",false) else "")+" / "+c.abilities.legal(mon.id)[int(mon.get("ability_slot",0))%c.abilities.legal(mon.id).size()],mon.level,roundi(mon.hp*100),mon.xp," / LEAD" if i==0 else ""],Vector2(180,230+i*66),Vector2(680,54),set_lead.bind(i))
+	ui_button("IVs / STATS",Vector2(890,470),Vector2(210,55),c.ivs.party_menu)
 	ui_button("MOVESETS",Vector2(890,310),Vector2(210,55),inventory.move_party)
 	ui_button("BAG / "+c.controls.text("bag"),Vector2(890,390),Vector2(210,55),inventory.bag)
 	ui_button("STORAGE (%d)" % data.storage.size(),Vector2(890,230),Vector2(210,55),storage_menu)
@@ -822,6 +830,7 @@ func tests():
 	c.player.action_lock = 0
 	c.enemy.hp = c.enemy.data.hp
 	var healthy_chance = catch_chance()
+	var caught_ivs=c.enemy.data.ivs.duplicate(true)
 	c.enemy.data.shiny=true
 	c.enemy.data.ability_slot=1
 	c.abilities.assign(c.enemy.data)
@@ -833,11 +842,13 @@ func tests():
 	tick_capture(2)
 	c.check(data.party.size()==2 and data.party[1].id==16 and exploring,"Captured Pokemon joins saved party")
 	c.check(data.party[1].shiny and data.party[1].ability_slot==1,"Capture preserves shiny and ability identity")
+	c.check(data.party[1].ivs==caught_ivs,"Capture preserves the encountered Pokemon IVs")
 	data.party[0].hp = 0.4
 	save()
 	data.money = 999
 	load_save()
 	c.check(data.party[1].shiny and int(data.party[1].ability_slot)==1,"Shiny and ability survive save/load")
+	c.check(data.party[1].ivs==caught_ivs,"Captured IVs survive actual save/reload")
 	c.check(data.money!=999 and is_equal_approx(data.party[0].hp,0.4),"Adventure save restores health and inventory")
 	save()
 	var corrupt = FileAccess.open(save_path,FileAccess.WRITE)
