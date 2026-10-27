@@ -86,6 +86,9 @@ var notice = ""
 var notice_time = 0.0
 var font = ThemeDB.fallback_font
 var rng = RandomNumberGenerator.new()
+var campaign_audit=[]
+var gear=preload("res://held_gear.gd").new()
+var difficulty=preload("res://game_difficulty.gd").new()
 var strategy=preload("res://trainer_strategy.gd").new()
 var audio=preload("res://game_audio.gd").new()
 var sound: AudioStreamPlayer
@@ -114,6 +117,7 @@ func _ready():
 	if "--capture-controls" in OS.get_cmdline_user_args(): call_deferred("capture_controls")
 	if "--audit-vfx" in OS.get_cmdline_user_args(): call_deferred("audit_vfx")
 	rng.seed = 47
+	gear.c=self; gear.install(); difficulty.install()
 	audio.install(self)
 	sound = AudioStreamPlayer.new()
 	add_child(sound)
@@ -128,6 +132,9 @@ func _ready():
 	adventure.install(self)
 	campaign.install(self)
 	frontend.install(self)
+	if "--capture-expansion" in OS.get_cmdline_user_args():
+		capture_expansion.call_deferred()
+		return
 	if "--capture-collection" in OS.get_cmdline_user_args():
 		capture_collection.call_deferred()
 		return
@@ -277,7 +284,7 @@ func _unhandled_input(event):
 		adventure.handle_input(event)
 		return
 	if adventure.in_battle and adventure.modal != "":
-		if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE: adventure.clear_ui()
+		if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE: adventure.back_ui()
 		return
 	if adventure.in_battle:
 		if controls.matches(event,"bag"):
@@ -374,6 +381,7 @@ func use_move(user: Dictionary, target: Dictionary, index: int, direction: Vecto
 	if result != "" or user.hp <= 0: return false
 	var timers = cooldowns if friendly else enemy_cooldowns
 	var move: Dictionary = weather.prepare(user.data.moves[index])
+	if not gear.allowed(user,move.id): Conditions.note(user,"CHOICE LOCK / SWITCH TO RESET"); return false
 	if move.id=="rest" and abilities.name_of(user) in ["Insomnia","Vital Spirit"]:
 		Conditions.note(user,"ABILITY / CANNOT REST"); return false
 	if move.id in ["explosion","selfdestruct"] and (abilities.name_of(user)=="Damp" or abilities.name_of(target)=="Damp"):
@@ -397,6 +405,7 @@ func use_move(user: Dictionary, target: Dictionary, index: int, direction: Vecto
 		user["protect_chain"]=0
 		return false
 	timers[index] = 12.0 if move.id in support.PROTECT else move.cooldown
+	gear.lock(user,move.id)
 	user.energy -= move.cost
 	if move.get("charge_time", 0.0) > 0 and move.id not in ["fly","dig"]:
 		user.charge_left = float(move.charge_time)
@@ -673,6 +682,7 @@ func update_battle(dt: float):
 				if recipient.hp>0: recipient.hp = clampf(recipient.hp+stolen*(-1 if abilities.name_of(fighter)=="Liquid Ooze" else 1),0,recipient.data.hp)
 		abilities.tick(fighter,dt)
 		Conditions.tick(fighter, dt)
+		gear.tick(fighter,enemy if fighter==player else player,dt)
 		if fighter.hp > 0 and fighter.charge_left > 0:
 			fighter.charge_left = maxf(0, fighter.charge_left - dt)
 			if fighter.charge_left <= 0 and not fighter.pending_move.is_empty():
@@ -764,20 +774,20 @@ func update_ai(dt: float):
 	if not has_projectile: preferred = 110
 	var walk = direction * (1.0 if distance > preferred + 35 else -0.7 if distance < preferred - 50 else 0.0)
 	walk += direction.orthogonal() * sin(clock_time * 1.3) * 0.7
-	var dodge_direction = balance.dodge(self,dt)
+	var dodge_direction = balance.dodge(self,dt,difficulty.dodge())
 	if enemy.dash_time <= 0 and not skills.riding(self, enemy):
 		var velocity = dodge_direction*1.35 if dodge_direction!=Vector2.ZERO else walk.limit_length()*0.75
 		move_fighter(enemy, velocity * enemy.data.speed * Conditions.speed(enemy) * abilities.speed(enemy) * (2.0 if support.side(self,enemy).has("tailwind") else 1.0) * fields.movement(enemy) * dt)
 	ai_timer -= dt * (0.4 if enemy.stun > 0 else 1.0)
 	if ai_timer <= 0:
-		ai_timer = rng.randf_range(0.55, 1.0)
+		ai_timer = difficulty.reaction(rng)
 		var choices = [0, 2, 1, 3]
 		var best = -1
 		var best_score = -1.0
 		for i in choices:
 			if i >= enemy.data.moves.size(): continue
 			var move: Dictionary = enemy.data.moves[i]
-			if enemy_cooldowns[i] > 0 or enemy.energy < move.cost or (support.pp_limit(move)>0 and support.pp(enemy,move)<=0):
+			if not gear.allowed(enemy,move.id) or enemy_cooldowns[i] > 0 or enemy.energy < move.cost or (support.pp_limit(move)>0 and support.pp(enemy,move)<=0):
 				continue
 			var score = Dex.effectiveness(move.type, Conditions.types(player)) * (1.5 if move.type in Conditions.types(enemy) else 1.0)
 			if move.kind == "dash" and distance > (420 if move.id == "extremespeed" else 320 if move.id in skills.RUSHES else 200): continue
@@ -801,7 +811,7 @@ func update_ai(dt: float):
 				best = i
 				best_score = score
 		if best >= 0:
-			use_move(enemy, player, best, direction.rotated(rng.randf_range(-0.1, 0.1)), false)
+			use_move(enemy, player, best, direction.rotated(rng.randf_range(-difficulty.aim_error(), difficulty.aim_error())), false)
 	if enemy.dash_time > 0 and not enemy.dash_move.is_empty() and distance < 44 * enemy.dash_move.get("area_scale", 1.0):
 		hit(player, enemy.dash_move.damage, direction, false, enemy.dash_move)
 		enemy.dash_time = 0
@@ -827,7 +837,7 @@ func damage_amount(attacker: Dictionary, target: Dictionary, base_damage: float,
 	var physical = move.get("category", "Physical") == "Physical"
 	var attack_stat: float = attacker.data.base_stats.atk if physical else attacker.data.base_stats.spa
 	var defense_stat: float = target.data.base_stats.def if physical else target.data.base_stats.spd
-	attack_stat *= Conditions.stage(attacker, "atk" if physical else "spa")
+	attack_stat *= Conditions.stage(attacker, "atk" if physical else "spa")*gear.attack(attacker,physical)
 	defense_stat *= Conditions.stage(target, "def" if physical else "spd")
 	defense_stat *= weather.defense(target, physical)
 	var ratio = clampf((50.0 + attack_stat) / (50.0 + defense_stat), 0.35, 2.5)
@@ -886,6 +896,7 @@ func hit(target: Dictionary, damage: float, direction: Vector2, friendly: bool, 
 		Conditions.note(target, "THAWED")
 	abilities.contact(attacker,target,move)
 	apply_hit_effects(attacker, target, move)
+	gear.tick(target,attacker,0)
 	if move.get("drain", false) and attacker.hp > 0:
 		attacker.hp = clampf(attacker.hp + actual_damage * (-0.4 if abilities.name_of(target)=="Liquid Ooze" else 0.4),0,attacker.data.hp)
 		attacker.movement_lock=maxf(attacker.get("movement_lock",0),1.0)
@@ -1023,7 +1034,7 @@ func _draw():
 	for ring in rings:
 		art.ring(self, ring)
 	for p in particles:
-		if p.text != "":
+		if p.get("text","") != "":
 			label_at(p.text, p.pos, 22, p.color)
 		else:
 			var tint=Color(p.color,p.life/p.max_life)
@@ -1634,7 +1645,7 @@ func selection_details(mon: Dictionary, rival: Dictionary, pos: Vector2, friendl
 		label_at(move.type.to_upper() + " / " + move_description(move, rival.types), pos + offset + Vector2(0, 17), 9, Dex.color(move.type))
 	if friendly or opponent_choice.selected==0:
 		panel(Rect2(pos+Vector2(465,155),Vector2(108,26)),Color("243c49"))
-		label_at("IVs / NATURE",pos+Vector2(471,173),11,GOLD)
+		label_at("BUILD [EDIT]",pos+Vector2(471,173),11,GOLD)
 	label_at("ABILITY: %s%s" % [mon.get("ability",abilities.legal(mon.id)[0]),"  [choose]" if friendly or opponent_choice.selected==0 else ""], pos + Vector2(16, 173), 10, Color("91a6a7"))
 
 func overlay(title: String, subtitle: String):
@@ -1646,6 +1657,8 @@ func overlay(title: String, subtitle: String):
 	label_at(subtitle, Vector2(640 - width / 2, 435), 16)
 
 func check(condition: bool, message: String):
+	if "--campaign-audit" in OS.get_cmdline_user_args() and ["quest","badge","league","story","save","capture","starter","tower","rematch","back","item","evolution"].any(func(word):return message.to_lower().contains(word)):
+		campaign_audit.append({"check":message,"passed":condition})
 	if not condition:
 		test_failures.append(message)
 		push_error("TEST FAILURE: " + message)
@@ -1731,6 +1744,7 @@ func movement_recovery_tests():
 	reset()
 
 func smoke_test():
+	gear.tests()
 	audio.tests()
 	strategy.tests(self)
 	support.tests(self)
@@ -1748,6 +1762,7 @@ func smoke_test():
 	adventure.services.tests()
 	adventure.extras.tests()
 	ivs.tests()
+	adventure.expansion.tests()
 	adventure.collection.tests()
 	adventure.tests()
 	campaign.tests(self)
@@ -1811,6 +1826,9 @@ func smoke_test():
 	sound.stream = null
 	if test_failures.is_empty(): print("PASS: major statuses, secondary effects, immunity, stat stages, 1s action gate, charging/recovery, 158 species, sprint, switching, team exhaustion, combat, AI and trainers")
 	else: print("FAILED: ", test_failures)
+	if "--campaign-audit" in OS.get_cmdline_user_args():
+		var report=FileAccess.open("res://captures/campaign-audit.json",FileAccess.WRITE)
+		if report: report.store_string(JSON.stringify({"method":"Automated regression campaign; victories are simulated in quest tests", "checks":campaign_audit,"failures":test_failures},"  "))
 	get_tree().quit(0 if test_failures.is_empty() else 1)
 
 func type_tests():
@@ -2008,6 +2026,10 @@ func enemy_party_size() -> int:
 	return enemy_party.size() if not enemy_party.is_empty() else enemy_team.size()
 
 func opponent_name() -> String:
+	if adventure.in_battle and str(adventure.encounter.get("kind","")).begins_with("post_"):
+		if adventure.encounter.kind=="post_tower": return "Battle Tower / Round "+str(int(adventure.expansion.state().streak)+1)
+		var trainer=adventure.expansion.trainer(opponent_identity)
+		return str(trainer.get("name",opponent_identity))+" / Rematch"
 	if adventure.in_battle:
 		return {"wild":"Wild Pokemon","rival":"Blue","bug":"Bug Catcher","brock":"Brock","lass":"Lass","rocket":"Team Rocket Grunt","misty":"Misty"}.get(adventure.encounter.kind,"Trainer")
 	for trainer in league.trainers:
@@ -2036,6 +2058,7 @@ func replacement(friendly: bool, index: int) -> Dictionary:
 	fighter.heading = Vector2(fighter.face, 0)
 	abilities.assign(fighter.data,not friendly and not enemy_party.is_empty())
 	Conditions.init(fighter)
+	gear.withdrawn(fighter)
 	fighter.erase("healing_pp")
 	fighter["protect_chain"]=0
 	fighter.erase("last_move")
@@ -2217,6 +2240,7 @@ func activate_player(slot: int):
 	click_move = false
 	player_active = slot
 	player = player_states[slot]
+	gear.withdrawn(player)
 	player.pos = FIELD.size * Vector2(0.34, 0.5)
 	player.face = 1.0
 	player.heading = Vector2.RIGHT
@@ -3401,3 +3425,29 @@ func impact_particles(at: Vector2,type: String,direction: Vector2):
 	for i in range(10):
 		var velocity=direction.rotated(rng.randf_range(-1.8,1.8))*rng.randf_range(70,210)
 		particles.append({"pos":at,"vel":velocity,"life":0.28,"max_life":0.28,"size":rng.randf_range(2,5),"color":Dex.color(type),"shape":shape})
+
+func capture_expansion():
+	set_process(false); frontend.layer.visible=false; selection_controls.visible=false
+	adventure.loaded=true; adventure.save_allowed=false; adventure.data=adventure.INITIAL_DATA.duplicate(true); adventure.enter(); adventure.choose_starter(4); adventure.dialog=""
+	adventure.data.party=[adventure.new_mon(6,65),adventure.new_mon(9,65),adventure.new_mon(94,65)]
+	adventure.Finale.state(adventure).champion=true; adventure.expansion.state().bp=40; adventure.expansion.hub()
+	await get_tree().process_frame; await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://captures/expansion-postgame.png")
+	adventure.inventory.moves_menu(0); adventure.inventory.replace_menu(0,"ember","")
+	await get_tree().process_frame; await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://captures/expansion-back.png")
+	adventure.back_ui(); check(" / MOVES / " in adventure.modal,"Rendered Back restores the Pokemon moveset")
+	adventure.expansion.journal()
+	await get_tree().process_frame; await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://captures/expansion-journal.png")
+	adventure.clear_ui(); adventure.visible=false; frontend.show_settings()
+	await get_tree().process_frame; await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://captures/expansion-settings.png")
+	ivs.open(roster[player_index],true,0)
+	await get_tree().process_frame; await RenderingServer.frame_post_draw
+	ivs.window.get_texture().get_image().save_png("res://captures/expansion-gear.png")
+	ivs.window.hide(); frontend.layer.visible=false; selecting=false; adventure.exploring=false; adventure.in_battle=false
+	pick(25,7); countdown=0; player.entering=false; enemy.entering=false; camera_offset=Vector2(0,300); particles.clear(); enemy.pos=player.pos+Vector2(240,0); impact_particles(enemy.pos,"Electric",Vector2.RIGHT)
+	queue_redraw(); await get_tree().process_frame; await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://captures/expansion-impact.png")
+	get_tree().quit(0 if test_failures.is_empty() else 1)

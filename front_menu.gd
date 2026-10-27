@@ -145,7 +145,10 @@ func show_settings():
 			grid.add_child(key)
 	label("SOUND",Vector2(180,810),18)
 	var volume=HSlider.new(); volume.min_value=0; volume.max_value=1; volume.step=0.05; volume.value=c.audio.volume; volume.position=Vector2(280,812); volume.size=Vector2(400,25); layer.add_child(volume); volume.value_changed.connect(c.audio.set_volume)
-	button("RESTORE DEFAULTS",Rect2(290,845,350,60),func(): c.controls.reset_defaults(); c.audio.set_volume(0.65); show_settings())
+	var mode=OptionButton.new(); mode.position=Vector2(730,805); mode.size=Vector2(330,40)
+	for value in c.difficulty.NAMES: mode.add_item("DIFFICULTY: "+value)
+	mode.selected=c.difficulty.level; mode.item_selected.connect(c.difficulty.choose); layer.add_child(mode)
+	button("RESTORE DEFAULTS",Rect2(290,845,350,60),func(): c.controls.reset_defaults(); c.audio.set_volume(0.65); c.difficulty.choose(1); show_settings())
 	button("BACK",Rect2(675,845,250,60),show_title)
 
 func capture_key(action,slot,title,key_button):

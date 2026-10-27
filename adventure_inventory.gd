@@ -87,8 +87,8 @@ func award_brock():
 	a.data.brock_tm = true
 	a.data.tms["TM39"] = int(a.data.tms.get("TM39",0))+1
 
-func page(title):
-	a.panel(title)
+func page(title, back=Callable()):
+	a.panel(title,back)
 	var scroll = ScrollContainer.new()
 	scroll.position = Vector2(180,230)
 	scroll.size = Vector2(910,500)
@@ -108,6 +108,8 @@ func row(list, title, callback: Callable, disabled = false):
 	list.add_child(b)
 
 func bag():
+	if a.in_battle and a.encounter.get("kind","")=="post_tower":
+		a.c.notice="BATTLE TOWER / BAG ITEMS DISABLED"; a.c.notice_time=2; return
 	migrate()
 	var list = page("BAG / $%d / Poke Balls x%d" % [a.data.money,a.data.balls])
 	row(list,"POKE BALL / use G during a wild battle",func():pass,true)
@@ -122,7 +124,7 @@ func bag():
 
 func targets(id):
 	if a.extras.catalog.has(id): a.extras.targets(id); return
-	var list = page(ITEMS[id].name+" / CHOOSE POKEMON")
+	var list = page(ITEMS[id].name+" / CHOOSE POKEMON",bag)
 	if a.in_battle: a.sync_health()
 	for i in range(a.data.party.size()):
 		var mon = a.data.party[i]
@@ -193,47 +195,49 @@ func buy(id,price):
 	shop()
 
 func tm_case():
-	var list = page("TM CASE / single-use / choose a machine")
+	var list = page("TM CASE / single-use / choose a machine",bag)
 	for id in a.data.tms:
 		if int(a.data.tms[id])>0: row(list,book.tms[id].name+" x"+str(a.data.tms[id]),tm_targets.bind(id))
 	row(list,"Brock awards TM39 Rock Tomb once. More TMs at the Mart.",func():pass,true)
 
 func tm_targets(tm):
-	var list = page(book.tms[tm].name+" / CHOOSE POKEMON")
+	var list = page(book.tms[tm].name+" / CHOOSE POKEMON",tm_case)
 	for i in range(a.data.party.size()):
 		var mon = a.data.party[i]
 		var compatible = tm in book.species[str(mon.id)].tms and book.tms[tm].move not in mon.moves
 		row(list,a.mon_name(mon.id)+(" / CAN LEARN" if compatible else " / INCOMPATIBLE OR ALREADY KNOWN"),replace_menu.bind(i,book.tms[tm].move,tm),not compatible)
 
 func move_party():
-	var list = page("MOVESETS / choose a Pokemon")
+	var list = page("MOVESETS / choose a Pokemon",a.party_menu)
 	for i in range(a.data.party.size()):
 		var mon = a.data.party[i]
 		row(list,a.mon_name(mon.id)+" Lv."+str(mon.level)+" / "+str(mon.pending.size())+" waiting",moves_menu.bind(i))
 
-func moves_menu(slot):
+func moves_menu(slot,back=Callable()):
+	var parent=back if back.is_valid() else move_party
 	var mon = a.data.party[slot]
-	var list = page(a.mon_name(mon.id)+" / MOVES / level "+str(mon.level))
+	var list = page(a.mon_name(mon.id)+" / MOVES / level "+str(mon.level),parent)
 	row(list,a.c.ivs.summary(mon),func():pass,true)
 	row(list,a.c.ivs.ev_summary(mon),func():pass,true)
 	for move in ["fly","surf"]:
-		if a.field.hm_eligible(mon,move) and move not in mon.moves: row(list,"HM / "+move.to_upper(),replace_menu.bind(slot,move,""))
+		if a.field.hm_eligible(mon,move) and move not in mon.moves: row(list,"HM / "+move.to_upper(),replace_menu.bind(slot,move,"",moves_menu.bind(slot,parent)))
 	for id in mon.moves: row(list,"KNOWN / "+book.moves[id].name+" / "+book.moves[id].type,func():pass,true)
 	for id in mon.pending:
-		if id not in mon.moves: row(list,"NEW / "+book.moves[id].name,replace_menu.bind(slot,id,""))
+		if id not in mon.moves: row(list,"NEW / "+book.moves[id].name,replace_menu.bind(slot,id,"",moves_menu.bind(slot,parent)))
 	for id in eligible(mon.id,mon.level):
-		if id not in mon.moves and id not in mon.pending: row(list,"RELEARN / "+book.moves[id].name,replace_menu.bind(slot,id,""))
+		if id not in mon.moves and id not in mon.pending: row(list,"RELEARN / "+book.moves[id].name,replace_menu.bind(slot,id,"",moves_menu.bind(slot,parent)))
 	for entry in book.species[str(mon.id)].levels:
 		if int(entry.level)>mon.level: row(list,"Lv.%d / %s" % [entry.level,book.moves[entry.move].name],func():pass,true)
 
-func replace_menu(slot,id,tm):
+func replace_menu(slot,id,tm,back=Callable()):
+	var parent=back if back.is_valid() else moves_menu.bind(slot) if tm=="" else tm_targets.bind(tm)
 	var mon = a.data.party[slot]
-	var list = page("LEARN "+book.moves[id].name+" / choose a slot")
-	for i in range(mon.moves.size()): row(list,"REPLACE "+book.moves[mon.moves[i]].name,teach.bind(slot,id,i,tm))
-	if mon.moves.size()<4: row(list,"USE EMPTY SLOT",teach.bind(slot,id,mon.moves.size(),tm))
-	row(list,"CANCEL / keep moves and TM",move_party if tm=="" else tm_case)
+	var list = page("LEARN "+book.moves[id].name+" / choose a slot",parent)
+	for i in range(mon.moves.size()): row(list,"REPLACE "+book.moves[mon.moves[i]].name,teach.bind(slot,id,i,tm,parent))
+	if mon.moves.size()<4: row(list,"USE EMPTY SLOT",teach.bind(slot,id,mon.moves.size(),tm,parent))
+	row(list,"CANCEL / keep moves and TM",a.back_ui)
 
-func teach(slot,id,index,tm="") -> bool:
+func teach(slot,id,index,tm="",return_page=Callable()) -> bool:
 	if a.in_battle or slot<0 or slot>=a.data.party.size() or not book.moves.has(id): return false
 	var mon = a.data.party[slot]
 	if id in mon.moves or index<0 or index>mon.moves.size() or index>=4: return false
@@ -249,7 +253,8 @@ func teach(slot,id,index,tm="") -> bool:
 	mon.pending.erase(id)
 	if tm!="": a.data.tms[tm]=int(a.data.tms[tm])-1
 	a.save()
-	moves_menu(slot)
+	if return_page.is_valid(): return_page.call()
+	else: moves_menu(slot)
 	return true
 
 func tests():

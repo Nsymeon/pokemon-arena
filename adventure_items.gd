@@ -1,12 +1,14 @@
 extends RefCounted
 var a
+const LINK_EVOLUTIONS={64:65,67:68,75:76,93:94}
 const STONES={"moonstone":{30:31,33:34,35:36,39:40},"firestone":{37:38,58:59,133:136},"waterstone":{61:62,90:91,120:121,133:134},"thunderstone":{25:26,133:135},"leafstone":{44:45,70:71,102:103}}
 const VITAMINS={"hpup":"hp","protein":"atk","iron":"def","calcium":"spa","zinc":"spd","carbos":"spe"}
 const EV_BERRIES={"pomegberry":"hp","kelpsyberry":"atk","qualotberry":"def","hondewberry":"spa","grepaberry":"spd","tamatoberry":"spe"}
 const XITEMS={"xattack":"atk","xdefend":"def","xspecial":"spa","xspeed":"spe","xaccuracy":"accuracy"}
 const TREASURES={"nugget":5000,"bigpearl":3750,"pearl":700,"stardust":1000,"starpiece":4900}
-const HELD=["blackglasses","quickclaw","cleansetag","silkscarf","laxincense","seaincense","metalcoat","nevermeltice","kingsrock","luckypunch","dragonscale"]
+var HELD=["blackglasses","quickclaw","cleansetag","silkscarf","laxincense","seaincense","metalcoat","nevermeltice","kingsrock","luckypunch","dragonscale"]+preload("res://held_gear.gd").ITEMS
 var catalog={
+	"linkcable":{"name":"Link Cable / single-player trade evolution","price":3000},
 	"hyperpotion":{"name":"Hyper Potion / heal 80%","price":1200,"heal":0.8},
 	"maxpotion":{"name":"Max Potion / full HP","price":2500,"heal":1.0},
 	"fullrestore":{"name":"Full Restore / HP and status","price":3000},
@@ -33,7 +35,7 @@ func _init():
 	for id in VITAMINS: catalog[id]={"name":id.capitalize()+" / permanent "+str(VITAMINS[id]).to_upper()+" training","price":9800}
 	for id in XITEMS: catalog[id]={"name":id.capitalize()+" / battle stat boost","price":500}
 	for id in TREASURES: catalog[id]={"name":id.capitalize()+" / sell for $"+str(TREASURES[id]),"price":0}
-	for id in HELD: catalog[id]={"name":id.capitalize()+" / equip held item","price":0}
+	for id in HELD: catalog[id]={"name":preload("res://held_gear.gd").DESCRIPTIONS.get(id,id.capitalize()+" / equip held item"),"price":300 if id in ["sitrusberry","lumberry"] else 4000 if id=="leftovers" else 6000 if id.begins_with("choice") else 3000 if id in preload("res://held_gear.gd").ITEMS else 0}
 
 func valid(data) -> bool:
 	var steps=data.get("repel_steps",0)
@@ -53,7 +55,7 @@ func valid(data) -> bool:
 	return true
 
 func targets(id):
-	if a.in_battle and (id in STONES or id in VITAMINS or id in EV_BERRIES or id in HELD or id in TREASURES or id in ["rarecandy","ppup","escaperope","repel","maxrepel","upgrade","sunstone"]):
+	if a.in_battle and (id in STONES or id in VITAMINS or id in EV_BERRIES or id=="linkcable" or id in HELD or id in TREASURES or id in ["rarecandy","ppup","escaperope","repel","maxrepel","upgrade","sunstone"]):
 		a.clear_ui(); a.c.notice="Use this item outside battle."; a.c.notice_time=2; return
 	if id=="escaperope": a.field.escape(); return
 	if id in ["repel","maxrepel"]:
@@ -64,7 +66,7 @@ func targets(id):
 		if int(a.data.bag.get(id,0))>0 and a.data.money<999999:
 			a.data.money=mini(999999,int(a.data.money)+TREASURES[id]); consume(id); a.dialog="Sold for $"+str(TREASURES[id])+"."
 		return
-	var list=a.inventory.page(catalog[id].name+" / CHOOSE POKEMON")
+	var list=a.inventory.page(catalog[id].name+" / CHOOSE POKEMON",a.inventory.bag)
 	for i in range(a.data.party.size()):
 		var mon=a.data.party[i]
 		a.inventory.row(list,a.mon_name(mon.id)+" Lv."+str(mon.level)+(" / holding "+str(mon.held_item) if mon.get("held_item","")!="" else ""),pp_menu.bind(i) if id=="ppup" else use.bind(id,i))
@@ -82,7 +84,7 @@ func unavailable() -> bool:
 func use(id,slot) -> bool:
 	if not catalog.has(id) or int(a.data.bag.get(id,0))<=0 or slot<0 or slot>=a.data.party.size(): return false
 	if a.in_battle:
-		if id in STONES or id in VITAMINS or id in EV_BERRIES or id in HELD or id=="rarecandy": return unavailable()
+		if id in STONES or id in VITAMINS or id in EV_BERRIES or id=="linkcable" or id in HELD or id=="rarecandy": return unavailable()
 		if a.c.result!="" or a.c.countdown>0 or a.capture_time>0 or a.c.switch_time>=0 or a.c.player.get("action_lock",0)>0 or a.c.player.get("charge_left",0)>0: return false
 		a.sync_health()
 	var mon=a.data.party[slot]
@@ -92,6 +94,11 @@ func use(id,slot) -> bool:
 		mon.hp=1.0; mon.ailment=""; success=true
 	elif id=="maxrevive" and mon.hp<=0: mon.hp=1.0; success=true
 	elif catalog[id].has("heal") and mon.hp>0 and mon.hp<1: mon.hp=minf(1,mon.hp+catalog[id].heal); success=true
+	elif id=="linkcable" and LINK_EVOLUTIONS.has(int(mon.id)):
+		a.collection.register(mon)
+		var old=int(mon.id); mon.id=LINK_EVOLUTIONS[old]; a.c.abilities.assign(mon)
+		a.evolutions.append([old,int(mon.id),mon.get("shiny",false)])
+		a.inventory.level_up(mon,old,int(mon.level)); success=true
 	elif id in STONES and STONES[id].has(int(mon.id)):
 		a.collection.register(mon)
 		var old=int(mon.id); mon.id=STONES[id][old]; a.c.abilities.assign(mon)
@@ -142,7 +149,7 @@ func use(id,slot) -> bool:
 	return true
 
 func pp_menu(slot):
-	var list=a.inventory.page("PP UP / RECOVERY MOVES")
+	var list=a.inventory.page("PP UP / RECOVERY MOVES",targets.bind("ppup"))
 	var mon=a.data.party[slot]
 	for move in mon.moves:
 		if a.inventory.book.moves[move].kind=="heal":

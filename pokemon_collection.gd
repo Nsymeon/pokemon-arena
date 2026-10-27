@@ -63,7 +63,7 @@ func title(mon) -> String:
 	return (str(mon.nickname)+" / " if mon.has("nickname") else "")+a.mon_name(mon.id)+(" *" if mon.get("shiny",false) else "")
 
 func members():
-	var list=a.inventory.page("POKEMON SUMMARY / choose your partner")
+	var list=a.inventory.page("POKEMON SUMMARY / choose your partner",a.party_menu)
 	for i in range(a.data.party.size()):
 		var mon=a.data.party[i]
 		a.inventory.row(list,title(mon)+" Lv."+str(mon.level),summary.bind("party",i))
@@ -72,7 +72,7 @@ func summary(group,slot):
 	if slot<0 or slot>=a.data[group].size(): return
 	var mon=a.data[group][slot]; assign(mon)
 	var battle=a.battle_mon(mon.id,mon.level,mon)
-	var list=a.inventory.page(title(mon)+" / Lv."+str(mon.level))
+	var list=a.inventory.page(title(mon)+" / Lv."+str(mon.level),members if group=="party" else pc)
 	var face=TextureRect.new(); face.texture=a.c.portrait(battle); face.expand_mode=TextureRect.EXPAND_IGNORE_SIZE; face.stretch_mode=TextureRect.STRETCH_KEEP_ASPECT_CENTERED; face.custom_minimum_size=Vector2(130,120); list.add_child(face)
 	a.inventory.row(list,"TYPE "+" / ".join(battle.types)+" | "+nature_text(mon),func():pass,true)
 	a.inventory.row(list,"HP %d/%d | EXP %d/%d | %s" % [roundi(mon.hp*battle.hp),int(battle.hp),mon.xp,a.xp_needed(mon),str(mon.get("ailment","")).to_upper()],func():pass,true)
@@ -80,13 +80,15 @@ func summary(group,slot):
 	a.inventory.row(list,a.c.ivs.summary(mon),func():pass,true)
 	a.inventory.row(list,a.c.ivs.ev_summary(mon),func():pass,true)
 	a.inventory.row(list,"ABILITY "+a.c.abilities.legal(mon.id)[int(mon.get("ability_slot",0))%a.c.abilities.legal(mon.id).size()]+" | HELD "+str(mon.get("held_item","none")),func():pass,true)
+	if a.c.gear.DESCRIPTIONS.has(mon.get("held_item","")): a.inventory.row(list,a.c.gear.DESCRIPTIONS[mon.held_item],func():pass,true)
+	a.inventory.row(list,"GIVE / TAKE HELD ITEM",held_menu.bind(group,slot),a.in_battle)
 	for id in mon.moves:
 		var move=a.inventory.book.moves[id]
 		a.inventory.row(list,move.name+" / "+move.type+" / "+move.get("category","Status"),func():pass,true)
 	if not mon.get("pending",[]).is_empty(): a.inventory.row(list,"NEW MOVES: "+", ".join(mon.pending),func():pass,true)
 	a.inventory.row(list,"NICKNAME",rename.bind(group,slot),a.in_battle)
 	if group=="party":
-		a.inventory.row(list,"EDIT MOVESET",a.inventory.moves_menu.bind(slot))
+		a.inventory.row(list,"EDIT MOVESET",a.inventory.moves_menu.bind(slot,summary.bind(group,slot)))
 		a.inventory.row(list,"DEPOSIT IN BOX "+str(pc_box+1),deposit.bind(slot),a.in_battle or not can_deposit(slot))
 	else:
 		a.inventory.row(list,"WITHDRAW / swap with lead if team full",a.withdraw.bind(slot),a.in_battle)
@@ -96,7 +98,7 @@ func summary(group,slot):
 
 func rename(group,slot):
 	if a.in_battle: return
-	a.panel("NICKNAME / up to 16 characters")
+	a.panel("NICKNAME / up to 16 characters",summary.bind(group,slot))
 	var input=LineEdit.new(); input.max_length=16; input.text=str(a.data[group][slot].get("nickname","")); input.position=Vector2(240,290); input.size=Vector2(700,55); a.ui.add_child(input); input.grab_focus()
 	a.ui_button("SAVE NAME",Vector2(240,390),Vector2(300,55),func():
 		var value=input.text.strip_edges()
@@ -117,7 +119,7 @@ func deposit(slot):
 
 func pc():
 	sync()
-	var list=a.inventory.page("PC / BOX %d / %d of 100 stored" % [pc_box+1,a.data.storage.size()])
+	var list=a.inventory.page("PC / BOX %d / %d of 100 stored" % [pc_box+1,a.data.storage.size()],a.party_menu)
 	var options=HBoxContainer.new(); list.add_child(options)
 	var box=OptionButton.new()
 	for i in range(10): box.add_item("Box "+str(i+1))
@@ -138,7 +140,7 @@ func pc():
 	if count==0: a.inventory.row(list,"No Pokemon match this box and filter.",func():pass,true)
 
 func choose_box(slot):
-	var list=a.inventory.page("MOVE TO BOX")
+	var list=a.inventory.page("MOVE TO BOX",summary.bind("storage",slot))
 	for i in range(10): a.inventory.row(list,"BOX "+str(i+1),move_box.bind(slot,i))
 
 func move_box(slot,box):
@@ -147,7 +149,7 @@ func move_box(slot,box):
 
 func confirm_release(slot):
 	if a.in_battle or slot<0 or slot>=a.data.storage.size(): return
-	var mon=a.data.storage[slot]; var list=a.inventory.page("RELEASE "+title(mon)+"?")
+	var mon=a.data.storage[slot]; var list=a.inventory.page("RELEASE "+title(mon)+"?",summary.bind("storage",slot))
 	a.inventory.row(list,"This permanently removes this Pokemon. Held items return to your Bag.",func():pass,true)
 	a.inventory.row(list,"CANCEL",summary.bind("storage",slot))
 	a.inventory.row(list,"YES, RELEASE",release_mon.bind(slot))
@@ -165,20 +167,20 @@ func dex():
 	for e in a.data.pokedex.values():
 		if e.seen: seen+=1
 		if e.caught: caught+=1
-	var list=a.inventory.page("POKEDEX / Seen %d / Caught %d / %d" % [seen,caught,a.c.roster.size()])
+	var list=a.inventory.page("POKEDEX / Seen %d / Caught %d / %d" % [seen,caught,a.c.roster.size()],a.party_menu)
 	for mon in a.c.roster:
 		var entry=a.data.pokedex.get(str(int(mon.id)),{})
 		a.inventory.row(list,"#%03d  %s  %s" % [mon.id,mon.name if entry.get("seen",false) else "???","CAUGHT" if entry.get("caught",false) else "SEEN" if entry.get("seen",false) else ""],dex_entry.bind(int(mon.id),false),not entry.get("seen",false))
 
 func dex_entry(id,shiny=false):
 	var mon=a.c.roster[a.c.Dex.find_id(a.c.roster,id)].duplicate(true); mon["shiny"]=shiny
-	var list=a.inventory.page("#%03d / %s / %s" % [id,mon.name," / ".join(mon.types)])
+	var list=a.inventory.page("#%03d / %s / %s" % [id,mon.name," / ".join(mon.types)],dex)
 	var face=TextureRect.new(); face.texture=a.c.portrait(mon); face.expand_mode=TextureRect.EXPAND_IGNORE_SIZE; face.stretch_mode=TextureRect.STRETCH_KEEP_ASPECT_CENTERED; face.custom_minimum_size=Vector2(160,150); list.add_child(face)
 	a.inventory.row(list,"PLAY CRY",a.c.audio.cry.bind(id))
 	if a.data.pokedex[str(id)].shiny: a.inventory.row(list,"SHOW NORMAL" if shiny else "SHOW SHINY",dex_entry.bind(id,not shiny))
 	if a.EVOLUTIONS.has(id): a.inventory.row(list,"EVOLUTION: Lv.%d -> %s" % [a.EVOLUTIONS[id][0],a.mon_name(a.EVOLUTIONS[id][1])],func():pass,true)
 	var trades={64:65,67:68,75:76,93:94}
-	if trades.has(id): a.inventory.row(list,"Original evolution: trade -> "+a.mon_name(trades[id])+" (link trading not available)",func():pass,true)
+	if trades.has(id): a.inventory.row(list,"EVOLUTION: Link Cable -> "+a.mon_name(trades[id]),func():pass,true)
 	for stone in a.extras.STONES:
 		if a.extras.STONES[stone].has(id): a.inventory.row(list,"EVOLUTION: "+stone+" -> "+a.mon_name(a.extras.STONES[stone][id]),func():pass,true)
 	for source in locations(id): a.inventory.row(list,source,func():pass,true)
@@ -233,3 +235,18 @@ func tests():
 	for suffix in ["",".bak",".tmp"]:
 		if FileAccess.file_exists(a.save_path+suffix): DirAccess.remove_absolute(ProjectSettings.globalize_path(a.save_path+suffix))
 	a.data=before; a.save_path=old_path; a.save_allowed=old_save; a.in_battle=old_battle; a.world.enabled=old_world; a.position_world=old_pos; a.clear_ui(); pc_box=0
+
+func held_menu(group,slot):
+	if a.in_battle or slot<0 or slot>=a.data[group].size(): return
+	var mon=a.data[group][slot]; var list=a.inventory.page("HELD ITEM / "+title(mon),summary.bind(group,slot))
+	if mon.get("held_item","")!="": a.inventory.row(list,"TAKE "+str(mon.held_item),equip.bind(group,slot,""))
+	for id in a.extras.HELD:
+		if int(a.data.bag.get(id,0))>0: a.inventory.row(list,"GIVE "+a.extras.catalog[id].name+" / x"+str(a.data.bag[id]),equip.bind(group,slot,id))
+func equip(group,slot,id):
+	if a.in_battle or group not in ["party","storage"] or slot<0 or slot>=a.data[group].size(): return
+	if id!="" and (id not in a.extras.HELD or int(a.data.bag.get(id,0))<1): return
+	var mon=a.data[group][slot]; var previous=str(mon.get("held_item",""))
+	if previous==id or previous!="" and int(a.data.bag.get(previous,0))>=999: return
+	if previous!="": a.data.bag[previous]=int(a.data.bag.get(previous,0))+1
+	if id!="": a.data.bag[id]=int(a.data.bag[id])-1
+	mon["held_item"]=id; a.save(); held_menu(group,slot)

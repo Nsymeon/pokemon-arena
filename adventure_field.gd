@@ -22,7 +22,7 @@ func can_use(tool) -> bool:
 	return owns(tool) and badge(tool) and (knows(tool) if tool in ["fly","surf"] else true)
 
 func key_items():
-	var list=a.inventory.page("KEY ITEMS / permanent tools")
+	var list=a.inventory.page("KEY ITEMS / permanent tools",a.inventory.bag)
 	for tool in KEY_TOOLS:
 		var spec=KEY_TOOLS[tool]
 		a.inventory.row(list,spec[0]+" / "+tool.to_upper()+" / "+("OWNED" if owns(tool) else "NOT FOUND")+" / "+spec[1]+" Badge "+("OK" if badge(tool) else "REQUIRED"),flash if tool=="flash" else func():pass,tool!="flash" or not can_use(tool))
@@ -32,10 +32,10 @@ func key_items():
 
 func hm_menu(move):
 	if a.in_battle or not owns(move) or move not in ["fly","surf"]: return
-	var list=a.inventory.page("TEACH "+move.to_upper()+" / choose partner")
+	var list=a.inventory.page("TEACH "+move.to_upper()+" / choose partner",key_items)
 	for i in range(a.data.party.size()):
 		var mon=a.data.party[i]
-		a.inventory.row(list,a.mon_name(mon.id),a.inventory.replace_menu.bind(i,move,""),not hm_eligible(mon,move))
+		a.inventory.row(list,a.mon_name(mon.id),a.inventory.replace_menu.bind(i,move,"",hm_menu.bind(move)),not hm_eligible(mon,move))
 
 func hm_eligible(mon,move) -> bool:
 	return move in ["fly","surf"] and owns(move) and move in learning.get(str(int(mon.id)),{}).get("hms",[])
@@ -162,7 +162,7 @@ func entered(previous, at: Vector2):
 	if outdoor(): finish("visited:"+w().current)
 
 func tools_menu():
-	var list=a.inventory.page("FIELD TOOLS / KANTO & SEVII")
+	var list=a.inventory.page("FIELD TOOLS / KANTO & SEVII",a.inventory.bag)
 	a.inventory.row(list,"SEVII STORY JOURNAL",a.sevii.journal)
 	if a.sevii.at_port(): a.inventory.row(list,"SEAGALLOP FERRY",a.sevii.ferry_menu)
 	if a.world.current.contains("GAME_CORNER"): a.inventory.row(list,"GAME CORNER",a.services.game_menu)

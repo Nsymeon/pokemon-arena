@@ -26,6 +26,7 @@ func reserve(c) -> int:
 func activate(c,slot):
 	c.enemy_active = slot
 	c.enemy = states[slot]
+	c.gear.withdrawn(c.enemy)
 	c.enemy.pos = c.FIELD.size*Vector2(0.66,0.5)
 	c.enemy.face = -1
 	c.enemy.heading = Vector2.LEFT
@@ -38,7 +39,7 @@ func activate(c,slot):
 	c.ai_timer = 1.0
 
 func request(c,slot) -> bool:
-	if not c.team_mode or used>=3 or timer>=0 or cooldown>0 or c.countdown>0 or c.result!="" or c.paused or c.switch_menu or c.switch_time>=0: return false
+	if not c.team_mode or used>=c.difficulty.switches() or timer>=0 or cooldown>0 or c.countdown>0 or c.result!="" or c.paused or c.switch_menu or c.switch_time>=0: return false
 	if c.enemy.hp<=0 or c.player.hp<=0 or slot<0 or slot>=states.size() or slot==c.enemy_active or states[slot].hp<=0: return false
 	if c.Conditions.immobilized(c.enemy) or c.enemy.volatile.get("partiallytrapped",0)>0 or c.enemy.action_lock>0 or c.enemy.dash_time>0: return false
 	# Do not erase or evade already launched attacks through a trainer substitution.
@@ -71,7 +72,7 @@ func complete(c):
 
 func tick(c,dt):
 	cooldown = maxf(0,cooldown-dt)
-	if cooldown>0 or used>=3 or reserve(c)<0: return
+	if cooldown>0 or used>=c.difficulty.switches() or reserve(c)<0: return
 	var danger = 0.0
 	for move in c.player.data.moves:
 		if move.damage>0: danger = maxf(danger,c.Dex.effectiveness(move.type,c.Conditions.types(c.enemy)))

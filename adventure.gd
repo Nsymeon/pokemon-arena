@@ -14,6 +14,7 @@ var save_path = SAVE_PATH
 var save_error = ""
 var save_allowed = true
 var c
+var expansion=preload("res://adventure_expansion.gd").new()
 var collection=preload("res://pokemon_collection.gd").new()
 var extras=preload("res://adventure_items.gd").new()
 var sevii=preload("res://adventure_sevii.gd").new()
@@ -32,6 +33,7 @@ var facing = 1.0
 var autosave = 0.0
 var dialog = ""
 var modal = ""
+var ui_back=Callable()
 var ui: CanvasLayer
 var original = {}
 var encounter = {}
@@ -48,6 +50,7 @@ var font: Font
 func install(context):
 	c = context
 	collection.a=self
+	expansion.a=self
 	extras.a = self
 	field.a = self
 	services.a = self
@@ -105,7 +108,7 @@ func valid(value) -> bool:
 	if not Finale.valid(value): return false
 	for member in value.get("hall_of_fame",[]):
 		if not c.roster.any(func(mon):return int(mon.id)==int(member.id)): return false
-	return collection.valid(value) and inventory.valid(value) and extras.valid(value) and Story.valid(value) and services.valid(value)
+	return expansion.valid(value) and collection.valid(value) and inventory.valid(value) and extras.valid(value) and Story.valid(value) and services.valid(value)
 
 func load_save():
 	loaded = true
@@ -120,6 +123,7 @@ func load_save():
 		if valid(parser.data):
 			data = parser.data
 			inventory.migrate()
+			expansion.recover()
 			for key in ["map","starter","balls","money","healing_map"]: data[key] = int(data[key])
 			for mon in data.party + data.storage:
 				c.abilities.assign(mon)
@@ -334,7 +338,7 @@ func handle_input(event):
 		if modal=="CREATE YOUR TRAINER": return
 		if event is InputEventKey and event.keycode == KEY_ESCAPE:
 			if modal.begins_with("EVOLUTION"): next_evolution()
-			else: clear_ui()
+			else: back_ui()
 		return
 	if dialog != "":
 		if c.controls.matches(event,"interact") or c.controls.matches(event,"sprint") or (event is InputEventKey and event.keycode in [KEY_ENTER,KEY_ESCAPE]): dialog = ""
@@ -403,6 +407,7 @@ func heal():
 	save()
 
 func battle_mon(id: int, level: int, individual: Dictionary={}) -> Dictionary:
+	if in_battle and encounter.get("kind","")=="post_tower": level=50
 	var mon: Dictionary = c.roster[c.Dex.find_id(c.roster,id)].duplicate(true)
 	var values=individual.get("ivs",{})
 	if values.is_empty(): values=c.ivs.roll() if individual.is_empty() else c.ivs.uniform(0)
@@ -477,6 +482,7 @@ func sync_health():
 		data.party[i].ailment = c.player_states[i].ailment
 
 func reward(victory: bool) -> String:
+	if str(encounter.get("kind","")).begins_with("post_"): return expansion.reward(victory)
 	var later_message=Finale.reward(self,victory)
 	if not victory: return ""
 	var message = later_message if later_message!="" else Story.reward(self,encounter.kind)
@@ -576,21 +582,28 @@ func tick_capture(dt):
 			c.notice_time = 2
 			c.player.action_lock = 1.0
 
+func back_ui():
+	var callback=ui_back
+	if callback.is_valid(): callback.call()
+	else: clear_ui()
+
 func clear_ui():
+	ui_back=Callable()
 	for child in ui.get_children(): child.queue_free()
 	modal = ""
 
-func panel(title: String):
+func panel(title: String, back=Callable()):
 	c.click_move = false
 	clear_ui()
 	modal = title
+	ui_back=back
 	var bg = ColorRect.new()
 	bg.color = Color(0.025,0.055,0.08,0.97)
 	bg.position = Vector2(140,135)
 	bg.size = Vector2(1000,690)
 	ui.add_child(bg)
 	ui_label(title,Vector2(180,165),28)
-	ui_button("CLOSE / Esc",Vector2(900,755),Vector2(190,45),next_evolution if title.begins_with("EVOLUTION") else clear_ui)
+	ui_button("BACK / Esc" if back.is_valid() else "CLOSE / Esc",Vector2(900,755),Vector2(190,45),next_evolution if title.begins_with("EVOLUTION") else back_ui)
 
 func ui_label(value, at, size = 19):
 	var label = Label.new()
@@ -661,7 +674,8 @@ func menu():
 	panel("ADVENTURE / KANTO")
 	ui_label(objective(),Vector2(180,240))
 	ui_label("Progress saves automatically on the map and after encounters.",Vector2(180,290))
-	ui_button("KANTO GUIDE / M",Vector2(650,375),Vector2(400,65),func(): Finale.guide(self))
+	ui_button("QUEST JOURNAL / MAP",Vector2(650,375),Vector2(400,65),expansion.journal)
+	ui_button("CHAMPION CHALLENGES",Vector2(650,465),Vector2(400,65),expansion.hub)
 	ui_button("YOUR TEAM",Vector2(180,375),Vector2(400,65),party_menu)
 	ui_button("SAVE AND CONTINUE",Vector2(180,465),Vector2(400,65),func(): save(); clear_ui())
 	ui_button("SAVE AND RETURN TO MODES",Vector2(180,555),Vector2(600,65),leave)
@@ -984,6 +998,7 @@ func record_knockout():
 	if not encounter.has("rewarded"): encounter.rewarded = []
 	if c.enemy_active in encounter.rewarded: return
 	encounter.rewarded.append(c.enemy_active)
+	if encounter.kind=="post_tower": return
 	sync_health()
 	var amount = 25+int(encounter.levels[c.enemy_active])*5
 	c.ivs.award_evs(int(encounter.ids[c.enemy_active]))

@@ -116,6 +116,7 @@ func entry(f,other):
 		announce(f)
 
 func withdrawn(f):
+	c.gear.withdrawn(f)
 	if name_of(f)=="Natural Cure": f.ailment=""; f.ailment_time=0
 	f.erase("copied_ability")
 	f.erase("flash_fire")
@@ -135,7 +136,7 @@ func tick(f,dt):
 
 func speed(f) -> float:
 	var a=name_of(f)
-	return 2.0 if (a=="Chlorophyll" and c.weather.kind=="sun") or (a=="Swift Swim" and c.weather.kind=="rain") else 1.0
+	return c.gear.speed(f)*(2.0 if (a=="Chlorophyll" and c.weather.kind=="sun") or (a=="Swift Swim" and c.weather.kind=="rain") else 1.0)
 
 func status_block(f,status,volatile_status,move) -> bool:
 	var a=name_of(f)

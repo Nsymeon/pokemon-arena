@@ -257,7 +257,11 @@ func interact() -> bool:
 	return scenes.seek_wild()
 
 func guide():
-	var list=a.inventory.page("KANTO / "+room().name.replace("_"," / "))
+	var list=a.inventory.page("KANTO / "+room().name.replace("_"," / "),a.expansion.journal)
+	a.inventory.row(list,"QUEST JOURNAL",a.expansion.journal)
+	var destination=a.expansion.target()
+	if destination!="":
+		for step in a.expansion.route(destination): a.inventory.row(list,step,func():pass,true)
 	if a.sevii.at_port(): a.inventory.row(list,"SEAGALLOP FERRY / SEVII",a.sevii.ferry_menu)
 	a.inventory.row(list,"SEVII QUEST JOURNAL",a.sevii.journal)
 	if not events.rocks().is_empty():

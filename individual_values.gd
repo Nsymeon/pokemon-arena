@@ -9,6 +9,7 @@ var boxes={}
 var editing=""
 var natures={}
 var nature_choice: OptionButton
+var item_choice: OptionButton
 var ev_yields: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://assets/kanto/ev-yields.json"))
 
 func ev_total(mon) -> int:
@@ -21,10 +22,11 @@ func award_evs(species):
 	# The existing shared EXP system rewards every healthy teammate, so EV recipients match.
 	for mon in c.adventure.data.party:
 		if mon.hp<=0: continue
+		var awarded=c.gear.ev_yield(mon,yields)
 		var values=mon.get("training",{})
 		var remaining=510-ev_total(mon)
 		for stat in STATS:
-			var gain=mini(int(yields.get(stat,0)),mini(252-int(values.get(stat,0)),remaining))
+			var gain=mini(int(awarded.get(stat,0)),mini(252-int(values.get(stat,0)),remaining))
 			if gain>0: values[stat]=int(values.get(stat,0))+gain; remaining-=gain
 		mon["training"]=values
 
@@ -90,6 +92,7 @@ func configured(mon,friendly,slot) -> Dictionary:
 	if not valid(values): values=uniform()
 	var result=apply_values(mon,values)
 	result["nature"]=natures.get(key,"Hardy")
+	result["held_item"]=c.gear.choices.get(key,"")
 	for stat in c.adventure.collection.ORDER: result.base_stats[stat]*=c.adventure.collection.factor(result.nature,stat)
 	result.speed*=c.adventure.collection.factor(result.nature,"spe")
 	return result
@@ -109,7 +112,7 @@ func apply_values(mon,values) -> Dictionary:
 func open(mon,friendly,slot):
 	if window!=null and is_instance_valid(window): window.queue_free()
 	editing=c.move_editor.identity(mon,friendly,slot)
-	window=Window.new(); window.title=mon.name+" / IVs (0-31)"; window.size=Vector2i(440,450)
+	window=Window.new(); window.title=mon.name+" / IVs, nature and held item"; window.size=Vector2i(440,510)
 	window.transient=true; window.exclusive=true; c.add_child(window)
 	window.close_requested.connect(func():window.hide())
 	var values=choices.get(editing,uniform()); boxes={}
@@ -118,11 +121,14 @@ func open(mon,friendly,slot):
 		var box=SpinBox.new(); box.min_value=0; box.max_value=31; box.step=1; box.value=values[STATS[i]]; box.position=Vector2(150,20+i*43); box.size=Vector2(240,35)
 		window.add_child(box); boxes[STATS[i]]=box
 	for spec in [["ALL 31",20,func():set_boxes(uniform())],["RANDOM",155,func():set_boxes(roll())],["APPLY",290,apply]]:
-		var button=Button.new(); button.text=spec[0]; button.position=Vector2(spec[1],365); button.size=Vector2(125,44); button.pressed.connect(spec[2]); window.add_child(button)
-	var hint=Label.new(); hint.text="Close to cancel. This side and team slot only."; hint.position=Vector2(20,418); window.add_child(hint)
+		var button=Button.new(); button.text=spec[0]; button.position=Vector2(spec[1],425); button.size=Vector2(125,44); button.pressed.connect(spec[2]); window.add_child(button)
+	var hint=Label.new(); hint.text="Close to cancel. This side and team slot only."; hint.position=Vector2(20,478); window.add_child(hint)
 	nature_choice=OptionButton.new(); nature_choice.position=Vector2(20,295); nature_choice.size=Vector2(395,45)
 	for nature in c.adventure.collection.NAMES: nature_choice.add_item(c.adventure.collection.nature_text({"nature":nature}))
 	nature_choice.selected=c.adventure.collection.NAMES.find(natures.get(editing,"Hardy")); window.add_child(nature_choice)
+	item_choice=OptionButton.new(); item_choice.position=Vector2(20,355); item_choice.size=Vector2(395,45); item_choice.add_item("HELD ITEM: none")
+	for item in c.adventure.extras.HELD: item_choice.add_item("HELD ITEM: "+item)
+	item_choice.selected=c.adventure.extras.HELD.find(c.gear.choices.get(editing,""))+1; window.add_child(item_choice)
 	window.popup_centered()
 
 func set_boxes(values):
@@ -138,6 +144,7 @@ func apply():
 	if not valid(values): return
 	choices[editing]=values
 	natures[editing]=c.adventure.collection.NAMES[nature_choice.selected]
+	c.gear.choose(editing,"" if item_choice.selected==0 else c.adventure.extras.HELD[item_choice.selected-1])
 	if OS.get_cmdline_user_args().is_empty():
 		var file=FileAccess.open("user://battle-ivs.json",FileAccess.WRITE)
 		if file: file.store_string(JSON.stringify(choices))
