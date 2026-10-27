@@ -10,11 +10,19 @@ Godot 4.3 desktop arena prototype. All 151 original Kanto species are playable, 
 
 Each new Adventure Pokemon receives six independent uniform IVs from 0 to 31 (HP, Attack, Defense, Sp. Atk, Sp. Def, Speed). These are permanent individual data: captures retain the fought Pokemon's values, and evolution, levels, storage, healing and Day Care preserve them. NPC trades use the fixed six IVs from FireRed's `ingame_trades.h`. Existing saves migrate without reset, including storage and Day Care; deterministic legacy assignment avoids rerolling if you restart before autosave. Invalid or partial IV blocks fail save validation rather than silently replacing them.
 
-View all owned partners under **P → IVs / Stats**, or a partner's moves page. Adventure IVs are read-only. In Free Battles and your Gym/League team, select a team slot and click **IVs [EDIT]** beside Ability. Edit six 0–31 numbers, use All 31 or Random, then Apply; closing cancels the draft. Choices persist per species, side and team slot in `battle-ivs.json`. Default free/preset trainer values are all 31; preset opponents cannot be edited. Random Adventure trainer IVs are drawn when the battle team is created.
+View all owned partners under **P → IVs / EVs**, or a partner's moves page. Adventure IVs are read-only. In Free Battles and your Gym/League team, select a team slot and click **IVs [EDIT]** beside Ability. Edit six 0–31 numbers, use All 31 or Random, then Apply; closing cancels the draft. Choices persist per species, side and team slot in `battle-ivs.json`. Default free/preset trainer values are all 31; preset opponents cannot be edited. Random Adventure trainer IVs are drawn when the battle team is created.
 
-Arena scaling is preserved: IV/2 is added to each stat before Adventure's level scaling, alongside existing training/4; HP receives the corresponding scaled bonus. Speed IV/2 adds to actual movement speed without changing the global action gate. Free Battles use the same IV/2 bonuses without Adventure level scaling. This is an arena adaptation of IV influence, not the full cartridge stat/nature/EV formula. Nature effects, breeding/inheritance and Hyper Training are not added by this feature. Species base data remains unchanged.
+Arena scaling is preserved: IV/2 is added to each stat before Adventure's level scaling, alongside floor(EVs/4); HP receives the corresponding scaled bonus. Speed IV/2 plus floor(Speed EVs/4) adds to actual movement speed without changing the global action gate. Free Battles use the same IV/2 bonuses without Adventure level scaling. This is an arena adaptation of IV influence, not the full cartridge stat/nature/EV formula. Nature effects, breeding/inheritance and Hyper Training are not added by this feature. Species base data remains unchanged.
 
 Smoke tests cover bounds, corrupt saves, stable migration, evolution, capture/save/reload, stat effects, repeated configuration, isolated slots and Apply/Cancel. `--capture-ivs` captures the interfaces without changing player saves.
+
+## Effort Values (EVs) and battle rewards
+
+Adventure defeats now award the defeated species' EV yield to every non-fainted teammate receiving shared EXP. Pidgey grants 1 Speed EV; Geodude grants 1 Defense EV. Each stat caps at 252, with 510 total per Pokemon. Four EVs contribute one stat point before the existing arena level scaling; Speed EVs also affect movement. EVs persist through switching, evolution, storage and saves. Existing vitamin training is retained without resetting progress. Captures, Rare Candy and Day Care do not grant battle EVs.
+
+Vitamins grant up to 10 EVs per use, retain the FireRed vitamin limit of 100 in that stat, and respect the overall 510 cap. Inspect individual totals under **P → IVs / EVs** or the moves page. This combines FireRed species yields with the modern 252 stat cap and this game's shared EXP/arena scaling; Pokerus and EV-boosting equipment are not implemented. Rebuild all 158 yields with `tools/import-ev-yields.py`, using the pinned FireRed source and cached PokeAPI effort data for Klink/Rookidee.
+
+XP, level-up and new-move notices appear for four seconds in the top HUD, outside the arena. Wild victories return to the map without a reward dialog and never award money; trainer rewards and capture/evolution messages remain. `--capture-ev-progress` previews the HUD and EV screen without modifying player saves. Regression checks cover yield rewards, caps, fainted recipients, duplicate KO protection, evolution/save validation and silent, money-free wild victories.
 
 ## Key Items, activities and Sevii expansion (current)
 
@@ -107,7 +115,7 @@ Arena mapping:
 - Stat factor = clamp((50 + attacking stat) / (50 + defending stat), 0.35, 2.5).
 - Damage = arena move power × stat factor × STAB × effectiveness × buffs × guard, rounded to 0.1.
 - STAB = 1.5 when either user type matches the move. Effectiveness multiplies across both defending types: 4, 2, 1, 0.5, 0.25 or 0.
-- Move power, cost and cooldown are scaled for real-time combat. Variable-power moves have an arena baseline. Accuracy uses the source move value and accuracy stages. Focus Energy enables a 50% chance of a 1.5× critical hit while active; a general critical-hit system, PP, abilities, IVs/EVs, natures and held items are not simulated.
+- Move power, cost and cooldown are scaled for real-time combat. Variable-power moves have an arena baseline. Accuracy uses the source move value and accuracy stages. Focus Energy enables a 50% chance of a 1.5× critical hit while active; general critical-hit and nature systems remain deferred; recovery PP, abilities, IVs/EVs and selected held items are described in the current sections above.
 
 Stronger species are intentionally stronger: this update does not equalize Magikarp and Mewtwo.
 

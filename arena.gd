@@ -125,6 +125,9 @@ func _ready():
 	adventure.install(self)
 	campaign.install(self)
 	frontend.install(self)
+	if "--capture-ev-progress" in OS.get_cmdline_user_args():
+		capture_ev_progress.call_deferred()
+		return
 	if "--capture-ivs" in OS.get_cmdline_user_args():
 		capture_ivs.call_deferred()
 		return
@@ -1032,7 +1035,7 @@ func _draw():
 	for mask in [Rect2(0,0,1280,180), Rect2(0,780,1280,180), Rect2(0,180,40,600), Rect2(1240,180,40,600)]:
 		draw_rect(mask, Color("0b171f"))
 	label_at(fields.LABELS[fields.active].to_upper() + "   /   KANTO + EXTRAS", Vector2(40, 30), 12, MINT)
-	label_at("POKÉMON  ARENA", Vector2(40, 66), 29)
+	if not adventure.in_battle or adventure.progress_time<=0: label_at("POKÉMON  ARENA", Vector2(40, 66), 29)
 	label_at("REAL-TIME POKÉMON BATTLES", Vector2(1000, 36), 13, Color("88a0a4"))
 	label_at(("VS " + opponent_name().to_upper() + " / " + str(enemy_party_size()) + " POKÉMON") if not enemy_party.is_empty() else "6 VS 6   /   TEAM BATTLE" if team_mode else "1 VS 1   /   DUEL", Vector2(976, 63), 14, GOLD)
 	draw_hud()
@@ -3336,4 +3339,19 @@ func capture_ivs():
 	ivs.party_menu(); adventure.queue_redraw()
 	await get_tree().process_frame; await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png("res://captures/ivs-adventure.png")
+	get_tree().quit()
+
+func capture_ev_progress():
+	set_process(false); frontend.layer.visible=false; selection_controls.visible=false
+	adventure.loaded=true; adventure.save_allowed=false; adventure.enter(); adventure.choose_starter(4)
+	adventure.data.party[0]=adventure.new_mon(4,6); adventure.data.party[0].xp=55
+	adventure.begin_battle("lass",[21,39],[11,12])
+	enemy.hp=0; finish_round(); shots.clear(); result_time=10; adventure.record_knockout(); advance_team()
+	countdown=0; paused=false; camera_offset=Vector2(0,300)
+	queue_redraw(); await get_tree().process_frame; await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://captures/ev-progress.png")
+	adventure.in_battle=false; adventure.exploring=true; adventure.visible=true; selecting=true
+	ivs.party_menu(); adventure.queue_redraw()
+	await get_tree().process_frame; await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://captures/ev-stats.png")
 	get_tree().quit()

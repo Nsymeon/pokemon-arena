@@ -1,0 +1,54 @@
+{
+  "599": [
+    {
+      "effort": 0,
+      "stat": "hp"
+    },
+    {
+      "effort": 0,
+      "stat": "attack"
+    },
+    {
+      "effort": 1,
+      "stat": "defense"
+    },
+    {
+      "effort": 0,
+      "stat": "special-attack"
+    },
+    {
+      "effort": 0,
+      "stat": "special-defense"
+    },
+    {
+      "effort": 0,
+      "stat": "speed"
+    }
+  ],
+  "821": [
+    {
+      "effort": 0,
+      "stat": "hp"
+    },
+    {
+      "effort": 0,
+      "stat": "attack"
+    },
+    {
+      "effort": 0,
+      "stat": "defense"
+    },
+    {
+      "effort": 0,
+      "stat": "special-attack"
+    },
+    {
+      "effort": 0,
+      "stat": "special-defense"
+    },
+    {
+      "effort": 1,
+      "stat": "speed"
+    }
+  ]
+}

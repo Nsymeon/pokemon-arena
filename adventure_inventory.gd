@@ -214,6 +214,7 @@ func moves_menu(slot):
 	var mon = a.data.party[slot]
 	var list = page(a.mon_name(mon.id)+" / MOVES / level "+str(mon.level))
 	row(list,a.c.ivs.summary(mon),func():pass,true)
+	row(list,a.c.ivs.ev_summary(mon),func():pass,true)
 	for move in ["fly","surf"]:
 		if a.field.hm_eligible(mon,move) and move not in mon.moves: row(list,"HM / "+move.to_upper(),replace_menu.bind(slot,move,""))
 	for id in mon.moves: row(list,"KNOWN / "+book.moves[id].name+" / "+book.moves[id].type,func():pass,true)

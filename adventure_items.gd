@@ -43,7 +43,7 @@ func valid(data) -> bool:
 			var total=0
 			for key in mon.get(field,{}):
 				var value=mon[field][key]
-				if not (value is float or value is int) or value!=int(value) or value<0 or value>(100 if field=="training" else 3): return false
+				if not (value is float or value is int) or value!=int(value) or value<0 or value>(252 if field=="training" else 3): return false
 				if field=="training" and key not in VITAMINS.values(): return false
 				if field=="ppups" and not a.inventory.book.moves.has(key): return false
 				total+=int(value)

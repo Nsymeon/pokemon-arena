@@ -7,6 +7,28 @@ var choices={}
 var window: Window
 var boxes={}
 var editing=""
+var ev_yields: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://assets/kanto/ev-yields.json"))
+
+func ev_total(mon) -> int:
+	var total=0
+	for value in mon.get("training",{}).values(): total+=int(value)
+	return total
+
+func award_evs(species):
+	var yields=ev_yields.get(str(int(species)),{})
+	# The existing shared EXP system rewards every healthy teammate, so EV recipients match.
+	for mon in c.adventure.data.party:
+		if mon.hp<=0: continue
+		var values=mon.get("training",{})
+		var remaining=510-ev_total(mon)
+		for stat in STATS:
+			var gain=mini(int(yields.get(stat,0)),mini(252-int(values.get(stat,0)),remaining))
+			if gain>0: values[stat]=int(values.get(stat,0))+gain; remaining-=gain
+		mon["training"]=values
+
+func ev_summary(mon) -> String:
+	var values=mon.get("training",{})
+	return "EVs %d/510 | HP %d ATK %d DEF %d SPA %d SPD %d SPE %d (max 252/stat)" % [ev_total(mon),values.get("hp",0),values.get("atk",0),values.get("def",0),values.get("spa",0),values.get("spd",0),values.get("spe",0)]
 
 func install(context):
 	c=context; random.randomize()
@@ -113,11 +135,14 @@ func summary(mon) -> String:
 
 func party_menu():
 	var a=c.adventure; a.inventory.migrate()
-	var list=a.inventory.page("INDIVIDUAL VALUES / inherited potential / 0-31 per stat")
+	var list=a.inventory.page("POKEMON STATS / IVs 0-31 / EVs 252 per stat, 510 total")
 	for mon in a.data.party+a.data.storage:
 		a.inventory.row(list,a.mon_name(mon.id)+" Lv."+str(mon.level)+" / "+summary(mon),func():pass,true)
+		a.inventory.row(list,ev_summary(mon),func():pass,true)
 	var daycare=a.data.get("services",{}).get("daycare",{})
-	if not daycare.is_empty(): a.inventory.row(list,"DAY CARE / "+a.mon_name(daycare.mon.id)+" / "+summary(daycare.mon),func():pass,true)
+	if not daycare.is_empty():
+		a.inventory.row(list,"DAY CARE / "+a.mon_name(daycare.mon.id)+" / "+summary(daycare.mon),func():pass,true)
+		a.inventory.row(list,ev_summary(daycare.mon),func():pass,true)
 
 func tests():
 	var previous=c.adventure.data.duplicate(true); var saved_choices=choices.duplicate(true); var rng_state=random.state
@@ -128,6 +153,19 @@ func tests():
 	var missing=uniform(); missing.erase("spe"); c.check(not valid(missing),"Partial IV blocks are rejected")
 	a.data=a.INITIAL_DATA.duplicate(true); a.data.starter=4; a.data.party=[a.new_mon(4,15)]
 	var mon=a.data.party[0]; var values=mon.ivs.duplicate(true)
+	mon["training"]={}; award_evs(16)
+	c.check(int(mon.training.get("spe",0))==1,"Pidgey defeat awards one Speed EV")
+	award_evs(74); c.check(int(mon.training.get("def",0))==1,"Geodude defeat awards one Defense EV")
+	mon.training={"spe":251}; award_evs(18)
+	c.check(mon.training.spe==252,"Battle EVs stop at 252 per stat")
+	mon.training={"spe":252,"atk":252,"hp":5}; award_evs(113)
+	c.check(ev_total(mon)==510 and mon.training.hp==6,"Mixed EV yields respect the total 510 cap")
+	mon.hp=0; mon.training={}; award_evs(16)
+	c.check(mon.training.is_empty(),"Fainted teammates do not receive EVs")
+	mon.hp=1; mon.training={"spe":4}
+	var ev_before=mon.training.duplicate(true)
+	var with_evs=a.battle_mon(4,50,mon); var untrained=mon.duplicate(true); untrained.training={}
+	c.check(with_evs.speed>a.battle_mon(4,50,untrained).speed,"Four Speed EVs increase real movement speed")
 	a.inventory.migrate(); a.inventory.migrate(); c.check(mon.ivs==values,"Existing IVs never reroll on menu/migration")
 	var old=mon.duplicate(true); old.erase("ivs")
 	var legacy={"party":[old.duplicate(true)],"storage":[]}; migrate(legacy)
@@ -140,8 +178,11 @@ func tests():
 	for stat in STATS: c.check(high.base_stats[stat]>low.base_stats[stat],"IV changes real "+stat+" battle stat")
 	a.grant_xp(a.xp_needed(mon)-int(mon.xp))
 	c.check(mon.id==5 and mon.ivs==values,"Level-up and evolution preserve all six IVs")
+	c.check(mon.training==ev_before,"Evolution preserves earned EVs")
 	var loaded=JSON.parse_string(JSON.stringify(a.data)); migrate(loaded); c.check(a.valid(loaded) and loaded.party[0].ivs==values,"Adventure IVs survive validated JSON round trip")
 	loaded.party[0].ivs.hp=32; c.check(not a.valid(loaded),"Corrupt adventure IVs reject save rather than reroll")
+	loaded=JSON.parse_string(JSON.stringify(a.data)); loaded.party[0].training={"atk":253}
+	c.check(not a.valid(loaded),"Save validation rejects EVs above the per-stat cap")
 	choices.clear(); var species=c.roster[c.Dex.find_id(c.roster,4)]
 	choices[c.move_editor.identity(species,true,0)]=uniform(0)
 	var first=configured(species,true,0); var next=configured(first,true,0)

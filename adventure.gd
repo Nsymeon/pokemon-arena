@@ -37,6 +37,7 @@ var encounter = {}
 var evolutions: Array = []
 var progress_lines: Array = []
 var progress_time = 0.0
+var progress_summary=""
 var capture_time = 0.0
 var capture_success = false
 var wild_cycle = 0
@@ -402,11 +403,11 @@ func battle_mon(id: int, level: int, individual: Dictionary={}) -> Dictionary:
 	var values=individual.get("ivs",{})
 	if values.is_empty(): values=c.ivs.roll() if individual.is_empty() else c.ivs.uniform(0)
 	mon["ivs"]=values.duplicate(true)
-	mon.speed+=float(values.spe)/2.0
+	mon.speed+=float(values.spe)/2.0+floorf(float(individual.get("training",{}).get("spe",0))/4.0)
 	var scale = 0.55+level*0.06
 	mon.hp = roundf(mon.hp*scale)
-	for key in mon.base_stats: mon.base_stats[key] = roundf((mon.base_stats[key]+float(values[key])/2.0+int(individual.get("training",{}).get(key,0))/4.0)*scale)
-	mon.hp += roundf((float(values.hp)/2.0+int(individual.get("training",{}).get("hp",0))/4.0)*scale)
+	for key in mon.base_stats: mon.base_stats[key] = roundf((mon.base_stats[key]+float(values[key])/2.0+floorf(float(individual.get("training",{}).get(key,0))/4.0))*scale)
+	mon.hp += roundf((float(values.hp)/2.0+floorf(float(individual.get("training",{}).get("hp",0))/4.0))*scale)
 	mon.moves = inventory.definitions(inventory.starting(id,level))
 	mon["level"] = level
 	for key in ["shiny","ability_slot","gender","held_item"]:
@@ -471,7 +472,7 @@ func reward(victory: bool) -> String:
 	var later_message=Finale.reward(self,victory)
 	if not victory: return ""
 	var message = later_message if later_message!="" else Story.reward(self,encounter.kind)
-	data.money = mini(999999,int(data.money)+(40 if encounter.kind=="wild" else 150))
+	if encounter.kind!="wild": data.money = mini(999999,int(data.money)+150)
 	match encounter.kind:
 		"rival": data.rival = true
 		"bug": data.bug_catcher = true
@@ -520,6 +521,7 @@ func return_world(caught: bool = false):
 				mon.hp = 1.0
 				mon.ailment = ""
 			message = "Your team recovered at the last healing town. Try again!"
+		elif encounter.kind=="wild": message=""
 		elif message == "": message = "Battle won! Earned money and experience."
 	if world.enabled: world.events.result(str(encounter.kind),win,caught)
 	in_battle = false
@@ -615,7 +617,7 @@ func party_menu():
 	for i in range(data.party.size()):
 		var mon = data.party[i]
 		ui_button("%s\nLv.%d  / HP %d%% / XP %d%s" % [mon_name(mon.id)+(" *" if mon.get("shiny",false) else "")+" / "+c.abilities.legal(mon.id)[int(mon.get("ability_slot",0))%c.abilities.legal(mon.id).size()],mon.level,roundi(mon.hp*100),mon.xp," / LEAD" if i==0 else ""],Vector2(180,230+i*66),Vector2(680,54),set_lead.bind(i))
-	ui_button("IVs / STATS",Vector2(890,470),Vector2(210,55),c.ivs.party_menu)
+	ui_button("IVs / EVs",Vector2(890,470),Vector2(210,55),c.ivs.party_menu)
 	ui_button("MOVESETS",Vector2(890,310),Vector2(210,55),inventory.move_party)
 	ui_button("BAG / "+c.controls.text("bag"),Vector2(890,390),Vector2(210,55),inventory.bag)
 	ui_button("STORAGE (%d)" % data.storage.size(),Vector2(890,230),Vector2(210,55),storage_menu)
@@ -983,6 +985,8 @@ func record_knockout():
 	encounter.rewarded.append(c.enemy_active)
 	sync_health()
 	var amount = 25+int(encounter.levels[c.enemy_active])*5
+	c.ivs.award_evs(int(encounter.ids[c.enemy_active]))
+	var old_levels=data.party.map(func(member):return int(member.level))
 	var message = grant_xp(amount)
 	for i in range(data.party.size()):
 		var fighter = c.player_states[i]
@@ -991,9 +995,15 @@ func record_knockout():
 			fighter.data = battle_mon(int(mon.id),int(mon.level),mon)
 			fighter.data.moves = inventory.definitions(mon.moves,mon)
 		fighter.hp = fighter.data.hp*mon.hp
-	progress_lines = [mon_name(int(encounter.ids[c.enemy_active]))+" defeated! +"+str(amount)+" EXP to standing teammates."]
+	progress_lines = ["+"+str(amount)+" EXP / "+mon_name(int(encounter.ids[c.enemy_active]))+" defeated"]
 	if message!="": progress_lines.append(message)
-	progress_time = 10.0
+	progress_summary=progress_lines[0]
+	if "learned" in message or "can learn" in message: progress_summary+=" / NEW MOVES: P"
+	var leveled=[]
+	for i in range(data.party.size()):
+		if data.party[i].level>old_levels[i]: leveled.append(mon_name(data.party[i].id)+" Lv."+str(data.party[i].level))
+	if not leveled.is_empty(): progress_summary+=" / "+", ".join(leveled)
+	progress_time = 4.0
 	save()
 
 func draw_progress():
@@ -1002,16 +1012,12 @@ func draw_progress():
 	c.bar(Vector2(122,173),310,xp_ratio(mon),Color("79aaff"),4)
 	c.label_at("EXP %d/%d" % [mon.xp,xp_needed(mon)] if mon.level<100 else "MAX LEVEL",Vector2(40,177),10,Color("79aaff"))
 	if progress_time>0:
-		c.panel(Rect2(560,245,660,145),Color(0.04,0.09,0.14,0.95),Color("79aaff"))
-		var text = " ".join(progress_lines)
-		var lines = ""
-		var line = ""
-		for word in text.split(" "):
-			if font.get_string_size(line+word,HORIZONTAL_ALIGNMENT_LEFT,-1,17).x>615:
-				lines += line+"\n"
-				line = ""
-			line += word+" "
-		c.draw_multiline_string(font,Vector2(580,270),lines+line,HORIZONTAL_ALIGNMENT_LEFT,620,17,5,Color("e7eee2"))
+		# Header-only notification: never cover the playable rectangle (y=180..780).
+		var text=progress_summary
+		if font.get_string_size(text,HORIZONTAL_ALIGNMENT_LEFT,-1,14).x>900:
+			while text.length()>0 and font.get_string_size(text+"...",HORIZONTAL_ALIGNMENT_LEFT,-1,14).x>900: text=text.left(text.length()-1)
+			text+="..."
+		c.draw_string(font,Vector2(40,63),text,HORIZONTAL_ALIGNMENT_LEFT,900,14,Color("b9ddff"))
 
 func chapter_tests():
 	var snapshot = data.duplicate(true)
@@ -1034,8 +1040,10 @@ func chapter_tests():
 	c.check(c.player.data.level==8 and c.player.data.moves.any(func(move):return move.id=="ember"),"Live fighter gets new level and learned move before next opponent")
 	c.check("learned Ember" in " ".join(progress_lines),"New skill notification names learned move")
 	var experience = data.party[0].xp
+	var earned_evs=data.party[0].get("training",{}).duplicate(true)
 	record_knockout()
 	c.check(data.party[0].xp==experience,"KO XP is credited only once")
+	c.check(data.party[0].training==earned_evs,"KO EVs are credited only once")
 	c.advance_team()
 	c.check(c.enemy.data.id==39,"Next opponent enters after XP award")
 	c.enemy.hp = 0
@@ -1065,6 +1073,14 @@ func chapter_tests():
 	save()
 	load_save()
 	c.check(data.map==8 and data.cascade and data.rocket,"Chapter 2 progress survives save reload")
+	data.party=[new_mon(25,10)]
+	var gold=data.money
+	begin_battle("wild",[16],[5]); c.enemy.hp=0; c.finish_round(); c.shots.clear(); c.result_time=10
+	record_knockout(); var wild_evs=data.party[0].training.duplicate(true)
+	return_world()
+	c.check(data.money==gold,"Wild Pokemon victories award no money")
+	c.check(dialog=="" and not in_battle,"Wild victories return silently to the map")
+	c.check(int(data.party[0].training.spe)==1 and data.party[0].training==wild_evs,"Wild KO awards species EVs once across return to map")
 	data = snapshot
 	evolutions.clear()
 	progress_time = 0
