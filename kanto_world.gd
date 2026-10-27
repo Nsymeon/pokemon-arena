@@ -130,6 +130,7 @@ func tick(dt):
 		if stepping:
 			advance_step(dt)
 			update_camera(); a.queue_redraw(); return
+		if scenes.check_oak_intro(): return
 		if try_warp(): return
 		if scenes.detect_trainer(): return
 		if events.tick(dt):

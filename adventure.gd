@@ -206,8 +206,8 @@ func leave():
 	c.frontend.show_modes()
 
 func objective() -> String:
-	if data.starter == 0: return "Speak to Oak and choose your starter."
-	if not data.rival: return "Challenge Blue near the north exit of Pallet Town."
+	if data.starter == 0: return "Head toward the tall grass north of Pallet Town."
+	if not data.rival: return "Battle Blue in Oak's lab."
 	if not data.bug_catcher: return "Travel north: Route 1, Viridian City, then the forest."
 	if not data.badge: return "Reach Pewter City and defeat Brock for the Boulder Badge."
 	if not data.get("rocket",false): return "Boulder Badge earned! Head north: Route 3, then Mt. Moon."
@@ -393,8 +393,9 @@ func choose_starter(id: int):
 	data.starter = id
 	data.party = [new_mon(id,5)]
 	clear_ui()
-	dialog = "Oak: " + mon_name(id) + " is your partner! Take 10 Poke Balls. Blue is waiting near the north path."
+	dialog = "Oak: " + mon_name(id) + " is your partner!"
 	save()
+	if world.enabled and world.current=="MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB": world.scenes.starter_battle()
 
 func mon_name(id: int) -> String:
 	return c.roster[c.Dex.find_id(c.roster,id)].name

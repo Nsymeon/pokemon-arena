@@ -52,13 +52,28 @@ func finish():
 func entrance():
 	if w.current=="MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB" and a.data.starter==0:
 		play([{"text":"OAK: Welcome to my laboratory. A Pokemon partner will keep you safe on your journey.","duration":3.2},{"text":"OAK: Choose Bulbasaur, Charmander or Squirtle.","duration":2.2}],a.starter_menu)
+	elif w.current=="MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB" and not a.data.rival:
+		starter_battle()
 	elif w.current=="MAP_POKEMON_LEAGUE_HALL_OF_FAME" and a.Finale.has(a,"champion"):
 		play([{"text":"OAK: You and your Pokemon have earned your place here.","duration":3.0},{"text":"HALL OF FAME — Your winning team is recorded. Congratulations, Champion!","duration":3.5}],Callable(),"scene:hall_of_fame")
+
+func check_oak_intro() -> bool:
+	if w.current=="MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB" and not a.data.rival:
+		entrance()
+		return active
+	if a.data.starter!=0 or w.current!="MAP_PALLET_TOWN" or a.position_world.y>w.TILE: return false
+	oak_rescue()
+	return true
 
 func oak_rescue():
 	var target=w.walkable(a.position_world+Vector2.DOWN*w.TILE)
 	var origin=w.walkable(target+Vector2.DOWN*w.TILE*2)
 	play([{"text":"OAK: Wait! Wild Pokemon live beyond the town!","duration":1.7},{"actor":{"key":"scene_oak","gfx":"prof_oak","from":origin,"to":target},"text":"OAK: Come with me. You need a Pokemon of your own.","duration":2.2}],func():w.enter("MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB",Vector2(6.5,9.5)*w.TILE))
+
+func starter_battle():
+	if a.data.starter==0 or a.data.rival or a.in_battle: return
+	var rival_id=7 if a.data.starter==4 else 4 if a.data.starter==1 else 1
+	play([{"text":"BLUE: I'll take "+a.mon_name(rival_id)+"!","duration":2.0},{"text":"BLUE: Wait! Let's check out our Pokemon! Come on, I'll take you on!","duration":2.5}],func():a.begin_battle("rival",[rival_id],[5]))
 
 func quest(id: String) -> bool:
 	if id=="late_task_tower_ghost": return a.field.ghost()
@@ -189,6 +204,20 @@ func tests():
 	var old_latch=w.warp_latch
 	a.save_allowed=false
 	reset()
+	w.current="MAP_PALLET_TOWN"; w.events.refresh()
+	a.data.starter=0; a.position_world=Vector2(12.5,0.5)*w.TILE
+	a.c.check(check_oak_intro() and active,"Oak intercepts northern approach before mouse movement hits map boundary")
+	reset(); a.data.starter=4
+	a.c.check(not check_oak_intro(),"Oak does not stop a trainer who already has a starter")
+	var old_battle=a.in_battle; a.in_battle=false; a.data.rival=false
+	for pair in [[1,4],[4,7],[7,1]]:
+		a.data.starter=pair[0]; starter_battle()
+		a.c.check(active and str(sequence[0].text).contains(a.mon_name(pair[1])) and completion.is_valid(),"Starter introduction gives Blue the counter starter")
+		reset()
+	a.data.rival=true; starter_battle()
+	a.c.check(not active,"Completed first rival battle does not replay")
+	a.in_battle=old_battle; a.data=before.duplicate(true)
+
 	w.current="MAP_ROUTE1"; w.events.refresh()
 	var terrain=w.events.catalog[w.current].behavior
 	var grass=-1; var road=-1

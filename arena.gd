@@ -1398,7 +1398,7 @@ func draw_moves():
 			label_at("%.1fs" % remaining, Vector2(x + 184, 720), 12, GOLD)
 	panel(Rect2(1028, 678, 212, 78), Color("142831"))
 	label_at(controls.text("sprint")+" / SPRINT", Vector2(1042, 704), 16, MINT)
-	label_at("HOLD / +35% SPEED", Vector2(1042, 731), 12, WHITE)
+	label_at(("TOGGLE" if controls.run_toggle else "HOLD")+" / +35% SPEED", Vector2(1042, 731), 12, WHITE)
 	label_at("Move: "+controls.text("up")+", "+controls.text("left")+", "+controls.text("down")+", "+controls.text("right")+" / "+controls.text("click_move")+"    Aim: Mouse", Vector2(40, 783), 12, Color("91a6a7"))
 	label_at(controls.text("switch")+": Team  "+controls.text("roster")+": Roster  Esc: Pause", Vector2(945, 783), 11, Color("91a6a7"))
 
