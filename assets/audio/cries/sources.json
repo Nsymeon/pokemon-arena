@@ -1,0 +1,792 @@
+{
+  "1": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/1.ogg",
+    "file": "1.ogg",
+    "sha256": "6233bc22546f161d61240c7eef8494a61c42f8ba56833f96313045d1cbbec575"
+  },
+  "2": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/2.ogg",
+    "file": "2.ogg",
+    "sha256": "7cd88c8b0c4b9186cfeb29696b25fd4443d81619d1d85c8bebf48dfc19740da2"
+  },
+  "3": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/3.ogg",
+    "file": "3.ogg",
+    "sha256": "a1abf616f8f1391c174d4d2c92ecc6e241ec3bbdc8b9020942678d6eec67e8f4"
+  },
+  "4": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/4.ogg",
+    "file": "4.ogg",
+    "sha256": "bdb41cecd5a948ee4b19e4e13156abcbdb2bd3e9c9f458d65fe2c64a87fd852e"
+  },
+  "5": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/5.ogg",
+    "file": "5.ogg",
+    "sha256": "e2a6fc5d5e96d7b0796153da39a4d3c0aa1f3c95360ca4512f23e717600a0fb3"
+  },
+  "6": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/6.ogg",
+    "file": "6.ogg",
+    "sha256": "110f91526342399a6a8d5e5c7d12b76ad85e925bce509d7fd4d2459930df09cf"
+  },
+  "7": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/7.ogg",
+    "file": "7.ogg",
+    "sha256": "6c2603df20b277bf2e814a5a3b292bdb404d47ada67ab769ff9bee59d3f38631"
+  },
+  "8": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/8.ogg",
+    "file": "8.ogg",
+    "sha256": "1685aaa5e05edf822b016f21f2334eb00ecf6f6e4a6858807846a91c96e4cdf3"
+  },
+  "9": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/9.ogg",
+    "file": "9.ogg",
+    "sha256": "66e47fa494ae7217676fceff69bdf59f6399d87143cbde29cc7958e2565325ec"
+  },
+  "10": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/10.ogg",
+    "file": "10.ogg",
+    "sha256": "759a0def7b76f0ee879ba789d1747bca485942dc8d0cda89174666444cbf2569"
+  },
+  "11": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/11.ogg",
+    "file": "11.ogg",
+    "sha256": "876f4039b177ec5e28a6c8b8c5b8e7ef20e4ae1f8a627e688dd8fd491d100411"
+  },
+  "12": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/12.ogg",
+    "file": "12.ogg",
+    "sha256": "a761dc3185c3063b835dcfd21999b0bed78e20957f9226b5918056fac0d014a5"
+  },
+  "13": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/13.ogg",
+    "file": "13.ogg",
+    "sha256": "3e251df454a539df43ecdbd75451dbedfeb3b4fb26e0066ffe1f724ddf18af5a"
+  },
+  "14": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/14.ogg",
+    "file": "14.ogg",
+    "sha256": "0ea229bf95f0ba687a1d4f017745f0d3a485c7951e2bbf474bd61096702a3765"
+  },
+  "15": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/15.ogg",
+    "file": "15.ogg",
+    "sha256": "8e34434be0eba2c6fbfd56a28d8f65aff2bcfdcea7b8895e1f6650be66eac238"
+  },
+  "16": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/16.ogg",
+    "file": "16.ogg",
+    "sha256": "84e599c9bdfc9315e55f78cfaf3262ad0958bdb671239c877a2d9e647d659842"
+  },
+  "17": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/17.ogg",
+    "file": "17.ogg",
+    "sha256": "0474bf8634b6d05833675f52bafce1cd1bd187bf7a97b600a69710576023e08f"
+  },
+  "18": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/18.ogg",
+    "file": "18.ogg",
+    "sha256": "c5b426b8fcc183d5bdb44ca3db066670b4ac1a60619680943f323c70744fbdfb"
+  },
+  "19": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/19.ogg",
+    "file": "19.ogg",
+    "sha256": "252a292bb738a55eeebc3955a111932fae8f400d199fa6d30105418a9af961b4"
+  },
+  "20": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/20.ogg",
+    "file": "20.ogg",
+    "sha256": "9a086a30b3f0404050d0778b26426463c3f5d1324fa1a5e5d254b0da23a49eee"
+  },
+  "21": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/21.ogg",
+    "file": "21.ogg",
+    "sha256": "6461f7d577430fb049afec8da647cc58ddf9c472b582218fecc39a2d3d219c04"
+  },
+  "22": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/22.ogg",
+    "file": "22.ogg",
+    "sha256": "d62981ad1fc9d59334d46c0ccf7c6977af118950a313ed026a2d2699e9704665"
+  },
+  "23": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/23.ogg",
+    "file": "23.ogg",
+    "sha256": "233d7aeab65f325721755e7db57b089b3a2c1b095536b783dc4e57eceb018ed3"
+  },
+  "24": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/24.ogg",
+    "file": "24.ogg",
+    "sha256": "2763ba38d68e41e5d3c1a7ae08057435ee7e867e6bf8f3023c9fdf7081b370bc"
+  },
+  "25": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/25.ogg",
+    "file": "25.mp3",
+    "sha256": "1ec10c893184b155a110d746ff0560f291978f32ce90c283b9871e61d6df12a1"
+  },
+  "26": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/26.ogg",
+    "file": "26.ogg",
+    "sha256": "53d2fc13471e005befab71dd5a92fbdd96ee64e3c8152d448e6094dbb9375e08"
+  },
+  "27": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/27.ogg",
+    "file": "27.ogg",
+    "sha256": "c951a4e39a35d7423f35c1d0b32c6183c600bf6bdb3c5aa4b1a2513fb8cafb47"
+  },
+  "28": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/28.ogg",
+    "file": "28.ogg",
+    "sha256": "65fef01c1e7d9d4f94384f43885b825d6456b0734871f7fe94cc944602a4c25d"
+  },
+  "29": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/29.ogg",
+    "file": "29.ogg",
+    "sha256": "9f71edc9874f2f4664160dfd060c36acb770489e7aca6f3ca567661325f859eb"
+  },
+  "30": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/30.ogg",
+    "file": "30.ogg",
+    "sha256": "940db365336e24ec0a908c82af2a5e2104ec05de00ce0fe0c5a7655439c5ec19"
+  },
+  "31": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/31.ogg",
+    "file": "31.ogg",
+    "sha256": "e12e352ccfb4e2f213a3940448142e00d13c315f8ec79fa80daaf93115f29da0"
+  },
+  "32": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/32.ogg",
+    "file": "32.ogg",
+    "sha256": "4400b2b7b6480abc96704b56e28bcf10a0f9184a9f3fb0ca414bfdc5f9cc7ca6"
+  },
+  "33": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/33.ogg",
+    "file": "33.ogg",
+    "sha256": "23015aa3dce74c7452bbedbb4c56e82bf38178663a92b00462059b15d39a8c1f"
+  },
+  "34": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/34.ogg",
+    "file": "34.ogg",
+    "sha256": "4c1a738152d6671a31eccabd6dd20924a2be8d16cc10d6d3a63cd6cb0cd4aed8"
+  },
+  "35": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/35.ogg",
+    "file": "35.ogg",
+    "sha256": "5c70de9ad505876d6f7ce4c6fd7d77682f63feead4473476155d9801641dada8"
+  },
+  "36": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/36.ogg",
+    "file": "36.ogg",
+    "sha256": "4a4f4bb3df0174b01678f12f031021ec3e955bd567b5eb12c9ff67c2476a55d1"
+  },
+  "37": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/37.ogg",
+    "file": "37.ogg",
+    "sha256": "b489cb4ac7b3ec393dc4ae774b218bfd4007be3e7db6402165ccb6969eeb974a"
+  },
+  "38": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/38.ogg",
+    "file": "38.ogg",
+    "sha256": "04fe646545cba8f326f4091502db48f1b8b177ff0b765dfb3ae97200d1cf1f99"
+  },
+  "39": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/39.ogg",
+    "file": "39.ogg",
+    "sha256": "f58caea1a748e1cffef27d3977802cc5145e59b9647417f57ff762fe6187e7b3"
+  },
+  "40": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/40.ogg",
+    "file": "40.ogg",
+    "sha256": "0e43489d044b2f4d3ef1821c26f5e787b6b42b3940da74b46dbb5976d4709108"
+  },
+  "41": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/41.ogg",
+    "file": "41.ogg",
+    "sha256": "c81952f1be5539c2c5cd6191c9319f61fe5cd630216bba6c703a009ff3c3295b"
+  },
+  "42": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/42.ogg",
+    "file": "42.ogg",
+    "sha256": "8840b339ef564cc5f7ba1c2416a7a91a8157b61744ca3b5a384586e4750d69ad"
+  },
+  "43": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/43.ogg",
+    "file": "43.ogg",
+    "sha256": "f74f25d48fde5e46b6d746a94d641380e00e5d3f65a870da5db5c4def245b4ce"
+  },
+  "44": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/44.ogg",
+    "file": "44.ogg",
+    "sha256": "2c43ed582ddea25b896ae8effe9b154df62ca3e378fa25bbeed5342d247d820b"
+  },
+  "45": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/45.ogg",
+    "file": "45.ogg",
+    "sha256": "850c7c332329319858a4d98a2fdad34cd521c532fdc2cc9eb659ec8a6f58d002"
+  },
+  "46": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/46.ogg",
+    "file": "46.ogg",
+    "sha256": "e2509c05c2a9fc7383c3274b5f0ca05d69d992f8711fac4ddaf3056c73f96d92"
+  },
+  "47": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/47.ogg",
+    "file": "47.ogg",
+    "sha256": "a1fdfe938f6ebb4d5fb747d405805525940a23be14a2d030a8b06c7f7dd313e2"
+  },
+  "48": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/48.ogg",
+    "file": "48.ogg",
+    "sha256": "0e6bac693e83ef11573d3dddceed3d3e5a1cf97a7b1f373137edc327450ea073"
+  },
+  "49": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/49.ogg",
+    "file": "49.ogg",
+    "sha256": "f7dbbcc00ac8881c18927818f1d9c4edf89e3c63d17c00286fc4e8d2c335135e"
+  },
+  "50": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/50.ogg",
+    "file": "50.ogg",
+    "sha256": "ce6b04d043f5d02ee45c10b524cee241752fc3769cee46fa7f0ba7d215d27426"
+  },
+  "51": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/51.ogg",
+    "file": "51.ogg",
+    "sha256": "ec50216087ef7cf12ba67ca4121d198932a95e321d9e06f0dd2bd5de2cfc8ae8"
+  },
+  "52": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/52.ogg",
+    "file": "52.ogg",
+    "sha256": "4718dca5902584f6bb243589e0dd57bb189ce5373d594ebd741ad8a6544302dd"
+  },
+  "53": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/53.ogg",
+    "file": "53.ogg",
+    "sha256": "2b0aaea961449b26e8e525fa848ed1b14087de93ab3977a882fe019e0a733540"
+  },
+  "54": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/54.ogg",
+    "file": "54.ogg",
+    "sha256": "2313b1749ba446f7ad5634dafed46b6b72dde6cad5dad4529b45cc17b4f5b306"
+  },
+  "55": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/55.ogg",
+    "file": "55.ogg",
+    "sha256": "126dfd2c19b3b54c3d68d6c684e61a9cf52d89fd6558112eda311a6aa4ff2be5"
+  },
+  "56": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/56.ogg",
+    "file": "56.ogg",
+    "sha256": "1a8e1964ff409f0e5dde0530e4e0030a6cf035149ce01397a35d6bbf157fbfff"
+  },
+  "57": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/57.ogg",
+    "file": "57.ogg",
+    "sha256": "bebea5e611630524f836cb1f55490d50ff4fa19a21936d00c3a52b533971ad49"
+  },
+  "58": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/58.ogg",
+    "file": "58.ogg",
+    "sha256": "a4bcc703435473eb0e779c137ea9a1bef3046b95c57aa943623eeb2c7463ae9e"
+  },
+  "59": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/59.ogg",
+    "file": "59.ogg",
+    "sha256": "2d11c767abee554b1aad9f35d35dc01f8ddc9790e1793780313d991e6080b398"
+  },
+  "60": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/60.ogg",
+    "file": "60.ogg",
+    "sha256": "cbf72888566fe82a1718b174a85b891d8c6e5c5757b4ad72c43857dabead0fd3"
+  },
+  "61": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/61.ogg",
+    "file": "61.ogg",
+    "sha256": "fd14fee36d7e97f0ffe1dec7d7e5db48c56cff081261df454e920b2519b72998"
+  },
+  "62": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/62.ogg",
+    "file": "62.ogg",
+    "sha256": "961ea5a1245e6db5a458c1e2e10533d4338c009530d3d9ffbc4d7651c2b28173"
+  },
+  "63": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/63.ogg",
+    "file": "63.ogg",
+    "sha256": "38289424bbf67cd3aa6964f0930c399ff57a3b229d52a5ec9d009d5f717ff640"
+  },
+  "64": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/64.ogg",
+    "file": "64.ogg",
+    "sha256": "075313e521a091759881178feb6894b9f4ef235baa3fe927ea87c1dec7790db8"
+  },
+  "65": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/65.ogg",
+    "file": "65.ogg",
+    "sha256": "f3c2b3c76d1b2958acb0ea0a2cc8486eb64a83e96d4db7e5c719446489408f4a"
+  },
+  "66": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/66.ogg",
+    "file": "66.ogg",
+    "sha256": "556723d768886667d303ca2697892873341bc48ecc0f1a740d706631d34af547"
+  },
+  "67": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/67.ogg",
+    "file": "67.ogg",
+    "sha256": "164a8674e652622df0678937cac1ee5f1d177527e13070926542c3d7314a13b6"
+  },
+  "68": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/68.ogg",
+    "file": "68.ogg",
+    "sha256": "69f2493fedcc7120d2ffa83b6f194d4335c26186c9d23af6c26c8b93c29c3a42"
+  },
+  "69": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/69.ogg",
+    "file": "69.ogg",
+    "sha256": "5077af50db7e5c009dc257da5024e8addb574f6234a78662f8ec0174301106be"
+  },
+  "70": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/70.ogg",
+    "file": "70.ogg",
+    "sha256": "71bd872a8e452a04b48f5a5f25725f295162c90acd6013f3cc2a5a7750e65353"
+  },
+  "71": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/71.ogg",
+    "file": "71.ogg",
+    "sha256": "09ae2c028fe2a4bf8cc4b6c22a0fece00c2ccf48b4c3f2852a49d0391137e623"
+  },
+  "72": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/72.ogg",
+    "file": "72.ogg",
+    "sha256": "07ca79ffcb6bc2329de36d86db25e87a90cf15a3de0e809a4bd93a520f460647"
+  },
+  "73": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/73.ogg",
+    "file": "73.ogg",
+    "sha256": "4547cc22831b2a0c12cae2dad5667861946a0669349347af51312df54199bef3"
+  },
+  "74": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/74.ogg",
+    "file": "74.ogg",
+    "sha256": "9e4f3a50a436e796a3d74804a9c07daa92004f3740f629e73ff50778a85f63bf"
+  },
+  "75": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/75.ogg",
+    "file": "75.ogg",
+    "sha256": "a0a1bae8a472d8281829c4d920a61ac52ac8bfc73b267ece761c99c147f6be1a"
+  },
+  "76": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/76.ogg",
+    "file": "76.ogg",
+    "sha256": "c91ce4b0abcc0f548d71899bf54a199f34ae3cc41d61572ae533c7ddbeb122c9"
+  },
+  "77": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/77.ogg",
+    "file": "77.ogg",
+    "sha256": "3a86fca487b28ccb487d93a5cdda2eab5fdf5947f46e5ea9c5ed08050d277ad2"
+  },
+  "78": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/78.ogg",
+    "file": "78.ogg",
+    "sha256": "017424186f8f8adfdf4d6b9ca2d6cf4a2962373a183bf8efc7964ff84459841b"
+  },
+  "79": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/79.ogg",
+    "file": "79.ogg",
+    "sha256": "f9c5b592e2bc343781be0663036270a47d091306ee58dd857df2885d0a6ae538"
+  },
+  "80": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/80.ogg",
+    "file": "80.ogg",
+    "sha256": "06f066b41f87899ef765e7c0ce8dac27ed07152a6cecd413cd2826cbdea2c4b3"
+  },
+  "81": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/81.ogg",
+    "file": "81.ogg",
+    "sha256": "6e5c47a9637d1440dad263280281ecb6abad8fd22009c436ddc965890d620b1f"
+  },
+  "82": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/82.ogg",
+    "file": "82.ogg",
+    "sha256": "f323ffdeecdfa27db540f342df71d4f919a30a12f4591cae13149de6672c0842"
+  },
+  "83": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/83.ogg",
+    "file": "83.ogg",
+    "sha256": "851dfc31aa191ecbbc48b5f95534738874d4b1572331a4679323268535c003db"
+  },
+  "84": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/84.ogg",
+    "file": "84.ogg",
+    "sha256": "1c94a04c3f3b62dc2b55239f9cf87caf7b7dd82abc48a24c4ead05d6b5415b10"
+  },
+  "85": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/85.ogg",
+    "file": "85.ogg",
+    "sha256": "90c693dd2656350bfedfbde7f08fb4417571cd9a922abd3bfdf94aec3a2813d5"
+  },
+  "86": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/86.ogg",
+    "file": "86.ogg",
+    "sha256": "0e74d863b42fb94d9c8440de800932c916bd22c5dd06b3c9b18ef5c8c233b29a"
+  },
+  "87": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/87.ogg",
+    "file": "87.ogg",
+    "sha256": "1a785d88888c0fb222aff65cc9e03c0adc1586ab9414129a8afddce6572f1c44"
+  },
+  "88": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/88.ogg",
+    "file": "88.ogg",
+    "sha256": "b54920f191299b9df28ad5e45421d308b336c952c6bac283aaf9546e1cfd73b8"
+  },
+  "89": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/89.ogg",
+    "file": "89.ogg",
+    "sha256": "f5af97a828f732794ca077dfa246aa958d1ef97074feb5f92d8697a38ce3da7e"
+  },
+  "90": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/90.ogg",
+    "file": "90.ogg",
+    "sha256": "e5dad4965f9ad6bcaa416f6d94a612be136e92968ebfa01fdaf54cfc1a0aade5"
+  },
+  "91": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/91.ogg",
+    "file": "91.ogg",
+    "sha256": "d893eb8d08bb8fe8be1ed41d285e16a33f0d32f7462bcf7616f04d112ef97319"
+  },
+  "92": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/92.ogg",
+    "file": "92.ogg",
+    "sha256": "3829dd291fc9b08f82981fca3c469f33d07f17af5c07f84f949272d819a6a318"
+  },
+  "93": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/93.ogg",
+    "file": "93.ogg",
+    "sha256": "9b7cc740782f43d26b648f42b378c592dce66af24d9241c1c7ba509add1171b9"
+  },
+  "94": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/94.ogg",
+    "file": "94.ogg",
+    "sha256": "d44d4a6c9e6e276a20ba7a3be3256f5da0e1caf1ff01b51183dedad3dd8bead8"
+  },
+  "95": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/95.ogg",
+    "file": "95.ogg",
+    "sha256": "dc10a195219d228c60de61041816c9d38916b85096a3fa3933614169f2ca66cb"
+  },
+  "96": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/96.ogg",
+    "file": "96.ogg",
+    "sha256": "f03c18ad8953ec76fcac35bab185b4196c16b7793585e30a5b38b8772d574f12"
+  },
+  "97": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/97.ogg",
+    "file": "97.ogg",
+    "sha256": "ad876741676c89f843ee046fbec8dbdab7592169be35f0bd6d980bf4d07d411c"
+  },
+  "98": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/98.ogg",
+    "file": "98.ogg",
+    "sha256": "4ff08568eb417bee9b117e2b4085427ef82e598088d6bd19194a23de00cc4fe9"
+  },
+  "99": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/99.ogg",
+    "file": "99.ogg",
+    "sha256": "c38f0bf1e7d4615a22bf3d2b6805df47c0bb97230a36bace4cb864e6417f1886"
+  },
+  "100": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/100.ogg",
+    "file": "100.ogg",
+    "sha256": "7c5dfb2a140402ee32df5d2da166a86f119596d5e6f03ad9d6276e0d95c42403"
+  },
+  "101": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/101.ogg",
+    "file": "101.ogg",
+    "sha256": "f373c29018f20ac39d752894b1eeac75994b66054340ff1654aef84d01d5afe5"
+  },
+  "102": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/102.ogg",
+    "file": "102.ogg",
+    "sha256": "c13bcdc271949e02484533989f9cdba39e51ddf9ef2d0a473f1d8c6c1c7a7eae"
+  },
+  "103": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/103.ogg",
+    "file": "103.ogg",
+    "sha256": "c3feb673bb98a493d9151dc0deb5cf7802279ce4640a2a1d84221a746fdc429b"
+  },
+  "104": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/104.ogg",
+    "file": "104.ogg",
+    "sha256": "2e03f5523c100935b82eaf0cbd684d862ed80c0af0796b096979c15580a4fbfa"
+  },
+  "105": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/105.ogg",
+    "file": "105.ogg",
+    "sha256": "ba8f5c9096e0595ee9c684fb1719d584afa88ed0bcb2061494014dc1d9bec5a0"
+  },
+  "106": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/106.ogg",
+    "file": "106.ogg",
+    "sha256": "7495be14589635ab8178138f706b7ab9cdc862d187114908ef2c89580cd72699"
+  },
+  "107": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/107.ogg",
+    "file": "107.ogg",
+    "sha256": "4b0a792dc03e7b683c20c8205495c494cbc21a2bff442dab270a7550f4bdc7bf"
+  },
+  "108": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/108.ogg",
+    "file": "108.ogg",
+    "sha256": "a5132090424007fb4bfe24f457da7b354b0c169901c96db502f2f59e31de7580"
+  },
+  "109": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/109.ogg",
+    "file": "109.ogg",
+    "sha256": "eead6395a9c33af5298db17ea74e7766458cae3e160ba45c17ae368713edcb90"
+  },
+  "110": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/110.ogg",
+    "file": "110.ogg",
+    "sha256": "3b6f5d1f48b6771ae16958e732ce95e1a361eebbf9ad6749cea1d4e61c8e8fdf"
+  },
+  "111": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/111.ogg",
+    "file": "111.ogg",
+    "sha256": "7c9d5ef3d3937cf98bef681171fcb8aa8141904dcd94c6b710f2f72593c1878a"
+  },
+  "112": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/112.ogg",
+    "file": "112.ogg",
+    "sha256": "8e5314a2645724800ce6e5e188ccf3d7bcf046b951f7deea65511831a57c4c8f"
+  },
+  "113": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/113.ogg",
+    "file": "113.ogg",
+    "sha256": "fd4c86559e25018a9e7a9284778821b714b6a160ea85403d9687b9cba3eef1ec"
+  },
+  "114": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/114.ogg",
+    "file": "114.ogg",
+    "sha256": "200f192a87c8e03cda9025c5ee5068b51e575baee77126af41854aadb93861d6"
+  },
+  "115": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/115.ogg",
+    "file": "115.ogg",
+    "sha256": "b9ae9c78948d5a2e42646ac8f3ae951ae66f297cdb8b6a65fa11a9c2f0e023cc"
+  },
+  "116": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/116.ogg",
+    "file": "116.ogg",
+    "sha256": "8310e517146d265acc7db8bb79ea9e0151960d4a8ef71c5ab2bcda31e7fc53dc"
+  },
+  "117": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/117.ogg",
+    "file": "117.ogg",
+    "sha256": "3df8f6df0b5a2b140c45bdea3c60669c1414138cede0f023d5e519b8161542e5"
+  },
+  "118": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/118.ogg",
+    "file": "118.ogg",
+    "sha256": "685d5e8de4577fc9d6541489893bf44752588e8b47ccf0bdefe20c809c15ca1f"
+  },
+  "119": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/119.ogg",
+    "file": "119.ogg",
+    "sha256": "3c0cfb804b47a311181b9d98bfbf1dbbc02c022064d3e9e33e221c7256145f6b"
+  },
+  "120": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/120.ogg",
+    "file": "120.ogg",
+    "sha256": "00e0a3646c47359d9c8ba62826deb1bed41b5cbfea1d10dff1a0d1aaa0f2858a"
+  },
+  "121": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/121.ogg",
+    "file": "121.ogg",
+    "sha256": "c67d959c78a9bc2abed74ed14ae564196788bc5924042e811c031ffa59d72604"
+  },
+  "122": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/122.ogg",
+    "file": "122.ogg",
+    "sha256": "1564b93426341e465f48f0b1af59fd7db41e49d41f0a7dbca8092efb34997719"
+  },
+  "123": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/123.ogg",
+    "file": "123.ogg",
+    "sha256": "b2044be86260e7e05a3cf95b78e931e624c836b64dc41c31dd5ada72b70ffd41"
+  },
+  "124": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/124.ogg",
+    "file": "124.ogg",
+    "sha256": "bbb343f6f15e53201a100a259f68bb4fd2bb1196426f29c635be09b7b97ec1ee"
+  },
+  "125": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/125.ogg",
+    "file": "125.ogg",
+    "sha256": "89fec055d836af8cde57325d19a2e516c4c338238eec102e96c7b377b8cfd27e"
+  },
+  "126": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/126.ogg",
+    "file": "126.ogg",
+    "sha256": "0d92cccdc3e80747a06f25685c02a42001c41cb9f775fae4b07d4b4f775f3df5"
+  },
+  "127": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/127.ogg",
+    "file": "127.ogg",
+    "sha256": "8e85ee92b973e06b72561831fe2eeec6d4b02466cb3c6cdabab326a5b7cae5db"
+  },
+  "128": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/128.ogg",
+    "file": "128.ogg",
+    "sha256": "e1e9708af7a6870d84748aabd521215dcfa7ff973b0638845f5222e17bc08933"
+  },
+  "129": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/129.ogg",
+    "file": "129.ogg",
+    "sha256": "a1b0243112b8d5ff54b5071b8c37ccd942498b07582d35c2cbe49b3328815372"
+  },
+  "130": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/130.ogg",
+    "file": "130.ogg",
+    "sha256": "60fc6b4a60078029293efd90dcf2db2e38dd3f0afd0b0e13406ea3f51642b404"
+  },
+  "131": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/131.ogg",
+    "file": "131.ogg",
+    "sha256": "570e76b9b638ee50d1300ad83bd4dd9cd9466002292d76df467fbccb75811e99"
+  },
+  "132": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/132.ogg",
+    "file": "132.ogg",
+    "sha256": "e57d48ee56a31fe6744f2c155f31b28fbd03e9d2b2797a3359fcf8f929d34c45"
+  },
+  "133": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/133.ogg",
+    "file": "133.ogg",
+    "sha256": "b9dd1a040ed6bd4e9025df476180c7cc82c3187ff21f235b26798ba84992489c"
+  },
+  "134": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/134.ogg",
+    "file": "134.ogg",
+    "sha256": "8954f4acc8658d84620b7eb93d99a21221518d6d5388e667de989ff35dec4c28"
+  },
+  "135": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/135.ogg",
+    "file": "135.ogg",
+    "sha256": "3969e6cfc337fea879d7341fe4a81a8dfae3e0aa5ccd27182873e3685762ae67"
+  },
+  "136": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/136.ogg",
+    "file": "136.ogg",
+    "sha256": "3e93a8b9fbf3d903939508c3b324de6074ed47e2f17595697de8cef7dd63b841"
+  },
+  "137": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/137.ogg",
+    "file": "137.ogg",
+    "sha256": "db8bba5f384070a1481f6697a06057f741baf49b547bd4a845fe1503b3ea3269"
+  },
+  "138": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/138.ogg",
+    "file": "138.ogg",
+    "sha256": "5d836fc478fb23a9da7fe3b7a2a1022b15131b5eac58ba413d72022e1abf0a3d"
+  },
+  "139": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/139.ogg",
+    "file": "139.ogg",
+    "sha256": "b6be8e5e2e8e484d52b74de54b491a8e068e5a9e0a2de41e721d5bf98749d929"
+  },
+  "140": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/140.ogg",
+    "file": "140.ogg",
+    "sha256": "68a30ce203a0046e94abb749c35ff77f5f75097a6fe715e6e5b63f130286da13"
+  },
+  "141": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/141.ogg",
+    "file": "141.ogg",
+    "sha256": "bad5a9d850761946e1c7a368183f920eb6f3a31365109c4f14d08b1a06b4ab86"
+  },
+  "142": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/142.ogg",
+    "file": "142.ogg",
+    "sha256": "a87eee32cca948329f278047157d446e9602ba81c650ea225d653d3213b92af3"
+  },
+  "143": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/143.ogg",
+    "file": "143.ogg",
+    "sha256": "2ee3f95fd3102e7cd8a6e0e429170acaf8674032eff9c9ad119f7011260cfc7e"
+  },
+  "144": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/144.ogg",
+    "file": "144.ogg",
+    "sha256": "374612dfbb0a5c7e7721b9698553fc15909c0ab2b49be9eeb3385e7558d9730b"
+  },
+  "145": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/145.ogg",
+    "file": "145.ogg",
+    "sha256": "14170397636113ab7ad532bf7adff189344fbfcfd296d6f02f9a64cc915344ff"
+  },
+  "146": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/146.ogg",
+    "file": "146.ogg",
+    "sha256": "6a7b2df55ae4fcce64b1d50f8f0b1d7a62ba9424e9be36b36116817b8a423da9"
+  },
+  "147": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/147.ogg",
+    "file": "147.ogg",
+    "sha256": "75c51de6bbf6fb37bb3362926588a8b4632b453e755a759f1bdbffe7930fd9f9"
+  },
+  "148": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/148.ogg",
+    "file": "148.ogg",
+    "sha256": "d34251b8f63c26b610f2adde50eeff895061cad974862379a9a7d198ec69a91c"
+  },
+  "149": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/149.ogg",
+    "file": "149.ogg",
+    "sha256": "ec18d152596b92ea1ecdfed88b64a095f5ee5a5242dfa9472079ef8fb11d5e99"
+  },
+  "150": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/150.ogg",
+    "file": "150.ogg",
+    "sha256": "84b90df6aff3484ba3eab06a57a5108c84f636b59e8f1a284a5e410ac01f2bbe"
+  },
+  "151": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/151.ogg",
+    "file": "151.ogg",
+    "sha256": "67135848fe7529c10dd09c140a0113b49902502260e1999751e4ae8287864835"
+  },
+  "152": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/152.ogg",
+    "file": "152.ogg",
+    "sha256": "a0c156d8971231126187aaca7c59d9bfe7a1868665d74db6aa521e0bd5c5c9c2"
+  },
+  "185": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/185.ogg",
+    "file": "185.ogg",
+    "sha256": "3359eb5b1b68b6cfb628206427aeca78a820dcf13401dc9f363078274784c8b3"
+  },
+  "197": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/197.ogg",
+    "file": "197.ogg",
+    "sha256": "27f1903b20a71d3a4b9e03c03dd9f35cee3547873e929f68ee124152925b1554"
+  },
+  "355": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/355.ogg",
+    "file": "355.ogg",
+    "sha256": "51ecd26e4730db87c2ab27a64ac15f89856eaae7ad7bc3e807697583f71e3e98"
+  },
+  "361": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/361.ogg",
+    "file": "361.ogg",
+    "sha256": "0c757219c73e4c48332e81c36c24220f35c54438c64e88b95d87f1bf9f43a5c1"
+  },
+  "599": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/599.ogg",
+    "file": "599.ogg",
+    "sha256": "8503f0fc26abb9e4d5d9a20d35f690838c28205958afc5db38575c06395e0f09"
+  },
+  "821": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/821.ogg",
+    "file": "821.ogg",
+    "sha256": "ad692f1926b55bc09dc1754cbd7bb8fff36a6c16b93976487b9a699d7e1822ff"
+  }
+}

@@ -2,6 +2,7 @@ extends RefCounted
 var a
 const STONES={"moonstone":{30:31,33:34,35:36,39:40},"firestone":{37:38,58:59,133:136},"waterstone":{61:62,90:91,120:121,133:134},"thunderstone":{25:26,133:135},"leafstone":{44:45,70:71,102:103}}
 const VITAMINS={"hpup":"hp","protein":"atk","iron":"def","calcium":"spa","zinc":"spd","carbos":"spe"}
+const EV_BERRIES={"pomegberry":"hp","kelpsyberry":"atk","qualotberry":"def","hondewberry":"spa","grepaberry":"spd","tamatoberry":"spe"}
 const XITEMS={"xattack":"atk","xdefend":"def","xspecial":"spa","xspeed":"spe","xaccuracy":"accuracy"}
 const TREASURES={"nugget":5000,"bigpearl":3750,"pearl":700,"stardust":1000,"starpiece":4900}
 const HELD=["blackglasses","quickclaw","cleansetag","silkscarf","laxincense","seaincense","metalcoat","nevermeltice","kingsrock","luckypunch","dragonscale"]
@@ -27,6 +28,7 @@ var catalog={
 }
 
 func _init():
+	for id in EV_BERRIES: catalog[id]={"name":id.trim_suffix("berry").capitalize()+" Berry / -10 "+str(EV_BERRIES[id]).to_upper()+" EVs","price":200}
 	for id in STONES: catalog[id]={"name":id.trim_suffix("stone").capitalize()+" Stone / evolve compatible Pokemon","price":2100 if id!="moonstone" else 0}
 	for id in VITAMINS: catalog[id]={"name":id.capitalize()+" / permanent "+str(VITAMINS[id]).to_upper()+" training","price":9800}
 	for id in XITEMS: catalog[id]={"name":id.capitalize()+" / battle stat boost","price":500}
@@ -51,7 +53,7 @@ func valid(data) -> bool:
 	return true
 
 func targets(id):
-	if a.in_battle and (id in STONES or id in VITAMINS or id in HELD or id in TREASURES or id in ["rarecandy","ppup","escaperope","repel","maxrepel","upgrade","sunstone"]):
+	if a.in_battle and (id in STONES or id in VITAMINS or id in EV_BERRIES or id in HELD or id in TREASURES or id in ["rarecandy","ppup","escaperope","repel","maxrepel","upgrade","sunstone"]):
 		a.clear_ui(); a.c.notice="Use this item outside battle."; a.c.notice_time=2; return
 	if id=="escaperope": a.field.escape(); return
 	if id in ["repel","maxrepel"]:
@@ -80,7 +82,7 @@ func unavailable() -> bool:
 func use(id,slot) -> bool:
 	if not catalog.has(id) or int(a.data.bag.get(id,0))<=0 or slot<0 or slot>=a.data.party.size(): return false
 	if a.in_battle:
-		if id in STONES or id in VITAMINS or id in HELD or id=="rarecandy": return unavailable()
+		if id in STONES or id in VITAMINS or id in EV_BERRIES or id in HELD or id=="rarecandy": return unavailable()
 		if a.c.result!="" or a.c.countdown>0 or a.capture_time>0 or a.c.switch_time>=0 or a.c.player.get("action_lock",0)>0 or a.c.player.get("charge_left",0)>0: return false
 		a.sync_health()
 	var mon=a.data.party[slot]
@@ -91,6 +93,7 @@ func use(id,slot) -> bool:
 	elif id=="maxrevive" and mon.hp<=0: mon.hp=1.0; success=true
 	elif catalog[id].has("heal") and mon.hp>0 and mon.hp<1: mon.hp=minf(1,mon.hp+catalog[id].heal); success=true
 	elif id in STONES and STONES[id].has(int(mon.id)):
+		a.collection.register(mon)
 		var old=int(mon.id); mon.id=STONES[id][old]; a.c.abilities.assign(mon)
 		a.evolutions.append([old,int(mon.id),mon.get("shiny",false)])
 		a.inventory.level_up(mon,old,int(mon.level)); success=true
@@ -99,6 +102,9 @@ func use(id,slot) -> bool:
 		a.data.party=[mon]
 		a.dialog=a.grant_xp(a.xp_needed(mon)-int(mon.xp))
 		a.data.party=party; success=true
+	elif id in EV_BERRIES:
+		var training=mon.get("training",{}); var stat=EV_BERRIES[id]
+		if int(training.get(stat,0))>0: training[stat]=maxi(0,int(training[stat])-10); mon["training"]=training; success=true
 	elif id in VITAMINS:
 		var training=mon.get("training",{}); var stat=VITAMINS[id]; var total=0
 		for amount in training.values(): total+=int(amount)

@@ -14,6 +14,7 @@ var save_path = SAVE_PATH
 var save_error = ""
 var save_allowed = true
 var c
+var collection=preload("res://pokemon_collection.gd").new()
 var extras=preload("res://adventure_items.gd").new()
 var sevii=preload("res://adventure_sevii.gd").new()
 var services=preload("res://adventure_services.gd").new()
@@ -46,6 +47,7 @@ var font: Font
 
 func install(context):
 	c = context
+	collection.a=self
 	extras.a = self
 	field.a = self
 	services.a = self
@@ -103,7 +105,7 @@ func valid(value) -> bool:
 	if not Finale.valid(value): return false
 	for member in value.get("hall_of_fame",[]):
 		if not c.roster.any(func(mon):return int(mon.id)==int(member.id)): return false
-	return inventory.valid(value) and extras.valid(value) and Story.valid(value) and services.valid(value)
+	return collection.valid(value) and inventory.valid(value) and extras.valid(value) and Story.valid(value) and services.valid(value)
 
 func load_save():
 	loaded = true
@@ -132,6 +134,7 @@ func load_save():
 		save_allowed = false
 
 func save() -> bool:
+	collection.sync()
 	if not save_allowed: return false
 	data.x = position_world.x
 	data.y = position_world.y
@@ -377,6 +380,7 @@ func new_mon(id: int, level: int) -> Dictionary:
 	var mon={"id":id,"level":level,"xp":0,"hp":1.0,"moves":inventory.starting(id,level),"pending":[],"ailment":""}
 	c.abilities.assign(mon,true)
 	c.ivs.assign(mon)
+	collection.assign(mon,true)
 	return mon
 
 func choose_starter(id: int):
@@ -410,6 +414,10 @@ func battle_mon(id: int, level: int, individual: Dictionary={}) -> Dictionary:
 	mon.hp += roundf((float(values.hp)/2.0+floorf(float(individual.get("training",{}).get("hp",0))/4.0))*scale)
 	mon.moves = inventory.definitions(inventory.starting(id,level))
 	mon["level"] = level
+	mon["nature"]=individual.get("nature", "Hardy" if not individual.is_empty() else collection.NAMES[c.ivs.random.randi_range(0,24)])
+	for stat in collection.ORDER: mon.base_stats[stat]=roundf(mon.base_stats[stat]*collection.factor(mon.nature,stat))
+	mon.speed*=collection.factor(mon.nature,"spe")
+	if individual.has("nickname"): mon.name=individual.nickname
 	for key in ["shiny","ability_slot","gender","held_item"]:
 		if individual.has(key): mon[key]=individual[key]
 	c.abilities.assign(mon,individual.is_empty())
@@ -500,6 +508,7 @@ func return_world(caught: bool = false):
 		var mon = new_mon(int(encounter.ids[0]),int(encounter.levels[0]))
 		for key in ["shiny","ability_slot","gender"]: mon[key]=c.enemy.data.get(key, false if key=="shiny" else "N" if key=="gender" else 0)
 		mon.ivs=c.enemy.data.ivs.duplicate(true)
+		mon.nature=c.enemy.data.get("nature","Hardy")
 		c.abilities.assign(mon)
 		var joins_party = data.party.size() < 6
 		if joins_party: data.party.append(mon)
@@ -617,7 +626,8 @@ func party_menu():
 	for i in range(data.party.size()):
 		var mon = data.party[i]
 		ui_button("%s\nLv.%d  / HP %d%% / XP %d%s" % [mon_name(mon.id)+(" *" if mon.get("shiny",false) else "")+" / "+c.abilities.legal(mon.id)[int(mon.get("ability_slot",0))%c.abilities.legal(mon.id).size()],mon.level,roundi(mon.hp*100),mon.xp," / LEAD" if i==0 else ""],Vector2(180,230+i*66),Vector2(680,54),set_lead.bind(i))
-	ui_button("IVs / EVs",Vector2(890,470),Vector2(210,55),c.ivs.party_menu)
+	ui_button("SUMMARY / IVs / EVs",Vector2(890,470),Vector2(210,55),collection.members)
+	ui_button("POKEDEX",Vector2(890,550),Vector2(210,55),collection.dex)
 	ui_button("MOVESETS",Vector2(890,310),Vector2(210,55),inventory.move_party)
 	ui_button("BAG / "+c.controls.text("bag"),Vector2(890,390),Vector2(210,55),inventory.bag)
 	ui_button("STORAGE (%d)" % data.storage.size(),Vector2(890,230),Vector2(210,55),storage_menu)
@@ -630,25 +640,13 @@ func set_lead(slot):
 	party_menu()
 
 func storage_menu():
-	panel("STORAGE / add to team or swap with your lead")
-	var scroll = ScrollContainer.new()
-	scroll.position = Vector2(180,230)
-	scroll.size = Vector2(900,490)
-	ui.add_child(scroll)
-	var list = VBoxContainer.new()
-	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.add_child(list)
-	for i in range(data.storage.size()):
-		var mon = data.storage[i]
-		var b = Button.new()
-		b.text = "%s / Lv.%d / HP %d%%" % [mon_name(mon.id)+(" *" if mon.get("shiny",false) else "")+" / "+c.abilities.legal(mon.id)[int(mon.get("ability_slot",0))%c.abilities.legal(mon.id).size()],mon.level,roundi(mon.hp*100)]
-		b.custom_minimum_size = Vector2(850,55)
-		b.pressed.connect(withdraw.bind(i))
-		list.add_child(b)
+	collection.pc()
 
 func withdraw(slot):
 	if in_battle or slot<0 or slot>=data.storage.size(): return
 	var mon = data.storage[slot]
+	if data.party.size()>=6 and mon.hp<=0 and not data.party.slice(1).any(func(m):return m.hp>0):
+		clear_ui(); dialog="Keep a healthy partner in your party."; return
 	if data.party.size()>=6 and field.losing_surf(0,mon): clear_ui(); return
 	if data.party.size()<6:
 		data.party.append(mon)
@@ -833,6 +831,7 @@ func tests():
 	c.enemy.hp = c.enemy.data.hp
 	var healthy_chance = catch_chance()
 	var caught_ivs=c.enemy.data.ivs.duplicate(true)
+	var caught_nature=c.enemy.data.nature
 	c.enemy.data.shiny=true
 	c.enemy.data.ability_slot=1
 	c.abilities.assign(c.enemy.data)
@@ -845,6 +844,7 @@ func tests():
 	c.check(data.party.size()==2 and data.party[1].id==16 and exploring,"Captured Pokemon joins saved party")
 	c.check(data.party[1].shiny and data.party[1].ability_slot==1,"Capture preserves shiny and ability identity")
 	c.check(data.party[1].ivs==caught_ivs,"Capture preserves the encountered Pokemon IVs")
+	c.check(data.party[1].nature==caught_nature,"Capture preserves the encountered nature")
 	data.party[0].hp = 0.4
 	save()
 	data.money = 999
@@ -958,6 +958,7 @@ func grant_xp(amount: int) -> String:
 			message += mon_name(mon.id)+" reached Lv."+str(mon.level)+"! "
 			if EVOLUTIONS.has(int(mon.id)) and mon.level >= EVOLUTIONS[int(mon.id)][0]:
 				evolutions.append([int(mon.id),int(EVOLUTIONS[int(mon.id)][1]),mon.get("shiny",false)])
+				collection.register(mon)
 				mon.id = EVOLUTIONS[int(mon.id)][1]
 				c.abilities.assign(mon)
 				message += "Evolved into "+mon_name(mon.id)+"! "
@@ -998,7 +999,12 @@ func record_knockout():
 	progress_lines = ["+"+str(amount)+" EXP / "+mon_name(int(encounter.ids[c.enemy_active]))+" defeated"]
 	if message!="": progress_lines.append(message)
 	progress_summary=progress_lines[0]
-	if "learned" in message or "can learn" in message: progress_summary+=" / NEW MOVES: P"
+	var evs=c.ivs.ev_yields.get(str(int(encounter.ids[c.enemy_active])),{})
+	var ev_text=[]
+	for stat in evs:
+		if int(evs[stat])>0: ev_text.append("+"+str(int(evs[stat]))+" "+stat.to_upper())
+	progress_summary+=" / EV yield: "+", ".join(ev_text)
+	if "learned" in message or "can learn" in message: progress_summary+=" / NEW MOVES: "+c.controls.text("party")
 	var leveled=[]
 	for i in range(data.party.size()):
 		if data.party[i].level>old_levels[i]: leveled.append(mon_name(data.party[i].id)+" Lv."+str(data.party[i].level))

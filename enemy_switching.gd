@@ -86,8 +86,10 @@ func tick(c,dt):
 		var offense = 0.0
 		for move in f.data.moves:
 			if move.damage>0: offense = maxf(offense,c.Dex.effectiveness(move.type,c.Conditions.types(c.player)))
-		var rating = offense + f.hp/f.data.hp
+		var rating = c.strategy.matchup(c,f)
 		if rating>score: best = i; score = rating
+	if score<=c.strategy.matchup(c,c.enemy)+0.4:
+		cooldown=c.rng.randf_range(4,7); return
 	if not request(c,best): cooldown = 2.0
 
 func draw_recall(c):

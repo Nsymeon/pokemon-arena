@@ -525,6 +525,8 @@ func advance_step(dt: float):
 		a.position_world=step_target
 		stepping=false
 		jumping=false
+		var habitat=scenes.habitat()
+		a.c.audio.step("water" if habitat=="water_mons" else "cave" if room().type=="MAP_TYPE_UNDERGROUND" else "grass" if habitat=="land_mons" else "floor")
 		a.services.steps()
 		if a.sevii.on_step(): return
 		if int(a.data.get("repel_steps",0))>0:

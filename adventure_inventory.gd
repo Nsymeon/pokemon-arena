@@ -31,6 +31,7 @@ func starting(id, level) -> Array:
 
 func migrate():
 	a.c.ivs.migrate(a.data)
+	a.collection.sync()
 	if not a.data.has("bag"): a.data.bag = {"potion":5,"antidote":2,"paralyzeheal":1}
 	if not a.data.has("tms"): a.data.tms = {}
 	for field in ["bag","tms"]:

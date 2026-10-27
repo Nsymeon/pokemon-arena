@@ -143,7 +143,9 @@ func show_settings():
 			key.custom_minimum_size=Vector2(225,43)
 			key.pressed.connect(capture_key.bind(def[0],slot,def[1],key))
 			grid.add_child(key)
-	button("RESTORE DEFAULTS",Rect2(290,845,350,60),func(): c.controls.reset_defaults(); show_settings())
+	label("SOUND",Vector2(180,810),18)
+	var volume=HSlider.new(); volume.min_value=0; volume.max_value=1; volume.step=0.05; volume.value=c.audio.volume; volume.position=Vector2(280,812); volume.size=Vector2(400,25); layer.add_child(volume); volume.value_changed.connect(c.audio.set_volume)
+	button("RESTORE DEFAULTS",Rect2(290,845,350,60),func(): c.controls.reset_defaults(); c.audio.set_volume(0.65); show_settings())
 	button("BACK",Rect2(675,845,250,60),show_title)
 
 func capture_key(action,slot,title,key_button):

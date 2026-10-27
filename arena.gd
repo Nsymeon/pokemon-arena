@@ -86,6 +86,8 @@ var notice = ""
 var notice_time = 0.0
 var font = ThemeDB.fallback_font
 var rng = RandomNumberGenerator.new()
+var strategy=preload("res://trainer_strategy.gd").new()
+var audio=preload("res://game_audio.gd").new()
 var sound: AudioStreamPlayer
 var portraits = {}
 var portraits_flipped = {}
@@ -112,6 +114,7 @@ func _ready():
 	if "--capture-controls" in OS.get_cmdline_user_args(): call_deferred("capture_controls")
 	if "--audit-vfx" in OS.get_cmdline_user_args(): call_deferred("audit_vfx")
 	rng.seed = 47
+	audio.install(self)
 	sound = AudioStreamPlayer.new()
 	add_child(sound)
 	setup_selection_controls()
@@ -125,6 +128,9 @@ func _ready():
 	adventure.install(self)
 	campaign.install(self)
 	frontend.install(self)
+	if "--capture-collection" in OS.get_cmdline_user_args():
+		capture_collection.call_deferred()
+		return
 	if "--capture-ev-progress" in OS.get_cmdline_user_args():
 		capture_ev_progress.call_deferred()
 		return
@@ -555,7 +561,7 @@ func execute_move(user: Dictionary, target: Dictionary, move: Dictionary, direct
 			else: user.hp = minf(user.data.hp, user.hp + user.data.hp * weather.healing(move))
 			burst(user.pos, MINT, 25)
 	burst(user.pos, color, 9)
-	tone(620 + move.get("damage", 0) * 4, 0.07)
+	audio.move(move)
 
 func sprint_movement(direction: Vector2, dt: float, requested: bool):
 	if skills.riding(self, player):
@@ -790,6 +796,7 @@ func update_ai(dt: float):
 			if move.id == "counter" and round_time-enemy.get("last_physical_time",-100.0)>2: score = -1.0
 			if move.id == "mirrormove" and player.get("last_move",{}).is_empty(): score = -1.0
 			if move.id == "haze" and player.stages.is_empty() and enemy.stages.is_empty(): score = -1.0
+			score=strategy.score(self,move,score,distance)
 			if score > best_score:
 				best = i
 				best_score = score
@@ -871,7 +878,7 @@ func hit(target: Dictionary, damage: float, direction: Vector2, friendly: bool, 
 	scars.append({"pos": target.pos, "life": 14.0, "size": clampf(damage / 40.0, 0.6, 1.6)})
 	if scars.size() > 60: scars.pop_front()
 	rings.append({"pos": target.pos, "radius": 8.0, "max": 65.0, "life": 0.3, "color": Dex.color(move_type)})
-	burst(target.pos, Dex.color(move_type), 18)
+	impact_particles(target.pos,move_type,direction)
 	particles.append({"pos": target.pos + Vector2(0, -42), "vel": Vector2(0, -40), "life": 0.8, "max_life": 0.8, "color": WHITE, "size": 0.0, "text": str(int(damage))})
 	if target.ailment == "freeze" and move_type == "Fire":
 		target.ailment = ""
@@ -883,7 +890,7 @@ func hit(target: Dictionary, damage: float, direction: Vector2, friendly: bool, 
 		attacker.hp = clampf(attacker.hp + actual_damage * (-0.4 if abilities.name_of(target)=="Liquid Ooze" else 0.4),0,attacker.data.hp)
 		attacker.movement_lock=maxf(attacker.get("movement_lock",0),1.0)
 	if move.get("recoil", false) and abilities.name_of(attacker)!="Rock Head": attacker.hp = maxf(0, attacker.hp - actual_damage * 0.2)
-	tone(190 if friendly else 100, 0.045)
+	audio.effect("impact:"+str(move.get("type","Normal")),160 if friendly else 110,0.09,0.65)
 	return damage
 
 func status_payload(move: Dictionary) -> Dictionary:
@@ -939,6 +946,8 @@ func update_effects(dt: float):
 func tone(frequency: float, duration: float):
 	if DisplayServer.get_name() == "headless":
 		return
+	if audio.volume<=0: return
+	sound.volume_db=linear_to_db(maxf(audio.volume,0.0001))
 	sound.stop()
 	var stream = AudioStreamWAV.new()
 	stream.format = AudioStreamWAV.FORMAT_8_BITS
@@ -1017,7 +1026,12 @@ func _draw():
 		if p.text != "":
 			label_at(p.text, p.pos, 22, p.color)
 		else:
-			draw_rect(Rect2(p.pos, Vector2.ONE * p.size), Color(p.color, p.life / p.max_life))
+			var tint=Color(p.color,p.life/p.max_life)
+			match p.get("shape",""):
+				"spark": draw_line(p.pos,p.pos-p.vel.normalized()*p.size*3,tint,2,true)
+				"drop": draw_circle(p.pos,p.size,tint); draw_line(p.pos,p.pos-p.vel.normalized()*p.size*2,tint,2,true)
+				"ember": draw_circle(p.pos,p.size,tint)
+				_: draw_rect(Rect2(p.pos,Vector2.ONE*p.size),tint)
 	if adventure.in_battle and adventure.capture_time>0:
 		var progress = 1.0-adventure.capture_time/1.2
 		var ball_pos = capture_ball_position(progress)
@@ -1620,7 +1634,7 @@ func selection_details(mon: Dictionary, rival: Dictionary, pos: Vector2, friendl
 		label_at(move.type.to_upper() + " / " + move_description(move, rival.types), pos + offset + Vector2(0, 17), 9, Dex.color(move.type))
 	if friendly or opponent_choice.selected==0:
 		panel(Rect2(pos+Vector2(465,155),Vector2(108,26)),Color("243c49"))
-		label_at("IVs [EDIT]",pos+Vector2(474,173),12,GOLD)
+		label_at("IVs / NATURE",pos+Vector2(471,173),11,GOLD)
 	label_at("ABILITY: %s%s" % [mon.get("ability",abilities.legal(mon.id)[0]),"  [choose]" if friendly or opponent_choice.selected==0 else ""], pos + Vector2(16, 173), 10, Color("91a6a7"))
 
 func overlay(title: String, subtitle: String):
@@ -1717,6 +1731,8 @@ func movement_recovery_tests():
 	reset()
 
 func smoke_test():
+	audio.tests()
+	strategy.tests(self)
 	support.tests(self)
 	controls.tests(self)
 	movement_recovery_tests()
@@ -1732,6 +1748,7 @@ func smoke_test():
 	adventure.services.tests()
 	adventure.extras.tests()
 	ivs.tests()
+	adventure.collection.tests()
 	adventure.tests()
 	campaign.tests(self)
 	clashes.tests(self)
@@ -3355,3 +3372,32 @@ func capture_ev_progress():
 	await get_tree().process_frame; await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png("res://captures/ev-stats.png")
 	get_tree().quit()
+
+func capture_collection():
+	set_process(false); frontend.layer.visible=false; selection_controls.visible=false
+	adventure.loaded=true; adventure.save_allowed=false; adventure.data=adventure.INITIAL_DATA.duplicate(true); adventure.enter(); adventure.choose_starter(4)
+	adventure.dialog=""; adventure.data.party=[adventure.new_mon(6,42),adventure.new_mon(9,40)]
+	adventure.data.party[0]["nickname"]="Ember"; adventure.data.party[0].nature="Modest"; adventure.data.party[0]["training"]={"spa":252,"spe":252,"hp":6}; adventure.data.party[0]["held_item"]="quickclaw"
+	adventure.data.storage=[adventure.new_mon(25,20),adventure.new_mon(94,36),adventure.new_mon(131,30)]
+	adventure.data.storage[0].shiny=true; adventure.collection.sync(); adventure.collection.summary("party",0); adventure.queue_redraw()
+	await get_tree().process_frame; await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://captures/collection-summary.png")
+	adventure.collection.pc(); adventure.queue_redraw()
+	await get_tree().process_frame; await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://captures/collection-pc.png")
+	adventure.collection.dex_entry(25,true); adventure.queue_redraw()
+	await get_tree().process_frame; await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://captures/collection-dex.png")
+	adventure.clear_ui(); adventure.visible=false; frontend.show_settings()
+	await get_tree().process_frame; await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://captures/collection-settings.png")
+	ivs.open(roster[player_index],true,0); ivs.nature_choice.selected=3
+	await get_tree().process_frame; await RenderingServer.frame_post_draw
+	ivs.window.get_texture().get_image().save_png("res://captures/collection-nature.png")
+	get_tree().quit()
+
+func impact_particles(at: Vector2,type: String,direction: Vector2):
+	var shape="spark" if type in ["Electric","Steel","Ice"] else "drop" if type in ["Water","Poison"] else "ember" if type in ["Fire","Ghost","Psychic","Fairy"] else "chip"
+	for i in range(10):
+		var velocity=direction.rotated(rng.randf_range(-1.8,1.8))*rng.randf_range(70,210)
+		particles.append({"pos":at,"vel":velocity,"life":0.28,"max_life":0.28,"size":rng.randf_range(2,5),"color":Dex.color(type),"shape":shape})

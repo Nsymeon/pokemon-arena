@@ -7,6 +7,8 @@ var choices={}
 var window: Window
 var boxes={}
 var editing=""
+var natures={}
+var nature_choice: OptionButton
 var ev_yields: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://assets/kanto/ev-yields.json"))
 
 func ev_total(mon) -> int:
@@ -32,6 +34,11 @@ func ev_summary(mon) -> String:
 
 func install(context):
 	c=context; random.randomize()
+	if OS.get_cmdline_user_args().is_empty() and FileAccess.file_exists("user://battle-natures.json"):
+		var saved=JSON.parse_string(FileAccess.get_file_as_string("user://battle-natures.json"))
+		if saved is Dictionary:
+			for key in saved:
+				if saved[key] in c.adventure.collection.NAMES: natures[key]=saved[key]
 	if OS.get_cmdline_user_args().is_empty() and FileAccess.file_exists("user://battle-ivs.json"):
 		var data=JSON.parse_string(FileAccess.get_file_as_string("user://battle-ivs.json"))
 		if data is Dictionary:
@@ -81,7 +88,11 @@ func configured(mon,friendly,slot) -> Dictionary:
 	var key=c.move_editor.identity(mon,friendly,slot)
 	var values=choices.get(key,uniform())
 	if not valid(values): values=uniform()
-	return apply_values(mon,values)
+	var result=apply_values(mon,values)
+	result["nature"]=natures.get(key,"Hardy")
+	for stat in c.adventure.collection.ORDER: result.base_stats[stat]*=c.adventure.collection.factor(result.nature,stat)
+	result.speed*=c.adventure.collection.factor(result.nature,"spe")
+	return result
 
 func apply_values(mon,values) -> Dictionary:
 	var result=mon.duplicate(true)
@@ -98,7 +109,7 @@ func apply_values(mon,values) -> Dictionary:
 func open(mon,friendly,slot):
 	if window!=null and is_instance_valid(window): window.queue_free()
 	editing=c.move_editor.identity(mon,friendly,slot)
-	window=Window.new(); window.title=mon.name+" / IVs (0-31)"; window.size=Vector2i(440,390)
+	window=Window.new(); window.title=mon.name+" / IVs (0-31)"; window.size=Vector2i(440,450)
 	window.transient=true; window.exclusive=true; c.add_child(window)
 	window.close_requested.connect(func():window.hide())
 	var values=choices.get(editing,uniform()); boxes={}
@@ -107,8 +118,11 @@ func open(mon,friendly,slot):
 		var box=SpinBox.new(); box.min_value=0; box.max_value=31; box.step=1; box.value=values[STATS[i]]; box.position=Vector2(150,20+i*43); box.size=Vector2(240,35)
 		window.add_child(box); boxes[STATS[i]]=box
 	for spec in [["ALL 31",20,func():set_boxes(uniform())],["RANDOM",155,func():set_boxes(roll())],["APPLY",290,apply]]:
-		var button=Button.new(); button.text=spec[0]; button.position=Vector2(spec[1],305); button.size=Vector2(125,44); button.pressed.connect(spec[2]); window.add_child(button)
-	var hint=Label.new(); hint.text="Close to cancel. This side and team slot only."; hint.position=Vector2(20,358); window.add_child(hint)
+		var button=Button.new(); button.text=spec[0]; button.position=Vector2(spec[1],365); button.size=Vector2(125,44); button.pressed.connect(spec[2]); window.add_child(button)
+	var hint=Label.new(); hint.text="Close to cancel. This side and team slot only."; hint.position=Vector2(20,418); window.add_child(hint)
+	nature_choice=OptionButton.new(); nature_choice.position=Vector2(20,295); nature_choice.size=Vector2(395,45)
+	for nature in c.adventure.collection.NAMES: nature_choice.add_item(c.adventure.collection.nature_text({"nature":nature}))
+	nature_choice.selected=c.adventure.collection.NAMES.find(natures.get(editing,"Hardy")); window.add_child(nature_choice)
 	window.popup_centered()
 
 func set_boxes(values):
@@ -123,9 +137,12 @@ func apply():
 		values[stat]=int(boxes[stat].value)
 	if not valid(values): return
 	choices[editing]=values
+	natures[editing]=c.adventure.collection.NAMES[nature_choice.selected]
 	if OS.get_cmdline_user_args().is_empty():
 		var file=FileAccess.open("user://battle-ivs.json",FileAccess.WRITE)
 		if file: file.store_string(JSON.stringify(choices))
+		file=FileAccess.open("user://battle-natures.json",FileAccess.WRITE)
+		if file: file.store_string(JSON.stringify(natures))
 	window.hide(); c.queue_redraw()
 
 func summary(mon) -> String:
@@ -145,7 +162,7 @@ func party_menu():
 		a.inventory.row(list,ev_summary(daycare.mon),func():pass,true)
 
 func tests():
-	var previous=c.adventure.data.duplicate(true); var saved_choices=choices.duplicate(true); var rng_state=random.state
+	var previous=c.adventure.data.duplicate(true); var saved_natures=natures.duplicate(true); var saved_choices=choices.duplicate(true); var rng_state=random.state
 	var a=c.adventure; var saving=a.save_allowed; a.save_allowed=false
 	for i in range(500): c.check(valid(roll()),"Six IVs remain integral and bounded 0-31")
 	for invalid in [-1,32,1.5,"31"]:
@@ -188,9 +205,13 @@ func tests():
 	var first=configured(species,true,0); var next=configured(first,true,0)
 	c.check(first.base_stats==next.base_stats and first.hp==next.hp,"IV configuration is idempotent")
 	c.check(configured(species,true,1).ivs==uniform() and configured(species,false,0).ivs==uniform(),"IV edits isolate team slots and CPU side")
-	open(species,true,0); set_boxes(uniform(7)); apply()
+	open(species,true,0); set_boxes(uniform(7)); nature_choice.selected=c.adventure.collection.NAMES.find("Adamant"); apply()
 	c.check(choices[c.move_editor.identity(species,true,0)]==uniform(7),"IV editor applies all six numeric controls")
-	open(species,true,0); set_boxes(uniform(2)); window.hide()
+	var natural=configured(species,true,0)
+	c.check(natural.nature=="Adamant" and natural.base_stats.atk>apply_values(species,uniform(7)).base_stats.atk,"Free battle nature editor changes real stats")
+	c.check(configured(natural,true,0).base_stats==natural.base_stats,"Repeated nature previews never stack bonuses")
+	open(species,true,0); set_boxes(uniform(2)); nature_choice.selected=0; window.hide()
+	c.check(natures[c.move_editor.identity(species,true,0)]=="Adamant","Closing editor cancels nature changes")
 	c.check(choices[c.move_editor.identity(species,true,0)]==uniform(7),"Closing IV editor cancels draft changes")
 	window.queue_free(); window=null
-	a.clear_ui(); a.evolutions.clear(); a.data=previous; a.save_allowed=saving; choices=saved_choices; random.state=rng_state
+	a.clear_ui(); a.evolutions.clear(); a.data=previous; a.save_allowed=saving; choices=saved_choices; natures=saved_natures; random.state=rng_state

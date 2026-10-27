@@ -65,6 +65,7 @@ func daycare_menu():
 func deposit(slot):
 	if a.in_battle or not state().daycare.is_empty() or slot<0 or slot>=a.data.party.size() or a.data.party.size()<2: return
 	if a.data.party[slot].hp<=0 or a.data.party.filter(func(m):return m.hp>0).size()<2: a.dialog="Keep a healthy partner with you."; return
+	if a.field.losing_surf(slot,{"hp":0,"moves":[]}): return
 	state().daycare={"mon":a.data.party[slot],"start_level":a.data.party[slot].level,"deposited":state().steps}
 	a.data.party.remove_at(slot); a.save(); daycare_menu()
 

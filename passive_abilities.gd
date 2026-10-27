@@ -104,6 +104,8 @@ func announce(f):
 func entry(f,other):
 	if f.get("ability_entered",false): return
 	f["ability_entered"]=true
+	c.audio.cry(int(f.data.id))
+	if c.adventure.in_battle: c.adventure.collection.register(f.data,false)
 	f["ability_clock"]=0.0
 	var a=name_of(f)
 	if a=="Trace" and name_of(other) not in ["Trace",""]:
