@@ -31,7 +31,11 @@ var time = 0.0
 var walk_age = 0.0
 var facing = 1.0
 var autosave = 0.0
-var dialog = ""
+var dialog_pages: Array = []
+var dialog = "":
+	set(value):
+		dialog=value
+		dialog_pages.clear()
 var modal = ""
 var ui_back=Callable()
 var ui: CanvasLayer
@@ -328,7 +332,7 @@ func handle_input(event):
 	if c.controls.matches(event,"click_move"):
 		if modal=="" and dialog=="" and Rect2(0,90,1280,700).has_point(c.get_global_mouse_position()):
 			var target = c.get_global_mouse_position()-Vector2(0,90)+camera
-			if not blocked(target):
+			if (world.click_destination_allowed(target) if world.enabled else not blocked(target)):
 				c.click_destination = target
 				c.click_move = true
 		return
@@ -341,7 +345,7 @@ func handle_input(event):
 			else: back_ui()
 		return
 	if dialog != "":
-		if c.controls.matches(event,"interact") or c.controls.matches(event,"sprint") or (event is InputEventKey and event.keycode in [KEY_ENTER,KEY_ESCAPE]): dialog = ""
+		if c.controls.matches(event,"interact") or c.controls.matches(event,"sprint") or (event is InputEventKey and event.keycode in [KEY_ENTER,KEY_ESCAPE]): advance_dialogue()
 		return
 	c.controls.handle_run(event)
 	if c.controls.matches(event,"map"): Finale.guide(self)
@@ -923,6 +927,21 @@ func tests():
 	loaded = saved_loaded
 	save_error = ""
 	dialog = ""
+
+func show_dialogue(text: String):
+	text=text.replace("{PLAYER}","TRAINER").replace("{RIVAL}","BLUE").replace("{POKEBLOCK}","POKEBLOCK")
+	var pages=[]
+	for paragraph in text.split("\n\n"):
+		var lines=wrapped(paragraph.replace("\n"," ")).split("\n")
+		for start in range(0,lines.size(),3): pages.append(" ".join(lines.slice(start,mini(start+3,lines.size()))))
+	if pages.is_empty(): return
+	dialog=pages.pop_front()
+	dialog_pages=pages
+
+func advance_dialogue():
+	var remaining=dialog_pages.duplicate()
+	dialog="" if remaining.is_empty() else str(remaining.pop_front())
+	dialog_pages=remaining
 
 func wrapped(value: String) -> String:
 	var output = ""

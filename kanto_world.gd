@@ -59,6 +59,12 @@ func occupied_tiles() -> Dictionary:
 	for npc in quest_actors(): occupied[Vector2i((Vector2(npc[0])/TILE).floor())]=true
 	return occupied
 
+func click_destination_allowed(p: Vector2) -> bool:
+	if not blocked(p): return true
+	for door in room().warps:
+		if Vector2i(p/TILE)==Vector2i(int(door.x),int(door.y)): return true
+	return false
+
 func blocked(p: Vector2) -> bool:
 	return terrain_blocked(p) or occupied_tiles().has(Vector2i((p/TILE).floor()))
 
@@ -246,14 +252,14 @@ func interact() -> bool:
 		if gfx.contains("PROF_OAK"):
 			a.starter_menu() if a.data.starter==0 else a.heal()
 		elif gfx.contains("NURSE"): a.heal()
-		elif room().name.contains("Mart") or (room().name.contains("DepartmentStore") and gfx.contains("CLERK")): a.inventory.shop()
+		elif (room().name.contains("Mart") or room().name.contains("DepartmentStore")) and gfx.contains("CLERK"): a.inventory.shop()
 		elif npc.has("battle"):
 			if events.done("trainer:"+str(npc.script)):
-				a.dialog="We already battled. Good luck on your journey!"; return true
-			var ids=[]; var levels=[]
-			for member in npc.battle.party: ids.append(member[0]); levels.append(member[1])
-			a.begin_battle("world_"+str(npc.script),ids,levels)
-		else: a.dialog=a.sevii.dialogue.get(str(npc.get("script","")),"Welcome to "+room().name.replace("_"," / ")+". Explore the marked doors and passages.")
+				a.show_dialogue(scenes.npc_text(npc,"post")); return true
+			scenes.start_trainer(npc)
+		else:
+			var line=scenes.npc_text(npc)
+			a.show_dialogue(line if line!="" else "...")
 		return true
 	return scenes.seek_wild()
 
@@ -429,7 +435,7 @@ func draw():
 			a.draw_circle(npc.pos,10,Color("f5eee0")); a.draw_arc(npc.pos,9,PI,TAU,12,Color("e75151"),9)
 		elif "Snorlax" in str(npc.get("script","")):
 			a.draw_texture_rect(a.c.portraits[143],Rect2(npc.pos-Vector2(38,60),Vector2(76,76)),false)
-		else: person(npc.pos,str(npc.get("graphics_id","OBJ_EVENT_GFX_WOMAN_1")).trim_prefix("OBJ_EVENT_GFX_"),false,scenes.trainer_direction(npc))
+		else: person(npc.pos,str(npc.get("graphics_id","OBJ_EVENT_GFX_WOMAN_1")).trim_prefix("OBJ_EVENT_GFX_"),false,scenes.trainer_direction(npc),scenes.active and str(scenes.actor.get("key",""))==str(npc.get("script","")) and scenes.actor.get("walking",false))
 		if can_talk(npc.pos): a.words(a.c.controls.text("interact")+" / "+(str(npc.battle.name) if npc.has("battle") else "TALK"),npc.pos+Vector2(-35,-65),14,Color("fff0b0"))
 	for npc in quest_actors():
 		var identity={"oak":"prof_oak","rival":"blue","heal":"nurse","shop":"man","brock":"brock","misty":"misty","bug":"bug_catcher","rocket":"rocket_m","guide":"man","story_captain":"captain","story_shipblue":"blue","story_bill":"bill","story_surge":"lt_surge","late_task_erika":"erika","late_task_koga":"koga","late_task_sabrina":"sabrina","late_task_blaine":"blaine","late_task_giovanni":"giovanni","late_task_flute":"mr_fuji","late_task_hideout_boss":"giovanni","late_task_silph_boss":"giovanni","late_task_silph_blue":"blue","late_league":"lorelei"}.get(npc[2],"scientist")
@@ -460,11 +466,12 @@ func draw():
 	if a.dialog!="":
 		a.draw_rect(Rect2(80,630,1120,145),Color("10252f"))
 		a.draw_multiline_string(a.font,Vector2(105,665),a.wrapped(a.dialog),HORIZONTAL_ALIGNMENT_LEFT,1060,20,4,Color("eef4de"))
+		a.words(a.c.controls.text("interact")+" / "+("NEXT" if not a.dialog_pages.is_empty() else "CLOSE"),Vector2(970,750),16,Color("ffdf92"))
 	if a.services.state().safari: a.words("SAFARI / "+str(a.services.state().safari_steps)+" steps / "+str(a.services.state().safari_balls)+" balls",Vector2(820,32),18,Color("ffe19a"))
 	a.field.draw()
 	scenes.draw()
 
-func person(at: Vector2, identity: String, player: bool=false, look: Vector2=Vector2.ZERO):
+func person(at: Vector2, identity: String, player: bool=false, look: Vector2=Vector2.ZERO, walking: bool=false):
 	var key=identity.to_lower().replace("_","")
 	if not actor_paths.has(key): key="boy"
 	if not actor_textures.has(key): actor_textures[key]=ImageTexture.create_from_image(Image.load_from_file(actor_paths[key]))
@@ -474,6 +481,7 @@ func person(at: Vector2, identity: String, player: bool=false, look: Vector2=Vec
 	if not player and look!=Vector2.ZERO:
 		frame=1 if look.y<0 else 2 if absf(look.x)>0.1 else 0
 		flip=frame==2 and look.x>0
+	if walking: frame=3+frame*2+int(a.time*8)%2
 	if player:
 		frame=1 if heading.y<0 else 2 if absf(heading.x)>0.1 else 0
 		flip=frame==2 and heading.x>0

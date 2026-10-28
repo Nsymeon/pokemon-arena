@@ -491,7 +491,7 @@ func npc_interact(npc) -> bool:
 		if LEAGUE.find(w.current)==int(a.Finale.state(a).get("league",0)): a.Finale.start_league(a)
 		else: a.dialog="This chamber is cleared. Continue through the next door."
 		return true
-	if w.current=="MAP_VIRIDIAN_CITY_MART" and not done("parcel_received"):
+	if w.current=="MAP_VIRIDIAN_CITY_MART" and "CLERK" in str(npc.get("graphics_id","")) and not done("parcel_received"):
 		finish("parcel_received"); a.dialog="The clerk gives you Oak's Parcel. Take it back to Professor Oak in Pallet Town."; a.save(); return true
 	if "PROF_OAK" in str(npc.get("graphics_id","")) and a.data.starter!=0 and done("parcel_received") and not done("parcel_delivered"):
 		finish("parcel_delivered"); a.dialog="Oak receives his parcel and gives you a Pokedex for your journey!"; a.save(); return true

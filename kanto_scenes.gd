@@ -14,6 +14,7 @@ var subtitle=""
 var actor={}
 var encounters: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://assets/kanto/encounters.json"))
 var random=RandomNumberGenerator.new()
+var dialogue: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://assets/kanto/npc-dialogue.json"))
 
 func install(world):
 	reference=weakref(world); a=world.a; random.randomize()
@@ -38,6 +39,7 @@ func tick(dt: float) -> bool:
 		var ratio=clampf(elapsed/float(step.get("duration",2.0)),0,1)
 		positions[str(actor.key)]=Vector2(actor.from).lerp(Vector2(actor.to),ratio)
 	if elapsed>=float(step.get("duration",2.0)):
+		if not actor.is_empty(): actor["walking"]=false
 		index+=1; elapsed=0
 		if index>=sequence.size(): finish()
 	return true
@@ -97,11 +99,63 @@ func quest(id: String) -> bool:
 	return false
 
 func trainer_direction(npc) -> Vector2:
+	var key=str(npc.get("script",""))
+	if active and str(actor.get("key",""))==key and actor.has("look"): return actor.look
 	var type=str(npc.get("movement_type",""))
-	if "LEFT" in type: return Vector2.LEFT
-	if "RIGHT" in type: return Vector2.RIGHT
-	if "UP" in type: return Vector2.UP
-	return Vector2.DOWN
+	var choices=[]
+	for pair in [["DOWN",Vector2.DOWN],["LEFT",Vector2.LEFT],["UP",Vector2.UP],["RIGHT",Vector2.RIGHT]]:
+		if pair[0] in type: choices.append(pair[1])
+	if "AROUND" in type or "ROTATE" in type: choices=[Vector2.DOWN,Vector2.LEFT,Vector2.UP,Vector2.RIGHT]
+	if choices.is_empty(): return Vector2.DOWN
+	if choices.size()==1: return choices[0]
+	var seed_value=absi(hash(key))
+	var interval=1.8+float(seed_value%9)*0.1
+	var phase=int(floor(a.time/interval))+seed_value%choices.size()
+	if "COUNTERCLOCKWISE" in type: phase=-phase
+	return choices[posmod(phase,choices.size())]
+
+func dialogue_flag(flag):
+	match flag:
+		"FLAG_SYS_GAME_CLEAR": return a.Finale.has(a,"champion")
+		"FLAG_SYS_POKEDEX_GET": return w.events.done("parcel_delivered")
+		"FLAG_BADGE01_GET": return a.data.badge
+		"FLAG_BADGE02_GET": return a.data.get("cascade",false)
+		"FLAG_BADGE03_GET": return a.Story.state(a).get("thunder",false)
+		"FLAG_BADGE04_GET": return a.Finale.has(a,"rainbow")
+		"FLAG_BADGE05_GET": return a.Finale.has(a,"soul")
+		"FLAG_BADGE06_GET": return a.Finale.has(a,"marsh")
+		"FLAG_BADGE07_GET": return a.Finale.has(a,"volcano")
+		"FLAG_BADGE08_GET": return a.Finale.has(a,"earth")
+	return null
+
+func npc_text(npc, kind="text") -> String:
+	return resolve_dialogue(str(npc.get("script","")),kind,[])
+
+func resolve_dialogue(key: String, kind: String, visited: Array) -> String:
+	if key in visited or visited.size()>=20: return ""
+	visited=visited.duplicate(); visited.append(key)
+	var record=dialogue.get(key,{})
+	if kind=="text":
+		for branch in record.get("branches",[]):
+			var args=branch.args
+			if branch.op in ["goto_if_set","goto_if_unset"]:
+				var flag=dialogue_flag(str(args[0]))
+				if flag!=null and bool(flag)==(branch.op=="goto_if_set"):
+					var found=resolve_dialogue(str(args[-1]),kind,visited)
+					if found!="": return found
+	return str(record.get(kind,record.get("text","")))
+
+func start_trainer(npc):
+	# Snapshot both endpoints: actor positions change while the approach animates.
+	var copy=npc.duplicate(true)
+	var direction=(a.position_world-Vector2(copy.pos)).normalized()
+	var target=a.position_world-direction*w.TILE
+	var identity=str(copy.graphics_id).trim_prefix("OBJ_EVENT_GFX_").to_lower()
+	var key=str(copy.script)
+	var moving={"key":key,"gfx":identity,"from":Vector2(copy.pos),"to":target,"look":direction,"walking":true}
+	var intro=npc_text(copy,"intro")
+	if intro=="": intro=str(copy.battle.name)+": Let's battle!"
+	play([{"actor":{"key":key,"gfx":identity,"from":copy.pos,"to":copy.pos,"look":direction},"text":"!","duration":0.65},{"actor":moving,"text":"","duration":maxf(0.3,Vector2(copy.pos).distance_to(target)/110.0)},{"text":intro,"duration":maxf(2.0,float(intro.length())/35.0)}],func():a.begin_battle("world_"+key,copy.battle.party.map(func(m):return int(m[0])),copy.battle.party.map(func(m):return int(m[1]))))
 
 func sees(npc) -> bool:
 	if not npc.has("battle") or str(npc.get("trainer_type",""))!="TRAINER_TYPE_NORMAL": return false
@@ -124,10 +178,7 @@ func detect_trainer() -> bool:
 	if a.data.party.is_empty() or not a.data.party.any(func(mon):return mon.hp>0): return false
 	for npc in w.actors():
 		if not sees(npc): continue
-		var target=a.position_world-trainer_direction(npc)*w.TILE
-		var identity=str(npc.graphics_id).trim_prefix("OBJ_EVENT_GFX_").to_lower()
-		var moving={"key":str(npc.script),"gfx":identity,"from":Vector2(npc.pos),"to":target}
-		play([{"actor":{"key":str(npc.script),"gfx":identity,"from":npc.pos,"to":npc.pos},"text":"!","duration":0.65},{"actor":moving,"text":str(npc.battle.name)+" spotted you!","duration":maxf(0.3,Vector2(npc.pos).distance_to(target)/170.0)},{"text":str(npc.battle.name)+": Let's battle!","duration":1.2}],func():a.begin_battle("world_"+str(npc.script),npc.battle.party.map(func(m):return int(m[0])),npc.battle.party.map(func(m):return int(m[1]))))
+		start_trainer(npc)
 		return true
 	return false
 
@@ -262,6 +313,33 @@ func tests():
 	a.c.check(not sees(npc),"Trainer does not see behind them")
 	npc.movement_type="MOVEMENT_TYPE_FACE_UP"; w.events.finish("trainer:scene_regression")
 	a.c.check(not sees(npc),"Defeated trainers do not re-trigger approach")
+	var old_time=a.time
+	var turning={"script":"look_test","movement_type":"MOVEMENT_TYPE_FACE_LEFT_AND_RIGHT"}
+	var looks=[]
+	for second in range(12):
+		a.time=float(second)
+		var look=trainer_direction(turning)
+		a.c.check(look in [Vector2.LEFT,Vector2.RIGHT],"Side-looking trainer uses only original allowed directions")
+		if look not in looks: looks.append(look)
+	a.c.check(looks.size()==2,"Side-looking trainer scans both directions over time")
+	a.time=old_time
+	npc.graphics_id="OBJ_EVENT_GFX_BOY"; npc.script="approach_test"
+	start_trainer(npc)
+	var arrived=[]; completion=func(): arrived.append(true)
+	tick(0.7)
+	a.c.check(index==1 and active,"Exclamation progresses automatically to approach")
+	tick(0.2)
+	a.c.check(positions.approach_test.distance_to(npc.pos)>0,"Trainer actually moves toward the player")
+	tick(2.0); tick(10.0)
+	a.c.check(not active and arrived.size()==1,"Trainer approach launches battle callback exactly once")
+	a.c.check(Vector2(positions.approach_test).distance_to(a.position_world)>w.TILE*0.9,"Trainer stops adjacent instead of overlapping player")
+	reset()
+	a.show_dialogue("First original page.\n\nSecond original page.")
+	a.c.check(a.dialog=="First original page. " and a.dialog_pages.size()==1,"Original paragraph breaks paginate dialogue")
+	a.advance_dialogue()
+	a.c.check(a.dialog.contains("Second original page"),"Continue shows the next dialogue page")
+	a.dialog="A new conversation."
+	a.c.check(a.dialog_pages.is_empty(),"Replacing a conversation clears old pages")
 	var calls=[]
 	play([{"text":"First line","duration":0.2},{"text":"Second line","duration":0.2}],func():calls.append(true),"scene:regression")
 	tick(0.3); tick(0.3)
