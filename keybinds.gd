@@ -5,12 +5,12 @@ const SAVE = "user://controls-v1.json"
 const DEFINITIONS = [
 	["up","Move up",3,KEY_W,KEY_UP], ["down","Move down",3,KEY_S,KEY_DOWN],
 	["left","Move left",3,KEY_A,KEY_LEFT], ["right","Move right",3,KEY_D,KEY_RIGHT],
-	["sprint","Sprint / run",3,KEY_SPACE,0], ["click_move","Move to cursor",3,-2,0],
-	["move1","Attack 1",1,KEY_Q,-1], ["move2","Attack 2",1,KEY_E,0],
+	["sprint","Sprint / run",3,KEY_E,0], ["click_move","Move to cursor",3,-2,0],
+	["move1","Attack 1",1,KEY_Q,-1], ["move2","Attack 2",1,KEY_SPACE,0],
 	["move3","Attack 3",1,KEY_F,0], ["move4","Attack 4",1,KEY_C,0],
 	["switch","Switch team menu",1,KEY_B,0], ["roster","Roster / league hub",1,KEY_TAB,0],
 	["restart","Restart battle",1,KEY_R,0], ["capture","Throw Poke Ball",1,KEY_G,0],
-	["bag","Bag",3,KEY_I,0], ["interact","Interact / talk",2,KEY_E,0],
+	["bag","Bag",3,KEY_I,0], ["interact","Interact / talk",2,KEY_SPACE,0],
 	["party","Adventure team",2,KEY_P,0], ["map","Kanto guide",2,KEY_M,0],
 	["save","Save adventure",2,KEY_F5,0],
 	["slot1","Pokemon slot 1",1,KEY_1,0], ["slot2","Pokemon slot 2",1,KEY_2,0],
@@ -127,7 +127,7 @@ func tests(c):
 	var original=bindings.duplicate(true)
 	var old_toggle=run_toggle; var old_active=run_active
 	run_toggle=true; run_active=false
-	var run_event=InputEventKey.new(); run_event.physical_keycode=KEY_SPACE; run_event.pressed=true
+	var run_event=InputEventKey.new(); run_event.physical_keycode=bindings.sprint[0]; run_event.pressed=true
 	handle_run(run_event); c.check(held("sprint"),"Toggle run starts on first press")
 	run_event.echo=true; handle_run(run_event); c.check(held("sprint"),"Held key repeat does not toggle run")
 	run_event.echo=false; run_event.pressed=false; handle_run(run_event); c.check(held("sprint"),"Toggle run survives release")
@@ -153,6 +153,7 @@ func tests(c):
 	c.check(matches(mouse,"move1"),"Mouse action matching")
 	reset_defaults(false)
 	c.check(bindings.move1==[KEY_Q,-1],"Restore includes primary and alternate defaults")
+	c.check(bindings.sprint==[KEY_E,0] and bindings.move2==[KEY_SPACE,0] and bindings.interact==[KEY_SPACE,0],"Restore defaults swaps E and Space for running, attack 2 and interaction")
 	var saved=bindings.duplicate(true)
 	saved.up=[KEY_Z,KEY_UP]
 	saved.move1=[KEY_W,-1]

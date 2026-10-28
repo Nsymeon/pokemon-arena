@@ -814,7 +814,7 @@ func _draw():
 		draw_rect(Rect2(80,630,1120,145),Color("10252f"))
 		draw_rect(Rect2(80,630,1120,145),Color("d5be82"),false,2)
 		draw_multiline_string(font,Vector2(105,665),wrapped(dialog),HORIZONTAL_ALIGNMENT_LEFT,1060,20,4,Color("eef4de"))
-		words("E / CONTINUE",Vector2(1010,750),16,Color("ffdf92"))
+		words(c.controls.text("interact")+" / CONTINUE",Vector2(1010,750),16,Color("ffdf92"))
 
 func tests():
 	var saved_data = data.duplicate(true)
