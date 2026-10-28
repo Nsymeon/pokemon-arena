@@ -45,6 +45,8 @@ var evolutions: Array = []
 var progress_lines: Array = []
 var progress_time = 0.0
 var progress_summary=""
+const CAPTURE_DURATION=3.6
+const RUN_BUTTON=Rect2(1040,900,200,44)
 var capture_time = 0.0
 var capture_success = false
 var wild_cycle = 0
@@ -509,10 +511,19 @@ func reward(victory: bool) -> String:
 			message = "Boulder Badge earned! TM39 Rock Tomb is in your Bag. Route 3 and Mt. Moon are now open. " + message
 	return message
 
-func return_world(caught: bool = false):
+func can_flee() -> bool:
+	return in_battle and encounter.get("kind","")=="wild" and c.result=="" and c.countdown<=0 and not c.paused and not c.switch_menu and c.switch_time<0 and capture_time<=0 and c.player.hp>0 and c.enemy.hp>0 and c.player.get("action_lock",0)<=0 and c.player.get("charge_left",0)<=0
+
+func flee():
+	if not can_flee(): return
+	clear_ui()
+	return_world(false,true)
+
+func return_world(caught: bool = false, escaped: bool = false):
 	if not in_battle: return
-	if not caught and (not c.resolution_ready() or c.can_continue_team()): return
-	if not caught: record_knockout()
+	if escaped and not can_flee(): return
+	if not caught and not escaped and (not c.resolution_ready() or c.can_continue_team()): return
+	if not caught and not escaped: record_knockout()
 	sync_health()
 	var win = c.result == "VICTORY"
 	var message = ""
@@ -526,7 +537,7 @@ func return_world(caught: bool = false):
 		if joins_party: data.party.append(mon)
 		else: data.storage.append(mon)
 		message = mon_name(mon.id)+" caught! "+("Added to your party." if joins_party else "Check Party / Storage with P.")
-	else:
+	elif not escaped:
 		message = reward(win)
 		if world.enabled: world.events.battle_reward(str(encounter.kind),win)
 		if win:
@@ -552,6 +563,8 @@ func return_world(caught: bool = false):
 	c.paused = false
 	c.switch_menu = false
 	c.shots.clear()
+	c.click_move=false
+	c.controls.run_active=false
 	capture_time = 0
 	wild_cycle += 1
 	dialog = message
@@ -574,9 +587,17 @@ func throw_ball():
 	data.balls -= 1
 	save()
 	capture_success = c.rng.randf() < catch_chance()
-	capture_time = 1.2
+	capture_time = CAPTURE_DURATION
 	c.notice = "POKE BALL / attempting capture..."
-	c.notice_time = 1.5
+	c.notice_time = CAPTURE_DURATION
+
+func capture_visual() -> Dictionary:
+	var elapsed=CAPTURE_DURATION-capture_time
+	var wobble=0.0
+	for start in [0.95,1.65,2.35]:
+		var phase=(elapsed-start)/0.35
+		if phase>=0 and phase<=1: wobble=sin(phase*TAU)*sin(phase*PI)
+	return {"elapsed":elapsed,"flight":clampf(elapsed/0.55,0,1),"wobble":wobble,"dark":capture_success and elapsed>=3.0 and elapsed<3.3,"hidden":elapsed>=0.55}
 
 func tick_capture(dt):
 	if c.paused: return
@@ -845,6 +866,17 @@ func tests():
 	c.check(data.rival and exploring,"Rival victory unlocks route and returns to world")
 	travel(1)
 	c.check(data.map==1,"Route unlocked after rival")
+	begin_battle("rival",[7],[5]); c.countdown=0; c.player.action_lock=0
+	flee(); c.check(in_battle,"Cannot flee trainer battles")
+	begin_battle("wild",[19],[4]); c.countdown=0; c.player.action_lock=0; c.player.charge_left=0
+	var flee_money=data.money; var flee_xp=data.party[0].xp; var flee_balls=data.balls
+	var flee_position=position_world
+	c.player.hp=c.player.data.hp*0.5
+	capture_time=1; flee(); c.check(in_battle,"Cannot flee during a capture")
+	capture_time=0; flee()
+	c.check(exploring and not in_battle and position_world==flee_position,"Flee returns to the same overworld position")
+	c.check(data.money==flee_money and data.party[0].xp==flee_xp and data.balls==flee_balls,"Flee gives no XP or money and consumes no balls")
+	c.check(is_equal_approx(data.party[0].hp,0.5),"Flee preserves damage instead of healing")
 	begin_battle("wild",[16],[4])
 	c.countdown = 0
 	c.player.action_lock = 0
@@ -860,7 +892,13 @@ func tests():
 	throw_ball()
 	c.check(data.balls==balls_before-1 and capture_time>0,"Capture consumes one ball")
 	capture_success = true
-	tick_capture(2)
+	capture_time=CAPTURE_DURATION-3.1
+	c.check(capture_visual().dark,"Successful capture briefly darkens the ball")
+	capture_success=false
+	c.check(not capture_visual().dark,"Failed capture never uses success darkening")
+	capture_success=true
+	capture_time=CAPTURE_DURATION
+	tick_capture(CAPTURE_DURATION+0.1)
 	c.check(data.party.size()==2 and data.party[1].id==16 and exploring,"Captured Pokemon joins saved party")
 	c.check(data.party[1].shiny and data.party[1].ability_slot==1,"Capture preserves shiny and ability identity")
 	c.check(data.party[1].ivs==caught_ivs,"Capture preserves the encountered Pokemon IVs")

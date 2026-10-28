@@ -113,6 +113,7 @@ func bag():
 	migrate()
 	var list = page("BAG / $%d / Poke Balls x%d" % [a.data.money,a.data.balls])
 	row(list,"POKE BALL / use G during a wild battle",func():pass,true)
+	if a.in_battle and a.encounter.get("kind","")=="wild": row(list,"RUN / FLEE FROM WILD POKEMON",a.flee,not a.can_flee())
 	for id in ITEMS:
 		var count = int(a.data.bag.get(id,0))
 		if count>0 or not a.extras.catalog.has(id): row(list,ITEMS[id].name+"  x"+str(count),targets.bind(id),count<=0)

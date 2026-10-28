@@ -288,6 +288,9 @@ func _unhandled_input(event):
 		if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE: adventure.back_ui()
 		return
 	if adventure.in_battle:
+		if event is InputEventMouseButton and event.pressed and event.button_index==MOUSE_BUTTON_LEFT and adventure.RUN_BUTTON.has_point(get_global_mouse_position()):
+			adventure.flee()
+			return
 		if controls.matches(event,"bag"):
 			if result == "" and countdown<=0 and not paused and not switch_menu and switch_time<0 and adventure.capture_time<=0 and player.get("action_lock",0)<=0 and player.get("charge_left",0)<=0: adventure.inventory.bag()
 			return
@@ -1046,10 +1049,13 @@ func _draw():
 				"ember": draw_circle(p.pos,p.size,tint)
 				_: draw_rect(Rect2(p.pos,Vector2.ONE*p.size),tint)
 	if adventure.in_battle and adventure.capture_time>0:
-		var progress = 1.0-adventure.capture_time/1.2
-		var ball_pos = capture_ball_position(progress)
-		draw_pokeball(ball_pos+Vector2(sin(progress*50)*5,0),14)
-		draw_arc(enemy.pos,50+sin(progress*20)*8,0,TAU,40,Color(GOLD,0.7),3)
+		var visual=adventure.capture_visual()
+		var ball_pos=capture_ball_position(float(visual.flight)*0.5)
+		draw_pokeball(ball_pos+Vector2(visual.wobble*7,0),14,false,visual.wobble*0.4,Color("292932") if visual.dark else Color.WHITE)
+		if visual.elapsed>=0.5 and visual.elapsed<0.85:
+			var flash=1.0-(visual.elapsed-0.5)/0.35
+			draw_circle(enemy.pos,35*flash,Color(1,0.65,0.68,flash*0.7))
+
 	if click_move: draw_arc(click_destination,15,0,TAU,24,MINT,2)
 	draw_ball_sequence(player, true)
 	draw_ball_sequence(enemy, false)
@@ -1093,6 +1099,9 @@ func _draw():
 func draw_hud():
 	if adventure.in_battle:
 		label_at("ADVENTURE / G: BALL (%d) / I: BAG / weaken wild Pokemon first" % adventure.data.balls, Vector2(40,945),18,GOLD)
+	if adventure.in_battle and adventure.encounter.get("kind","")=="wild":
+		panel(adventure.RUN_BUTTON,Color("19353d"),MINT if adventure.can_flee() else Color("55616a"))
+		label_at("RUN / FLEE",Vector2(1075,929),18,MINT if adventure.can_flee() else Color("81909a"))
 	for friendly in [true, false]:
 		var f = player if friendly else enemy
 		var x = 40 if friendly else 720
@@ -1159,6 +1168,7 @@ func draw_ellipse(center: Vector2, radii: Vector2, color: Color):
 	draw_colored_polygon(points, color)
 
 func draw_creature(fighter: Dictionary, friendly: bool):
+	if not friendly and adventure.in_battle and adventure.capture_time>0 and adventure.capture_visual().hidden: return
 	if not selecting and not friendly and enemy_bench.timer>=0:
 		enemy_bench.draw_recall(self)
 		return
@@ -1332,18 +1342,18 @@ func draw_trainer(friendly: bool):
 	if not friendly and adventure.in_battle and adventure.encounter.kind == "wild": return
 	art.trainer(self, friendly)
 
-func draw_pokeball(p: Vector2, radius: float, opened: bool = false):
+func draw_pokeball(p: Vector2, radius: float, opened: bool = false, rotation: float=0.0, tint: Color=Color.WHITE):
 	for top in [true, false]:
 		var offset = Vector2(0, -3 if top and opened else 3 if opened else 0)
 		var points = PackedVector2Array([p + offset])
 		for i in range(17):
 			var angle = PI + i * PI / 16 if top else i * PI / 16
-			points.append(p + offset + Vector2(cos(angle), sin(angle)) * radius)
-		draw_colored_polygon(points, Color("f26970") if top else WHITE)
+			points.append(p + offset + Vector2(cos(angle+rotation), sin(angle+rotation)) * radius)
+		draw_colored_polygon(points, (Color("f26970") if top else WHITE)*tint)
 		draw_arc(p + offset, radius, PI if top else 0.0, TAU if top else PI, 16, INK, 1.5)
-	draw_line(p - Vector2(radius, 0), p + Vector2(radius, 0), INK, 2)
+	draw_line(p - Vector2(radius, 0).rotated(rotation), p + Vector2(radius, 0).rotated(rotation), INK, 2)
 	draw_circle(p, radius * 0.32, INK)
-	draw_circle(p, radius * 0.18, WHITE)
+	draw_circle(p, radius * 0.18, WHITE*tint)
 
 func draw_ball_sequence(fighter: Dictionary, friendly: bool):
 	if not friendly and adventure.in_battle and adventure.encounter.kind == "wild": return
@@ -1400,7 +1410,10 @@ func draw_moves():
 	label_at(controls.text("sprint")+" / SPRINT", Vector2(1042, 704), 16, MINT)
 	label_at(("TOGGLE" if controls.run_toggle else "HOLD")+" / +35% SPEED", Vector2(1042, 731), 12, WHITE)
 	label_at("Move: "+controls.text("up")+", "+controls.text("left")+", "+controls.text("down")+", "+controls.text("right")+" / "+controls.text("click_move")+"    Aim: Mouse", Vector2(40, 783), 12, Color("91a6a7"))
-	label_at(controls.text("switch")+": Team  "+controls.text("roster")+": Roster  Esc: Pause", Vector2(945, 783), 11, Color("91a6a7"))
+	if adventure.in_battle and adventure.encounter.get("kind","")=="wild":
+		label_at(controls.text("switch")+": Team / Esc: Pause",Vector2(820,783),11,Color("91a6a7"))
+	else:
+		label_at(controls.text("switch")+": Team  "+controls.text("roster")+": Roster  Esc: Pause", Vector2(945, 783), 11, Color("91a6a7"))
 
 func move_description(move: Dictionary, target_types) -> String:
 	if move.id in support.PROTECT: return "BLOCK 1.5s / CD 12s / %d%%"%roundi(support.protect_chance(player)*100)

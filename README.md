@@ -463,3 +463,10 @@ Timed, skippable scenes now cover Oak's warning/escort and lab introduction, Bil
 
 
 Visible overworld NPCs, civilians and trainers now occupy their tile, including quest actors and trainers repositioned by scenes. Walking, sprinting, right-click movement, ledge landings and boulder destinations respect actor occupancy. Adjacent/counter interaction remains available. Map arrivals and old saves that overlap an NPC relocate to the nearest free tile; NPC placement itself remains terrain-based to avoid recursive placement and unnecessary map scans.
+
+
+### Wild battles: flee and capture animation
+
+Wild Adventure battles have a RUN / FLEE button in the bottom-right and a Run entry in the Bag. Flee succeeds when the character is ready to act, returns to the same map position, preserves HP/status, and awards no money, XP or EVs. Trainer battles cannot be fled. Running is disabled during casting/recovery, switching, send-out, capture and battle resolution.
+
+Capture uses a 3.6-second sequence: trainer throw, absorption flash, three separated ball wobbles, and a 0.3-second dark confirmation on success. A failed capture restores the wild Pokemon and resumes battle; the existing catch probability is unchanged. One ball is consumed per attempt.
