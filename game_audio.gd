@@ -6,11 +6,18 @@ const DEFAULT_VOLUME=0.65
 const DEFAULT_CRY_VOLUME=0.25
 var volume=DEFAULT_VOLUME
 var cry_volume=DEFAULT_CRY_VOLUME
+const DEFAULT_MUSIC_VOLUME=0.3
+var music_volume=DEFAULT_MUSIC_VOLUME
+var music: AudioStreamPlayer
+var music_key=""
+var preview_music=false
+var music_manifest: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://assets/audio/music/manifest.json"))
 var cursor=0
 var muted=false
 
 func install(context):
 	c=context
+	music=AudioStreamPlayer.new(); c.add_child(music)
 	for i in range(12):
 		var player=AudioStreamPlayer.new(); c.add_child(player); players.append(player)
 	if FileAccess.file_exists("user://audio-settings.json"):
@@ -18,15 +25,41 @@ func install(context):
 		load_settings(saved)
 
 func load_settings(saved):
-	volume=DEFAULT_VOLUME; cry_volume=DEFAULT_CRY_VOLUME
+	volume=DEFAULT_VOLUME; cry_volume=DEFAULT_CRY_VOLUME; music_volume=DEFAULT_MUSIC_VOLUME
 	if not saved is Dictionary: return
 	if (saved.get("volume") is float or saved.get("volume") is int) and is_finite(float(saved.volume)): volume=clampf(saved.volume,0,1)
 	if (saved.get("cry_volume") is float or saved.get("cry_volume") is int) and is_finite(float(saved.cry_volume)): cry_volume=clampf(saved.cry_volume,0,1)
+
+	if (saved.get("music_volume") is float or saved.get("music_volume") is int) and is_finite(float(saved.music_volume)): music_volume=clampf(saved.music_volume,0,1)
+
+func set_music_volume(value):
+	music_volume=clampf(value,0,1); refresh_volume(); save_settings()
+
+func update_music():
+	if music==null or c.adventure==null: return
+	var key=""
+	if c.adventure.exploring and c.adventure.world.enabled:
+		key=music_manifest.maps.get(c.adventure.world.current,"")
+	if preview_music and c.frontend.layer!=null and c.frontend.layer.visible: key="MUS_PALLET"
+	if key!=music_key:
+		music_key=key; music.stop(); music.stream=null
+		var path="res://assets/audio/music/"+str(music_manifest.tracks.get(key,{}).get("file",""))
+		if FileAccess.file_exists(path):
+			if path.ends_with(".ogg"): music.stream=AudioStreamOggVorbis.load_from_file(path)
+			else:
+				var stream=AudioStreamMP3.new(); stream.data=FileAccess.get_file_as_bytes(path); music.stream=stream
+			if music.stream: music.stream.loop=true
+	if music.stream and not music.playing and not muted and DisplayServer.get_name()!="headless": music.play()
+	music.stream_paused=muted or volume*music_volume<=0
+	music.volume_db=linear_to_db(maxf(0.0001,volume*music_volume))
 
 func voice_volume(player):
 	return volume*float(player.get_meta("gain",1.0))*(cry_volume if player.get_meta("cry",false) else 1.0)
 
 func refresh_volume():
+	if music:
+		music.volume_db=linear_to_db(maxf(0.0001,volume*music_volume))
+		music.stream_paused=muted or volume*music_volume<=0
 	for player in players:
 		player.volume_db=linear_to_db(maxf(0.0001,voice_volume(player)))
 		if voice_volume(player)<=0: player.stop()
@@ -34,7 +67,7 @@ func refresh_volume():
 func save_settings():
 	if OS.get_cmdline_user_args().is_empty():
 		var file=FileAccess.open("user://audio-settings.json",FileAccess.WRITE)
-		if file: file.store_string(JSON.stringify({"volume":volume,"cry_volume":cry_volume}))
+		if file: file.store_string(JSON.stringify({"volume":volume,"cry_volume":cry_volume,"music_volume":music_volume}))
 
 func set_volume(value):
 	volume=clampf(value,0,1); refresh_volume(); save_settings()
@@ -92,7 +125,7 @@ func tests():
 	for type in ["Fire","Water","Electric","Grass","Ice","Psychic","Ghost","Rock","Ground","Steel","Flying","Dragon","Dark","Fairy","Fighting","Poison","Bug","Normal"]:
 		move({"type":type,"damage":30})
 		c.check(cache.has("cast:"+type) and cache["cast:"+type].data.size()>0,"Attack audio generated: "+type)
-	var saved_volume=volume; var saved_cries=cry_volume
+	var saved_volume=volume; var saved_cries=cry_volume; var saved_music=music_volume
 	load_settings({"volume":0.7})
 	c.check(is_equal_approx(volume,0.7) and is_equal_approx(cry_volume,0.25),"Legacy audio settings keep master and quieter default cries")
 	load_settings({"volume":2,"cry_volume":-1})
@@ -102,5 +135,13 @@ func tests():
 	c.check(is_equal_approx(voice_volume(voice),0.1),"Cry channel preserves gain")
 	voice.set_meta("cry",false)
 	c.check(is_equal_approx(voice_volume(voice),0.4),"Cry volume leaves effects unchanged")
-	volume=saved_volume; cry_volume=saved_cries; refresh_volume()
+	load_settings({"volume":0.8,"cry_volume":0.25,"music_volume":0.45})
+	c.check(is_equal_approx(music_volume,0.45) and is_equal_approx(cry_volume,0.25),"Music slider persists independently from cries")
+	for track in music_manifest.tracks.values():
+		if track.get("pending",false): continue
+		var stream=AudioStreamOggVorbis.load_from_file("res://assets/audio/music/"+track.file)
+		c.check(stream!=null and stream.get_length()>1,"Town soundtrack decodes: "+track.file)
+	for mon in c.roster:
+		if int(mon.id)<=151: c.check(c.adventure.collection.entries.has(str(int(mon.id))),"Kanto species has Pokedex description: "+mon.name)
+	volume=saved_volume; cry_volume=saved_cries; music_volume=saved_music; refresh_volume()
 	muted=previous

@@ -453,7 +453,7 @@ func begin_battle(kind: String, ids: Array, levels: Array):
 	progress_time = 0
 	save()
 	for species in ids: field.finish("seen:"+str(species))
-	encounter = {"kind":kind,"ids":ids.duplicate(),"levels":levels.duplicate(),"rewarded":[]}
+	encounter = {"kind":kind,"ids":ids.duplicate(),"levels":levels.duplicate(),"rewarded":[],"participants":{}}
 	exploring = false
 	visible = false
 	in_battle = true
@@ -482,6 +482,7 @@ func begin_battle(kind: String, ids: Array, levels: Array):
 		fighter.ailment = data.party[i].ailment
 		fighter.ailment_time = 2.5 if fighter.ailment=="sleep" else 3.0 if fighter.ailment=="paralysis" else 5.0 if fighter.ailment=="freeze" else 8.0
 	c.activate_player(first)
+	c.horde.start(c)
 	c.countdown = c.SEND_OUT_TIME
 
 func sync_health():
@@ -527,16 +528,22 @@ func return_world(caught: bool = false, escaped: bool = false):
 	sync_health()
 	var win = c.result == "VICTORY"
 	var message = ""
+	var new_entry={}
 	if caught:
-		var mon = new_mon(int(encounter.ids[0]),int(encounter.levels[0]))
+		collection.sync()
+		var capture_xp=25+int(encounter.levels[c.enemy_active])*5
+		var xp_message=grant_xp(capture_xp)
+		var mon = new_mon(int(encounter.ids[c.enemy_active]),int(encounter.levels[c.enemy_active]))
 		for key in ["shiny","ability_slot","gender"]: mon[key]=c.enemy.data.get(key, false if key=="shiny" else "N" if key=="gender" else 0)
 		mon.ivs=c.enemy.data.ivs.duplicate(true)
 		mon.nature=c.enemy.data.get("nature","Hardy")
 		c.abilities.assign(mon)
+		if not data.pokedex.get(str(int(mon.id)),{}).get("caught",false): new_entry=mon
+		collection.register(mon)
 		var joins_party = data.party.size() < 6
 		if joins_party: data.party.append(mon)
 		else: data.storage.append(mon)
-		message = mon_name(mon.id)+" caught! "+("Added to your party." if joins_party else "Check Party / Storage with P.")
+		message = mon_name(mon.id)+" caught! "+("Added to your party." if joins_party else "Check Party / Storage with P.")+" +"+str(capture_xp)+" EXP. "+xp_message
 	elif not escaped:
 		message = reward(win)
 		if world.enabled: world.events.battle_reward(str(encounter.kind),win)
@@ -568,15 +575,37 @@ func return_world(caught: bool = false, escaped: bool = false):
 	capture_time = 0
 	wild_cycle += 1
 	dialog = message
-	if not evolutions.is_empty(): show_evolution()
+	if not new_entry.is_empty(): collection.dex_entry(int(new_entry.id),bool(new_entry.get("shiny",false)),true)
+	elif not evolutions.is_empty(): show_evolution()
 	save()
 	queue_redraw()
+
+func finish_capture_entry():
+	clear_ui()
+	if not evolutions.is_empty(): show_evolution()
+
+func mark_participant():
+	if not in_battle or encounter.is_empty(): return
+	var targets=range(encounter.ids.size()) if c.horde.active(c) else [c.enemy_active]
+	for slot in targets:
+		if not c.horde.active(c) or slot>=c.enemy_bench.states.size() or c.enemy_bench.states[slot].hp>0: mark_participant_for(slot)
+
+func mark_participant_for(slot):
+	var key=str(slot)
+	if not encounter.has("participants"): encounter["participants"]={}
+	if not encounter.participants.has(key): encounter.participants[key]=[]
+	if c.player_active not in encounter.participants[key]: encounter.participants[key].append(c.player_active)
+
+func participants() -> Array:
+	return encounter.get("participants",{}).get(str(c.enemy_active),[c.player_active])
 
 func catch_chance() -> float:
 	var weak = 1.0-clampf(c.enemy.hp/c.enemy.data.hp,0,1)
 	return clampf(0.18+weak*0.65+(0.12 if c.enemy.ailment!="" else 0),0.1,0.95)
 
 func throw_ball():
+	if c.horde.active(c) and c.horde.living(c).size()>1:
+		c.notice="HORDE / Leave one wild Pokemon before throwing a ball."; c.notice_time=2; return
 	if not in_battle or encounter.kind!="wild" or c.result!="" or c.paused or c.countdown>0 or c.switch_menu or c.switch_time>=0 or capture_time>0: return
 	if c.player.hp<=0 or c.enemy.hp<=0 or c.player.get("action_lock",0)>0: return
 	if data.balls <= 0:
@@ -1020,9 +1049,15 @@ func next_evolution():
 
 func grant_xp(amount: int) -> String:
 	var message = ""
-	for mon in data.party:
+	for slot in range(data.party.size()):
+		var mon=data.party[slot]
 		if mon.hp <= 0: continue
-		mon.xp += amount
+		var earned=amount
+		if in_battle:
+			if slot in participants(): earned=maxi(1,amount/maxi(1,participants().size()))
+			elif mon.get("held_item","")=="expshare": earned=maxi(1,amount/2)
+			else: continue
+		mon.xp += earned
 		while mon.level < 100 and mon.xp >= 20+mon.level*6:
 			mon.xp -= 20+mon.level*6
 			var old_id = int(mon.id)
@@ -1052,15 +1087,15 @@ func xp_needed(mon) -> int:
 func xp_ratio(mon) -> float:
 	return 1.0 if mon.level>=100 else clampf(float(mon.xp)/xp_needed(mon),0,1)
 
-func record_knockout():
-	if not in_battle or c.enemy.hp>0 or not c.resolution_ready(): return
+func record_knockout(immediate=false):
+	if not in_battle or c.enemy.hp>0 or (not immediate and not c.resolution_ready()): return
 	if not encounter.has("rewarded"): encounter.rewarded = []
 	if c.enemy_active in encounter.rewarded: return
 	encounter.rewarded.append(c.enemy_active)
 	if encounter.kind=="post_tower": return
 	sync_health()
 	var amount = 25+int(encounter.levels[c.enemy_active])*5
-	c.ivs.award_evs(int(encounter.ids[c.enemy_active]))
+	c.ivs.award_evs(int(encounter.ids[c.enemy_active]),participants())
 	var old_levels=data.party.map(func(member):return int(member.level))
 	var message = grant_xp(amount)
 	for i in range(data.party.size()):

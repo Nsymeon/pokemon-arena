@@ -36,7 +36,7 @@ func tick(c, dt: float):
 	chip_clock += active
 	while chip_clock >= 1.0:
 		chip_clock -= 1.0
-		for f in [c.player, c.enemy]:
+		for f in [c.player]+c.foes():
 			var immune = kind == "sand" and ("Rock" in preload("res://status_rules.gd").types(f) or "Ground" in preload("res://status_rules.gd").types(f) or "Steel" in preload("res://status_rules.gd").types(f))
 			immune = immune or (kind=="sand" and c.abilities.name_of(f)=="Sand Veil")
 			immune = immune or (kind == "hail" and "Ice" in preload("res://status_rules.gd").types(f))

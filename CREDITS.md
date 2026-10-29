@@ -14,3 +14,6 @@ Shiny variants: PokeAPI/sprites portraits and PMDCollab/SpriteCollab animations,
 - Kanto map layouts, metatiles, palettes and overworld character sprites: original Pokémon FireRed artwork/data, Game Freak / Nintendo / Creatures, reconstructed from [pret/pokefirered](https://github.com/pret/pokefirered). Pinned revision and generated map count: assets/kanto/source.json. The pret project provides the decompilation; original artwork is not claimed as original or freely licensed by this prototype.
 
 - Pokemon cries: original Pokemon game audio distributed by [PokeAPI/cries](https://github.com/PokeAPI/cries), latest cry variants. Per-file source URLs and SHA-256 hashes: assets/audio/cries/sources.json. Audio belongs to the Pokemon rights holders. Attack, impact and footstep effects are synthesized by this project.
+
+- Town music: original Pokemon FireRed/LeafGreen soundtrack (Game Freak / Nintendo / Creatures), looped versions distributed by [ENLS](https://enls.eu/prelooped/album/?game=FRLG). Exact download URLs and SHA-256 hashes are in assets/audio/music/manifest.json. Lavender is reserved for the requested Lets Go arrangement; its audio file is not bundled yet.
+- Pokedex descriptions, categories and dimensions: original FireRed data from the pinned pret/pokefirered checkout, exported to assets/kanto/pokedex-entries.json.

@@ -4,6 +4,7 @@ const FIELD = Rect2(0, 0, 2400, 1200)
 const ARENA_ORIGIN = Vector2(40, 180)
 const ARENA_SCALE = 0.8
 var camera_offset = Vector2.ZERO
+var horde=preload("res://wild_horde.gd").new()
 var enemy_bench = preload("res://enemy_switching.gd").new()
 var balance = preload("res://battle_balance.gd").new()
 var weather = preload("res://weather_rules.gd").new()
@@ -424,6 +425,12 @@ func use_move(user: Dictionary, target: Dictionary, index: int, direction: Vecto
 	return true
 
 func execute_move(user: Dictionary, target: Dictionary, move: Dictionary, direction: Vector2, friendly: bool):
+	var selected=enemy
+	if not friendly: enemy=user
+	execute_move_inner(user,target,move,direction,friendly)
+	enemy=selected
+
+func execute_move_inner(user: Dictionary, target: Dictionary, move: Dictionary, direction: Vector2, friendly: bool):
 	user["movement_lock"] = 0.4
 	move = weather.prepare(move)
 	if move.id == "mirrormove":
@@ -588,7 +595,7 @@ func sprint_movement(direction: Vector2, dt: float, requested: bool):
 func projectile(origin: Vector2, direction: Vector2, speed: float, damage: float, radius: float, friendly: bool, color: Color, move: Dictionary = {}) :
 	move = weather.prepare(move)
 	radius *= move.get("area_scale", 1.0)
-	shots.append({"pos": origin + direction * 27, "origin": origin, "age": 0.0, "vel": direction * speed, "damage": damage, "radius": radius, "friendly": friendly, "owner": player if friendly else enemy, "attack_snapshot": (player if friendly else enemy).duplicate(true), "color": color, "life": 2.6, "move": move.duplicate(true)})
+	shots.append({"pos": origin + direction * 27, "origin": origin, "age": 0.0, "vel": direction * speed, "damage": damage, "radius": radius, "friendly": friendly, "target":enemy if friendly else player, "owner": player if friendly else enemy, "attack_snapshot": (player if friendly else enemy).duplicate(true), "color": color, "life": 2.6, "move": move.duplicate(true)})
 	if skills.homing(move):
 		shots.back().vel = direction.normalized() * 360.0
 		shots.back().life = 3.0
@@ -596,7 +603,7 @@ func projectile(origin: Vector2, direction: Vector2, speed: float, damage: float
 
 func steer_homing(shot: Dictionary, dt: float):
 	if shot.life <= 0 or not skills.homing(shot.get("move", {})): return
-	var target = enemy if shot.friendly else player
+	var target = shot_target(shot)
 	if target.hp > 0:
 		var delta: Vector2 = target.pos-shot.pos
 		if delta.length_squared() > 1:
@@ -609,6 +616,7 @@ func steer_homing(shot: Dictionary, dt: float):
 	shot["trail"] = trail
 
 func _process(delta):
+	audio.update_music()
 	if frontend.layer != null and frontend.layer.visible: return
 	if adventure.in_battle and not paused: adventure.progress_time = maxf(0,adventure.progress_time-delta)
 	if adventure.in_battle and adventure.modal != "":
@@ -652,16 +660,19 @@ func _process(delta):
 	queue_redraw()
 
 func update_battle(dt: float):
+	if horde.active(self): horde.select_target(self); horde.settle(self,dt)
+	if adventure.in_battle: adventure.mark_participant()
 	if result != "": return
-	if player.hp <= 0 or enemy.hp <= 0:
+	if player.hp <= 0 or foes().all(func(f):return f.hp<=0):
 		finish_round()
 		return
 	abilities.entry(player,enemy)
-	abilities.entry(enemy,player)
+	for foe in foes():
+		if foe.hp>0: abilities.entry(foe,player)
 	support.tick(dt)
-	weather.suppressed=abilities.name_of(player)=="Cloud Nine" or abilities.name_of(enemy)=="Cloud Nine"
+	weather.suppressed=([player]+foes()).any(func(f):return f.hp>0 and abilities.name_of(f)=="Cloud Nine")
 	weather.tick(self, dt)
-	if player.hp <= 0 or enemy.hp <= 0:
+	if player.hp <= 0 or foes().all(func(f):return f.hp<=0):
 		finish_round()
 		return
 	round_time += dt
@@ -670,8 +681,8 @@ func update_battle(dt: float):
 	sprinting = controls.held("sprint") and movement_input() != Vector2.ZERO and player.dash_time <= 0 and player.energy >= 12.0 * dt and not Conditions.immobilized(player)
 	for i in range(4):
 		cooldowns[i] = maxf(0, cooldowns[i] - dt)
-		enemy_cooldowns[i] = maxf(0, enemy_cooldowns[i] - dt)
-	for fighter in [player, enemy]:
+		if not horde.active(self): enemy_cooldowns[i] = maxf(0, enemy_cooldowns[i] - dt)
+	for fighter in [player]+foes():
 		fighter.inv = maxf(0, fighter.inv - dt)
 		fighter.flash = maxf(0, fighter.flash - dt)
 		fighter.stun = maxf(0, fighter.stun - dt)
@@ -700,7 +711,7 @@ func update_battle(dt: float):
 			move_fighter(fighter, fighter.dash * dt)
 			fighter.dash_time -= dt
 			burst(fighter.pos, Dex.color(fighter.data.type), 1)
-	if player.hp <= 0 or enemy.hp <= 0:
+	if player.hp <= 0 or foes().all(func(f):return f.hp<=0):
 		finish_round()
 		return
 	if player.dash_time <= 0:
@@ -712,9 +723,18 @@ func update_battle(dt: float):
 	elif quick_attack_active and player.pos.distance_to(enemy.pos) < 48 * player.dash_move.get("area_scale", 1.0) and player.inv > 0:
 		hit(enemy, player.dash_move.damage, player.dash.normalized(), true, player.dash_move)
 		player.dash_time = 0
-	update_ai(dt)
+	if horde.active(self): horde.ai(self,dt)
+	else: update_ai(dt)
 	update_projectiles(dt)
-	if player.hp <= 0 or enemy.hp <= 0: finish_round()
+	if horde.active(self): horde.settle(self,0)
+	if player.hp <= 0 or foes().all(func(f):return f.hp<=0): finish_round()
+
+func foes() -> Array:
+	return enemy_bench.states if horde.active(self) else [enemy]
+
+func shot_target(shot: Dictionary) -> Dictionary:
+	if not shot.friendly: return player
+	return shot.get("target",enemy)
 
 func update_projectiles(dt: float):
 	for shot in shots: steer_homing(shot, dt)
@@ -727,10 +747,10 @@ func update_projectiles(dt: float):
 		shot.life -= dt
 		shot.age = shot.get("age", 0.0) + dt
 		shot.pos += shot.vel * dt
-		var target = enemy if shot.friendly else player
-		if shot.life > 0 and shot.pos.distance_to(target.pos) < shot.radius + 19:
-			hit(target, shot.damage, shot.vel.normalized(), shot.friendly, shot.move, shot.get("owner", {}), shot.get("attack_snapshot", {}))
-			shot.life = 0
+		for target in foes() if shot.friendly else [player]:
+			if target.hp>0 and shot.life > 0 and shot.pos.distance_to(target.pos) < shot.radius + 19:
+				hit(target, shot.damage, shot.vel.normalized(), shot.friendly, shot.move, shot.get("owner", {}), shot.get("attack_snapshot", {}))
+				shot.life = 0
 		for rock in rocks:
 			if rock.hp > 0 and shot.life > 0 and shot.pos.distance_to(rock.pos) < 25 + shot.radius:
 				rock.hp -= shot.damage
@@ -744,6 +764,7 @@ func update_projectiles(dt: float):
 
 func finish_round():
 	if result != "": return
+	if horde.active(self): horde.settle(self,0)
 	var player_out = player.hp <= 0 and (not team_mode or not has_player_reserve())
 	var enemy_out = enemy.hp <= 0 and (not team_mode or enemy_bench.reserve(self)<0)
 	result = "DRAW" if player_out and enemy_out else "DEFEAT" if player_out else "VICTORY" if enemy_out else "SWITCH"
@@ -768,7 +789,7 @@ func finish_round():
 
 func update_ai(dt: float):
 	if enemy.hp <= 0 or player.hp <= 0: return
-	enemy_bench.tick(self,dt)
+	if not horde.active(self): enemy_bench.tick(self,dt)
 	if enemy_bench.timer>=0: return
 	var offset: Vector2 = player.pos - enemy.pos
 	var distance = offset.length()
@@ -943,7 +964,7 @@ func update_effects(dt: float):
 		effect.age += dt
 		effect.life -= dt
 	impacts = impacts.filter(func(effect): return effect.life > 0)
-	for fighter in [player, enemy]:
+	for fighter in [player]+foes():
 		fighter["anim_age"] = fighter.get("anim_age", 0.0) + dt
 		fighter["attack_time"] = maxf(0, fighter.get("attack_time", 0.0) - dt)
 		fighter["walk_time"] = maxf(0, fighter.get("walk_time", 0.0) - dt)
@@ -1022,14 +1043,16 @@ func _draw():
 		draw_rock(rock)
 	for shot in shots:
 		if shot.get("skill", "") == "wave": skills.draw(self, shot)
-	if player.pos.y < enemy.pos.y:
-		draw_creature(player, true)
-		draw_creature(enemy, false)
+	if horde.active(self): horde.draw(self)
 	else:
-		draw_creature(enemy, false)
-		draw_creature(player, true)
-	skills.draw_charge(self, player)
-	skills.draw_charge(self, enemy)
+		if player.pos.y < enemy.pos.y:
+			draw_creature(player, true)
+			draw_creature(enemy, false)
+		else:
+			draw_creature(enemy, false)
+			draw_creature(player, true)
+		skills.draw_charge(self, player)
+		skills.draw_charge(self, enemy)
 	for shot in shots:
 		if shot.get("skill", "") == "wave": continue
 		if shot.has("skill"): skills.draw(self, shot)
@@ -1239,7 +1262,7 @@ func draw_fainted(fighter: Dictionary):
 	var size = texture.get_size() * (78.0 / maxf(texture.get_width(), texture.get_height()))
 	var animated: Dictionary = fighter.get("faint_frame", {})
 	var facing: float = fighter.face
-	var recall = recall_progress(faint_elapsed)
+	var recall = 0.0 if horde.active(self) and fighter!=player else recall_progress(faint_elapsed)
 	var hand = trainer_hand(fighter == player)
 	draw_ellipse(p + Vector2(facing * size.y * 0.4 * pose.fall, 9), Vector2(25 + pose.fall * 9, 8), Color(0.06, 0.14, 0.13, 0.28 * pose.alpha))
 	var jitter = Vector2(sin(clock_time * 85), cos(clock_time * 91)) * shake
@@ -1779,6 +1802,7 @@ func smoke_test():
 	ivs.tests()
 	adventure.expansion.tests()
 	adventure.collection.tests()
+	horde.tests(self)
 	adventure.tests()
 	campaign.tests(self)
 	clashes.tests(self)
@@ -2254,6 +2278,7 @@ func next_player_reserve() -> int:
 func activate_player(slot: int):
 	click_move = false
 	player_active = slot
+	if adventure.in_battle: adventure.mark_participant()
 	player = player_states[slot]
 	gear.withdrawn(player)
 	player.pos = FIELD.size * Vector2(0.34, 0.5)

@@ -3,6 +3,7 @@ extends RefCounted
 var a
 const NAMES=["Hardy","Lonely","Brave","Adamant","Naughty","Bold","Docile","Relaxed","Impish","Lax","Timid","Hasty","Serious","Jolly","Naive","Modest","Mild","Quiet","Bashful","Rash","Calm","Gentle","Sassy","Careful","Quirky"]
 const ORDER=["atk","def","spe","spa","spd"]
+var entries: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://assets/kanto/pokedex-entries.json"))
 var pc_box=0
 var search=""
 var shiny_only=false
@@ -172,10 +173,21 @@ func dex():
 		var entry=a.data.pokedex.get(str(int(mon.id)),{})
 		a.inventory.row(list,"#%03d  %s  %s" % [mon.id,mon.name if entry.get("seen",false) else "???","CAUGHT" if entry.get("caught",false) else "SEEN" if entry.get("seen",false) else ""],dex_entry.bind(int(mon.id),false),not entry.get("seen",false))
 
-func dex_entry(id,shiny=false):
+func dex_entry(id,shiny=false,first_capture=false):
+	var back=a.finish_capture_entry if first_capture else dex
 	var mon=a.c.roster[a.c.Dex.find_id(a.c.roster,id)].duplicate(true); mon["shiny"]=shiny
-	var list=a.inventory.page("#%03d / %s / %s" % [id,mon.name," / ".join(mon.types)],dex)
+	var list=a.inventory.page(("NEW POKEDEX ENTRY / " if first_capture else "")+"#%03d / %s / %s" % [id,mon.name," / ".join(mon.types)],back)
 	var face=TextureRect.new(); face.texture=a.c.portrait(mon); face.expand_mode=TextureRect.EXPAND_IGNORE_SIZE; face.stretch_mode=TextureRect.STRETCH_KEEP_ASPECT_CENTERED; face.custom_minimum_size=Vector2(160,150); list.add_child(face)
+	var entry=entries.get(str(int(id)),{})
+	if not entry.is_empty():
+		a.inventory.row(list,"%s POKEMON / %.1f m / %.1f kg" % [entry.category,entry.height,entry.weight],func():pass,true)
+		var description=Label.new(); description.text=entry.text; description.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART; description.custom_minimum_size=Vector2(0,100); description.add_theme_font_size_override("font_size",23); list.add_child(description)
+	if first_capture:
+		a.inventory.row(list,"CONTINUE",back)
+		a.c.audio.cry(id)
+		var message=Label.new(); message.text=a.dialog; message.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART; message.add_theme_font_size_override("font_size",18); list.add_child(message)
+		a.dialog=""
+		return
 	a.inventory.row(list,"PLAY CRY",a.c.audio.cry.bind(id))
 	if a.data.pokedex[str(id)].shiny: a.inventory.row(list,"SHOW NORMAL" if shiny else "SHOW SHINY",dex_entry.bind(id,not shiny))
 	if a.EVOLUTIONS.has(id): a.inventory.row(list,"EVOLUTION: Lv.%d -> %s" % [a.EVOLUTIONS[id][0],a.mon_name(a.EVOLUTIONS[id][1])],func():pass,true)

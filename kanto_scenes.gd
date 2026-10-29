@@ -204,6 +204,12 @@ func roll(slots: Array) -> Dictionary:
 		if choice<=0: return {"id":int(slot.id),"level":random.randi_range(int(slot.min),int(slot.max))}
 	return {}
 
+func horde_eligible() -> bool:
+	if int(a.data.get("repel_steps",0))<=0 or w.room().type=="MAP_TYPE_UNDERGROUND" or w.current.begins_with("MAP_SAFARI_ZONE"): return false
+	var tile=Vector2i(a.position_world/w.TILE)
+	var behavior=int(w.events.catalog[w.current].behavior[tile.y*int(w.room().width)+tile.x])
+	return behavior in [2,3,0x0B] and habitat()=="land_mons"
+
 func seek_wild() -> bool:
 	var slots=pool()
 	if slots.is_empty(): return false
@@ -212,11 +218,13 @@ func seek_wild() -> bool:
 		a.services.safari_encounter(mon); return true
 	var leader=a.data.party.filter(func(member):return member.hp>0)
 	if not leader.is_empty():
-		if int(a.data.get("repel_steps",0))>0 and mon.level<leader[0].level:
-			a.dialog="Repel kept a weaker wild Pokemon away."; return true
 		if leader[0].get("held_item","")=="cleansetag" and random.randf()<1.0/3.0:
 			a.dialog="Cleanse Tag kept a wild Pokemon away."; return true
-	a.begin_battle("wild",[mon.id],[mon.level])
+	var ids=[mon.id]; var levels=[mon.level]
+	if horde_eligible() and random.randf()<0.2:
+		for i in range(4):
+			var extra=roll(slots); ids.append(extra.id); levels.append(extra.level)
+	a.begin_battle("wild",ids,levels)
 	return true
 
 func draw():

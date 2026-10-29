@@ -17,10 +17,12 @@ func ev_total(mon) -> int:
 	for value in mon.get("training",{}).values(): total+=int(value)
 	return total
 
-func award_evs(species):
+func award_evs(species,recipients=[0]):
 	var yields=ev_yields.get(str(int(species)),{})
-	# The existing shared EXP system rewards every healthy teammate, so EV recipients match.
-	for mon in c.adventure.data.party:
+	# Bench Exp. Share holders receive XP only, never passive EV training.
+	for slot in recipients:
+		if slot<0 or slot>=c.adventure.data.party.size(): continue
+		var mon=c.adventure.data.party[slot]
 		if mon.hp<=0: continue
 		var awarded=c.gear.ev_yield(mon,yields)
 		var values=mon.get("training",{})

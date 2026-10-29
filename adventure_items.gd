@@ -15,14 +15,14 @@ var catalog={
 	"maxrevive":{"name":"Max Revive / revive to full HP","price":0},
 	"rarecandy":{"name":"Rare Candy / gain one level","price":0},
 	"escaperope":{"name":"Escape Rope / leave cave","price":550},
-	"repel":{"name":"Repel / 100 steps","price":350},
+	"repel":{"name":"Lure / 100 steps / 20% grass hordes","price":350},
 	"ether":{"name":"Ether / energy + recovery PP","price":0},
 	"maxether":{"name":"Max Ether / full energy + recovery PP","price":0},
 	"elixir":{"name":"Elixir / energy + recovery PP","price":0},
 	"maxelixir":{"name":"Max Elixir / full energy + recovery PP","price":0},
 	"ppup":{"name":"PP Up / extra recovery PP","price":0},
 	"pokedoll":{"name":"Poke Doll / gift for Copycat to learn Mimic","price":1000},
-	"maxrepel":{"name":"Max Repel / 250 steps","price":700},
+	"maxrepel":{"name":"Max Lure / 250 steps / 20% grass hordes","price":700},
 	"direhit":{"name":"Dire Hit / critical boost for this battle","price":650},
 	"upgrade":{"name":"Up-Grade / stored for Porygon trade evolution (species not yet in roster)","price":0},
 	"sunstone":{"name":"Sun Stone / stored for later-generation evolutions","price":0},
@@ -60,7 +60,7 @@ func targets(id):
 	if id=="escaperope": a.field.escape(); return
 	if id in ["repel","maxrepel"]:
 		if int(a.data.bag.get(id,0))>0:
-			a.data["repel_steps"]=250 if id=="maxrepel" else 100; consume(id); a.dialog="Repel active for "+str(a.data.repel_steps)+" steps."
+			a.data["repel_steps"]=250 if id=="maxrepel" else 100; consume(id); a.dialog="Lure active: 20% grass hordes for "+str(a.data.repel_steps)+" steps."
 		return
 	if id in TREASURES:
 		if int(a.data.bag.get(id,0))>0 and a.data.money<999999:
@@ -198,7 +198,7 @@ func tests():
 	a.c.check(a.c.support.pp_limit(a.inventory.definitions(["recover"],a.data.party[0])[0])==6,"PP Up increases the real recovery move limit")
 	var money=a.data.money; targets("nugget")
 	a.c.check(a.data.money==money+5000,"Treasure can be sold")
-	targets("repel"); a.c.check(a.data.repel_steps==100,"Repel starts its step counter")
+	targets("repel"); a.c.check(a.data.repel_steps==100,"Lure starts its step counter")
 	a.c.check(valid(JSON.parse_string(JSON.stringify(a.data))),"Training, held items, PP boosts and repel survive JSON round trip")
 	a.begin_battle("wild",[19],[5]); a.c.countdown=0; a.c.player.action_lock=0
 	a.c.player.energy=20; a.c.player["healing_pp"]={"recover":0}

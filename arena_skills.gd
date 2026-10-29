@@ -22,13 +22,13 @@ func launch_rush(c, user, target, move, friendly):
 	var reach = 420.0 if move.id == "extremespeed" else 320.0
 	var delta: Vector2 = (target.pos - user.pos).limit_length(reach)
 	var duration = 0.24 if move.id == "extremespeed" else 0.42
-	c.shots.append({"skill":"rush", "move":move.duplicate(true), "owner":user, "attack_snapshot":user.duplicate(true), "friendly":friendly, "origin":user.pos, "end":user.pos + delta, "pos":user.pos, "dir":delta.normalized(), "age":0.0, "life":duration + 0.18, "duration":duration, "hit_done":false, "trail":[user.pos], "color":c.Dex.color(move.type)})
+	c.shots.append({"target":target, "skill":"rush", "move":move.duplicate(true), "owner":user, "attack_snapshot":user.duplicate(true), "friendly":friendly, "origin":user.pos, "end":user.pos + delta, "pos":user.pos, "dir":delta.normalized(), "age":0.0, "life":duration + 0.18, "duration":duration, "hit_done":false, "trail":[user.pos], "color":c.Dex.color(move.type)})
 
 func tick_rush(c, s, dt):
 	var before: float = s.age
 	s.age += dt
 	s.life -= dt
-	var target = c.enemy if s.friendly else c.player
+	var target = c.shot_target(s)
 	# Quick Attack follows its target within the original reach instead of hitting an empty launch position.
 	if s.move.id=="quickattack" and before<s.duration and target.hp>0:
 		s.end = s.origin+(target.pos-s.origin).limit_length(320)
@@ -136,7 +136,7 @@ func tick(c, s, dt):
 		return
 	s.age += dt
 	s.life -= dt
-	var target = c.enemy if s.friendly else c.player
+	var target = c.shot_target(s)
 	var old: Vector2 = s.pos
 	if s.skill == "wave":
 		s.pos += s.vel * dt
@@ -144,7 +144,13 @@ func tick(c, s, dt):
 			c.move_fighter(s.owner, s.pos - s.owner.pos)
 		if not c.FIELD.grow(100).has_point(s.pos): s.life = 0
 	if s.age < s.delay: return
-	if not s.hit_done and contains(s, target.pos, old):
+	if c.horde.active(c) and s.friendly:
+		if not s.has("targets_hit"): s["targets_hit"]=[]
+		for foe in c.foes():
+			var slot=int(foe.horde_slot)
+			if foe.hp>0 and slot not in s.targets_hit and contains(s,foe.pos,old) and not (s.hit_done and s.skill in ["lightning","rocks","vortex","psychic"]):
+				c.hit(foe,s.damage,s.dir,true,s.move,s.owner,s.attack_snapshot); s.targets_hit.append(slot)
+	elif not s.hit_done and contains(s, target.pos, old):
 		c.hit(target, s.damage, s.dir, s.friendly, s.move, s.owner, s.attack_snapshot)
 		s.hit_done = true
 	# Wide attacks pass through scenery, damaging each obstacle once.
@@ -376,8 +382,8 @@ func minimap(c):
 	c.draw_rect(Rect2(rect.position + c.camera_offset * ratio, Vector2(1200,600) / c.ARENA_SCALE * ratio), Color(0.9,1,1,0.45), false, 1)
 	for friendly in [true, false]:
 		c.draw_circle(rect.position + c.trainer_position(friendly) * ratio, 3, c.GOLD)
-		var fighter = c.player if friendly else c.enemy
-		c.draw_circle(rect.position + fighter.pos * ratio, 4, c.MINT if friendly else Color("ff7a72"))
+		for fighter in [c.player] if friendly else c.foes():
+			if fighter.hp>0: c.draw_circle(rect.position + fighter.pos * ratio, 4, c.MINT if friendly else Color("ff7a72"))
 
 func tests(c):
 	c.move_editor.tests()

@@ -7,7 +7,7 @@ func launch(c,user,target,move,friendly) -> bool:
 	var position: Vector2 = target.pos if flying else user.pos
 	var court = c.balance.bounds(c)
 	position = position.clamp(court.position,court.end)
-	c.shots.append({"skill":move.id,"move":move.duplicate(true),"owner":user,"attack_snapshot":user.duplicate(true),"friendly":friendly,"pos":position,"origin":user.pos,"radius":radius,"age":0.0,"life":1.9 if flying else 2.5,"delay":1.5 if flying else 0.55,"damage":move.damage,"dir":Vector2.DOWN,"hit_done":false,"color":c.Dex.color(move.type)})
+	c.shots.append({"target":target,"skill":move.id,"move":move.duplicate(true),"owner":user,"attack_snapshot":user.duplicate(true),"friendly":friendly,"pos":position,"origin":user.pos,"radius":radius,"age":0.0,"life":1.9 if flying else 2.5,"delay":1.5 if flying else 0.55,"damage":move.damage,"dir":Vector2.DOWN,"hit_done":false,"color":c.Dex.color(move.type)})
 	if flying:
 		user.volatile["underground" if move.id=="dig" else "airborne"] = 1.5
 		user.action_lock = 1.6
@@ -17,7 +17,7 @@ func launch(c,user,target,move,friendly) -> bool:
 func tick(c,s,dt):
 	s.age += dt
 	s.life -= dt
-	var target = c.enemy if s.friendly else c.player
+	var target = c.shot_target(s)
 	if s.skill in ["fly","dig"]:
 		# Follow during ascent, then lock the warning so the opponent can dodge the landing.
 		if s.age<0.6:
@@ -30,18 +30,23 @@ func tick(c,s,dt):
 				# Recovery starts at impact, even if the opponent dodged the move.
 				s.owner.movement_lock = maxf(s.owner.get("movement_lock",0),0.8)
 				s.owner.action_lock = maxf(s.owner.get("action_lock",0),0.8)
-			if target.pos.distance_to(s.pos)<=s.radius: c.hit(target,s.damage,(target.pos-s.pos).normalized(),s.friendly,s.move,s.owner,s.attack_snapshot)
+			for foe in c.foes() if s.friendly else [c.player]:
+				if foe.pos.distance_to(s.pos)<=s.radius: c.hit(foe,s.damage,(foe.pos-s.pos).normalized(),s.friendly,s.move,s.owner,s.attack_snapshot)
 			s.hit_done = true
 			c.burst(s.pos,s.color,25)
 	else:
-		if s.age<s.delay or target.hp<=0 or c.Conditions.avoids(target,s.move): return
-		var delta: Vector2 = s.pos-target.pos
-		if delta.length()<=s.radius:
-			if not s.hit_done:
-				var dealt = c.hit(target,s.damage,delta.normalized(),s.friendly,s.move,s.owner,s.attack_snapshot)
-				if dealt>0 and c.rng.randf()<0.3: c.Conditions.apply(c,target,{"volatileStatus":"flinch"},s.move)
-				s.hit_done = true
-			c.move_fighter(target,delta.limit_length(165*dt))
+		if s.age<s.delay: return
+		if not s.has("targets_hit"): s["targets_hit"]=[]
+		for foe in c.foes() if s.friendly else [c.player]:
+			if foe.hp<=0 or c.Conditions.avoids(foe,s.move): continue
+			var delta: Vector2=s.pos-foe.pos
+			if delta.length()>s.radius: continue
+			var key=int(foe.get("horde_slot",-1)) if s.friendly else -2
+			if key not in s.targets_hit:
+				var dealt=c.hit(foe,s.damage,delta.normalized(),s.friendly,s.move,s.owner,s.attack_snapshot)
+				if dealt>0 and c.rng.randf()<0.3: c.Conditions.apply(c,foe,{"volatileStatus":"flinch"},s.move)
+				s.targets_hit.append(key); s.hit_done=true
+			c.move_fighter(foe,delta.limit_length(165*dt))
 
 func height(c,f) -> float:
 	for s in c.shots:

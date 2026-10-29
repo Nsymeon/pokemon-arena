@@ -19,6 +19,7 @@ func reset(c):
 	c.enemy_active = 0
 
 func reserve(c) -> int:
+	if c.horde.active(c): return -1
 	for i in range(states.size()):
 		if i!=c.enemy_active and states[i].hp>0: return i
 	return -1
@@ -39,6 +40,7 @@ func activate(c,slot):
 	c.ai_timer = 1.0
 
 func request(c,slot) -> bool:
+	if c.horde.active(c): return false
 	if not c.team_mode or used>=c.difficulty.switches() or timer>=0 or cooldown>0 or c.countdown>0 or c.result!="" or c.paused or c.switch_menu or c.switch_time>=0: return false
 	if c.enemy.hp<=0 or c.player.hp<=0 or slot<0 or slot>=states.size() or slot==c.enemy_active or states[slot].hp<=0: return false
 	if c.Conditions.immobilized(c.enemy) or c.enemy.volatile.get("partiallytrapped",0)>0 or c.enemy.action_lock>0 or c.enemy.dash_time>0: return false

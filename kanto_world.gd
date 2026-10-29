@@ -544,7 +544,7 @@ func advance_step(dt: float):
 		if a.sevii.on_step(): return
 		if int(a.data.get("repel_steps",0))>0:
 			a.data.repel_steps-=1
-			if a.data.repel_steps==0: a.dialog="Repel wore off."
+			if a.data.repel_steps==0: a.dialog="Lure wore off."
 		if pending_interact:
 			pending_interact=false
 			a.interact()

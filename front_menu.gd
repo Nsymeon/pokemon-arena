@@ -38,6 +38,7 @@ func portrait(id,rect):
 	layer.add_child(item)
 
 func background():
+	c.audio.preview_music=false
 	for child in layer.get_children(): child.queue_free()
 	c.campaign.layer.visible = false
 	c.selection_controls.visible = false
@@ -116,7 +117,7 @@ func show_settings():
 	label("Esc: cancel   /   Backspace: clear   /   Conflicting keys in the same mode are rejected.",Vector2(160,145),18,Color("77e2b0"))
 	var scroll=ScrollContainer.new()
 	scroll.position=Vector2(165,195)
-	scroll.size=Vector2(950,500)
+	scroll.size=Vector2(950,450)
 	layer.add_child(scroll)
 	var grid=GridContainer.new()
 	grid.columns=4
@@ -143,17 +144,19 @@ func show_settings():
 			key.custom_minimum_size=Vector2(225,43)
 			key.pressed.connect(capture_key.bind(def[0],slot,def[1],key))
 			grid.add_child(key)
-	var running=OptionButton.new(); running.position=Vector2(180,705); running.size=Vector2(500,40)
+	var running=OptionButton.new(); running.position=Vector2(180,655); running.size=Vector2(500,40)
 	running.add_item("RUN: Hold key"); running.add_item("RUN: Toggle on / off")
 	running.selected=1 if c.controls.run_toggle else 0
 	running.item_selected.connect(func(index): c.controls.set_run_toggle(index==1)); layer.add_child(running)
-	audio_slider("MASTER",Vector2(180,760),c.audio.volume,c.audio.set_volume)
-	audio_slider("POKEMON CRIES",Vector2(180,805),c.audio.cry_volume,c.audio.set_cry_volume)
-	button("PREVIEW CRY",Rect2(730,805,330,35),func(): c.audio.cry(25))
-	var mode=OptionButton.new(); mode.position=Vector2(730,755); mode.size=Vector2(330,40)
+	audio_slider("MASTER",Vector2(180,710),c.audio.volume,c.audio.set_volume)
+	audio_slider("POKEMON CRIES",Vector2(180,750),c.audio.cry_volume,c.audio.set_cry_volume)
+	audio_slider("MUSIC",Vector2(180,790),c.audio.music_volume,c.audio.set_music_volume)
+	button("PREVIEW MUSIC",Rect2(730,790,330,35),func(): c.audio.preview_music=not c.audio.preview_music)
+	button("PREVIEW CRY",Rect2(730,750,330,35),func(): c.audio.cry(25))
+	var mode=OptionButton.new(); mode.position=Vector2(730,705); mode.size=Vector2(330,40)
 	for value in c.difficulty.NAMES: mode.add_item("DIFFICULTY: "+value)
 	mode.selected=c.difficulty.level; mode.item_selected.connect(c.difficulty.choose); layer.add_child(mode)
-	button("RESTORE DEFAULTS",Rect2(290,845,350,60),func(): c.controls.reset_defaults(); c.audio.set_volume(c.audio.DEFAULT_VOLUME); c.audio.set_cry_volume(c.audio.DEFAULT_CRY_VOLUME); c.difficulty.choose(1); show_settings())
+	button("RESTORE DEFAULTS",Rect2(290,845,350,60),func(): c.controls.reset_defaults(); c.audio.set_volume(c.audio.DEFAULT_VOLUME); c.audio.set_cry_volume(c.audio.DEFAULT_CRY_VOLUME); c.audio.set_music_volume(c.audio.DEFAULT_MUSIC_VOLUME); c.difficulty.choose(1); show_settings())
 	button("BACK",Rect2(675,845,250,60),show_title)
 
 func audio_slider(title,pos,value,callback):

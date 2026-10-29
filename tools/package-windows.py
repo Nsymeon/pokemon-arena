@@ -30,9 +30,9 @@ with ZipFile(archive, 'w', ZIP_DEFLATED, compresslevel=6) as z:
     z.writestr(prefix+'READ-ME.txt', '''POKEMON ARENA - WINDOWS PLAYTEST
 Extract the WHOLE ZIP into a folder, then open PLAY.bat.
 No separate Godot installation needed. Do not run inside the ZIP.
-WASD/arrows: move. Mouse: aim. Q/LMB, E, F, C: moves. Space: sprint.
+WASD/arrows: move. Mouse: aim. Q/LMB, Space, F, C: moves. E: sprint.
 B / 1-6: switch. Tab: roster. Esc: pause.
-Adventure: E interact, P team/moves, I Bag, G capture in wild battles.
+Adventure: Space interact, P team/moves, I Bag, G capture in wild battles.
 Choose Play, then Adventure / Gym Leaders / Free Battles. Progress autosaves.
 Single-player against AI; online multiplayer is not implemented.
 For updates download the latest release ZIP and extract into a NEW folder.
