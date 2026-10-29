@@ -14,6 +14,7 @@ var fields = preload("res://tournament_fields.gd").new()
 var arena_overview = false
 var opponent_choice: OptionButton
 var league = preload("res://league.gd").new()
+var save_slots=preload("res://adventure_slots.gd").new()
 var frontend = preload("res://front_menu.gd").new()
 var adventure = preload("res://adventure.gd").new()
 var campaign = preload("res://league_campaign.gd").new()
@@ -107,11 +108,16 @@ var test_failures: Array = []
 
 var support = preload("res://team_support.gd").new()
 
+var gamepad=preload("res://gamepad_controls.gd").new()
 var controls = preload("res://keybinds.gd").new()
 
 func _ready():
+	get_viewport().gui_embed_subwindows=true
+	save_slots.c=self
 	add_child(controls)
 	controls.install()
+	add_child(gamepad); gamepad.install(self)
+	controls.gamepad=gamepad
 	if "--capture-finale" in OS.get_cmdline_user_args(): call_deferred("capture_finale")
 	if "--capture-story" in OS.get_cmdline_user_args(): call_deferred("capture_story")
 	if "--capture-support" in OS.get_cmdline_user_args(): call_deferred("capture_support")
@@ -348,6 +354,10 @@ func _unhandled_input(event):
 				click_move=true
 
 func movement_input() -> Vector2:
+	var pad=gamepad.movement()
+	if pad!=Vector2.ZERO:
+		click_move=false
+		return pad
 	var keyboard = Vector2(float(controls.held("right"))-float(controls.held("left")),float(controls.held("down"))-float(controls.held("up"))).normalized()
 
 	if keyboard!=Vector2.ZERO:
@@ -1787,6 +1797,8 @@ func smoke_test():
 	strategy.tests(self)
 	support.tests(self)
 	controls.tests(self)
+	save_slots.tests()
+	gamepad.tests()
 	movement_recovery_tests()
 	homing_tests()
 	abilities.tests()

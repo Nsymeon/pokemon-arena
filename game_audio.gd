@@ -139,7 +139,10 @@ func tests():
 	c.check(is_equal_approx(music_volume,0.45) and is_equal_approx(cry_volume,0.25),"Music slider persists independently from cries")
 	for track in music_manifest.tracks.values():
 		if track.get("pending",false): continue
-		var stream=AudioStreamOggVorbis.load_from_file("res://assets/audio/music/"+track.file)
+		var stream
+		if track.file.ends_with(".ogg"): stream=AudioStreamOggVorbis.load_from_file("res://assets/audio/music/"+track.file)
+		else:
+			stream=AudioStreamMP3.new(); stream.data=FileAccess.get_file_as_bytes("res://assets/audio/music/"+track.file)
 		c.check(stream!=null and stream.get_length()>1,"Town soundtrack decodes: "+track.file)
 	for mon in c.roster:
 		if int(mon.id)<=151: c.check(c.adventure.collection.entries.has(str(int(mon.id))),"Kanto species has Pokedex description: "+mon.name)

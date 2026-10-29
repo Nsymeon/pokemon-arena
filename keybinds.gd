@@ -17,6 +17,7 @@ const DEFINITIONS = [
 	["slot3","Pokemon slot 3",1,KEY_3,0], ["slot4","Pokemon slot 4",1,KEY_4,0],
 	["slot5","Pokemon slot 5",1,KEY_5,0], ["slot6","Pokemon slot 6",1,KEY_6,0]
 ]
+var gamepad
 var bindings = {}
 var capturing = ""
 var capture_slot = 0
@@ -74,6 +75,7 @@ func code_of(event) -> int:
 	return 0
 
 func matches(event, action: String) -> bool:
+	if event.has_meta("controller_action"): return event.pressed and event.get_meta("controller_action")==action
 	if not (event is InputEventKey or event is InputEventMouseButton) or not event.pressed: return false
 	if event is InputEventKey and event.echo: return false
 	var code=code_of(event)
@@ -81,6 +83,7 @@ func matches(event, action: String) -> bool:
 
 func held(action: String) -> bool:
 	if action=="sprint" and run_toggle: return run_active
+	if action=="sprint" and gamepad!=null and gamepad.sprint_held(): return true
 	for code in bindings[action]:
 		if code>0 and Input.is_physical_key_pressed(code): return true
 		if code<0 and Input.is_mouse_button_pressed(-code): return true

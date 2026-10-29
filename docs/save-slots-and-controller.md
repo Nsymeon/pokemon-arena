@@ -1,0 +1,11 @@
+# Save slots and controller support
+
+Play -> Adventure opens three independent slots. Slot 1 uses the original `adventure-v1.json`; Slots 2 and 3 use `adventure-slot-2.json` and `adventure-slot-3.json`. Existing progress is never moved or reset when opening the selector. Each has its own autosave, backup, trainer appearance, party, storage and story state. The existing reset confirmation operates only on the active slot and still archives that slot first. Corrupt/incompatible saves are labelled and protected from overwrite; valid backups remain recoverable. Gym Leaders progression remains separate.
+
+Standard Godot-mapped Xbox/PlayStation-compatible controllers are supported. Left stick/D-pad moves; right stick controls aim. In menus either stick controls the pointer; A/Cross clicks, B/Circle goes back, D-pad up/down scrolls and left/right adjusts a focused slider. Y/Triangle opens an on-screen keyboard for a selected main-window text field. A/B/X/Y cast moves 1-4 in battle. RB/R1 runs using the configured toggle/hold preference. LB/L1 opens switching in battle and saves on the map. View/Share opens Bag, including Throw Poke Ball and Run/Flee buttons. On the map A talks, X opens the team, Y opens the map, B opens/closes menus. Start/Options pauses. A continues after battle. Controller settings include enable/disable, stick deadzone, cursor speed and restore defaults; keyboard/mouse bindings remain independent. Embedded popup windows keep dropdowns, color pickers and IV controls inside the game window.
+
+Validation uses real Godot GUI event dispatch with simulated controller presses (Play, Back, cast, sprint, pause/resume, Bag and on-screen typing), save/load isolation fixtures, the existing smoke suite and rendered screenshots. A physical gamepad was not connected during these checks, so physical-device mapping and feel still need a hands-on playtest.
+
+Lavender Town now includes the Let's Go Pikachu/Eevee arrangement as a complete 630.89-second extended-loop MP3 from 101soundboards / shadowrealm. The game's decoder verifies it; provenance and hash are in the music manifest. It uses the existing independent music slider.
+
+Reproduce the visual/input checks with Godot: `--path . --script tools/check-controller-ui.gd -- --qa-render`. This writes only screenshots and uses unsaved fixture battles.

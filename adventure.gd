@@ -727,7 +727,7 @@ func withdraw(slot):
 	party_menu()
 
 func menu():
-	panel("ADVENTURE / KANTO")
+	panel("ADVENTURE / KANTO / SLOT "+str(c.save_slots.selected+1))
 	ui_label(objective(),Vector2(180,240))
 	ui_label("Progress saves automatically on the map and after encounters.",Vector2(180,290))
 	ui_button("QUEST JOURNAL / MAP",Vector2(650,375),Vector2(400,65),expansion.journal)
@@ -735,7 +735,7 @@ func menu():
 	ui_button("YOUR TEAM",Vector2(180,375),Vector2(400,65),party_menu)
 	ui_button("SAVE AND CONTINUE",Vector2(180,465),Vector2(400,65),func(): save(); clear_ui())
 	ui_button("SAVE AND RETURN TO MODES",Vector2(180,555),Vector2(600,65),leave)
-	ui_button("RESET ADVENTURE",Vector2(180,650),Vector2(400,55),confirm_reset)
+	ui_button("RESET THIS SAVE SLOT",Vector2(180,650),Vector2(400,55),confirm_reset)
 
 func words(value: String, at: Vector2, size = 20, color = Color("eef4de")):
 	draw_string(font,at,value,HORIZONTAL_ALIGNMENT_LEFT,-1,size,color)

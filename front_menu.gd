@@ -1,6 +1,7 @@
 extends RefCounted
 
 var c
+var page="title"
 var layer: CanvasLayer
 
 func install(context):
@@ -57,6 +58,7 @@ func background():
 		layer.add_child(stripe)
 
 func show_title():
+	page="title"
 	background()
 	label("POKEMON",Vector2(365,145),76,Color("f9d86b"))
 	label("ARENA ADVENTURES",Vector2(350,240),42)
@@ -70,6 +72,7 @@ func show_title():
 	button("QUIT",Rect2(520,875,240,45),c.get_tree().quit)
 
 func show_modes():
+	page="modes"
 	background()
 	label("CHOOSE YOUR MODE",Vector2(330,115),46,Color("f9d86b"))
 	var names = ["Adventure","Gym Leaders","Free Battles"]
@@ -89,11 +92,12 @@ func show_modes():
 func choose(mode):
 	layer.visible = false
 	match mode:
-		0: c.adventure.enter()
+		0: c.save_slots.show()
 		1: c.campaign.show_hub()
 		2: c.campaign.free_battle()
 
 func show_instructions():
+	page="instructions"
 	background()
 	label("HOW TO PLAY",Vector2(430,65),42,Color("f9d86b"))
 	var sections=[
@@ -101,7 +105,7 @@ func show_instructions():
 		["GYM LEADERS", "Challenge the eight Kanto Gym Leaders, Elite Four and Blue.\nBuild your team and choose its moves. League progress saves separately\nfrom Adventure."],
 		["FREE BATTLES", "Choose Pokemon, moves, opponents and arenas for practice matches.\nExperiment with team combinations without changing Adventure progress."],
 		["REAL-TIME COMBAT", "Aim with the mouse. Use four moves, sprint and switch Pokemon.\nMoves have energy costs and cooldowns: normally 1 second between attacks.\nAfter casting, walking/sprint pauses for 0.4 seconds. Sprint gives no invulnerability.\nHoming attacks can chase for 3 seconds: sprint sideways to evade them."],
-		["CONTROLS", "Settings lets you change keyboard and mouse bindings, with two slots per action.\nClick a binding, then press the new key. Backspace clears it; Esc cancels.\nEsc pauses/closes menus. Menu navigation and roster browsing use their shown controls."]
+		["CONTROLS", "Settings changes keyboard/mouse bindings; Controller shows gamepad controls.\nGamepad: left stick moves, right stick aims, A/B/X/Y cast four battle moves.\nMenus use a stick-controlled pointer: A clicks, B goes back, Y opens text entry."]
 	]
 	var y=145
 	for section in sections:
@@ -111,6 +115,7 @@ func show_instructions():
 	button("BACK",Rect2(490,875,300,50),show_title)
 
 func show_settings():
+	page="settings"
 	background()
 	label("SETTINGS",Vector2(465,50),42,Color("f9d86b"))
 	label("Click a key, then press its replacement. Settings save automatically.",Vector2(220,110),20)
@@ -156,7 +161,8 @@ func show_settings():
 	var mode=OptionButton.new(); mode.position=Vector2(730,705); mode.size=Vector2(330,40)
 	for value in c.difficulty.NAMES: mode.add_item("DIFFICULTY: "+value)
 	mode.selected=c.difficulty.level; mode.item_selected.connect(c.difficulty.choose); layer.add_child(mode)
-	button("RESTORE DEFAULTS",Rect2(290,845,350,60),func(): c.controls.reset_defaults(); c.audio.set_volume(c.audio.DEFAULT_VOLUME); c.audio.set_cry_volume(c.audio.DEFAULT_CRY_VOLUME); c.audio.set_music_volume(c.audio.DEFAULT_MUSIC_VOLUME); c.difficulty.choose(1); show_settings())
+	button("RESTORE DEFAULTS",Rect2(290,845,350,60),func(): c.controls.reset_defaults(); c.gamepad.reset_defaults(); c.audio.set_volume(c.audio.DEFAULT_VOLUME); c.audio.set_cry_volume(c.audio.DEFAULT_CRY_VOLUME); c.audio.set_music_volume(c.audio.DEFAULT_MUSIC_VOLUME); c.difficulty.choose(1); show_settings())
+	button("CONTROLLER",Rect2(730,655,330,40),c.gamepad.show_settings)
 	button("BACK",Rect2(675,845,250,60),show_title)
 
 func audio_slider(title,pos,value,callback):

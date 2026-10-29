@@ -52,8 +52,9 @@
     },
     "MUS_LAVENDER": {
       "file": "lavender-lets-go.mp3",
-      "source": "Pokemon Lets Go Pikachu/Eevee, disc 2 track 1",
-      "pending": true
+      "source": "https://www.101soundboards.com/sounds/32002447-lavender-town-pokemon-lets-go-pikachu-eevee-music-extended",
+      "title": "Lavender Town - Pokemon Lets Go Pikachu / Eevee (extended loop)",
+      "sha256": "23115684591e1ac8ae3c1caf511924cfa157e0f7fc3acba8fb5cf56ab0441e6e"
     },
     "MUS_VICTORY_ROAD": {
       "file": "MUS_VICTORY_ROAD.ogg",
