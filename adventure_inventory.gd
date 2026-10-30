@@ -111,7 +111,7 @@ func bag():
 	if a.in_battle and a.encounter.get("kind","")=="post_tower":
 		a.c.notice="BATTLE TOWER / BAG ITEMS DISABLED"; a.c.notice_time=2; return
 	migrate()
-	var list = page("BAG / $%d / Poke Balls x%d" % [a.data.money,a.data.balls])
+	var list = page("BAG / $%d / Poke Balls x%d" % [a.data.money,a.data.balls],Callable() if a.in_battle else a.menu)
 	row(list,"THROW POKE BALL / wild battles",func(): a.clear_ui(); a.throw_ball(),not a.in_battle or a.encounter.get("kind","")!="wild" or a.data.balls<=0 or (a.c.horde.active(a.c) and a.c.horde.living(a.c).size()>1))
 	if a.in_battle and a.encounter.get("kind","")=="wild": row(list,"RUN / FLEE FROM WILD POKEMON",a.flee,not a.can_flee())
 	for id in ITEMS:

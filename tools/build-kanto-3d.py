@@ -5,6 +5,8 @@ General tileset rules cover Kanto exteriors; secondary tiles are classified by
 their source palette. Building footprints are flood-filled, not placed at random.
 """
 import json
+import io
+import time
 from collections import deque, Counter
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFilter, ImageChops
@@ -16,6 +18,18 @@ events = json.loads((ROOT/'assets/kanto/events.json').read_text())
 layouts = {x['id']: x for x in json.loads((SRC/'data/layouts/layouts.json').read_text())['layouts'] if 'id' in x}
 sources = {x['id']: x for p in (SRC/'data/maps').glob('*/map.json') for x in [json.loads(p.read_text())]}
 
+def write_changed(path, data):
+    if path.exists() and path.read_bytes()==data: return
+    temporary=path.with_suffix(path.suffix+'.tmp')
+    for attempt in range(5):
+        try:
+            temporary.write_bytes(data)
+            temporary.replace(path)
+            return
+        except OSError:
+            if attempt==4: raise
+            time.sleep(.1)
+
 def classify(tile, primary, idx, behavior, blocked, outdoor, underground):
     pixels = list(tile.convert('RGB').getdata())
     green = sum(g > r*1.14 and g > b*1.05 for r,g,b in pixels)/256
@@ -23,14 +37,16 @@ def classify(tile, primary, idx, behavior, blocked, outdoor, underground):
     dark = sum(max(r,g,b)<65 for r,g,b in pixels)/256
     bright = sum(min(r,g,b)>175 for r,g,b in pixels)/256
     rgb = tuple(sum(p[c] for p in pixels)//256 for c in range(3))
+    if behavior in [0x38,0x39,0x3a,0x3b]: return 'ledge',rgb
     if behavior==0x13: return 'waterfall',rgb
     if behavior in [0x10,0x11,0x12,0x15,0x16,0x17,0x19,0x1a,0x1b,0x28]: return 'water',rgb
     if behavior in [0x20,0x23,0x26,0x27] or 0x40<=behavior<=0x58: return 'puzzle',rgb
+    if primary=='gTileset_Building' and idx in [0x5,0x6,0xd,0xe,0x15,0x16,0x17,0x1e,0x1f]: return 'floor',rgb
     if not outdoor:
         furniture={0x80:'table',0x81:'cabinet',0x82:'cabinet',0x83:'computer',0x86:'computer',0x89:'cabinet',0x8a:'cabinet',0x8b:'cabinet',0x95:'computer',0x97:'computer',0xa0:'computer'}
         if behavior in furniture and blocked: return furniture[behavior],rgb
     if primary=='gTileset_General' and idx<640:
-        if idx in range(0x14,0x28) or idx in [0x0e,0x0f]: return 'tree',rgb
+        if idx in range(0x14,0x28) or idx in [0x0a,0x0b,0x0c,0x0e,0x0f,0x13]: return 'tree',rgb
         if idx==5: return 'shrub',rgb
         if idx in [2,3,0x168]: return 'sign',rgb
         if idx==4: return 'flowers',rgb
@@ -48,6 +64,7 @@ def classify(tile, primary, idx, behavior, blocked, outdoor, underground):
     if underground:
         return ('cliff' if blocked and dark<.7 else 'void' if dark>.7 else 'sand'),rgb
     if primary=='gTileset_Building' and idx<640:
+        if idx in [0x4b,0x4e]: return ('chair' if blocked else 'floor'),rgb
         if idx in [0x47,0x57,0x4f,0x5f]: return 'plant',rgb
         if idx in [0x62,0x63]: return 'computer',rgb
         if idx in [0x31,0x32,0x35,0x36,0x37,0x39,0x3a,0x3d,0x3e,0x3f]: return ('cabinet' if blocked else 'floor'),rgb
@@ -72,6 +89,10 @@ for key,m in maps.items():
             x,y=i%w*16,i//w*16
             cache[ck]=classify(original.crop((x,y,x+16,y+16)),layout['primary_tileset'],idx,b,blocked,outdoor,cave)
         kind,color=cache[ck]; kinds.append(kind); colors.append(color)
+        if layout['secondary_tileset']=='gTileset_GenericBuilding1':
+            if idx==0x28c: kinds[-1]='bed'
+            elif idx==0x294: kinds[-1]='bed_foot'
+            elif idx==0x297: kinds[-1]='chair'
     # Explicit source footprint of Pallet's houses and Oak's laboratory.
     buildings=[]
     if key=='MAP_PALLET_TOWN':
@@ -152,10 +173,26 @@ for key,m in maps.items():
     for y in range(0,ground.height,64):
         for x in range(0,ground.width,64): grain.paste(noise,(x,y))
     ground=ImageChops.add(ground,grain.convert('RGB'),offset=-128)
+    # Keep the actual room's rugs, parquet and stair artwork. A generic tiled
+    # overlay erased interior identity and hid the staircase entrances.
+    if not outdoor and not cave:
+        for i,kind in enumerate(kinds):
+            if kind!='floor': continue
+            x,y=i%w*16,i//w*16
+            ground.paste(original.crop((x,y,x+16,y+16)),(x,y))
     folder=ROOT/'assets/kanto/modern';folder.mkdir(exist_ok=True)
-    ground.save(folder/(m['name']+'.png'))
-    result[key]={'outdoor':outdoor,'cave':cave,'tiles':kinds,'buildings':buildings,'ground':'res://assets/kanto/modern/'+m['name']+'.png'}
+    buffer=io.BytesIO(); ground.save(buffer,format='PNG')
+    write_changed(folder/(m['name']+'.png'),buffer.getvalue())
+    trees=[]; covered=set()
+    for i,kind in enumerate(kinds):
+        if kind!='tree' or i in covered or not (m['cells'][i]&0xc00): continue
+        x,y=i%w,i//w
+        block=[yy*w+xx for yy in range(y,min(y+2,h)) for xx in range(x,min(x+2,w)) if kinds[yy*w+xx]=='tree' and (m['cells'][yy*w+xx]&0xc00)]
+        if not block: continue
+        covered.update(block)
+        trees.append([sum(j%w+.5 for j in block)/len(block),sum(j//w+.5 for j in block)/len(block),len(block)<3])
+    result[key]={'outdoor':outdoor,'cave':cave,'tiles':kinds,'trees':trees,'buildings':buildings,'ground':'res://assets/kanto/modern/'+m['name']+'.png'}
 
 path=ROOT/'assets/kanto/world-3d.json'
-path.write_text(json.dumps(result,separators=(',',':')),encoding='utf8')
+write_changed(path,json.dumps(result,separators=(',',':')).encode('utf8'))
 print(f'{len(result)} maps; {sum(len(v["buildings"]) for v in result.values())} building footprints; {path.stat().st_size//1024} KiB')

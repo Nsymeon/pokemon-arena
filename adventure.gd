@@ -21,6 +21,7 @@ var sevii=preload("res://adventure_sevii.gd").new()
 var services=preload("res://adventure_services.gd").new()
 var field=preload("res://adventure_field.gd").new()
 var avatar=preload("res://adventure_avatar.gd").new()
+var experience=preload("res://adventure_experience.gd").new()
 var world=preload("res://kanto_world.gd").new()
 var inventory = preload("res://adventure_inventory.gd").new()
 var exploring = false
@@ -131,11 +132,12 @@ func load_save():
 			inventory.migrate()
 			expansion.recover()
 			for key in ["map","starter","balls","money","healing_map"]: data[key] = int(data[key])
-			for mon in data.party + data.storage:
+			for mon in collection.owned():
 				c.abilities.assign(mon)
 				mon.id = int(mon.id)
 				mon.level = int(mon.level)
 				mon.xp = int(mon.xp)
+				experience.migrate(mon)
 			position_world = Vector2(data.x,data.y)
 			if suffix != "": save_error = "Recovered previous save backup."
 			return
@@ -352,6 +354,10 @@ func handle_input(event):
 	c.controls.handle_run(event)
 	if c.controls.matches(event,"map"): Finale.guide(self)
 	elif c.controls.matches(event,"interact"): interact()
+	elif c.controls.matches(event,"encounter"):
+		if world.enabled and not world.stepping:
+			c.click_move=false
+			if not world.scenes.seek_wild(): dialog="Stand in grass, water or a cave to search for wild Pokemon."
 	elif c.controls.matches(event,"party"): party_menu()
 	elif c.controls.matches(event,"bag"): inventory.bag()
 	elif event is InputEventKey and event.keycode==KEY_ESCAPE: menu()
@@ -361,25 +367,12 @@ func handle_input(event):
 
 func interact():
 	c.click_move = false
-	if world.enabled and world.interact(): return
+	if world.enabled:
+		world.interact()
+		return
 	for npc in npcs():
 		if position_world.distance_to(npc[0]) <= 100:
-			if Finale.interact(self,npc[2]) or Story.interact(self,npc[2]): return
-			match npc[2]:
-				"oak":
-					if data.starter == 0: starter_menu()
-					else: dialog = "Oak: Weaken wild Pokemon, then press "+c.controls.text("capture")+" in battle to throw a Poke Ball. Press "+c.controls.text("party")+" outside battle to manage your team."
-				"guide": dialog = Kanto.CITIES[int(data.map)][2]
-				"heal": heal()
-				"shop": inventory.shop()
-				"rival":
-					if data.starter == 0: dialog = "Blue: Ask Grandpa for a Pokemon first!"
-					else: begin_battle("rival",[7 if data.starter==4 else 4 if data.starter==1 else 1],[5])
-				"bug": begin_battle("bug",[10,13],[6,7])
-				"brock": begin_battle("brock",[74,95],[10,12])
-				"lass": begin_battle("lass",[21,39],[11,12])
-				"rocket": begin_battle("rocket",[19,41],[13,14])
-				"misty": begin_battle("misty",[120,121],[18,21])
+			interact_npc(npc[2])
 			return
 	for wild in wild_spawns():
 		if position_world.distance_to(wild[0]) <= 95:
@@ -387,8 +380,27 @@ func interact():
 			return
 	dialog = "Stand in grass, water or a cave and press "+c.controls.text("interact")+" to search, or face a nearby person to talk." if world.enabled else "Move closer to a person or wild Pokemon, then press "+c.controls.text("interact")+"."
 
+func interact_npc(action: String):
+	if Finale.interact(self,action) or Story.interact(self,action): return
+	match action:
+		"oak":
+			if data.starter == 0: starter_menu()
+			else: dialog = "Oak: Weaken wild Pokemon, then press "+c.controls.text("capture")+" in battle to throw a Poke Ball. Press "+c.controls.text("party")+" outside battle to manage your team."
+		"guide": dialog = Kanto.CITIES[int(data.map)][2]
+		"heal": heal()
+		"shop": inventory.shop()
+		"rival":
+			if data.starter == 0: dialog = "Blue: Ask Grandpa for a Pokemon first!"
+			elif not data.rival: begin_battle("rival",[7 if data.starter==4 else 4 if data.starter==1 else 1],[5])
+		"bug": begin_battle("bug",[10,13],[6,7])
+		"brock": begin_battle("brock",[74,95],[10,12])
+		"lass": begin_battle("lass",[21,39],[11,12])
+		"rocket": begin_battle("rocket",[19,41],[13,14])
+		"misty": begin_battle("misty",[120,121],[18,21])
+	return
+
 func new_mon(id: int, level: int) -> Dictionary:
-	var mon={"id":id,"level":level,"xp":0,"hp":1.0,"moves":inventory.starting(id,level),"pending":[],"ailment":""}
+	var mon={"id":id,"level":level,"xp":0,"xp_curve":2,"hp":1.0,"moves":inventory.starting(id,level),"pending":[],"ailment":""}
 	c.abilities.assign(mon,true)
 	c.ivs.assign(mon)
 	collection.assign(mon,true)
@@ -531,7 +543,7 @@ func return_world(caught: bool = false, escaped: bool = false):
 	var new_entry={}
 	if caught:
 		collection.sync()
-		var capture_xp=25+int(encounter.levels[c.enemy_active])*5
+		var capture_xp=experience.reward(int(encounter.ids[c.enemy_active]),int(encounter.levels[c.enemy_active]),encounter.kind!="wild")
 		var xp_message=grant_xp(capture_xp)
 		var mon = new_mon(int(encounter.ids[c.enemy_active]),int(encounter.levels[c.enemy_active]))
 		for key in ["shiny","ability_slot","gender"]: mon[key]=c.enemy.data.get(key, false if key=="shiny" else "N" if key=="gender" else 0)
@@ -691,7 +703,7 @@ func starter_menu():
 		ui_button(mon_name(id)+" / Lv.5",Vector2(190+i*300,550),Vector2(270,60),choose_starter.bind(id))
 
 func party_menu():
-	panel("YOUR TEAM / choose a lead Pokemon")
+	panel("YOUR TEAM / choose a lead Pokemon",menu)
 	for i in range(data.party.size()):
 		var mon = data.party[i]
 		ui_button("%s\nLv.%d  / HP %d%% / XP %d%s" % [mon_name(mon.id)+(" *" if mon.get("shiny",false) else "")+" / "+c.abilities.legal(mon.id)[int(mon.get("ability_slot",0))%c.abilities.legal(mon.id).size()],mon.level,roundi(mon.hp*100),mon.xp," / LEAD" if i==0 else ""],Vector2(180,230+i*66),Vector2(680,54),set_lead.bind(i))
@@ -726,8 +738,8 @@ func withdraw(slot):
 	save()
 	party_menu()
 
-func menu():
-	panel("ADVENTURE / KANTO / SLOT "+str(c.save_slots.selected+1))
+func management_menu():
+	panel("ADVENTURE / KANTO / SLOT "+str(c.save_slots.selected+1),menu)
 	ui_label(objective(),Vector2(180,240))
 	ui_label("Progress saves automatically on the map and after encounters.",Vector2(180,290))
 	ui_button("QUEST JOURNAL / MAP",Vector2(650,375),Vector2(400,65),expansion.journal)
@@ -953,7 +965,7 @@ func tests():
 	return_world()
 	c.check(data.map==0 and data.party.all(func(mon):return mon.hp==1),"Defeat heals party at last healing town")
 	data.party[0] = new_mon(4,15)
-	data.party[0].xp = 109
+	data.party[0].xp = xp_needed(data.party[0])-1
 	encounter = {"kind":"wild","levels":[5]}
 	grant_xp(50)
 	c.check(data.party[0].id==5 and data.party[0].level==16,"Starter evolves after level threshold")
@@ -1058,8 +1070,8 @@ func grant_xp(amount: int) -> String:
 			elif mon.get("held_item","")=="expshare": earned=maxi(1,amount/2)
 			else: continue
 		mon.xp += earned
-		while mon.level < 100 and mon.xp >= 20+mon.level*6:
-			mon.xp -= 20+mon.level*6
+		while mon.level < 100 and mon.xp >= xp_needed(mon):
+			mon.xp -= xp_needed(mon)
 			var old_id = int(mon.id)
 			mon.level += 1
 			mon.hp = minf(1,mon.hp+0.2)
@@ -1082,7 +1094,7 @@ func grant_xp(amount: int) -> String:
 	return message
 
 func xp_needed(mon) -> int:
-	return 20+int(mon.level)*6
+	return experience.needed(mon)
 
 func xp_ratio(mon) -> float:
 	return 1.0 if mon.level>=100 else clampf(float(mon.xp)/xp_needed(mon),0,1)
@@ -1094,7 +1106,7 @@ func record_knockout(immediate=false):
 	encounter.rewarded.append(c.enemy_active)
 	if encounter.kind=="post_tower": return
 	sync_health()
-	var amount = 25+int(encounter.levels[c.enemy_active])*5
+	var amount = experience.reward(int(encounter.ids[c.enemy_active]),int(encounter.levels[c.enemy_active]),encounter.kind!="wild")
 	c.ivs.award_evs(int(encounter.ids[c.enemy_active]),participants())
 	var old_levels=data.party.map(func(member):return int(member.level))
 	var message = grant_xp(amount)
@@ -1145,14 +1157,14 @@ func chapter_tests():
 	data.badge = true
 	travel(1)
 	c.check(data.map==5,"Route 3 opens after Brock")
-	begin_battle("lass",[21,39],[11,12])
+	begin_battle("lass",[21,39],[2,12])
 	c.enemy.hp = 0
 	c.finish_round()
 	c.shots.clear()
 	c.result_time = 10
 	record_knockout()
-	c.check(data.party[0].level==8 and "ember" in data.party[0].moves,"First KO levels up inside trainer battle and learns Ember")
-	c.check(c.player.data.level==8 and c.player.data.moves.any(func(move):return move.id=="ember"),"Live fighter gets new level and learned move before next opponent")
+	c.check(data.party[0].level==7 and "ember" in data.party[0].moves,"First KO levels up inside trainer battle and learns Ember")
+	c.check(c.player.data.level==7 and c.player.data.moves.any(func(move):return move.id=="ember"),"Live fighter gets new level and learned move before next opponent")
 	c.check("learned Ember" in " ".join(progress_lines),"New skill notification names learned move")
 	var experience = data.party[0].xp
 	var earned_evs=data.party[0].get("training",{}).duplicate(true)
@@ -1309,3 +1321,23 @@ func reset_tests():
 
 func _exit_tree():
 	world.scenes.reset()
+
+func menu():
+	clear_ui(); c.click_move=false; modal="ADVENTURE MENU"
+	var panel_bg=Panel.new(); panel_bg.position=Vector2(900,110); panel_bg.size=Vector2(340,640)
+	var style=StyleBoxFlat.new(); style.bg_color=Color("f0edda"); style.border_color=Color("354e58"); style.set_border_width_all(4); style.set_corner_radius_all(16)
+	panel_bg.add_theme_stylebox_override("panel",style); ui.add_child(panel_bg)
+	ui_label("ADVENTURE",Vector2(950,130),25)
+	ui.get_child(ui.get_child_count()-1).add_theme_color_override("font_color",Color("354e58"))
+	var entries=[["POKEDEX",collection.dex],["POKEMON",party_menu],["BAG",inventory.bag],["TRAINER / JOURNAL",expansion.journal],["SAVE",func():save();clear_ui()],["OPTIONS",adventure_options],["SAVE SLOTS / RESET",management_menu],["EXIT MENU",clear_ui]]
+	for i in entries.size(): ui_button(entries[i][0],Vector2(925,180+i*67),Vector2(290,52),entries[i][1])
+
+func adventure_options():
+	panel("ADVENTURE OPTIONS",menu)
+	ui_label(c.controls.text("sprint")+": run   "+c.controls.text("interact")+": talk / interact   "+c.controls.text("encounter")+": wild encounter",Vector2(180,240),22)
+	ui_button("RUN: "+("TOGGLE" if c.controls.run_toggle else "HOLD"),Vector2(180,310),Vector2(380,55),func():c.controls.set_run_toggle(not c.controls.run_toggle);adventure_options())
+	ui_button("MAP: "+("MODERN 3D" if world.view3d.enabled else "CLASSIC 2D"),Vector2(600,310),Vector2(440,55),func():world.view3d.set_enabled(not world.view3d.enabled);adventure_options())
+	var options=[["MASTER",c.audio.volume,c.audio.set_volume],["POKEMON CRIES",c.audio.cry_volume,c.audio.set_cry_volume],["MUSIC",c.audio.music_volume,c.audio.set_music_volume]]
+	for i in options.size():
+		ui_label(options[i][0],Vector2(180,420+i*75),21)
+		var slider=HSlider.new(); slider.position=Vector2(470,420+i*75); slider.size=Vector2(500,32); slider.min_value=0; slider.max_value=1; slider.step=.05; slider.value=options[i][1]; slider.value_changed.connect(options[i][2]); ui.add_child(slider)

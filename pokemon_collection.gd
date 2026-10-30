@@ -8,6 +8,14 @@ var pc_box=0
 var search=""
 var shiny_only=false
 
+func full_picture(mon) -> Texture2D:
+	var library=a.c.art.shiny_library if mon.get("shiny",false) else a.c.art.library
+	var animation=library.get(int(mon.id),{}).get("Idle",{})
+	if animation.is_empty(): return a.c.portrait(mon)
+	var picture=AtlasTexture.new(); picture.atlas=animation.texture
+	picture.region=Rect2(0,0,int(animation.width),int(animation.height))
+	return picture
+
 func assign(mon, fresh=false):
 	if not mon.has("nature"): mon["nature"]=NAMES[a.c.ivs.random.randi_range(0,24)] if fresh else "Hardy"
 	if not mon.has("box"): mon["box"]=0
@@ -168,7 +176,7 @@ func dex():
 	for e in a.data.pokedex.values():
 		if e.seen: seen+=1
 		if e.caught: caught+=1
-	var list=a.inventory.page("POKEDEX / Seen %d / Caught %d / %d" % [seen,caught,a.c.roster.size()],a.party_menu)
+	var list=a.inventory.page("POKEDEX / Seen %d / Caught %d / %d" % [seen,caught,a.c.roster.size()],a.menu)
 	for mon in a.c.roster:
 		var entry=a.data.pokedex.get(str(int(mon.id)),{})
 		a.inventory.row(list,"#%03d  %s  %s" % [mon.id,mon.name if entry.get("seen",false) else "???","CAUGHT" if entry.get("caught",false) else "SEEN" if entry.get("seen",false) else ""],dex_entry.bind(int(mon.id),false),not entry.get("seen",false))
@@ -177,7 +185,7 @@ func dex_entry(id,shiny=false,first_capture=false):
 	var back=a.finish_capture_entry if first_capture else dex
 	var mon=a.c.roster[a.c.Dex.find_id(a.c.roster,id)].duplicate(true); mon["shiny"]=shiny
 	var list=a.inventory.page(("NEW POKEDEX ENTRY / " if first_capture else "")+"#%03d / %s / %s" % [id,mon.name," / ".join(mon.types)],back)
-	var face=TextureRect.new(); face.texture=a.c.portrait(mon); face.expand_mode=TextureRect.EXPAND_IGNORE_SIZE; face.stretch_mode=TextureRect.STRETCH_KEEP_ASPECT_CENTERED; face.custom_minimum_size=Vector2(160,150); list.add_child(face)
+	var face=TextureRect.new(); face.texture=full_picture(mon); face.expand_mode=TextureRect.EXPAND_IGNORE_SIZE; face.stretch_mode=TextureRect.STRETCH_KEEP_ASPECT_CENTERED; face.custom_minimum_size=Vector2(240,210); list.add_child(face)
 	var entry=entries.get(str(int(id)),{})
 	if not entry.is_empty():
 		a.inventory.row(list,"%s POKEMON / %.1f m / %.1f kg" % [entry.category,entry.height,entry.weight],func():pass,true)

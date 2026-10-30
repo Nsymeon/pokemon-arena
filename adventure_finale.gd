@@ -321,8 +321,9 @@ static func tests(a):
 	a.data.badge=true
 	a.data.cascade=true
 	a.Story.state(a)["thunder"]=true
-	a.data.party=[a.new_mon(5,31),a.new_mon(8,35),a.new_mon(148,54)]
-	a.grant_xp(3000)
+	a.data.party=[a.new_mon(5,35),a.new_mon(8,35),a.new_mon(148,54)]
+	for mon in a.data.party: mon.xp=a.xp_needed(mon)-1
+	a.grant_xp(1)
 	a.c.check(a.data.party[0].id==6 and a.data.party[1].id==9 and a.data.party[2].id==149,"Late starter and Dragonite evolutions work above level 30")
 	a.evolutions.clear()
 	a.data.party=[a.new_mon(6,28),a.new_mon(9,28),a.new_mon(3,28)]

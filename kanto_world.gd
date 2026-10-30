@@ -128,7 +128,7 @@ func enter(id: String, at: Vector2):
 	warp_latch=warp_key(a.position_world)
 	update_camera()
 	a.save()
-	if OS.get_cmdline_user_args().is_empty(): scenes.entrance()
+	scenes.entrance()
 
 func tick(dt):
 	a.time+=dt
@@ -194,12 +194,15 @@ func actors() -> Array:
 	var result=[]
 	var quests=quest_actors()
 	for object in room().objects:
+		if object.get("graphics_id","")=="OBJ_EVENT_GFX_POKEDEX" and events.done("parcel_delivered"): continue
+		if object.get("graphics_id","")=="OBJ_EVENT_GFX_BLUE" and current=="MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB" and a.data.rival: continue
+		if object.get("graphics_id","")=="OBJ_EVENT_GFX_PROF_OAK" and current=="MAP_PALLET_TOWN": continue
 		if (object.get("graphics_id","").contains("ITEM_BALL") and not str(object.get("script","")).ends_with("EeveeBall")) or object.get("graphics_id","").contains("BOULDER") or object.get("graphics_id","").contains("CUT_TREE") or object.get("graphics_id","").contains("ROCK_SMASH_ROCK"): continue
 		if "Snorlax" in str(object.get("script","")) and events.done("snorlax:"+current): continue
 		if a.field.hidden(object) or (str(object.get("script","")).ends_with("EeveeBall") and a.field.done("gift:eevee")): continue
 		var npc=object.duplicate(true)
 		npc["pos"]=scenes.positions.get(str(object.get("script","")),Vector2(float(object.x)+0.5,float(object.y)+0.5)*TILE)
-		if quests.any(func(q):return q[0].distance_to(npc.pos)<TILE*0.5): continue
+		if quests.any(func(q):return q[0].distance_to(npc.pos)<TILE*0.5 or (q.size()>3 and q[3]==object.get("local_id",""))): continue
 		result.append(npc)
 	return result
 
@@ -213,6 +216,7 @@ func quest_actors() -> Array:
 		for npc in a.base_npcs()+a.Finale.npcs(a):
 			if str(npc[2]).begins_with("late_enter_"): continue
 			var action=str(npc[2])
+			if action=="rival" and (a.data.rival or room().name=="PalletTown"): continue
 			if action.begins_with("story_switch") or action in ["late_warp","late_quiz","late_task_mansion_switch","late_task_card_key","late_task_secret_key","late_task_victory_boulder","late_task_snorlax","late_task_seafoam_boulder","late_league"]: continue
 			if action in ["story_bill","story_console"] and room().name!="Route25_SeaCottage": continue
 			if action=="story_captain" and room().name!="SSAnne_CaptainsRoom": continue
@@ -229,6 +233,7 @@ func quest_actors() -> Array:
 			for original in room().objects:
 				if graphic!="" and original.get("graphics_id","")=="OBJ_EVENT_GFX_"+graphic:
 					copy[0]=Vector2(float(original.x)+0.5,float(original.y)+0.5)*TILE
+					if copy.size()==3: copy.append(original.get("local_id",""))
 			copy[0]=scenes.positions.get("quest:"+action,copy[0])
 			result.append(copy)
 		a.data.map=previous
@@ -240,13 +245,13 @@ func wild() -> Array:
 func interact() -> bool:
 	if stepping: pending_interact=true; return true
 	if events.interact(): return true
-	if try_warp(true): return true
 	for npc in quest_actors():
-		if a.position_world.distance_to(npc[0])<=100:
+		if can_talk(npc[0]):
 			if scenes.quest(str(npc[2])): return true
 			if npc[2]=="oak" and events.npc_interact({"graphics_id":"OBJ_EVENT_GFX_PROF_OAK"}): return true
 			if npc[2]=="late_task_sabrina": a.Finale.state(a)["warp"]=true
-			return false
+			a.interact_npc(str(npc[2]))
+			return true
 	for npc in actors():
 		if not can_talk(npc.pos): continue
 		if events.npc_interact(npc): return true
@@ -263,7 +268,7 @@ func interact() -> bool:
 			var line=scenes.npc_text(npc)
 			a.show_dialogue(line if line!="" else "...")
 		return true
-	return scenes.seek_wild()
+	return false
 
 func guide():
 	var list=a.inventory.page("KANTO / "+room().name.replace("_"," / "),a.expansion.journal)
@@ -285,7 +290,7 @@ func guide():
 		if maps.has(door.dest_map) and door.dest_map not in destinations:
 			destinations.append(door.dest_map)
 			a.Finale.info_row(list,"DOOR / STAIRS > "+maps[door.dest_map].name)
-	a.Finale.info_row(list,"Walk onto doors/stairs. Trainers approach on sight. Press "+a.c.controls.text("interact")+" in grass, water or caves to seek a wild Pokemon.")
+	a.Finale.info_row(list,"Walk onto doors/stairs. Trainers approach on sight. Press "+a.c.controls.text("encounter")+" in grass, water or caves to seek a wild Pokemon.")
 
 func tests():
 	var before=a.data.duplicate(true)
@@ -352,11 +357,13 @@ func tests():
 	current="MAP_PALLET_TOWN"
 	var lab_door=room().warps.filter(func(w):return w.dest_map=="MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB")[0]
 	a.position_world=Vector2(float(lab_door.x)+0.5,float(lab_door.y)+0.5)*TILE
-	a.c.check(interact() and current=="MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB","Canonical door enters Oak lab")
+	a.c.check(try_warp() and current=="MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB","Canonical door enters Oak lab")
 	a.c.check(not blocked(a.position_world),"Interior arrival is walkable")
+	scenes.reset()
 	var outside=room().warps.filter(func(w):return w.dest_map=="MAP_PALLET_TOWN")[0]
 	a.position_world=Vector2(float(outside.x)+0.5,float(outside.y)+0.5)*TILE
-	a.c.check(interact() and current=="MAP_PALLET_TOWN","Canonical lab exit returns to Pallet")
+	warp_latch="" # Simulate walking away from the arrival before returning to the exit.
+	a.c.check(try_warp() and current=="MAP_PALLET_TOWN","Canonical lab exit returns to Pallet")
 	for input in [Vector2(1,1),Vector2(-1,1),Vector2(1,-1),Vector2(-1,-1)]:
 		var chosen=cardinal(input)
 		a.c.check(chosen.length()==1.0 and (chosen.x==0 or chosen.y==0),"Overworld diagonal input resolves to one cardinal direction")
@@ -428,7 +435,11 @@ func draw():
 			var p=Vector2(float(door.x)+0.5,float(door.y)+0.5)*TILE
 			if a.position_world.distance_to(p)<TILE*1.5: a.words("ENTER",p+Vector2(-35,-22),14,Color("fff0b0"))
 		for npc in actors():
-			if str(npc.get("graphics_id","")).contains("FOSSIL") or str(npc.get("graphics_id","")).contains("OLD_AMBER"):
+			if str(npc.get("graphics_id","")).contains("POKEDEX"):
+				a.draw_rect(Rect2(npc.pos-Vector2(12,20),Vector2(24,30)),Color("cc5866"))
+				a.draw_rect(Rect2(npc.pos-Vector2(8,16),Vector2(16,14)),Color("8ac3c1"))
+				a.draw_circle(npc.pos+Vector2(-5,5),3,Color("e8dfa1"))
+			elif str(npc.get("graphics_id","")).contains("FOSSIL") or str(npc.get("graphics_id","")).contains("OLD_AMBER"):
 				a.draw_circle(npc.pos,15,Color("c7a46e")); a.draw_arc(npc.pos,9,0,TAU*0.8,20,Color("685141"),3)
 			elif str(npc.get("graphics_id","")).trim_prefix("OBJ_EVENT_GFX_") in ["ARTICUNO","ZAPDOS","MEWTWO","MOLTRES"]:
 				var species={"ARTICUNO":144,"ZAPDOS":145,"MEWTWO":150,"MOLTRES":146}[str(npc.graphics_id).trim_prefix("OBJ_EVENT_GFX_")]
@@ -465,8 +476,8 @@ func draw():
 		a.draw_rect(Rect2(34+i*205,862,180*mon.hp,5),Color("77e2b0"))
 		a.draw_rect(Rect2(34+i*205,875,180,4),Color("354c50"))
 		a.draw_rect(Rect2(34+i*205,875,180*a.xp_ratio(mon),4),Color("79aaff"))
-	if not scenes.pool().is_empty(): a.words(a.c.controls.text("interact")+" / SEARCH FOR A WILD POKEMON",Vector2(24,780),16,Color("ffe19a"))
-	a.words("Move: WASD / right click   Talk / search: "+a.c.controls.text("interact")+"   Team: P   Bag: I   Menu: Esc",Vector2(24,910),17)
+	if not scenes.pool().is_empty(): a.words(a.c.controls.text("encounter")+" / SEARCH FOR A WILD POKEMON",Vector2(24,780),16,Color("ffe19a"))
+	a.words("Move: WASD / right click   Talk: "+a.c.controls.text("interact")+"   Search: "+a.c.controls.text("encounter")+"   Team: P   Bag: I   Menu: Esc",Vector2(24,910),17)
 	if a.save_error!="": a.words(a.save_error,Vector2(24,950),14,Color("ff9999"))
 	if a.dialog!="":
 		a.draw_rect(Rect2(80,630,1120,145),Color("10252f"))

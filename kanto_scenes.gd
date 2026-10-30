@@ -36,6 +36,8 @@ func tick(dt: float) -> bool:
 	subtitle=str(step.get("text",""))
 	if step.has("actor"):
 		actor=step.actor
+		actor["walking"]=Vector2(actor.from)!=Vector2(actor.to)
+		if actor.walking: actor["look"]=w.cardinal(Vector2(actor.to)-Vector2(actor.from))
 		var ratio=clampf(elapsed/float(step.get("duration",2.0)),0,1)
 		positions[str(actor.key)]=Vector2(actor.from).lerp(Vector2(actor.to),ratio)
 	if elapsed>=float(step.get("duration",2.0)):
@@ -76,6 +78,23 @@ func starter_battle():
 	if a.data.starter==0 or a.data.rival or a.in_battle: return
 	var rival_id=7 if a.data.starter==4 else 4 if a.data.starter==1 else 1
 	play([{"text":"BLUE: I'll take "+a.mon_name(rival_id)+"!","duration":2.0},{"text":"BLUE: Wait! Let's check out our Pokemon! Come on, I'll take you on!","duration":2.5}],func():a.begin_battle("rival",[rival_id],[5]))
+
+func pokedex_delivery():
+	if w.events.done("parcel_delivered"): return
+	var origin=Vector2(6.5,3.5)*w.TILE
+	for npc in w.quest_actors():
+		if npc[2]=="oak": origin=npc[0]
+	var corner=Vector2(6.5,2.5)*w.TILE
+	var desk=Vector2(5.5,2.5)*w.TILE
+	play([
+		{"text":"OAK: Thank you for bringing my parcel. I have something for your journey.","duration":2.8},
+		{"actor":{"key":"quest:oak","from":origin,"to":corner},"duration":.8},
+		{"actor":{"key":"quest:oak","from":corner,"to":desk},"duration":.65},
+		{"actor":{"key":"quest:oak","from":desk,"to":desk,"look":Vector2.UP},"text":"Oak takes the Pokedex devices from his desk.","duration":1.3},
+		{"actor":{"key":"quest:oak","from":desk,"to":corner},"duration":.65},
+		{"actor":{"key":"quest:oak","from":corner,"to":origin},"duration":.8},
+		{"text":"OAK: The Pokedex records the Pokemon you discover. Take it with you!","duration":2.8}
+	],func():w.events.finish("parcel_delivered"); positions.erase("quest:oak"); a.save(),"scene:pokedex_delivery")
 
 func quest(id: String) -> bool:
 	if id=="late_task_tower_ghost": return a.field.ghost()
@@ -307,6 +326,7 @@ func tests():
 	a.position_world=w.events.point(door)
 	a.c.check(w.try_warp() and w.current=="MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB","Stepping on a door enters without E")
 	a.c.check(a.dialog=="" and not w.try_warp(),"Arrival needs no dismissal and cannot immediately bounce back")
+	reset()
 	w.current="MAP_ROUTE1"; w.events.refresh()
 	var npc={"script":"scene_regression","battle":{"name":"Tester","party":[[19,3]]},"movement_type":"MOVEMENT_TYPE_FACE_UP","trainer_type":"TRAINER_TYPE_NORMAL","trainer_sight_or_berry_tree_id":"3","pos":Vector2.ZERO}
 	var found_line=false

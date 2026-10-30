@@ -198,6 +198,11 @@ func pickup(item):
 	finish(key); a.dialog="Found "+id.replace("_"," ")+"!"; a.save()
 
 func interact() -> bool:
+	var front=Vector2i((a.position_world+w.heading*w.TILE)/w.TILE)
+	if front.x>=0 and front.y>=0 and front.x<w.room().width and front.y<w.room().height:
+		var behavior=int(catalog[w.current].behavior[front.y*int(w.room().width)+front.x])
+		if behavior in [0x83,0x97]:
+			a.collection.pc(); return true
 	if str(w.room().name).ends_with("_Elevator"):
 		elevator(); return true
 	var nearby=[]
@@ -494,7 +499,7 @@ func npc_interact(npc) -> bool:
 	if w.current=="MAP_VIRIDIAN_CITY_MART" and "CLERK" in str(npc.get("graphics_id","")) and not done("parcel_received"):
 		finish("parcel_received"); a.dialog="The clerk gives you Oak's Parcel. Take it back to Professor Oak in Pallet Town."; a.save(); return true
 	if "PROF_OAK" in str(npc.get("graphics_id","")) and a.data.starter!=0 and done("parcel_received") and not done("parcel_delivered"):
-		finish("parcel_delivered"); a.dialog="Oak receives his parcel and gives you a Pokedex for your journey!"; a.save(); return true
+		w.scenes.pokedex_delivery(); return true
 	if "Snorlax" in script:
 		var key="snorlax:"+w.current
 		if done(key): a.dialog="The road is clear."; return true

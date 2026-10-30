@@ -1,0 +1,634 @@
+{
+  "1": {
+    "yield": 64,
+    "growth": "MEDIUM_SLOW"
+  },
+  "2": {
+    "yield": 141,
+    "growth": "MEDIUM_SLOW"
+  },
+  "3": {
+    "yield": 208,
+    "growth": "MEDIUM_SLOW"
+  },
+  "4": {
+    "yield": 65,
+    "growth": "MEDIUM_SLOW"
+  },
+  "5": {
+    "yield": 142,
+    "growth": "MEDIUM_SLOW"
+  },
+  "6": {
+    "yield": 209,
+    "growth": "MEDIUM_SLOW"
+  },
+  "7": {
+    "yield": 66,
+    "growth": "MEDIUM_SLOW"
+  },
+  "8": {
+    "yield": 143,
+    "growth": "MEDIUM_SLOW"
+  },
+  "9": {
+    "yield": 210,
+    "growth": "MEDIUM_SLOW"
+  },
+  "10": {
+    "yield": 53,
+    "growth": "MEDIUM_FAST"
+  },
+  "11": {
+    "yield": 72,
+    "growth": "MEDIUM_FAST"
+  },
+  "12": {
+    "yield": 160,
+    "growth": "MEDIUM_FAST"
+  },
+  "13": {
+    "yield": 52,
+    "growth": "MEDIUM_FAST"
+  },
+  "14": {
+    "yield": 71,
+    "growth": "MEDIUM_FAST"
+  },
+  "15": {
+    "yield": 159,
+    "growth": "MEDIUM_FAST"
+  },
+  "16": {
+    "yield": 55,
+    "growth": "MEDIUM_SLOW"
+  },
+  "17": {
+    "yield": 113,
+    "growth": "MEDIUM_SLOW"
+  },
+  "18": {
+    "yield": 172,
+    "growth": "MEDIUM_SLOW"
+  },
+  "19": {
+    "yield": 57,
+    "growth": "MEDIUM_FAST"
+  },
+  "20": {
+    "yield": 116,
+    "growth": "MEDIUM_FAST"
+  },
+  "21": {
+    "yield": 58,
+    "growth": "MEDIUM_FAST"
+  },
+  "22": {
+    "yield": 162,
+    "growth": "MEDIUM_FAST"
+  },
+  "23": {
+    "yield": 62,
+    "growth": "MEDIUM_FAST"
+  },
+  "24": {
+    "yield": 147,
+    "growth": "MEDIUM_FAST"
+  },
+  "25": {
+    "yield": 82,
+    "growth": "MEDIUM_FAST"
+  },
+  "26": {
+    "yield": 122,
+    "growth": "MEDIUM_FAST"
+  },
+  "27": {
+    "yield": 93,
+    "growth": "MEDIUM_FAST"
+  },
+  "28": {
+    "yield": 163,
+    "growth": "MEDIUM_FAST"
+  },
+  "29": {
+    "yield": 59,
+    "growth": "MEDIUM_SLOW"
+  },
+  "30": {
+    "yield": 117,
+    "growth": "MEDIUM_SLOW"
+  },
+  "31": {
+    "yield": 194,
+    "growth": "MEDIUM_SLOW"
+  },
+  "32": {
+    "yield": 60,
+    "growth": "MEDIUM_SLOW"
+  },
+  "33": {
+    "yield": 118,
+    "growth": "MEDIUM_SLOW"
+  },
+  "34": {
+    "yield": 195,
+    "growth": "MEDIUM_SLOW"
+  },
+  "35": {
+    "yield": 68,
+    "growth": "FAST"
+  },
+  "36": {
+    "yield": 129,
+    "growth": "FAST"
+  },
+  "37": {
+    "yield": 63,
+    "growth": "MEDIUM_FAST"
+  },
+  "38": {
+    "yield": 178,
+    "growth": "MEDIUM_FAST"
+  },
+  "39": {
+    "yield": 76,
+    "growth": "FAST"
+  },
+  "40": {
+    "yield": 109,
+    "growth": "FAST"
+  },
+  "41": {
+    "yield": 54,
+    "growth": "MEDIUM_FAST"
+  },
+  "42": {
+    "yield": 171,
+    "growth": "MEDIUM_FAST"
+  },
+  "43": {
+    "yield": 78,
+    "growth": "MEDIUM_SLOW"
+  },
+  "44": {
+    "yield": 132,
+    "growth": "MEDIUM_SLOW"
+  },
+  "45": {
+    "yield": 184,
+    "growth": "MEDIUM_SLOW"
+  },
+  "46": {
+    "yield": 70,
+    "growth": "MEDIUM_FAST"
+  },
+  "47": {
+    "yield": 128,
+    "growth": "MEDIUM_FAST"
+  },
+  "48": {
+    "yield": 75,
+    "growth": "MEDIUM_FAST"
+  },
+  "49": {
+    "yield": 138,
+    "growth": "MEDIUM_FAST"
+  },
+  "50": {
+    "yield": 81,
+    "growth": "MEDIUM_FAST"
+  },
+  "51": {
+    "yield": 153,
+    "growth": "MEDIUM_FAST"
+  },
+  "52": {
+    "yield": 69,
+    "growth": "MEDIUM_FAST"
+  },
+  "53": {
+    "yield": 148,
+    "growth": "MEDIUM_FAST"
+  },
+  "54": {
+    "yield": 80,
+    "growth": "MEDIUM_FAST"
+  },
+  "55": {
+    "yield": 174,
+    "growth": "MEDIUM_FAST"
+  },
+  "56": {
+    "yield": 74,
+    "growth": "MEDIUM_FAST"
+  },
+  "57": {
+    "yield": 149,
+    "growth": "MEDIUM_FAST"
+  },
+  "58": {
+    "yield": 91,
+    "growth": "SLOW"
+  },
+  "59": {
+    "yield": 213,
+    "growth": "SLOW"
+  },
+  "60": {
+    "yield": 77,
+    "growth": "MEDIUM_SLOW"
+  },
+  "61": {
+    "yield": 131,
+    "growth": "MEDIUM_SLOW"
+  },
+  "62": {
+    "yield": 185,
+    "growth": "MEDIUM_SLOW"
+  },
+  "63": {
+    "yield": 73,
+    "growth": "MEDIUM_SLOW"
+  },
+  "64": {
+    "yield": 145,
+    "growth": "MEDIUM_SLOW"
+  },
+  "65": {
+    "yield": 186,
+    "growth": "MEDIUM_SLOW"
+  },
+  "66": {
+    "yield": 88,
+    "growth": "MEDIUM_SLOW"
+  },
+  "67": {
+    "yield": 146,
+    "growth": "MEDIUM_SLOW"
+  },
+  "68": {
+    "yield": 193,
+    "growth": "MEDIUM_SLOW"
+  },
+  "69": {
+    "yield": 84,
+    "growth": "MEDIUM_SLOW"
+  },
+  "70": {
+    "yield": 151,
+    "growth": "MEDIUM_SLOW"
+  },
+  "71": {
+    "yield": 191,
+    "growth": "MEDIUM_SLOW"
+  },
+  "72": {
+    "yield": 105,
+    "growth": "SLOW"
+  },
+  "73": {
+    "yield": 205,
+    "growth": "SLOW"
+  },
+  "74": {
+    "yield": 86,
+    "growth": "MEDIUM_SLOW"
+  },
+  "75": {
+    "yield": 134,
+    "growth": "MEDIUM_SLOW"
+  },
+  "76": {
+    "yield": 177,
+    "growth": "MEDIUM_SLOW"
+  },
+  "77": {
+    "yield": 152,
+    "growth": "MEDIUM_FAST"
+  },
+  "78": {
+    "yield": 192,
+    "growth": "MEDIUM_FAST"
+  },
+  "79": {
+    "yield": 99,
+    "growth": "MEDIUM_FAST"
+  },
+  "80": {
+    "yield": 164,
+    "growth": "MEDIUM_FAST"
+  },
+  "81": {
+    "yield": 89,
+    "growth": "MEDIUM_FAST"
+  },
+  "82": {
+    "yield": 161,
+    "growth": "MEDIUM_FAST"
+  },
+  "83": {
+    "yield": 94,
+    "growth": "MEDIUM_FAST"
+  },
+  "84": {
+    "yield": 96,
+    "growth": "MEDIUM_FAST"
+  },
+  "85": {
+    "yield": 158,
+    "growth": "MEDIUM_FAST"
+  },
+  "86": {
+    "yield": 100,
+    "growth": "MEDIUM_FAST"
+  },
+  "87": {
+    "yield": 176,
+    "growth": "MEDIUM_FAST"
+  },
+  "88": {
+    "yield": 90,
+    "growth": "MEDIUM_FAST"
+  },
+  "89": {
+    "yield": 157,
+    "growth": "MEDIUM_FAST"
+  },
+  "90": {
+    "yield": 97,
+    "growth": "SLOW"
+  },
+  "91": {
+    "yield": 203,
+    "growth": "SLOW"
+  },
+  "92": {
+    "yield": 95,
+    "growth": "MEDIUM_SLOW"
+  },
+  "93": {
+    "yield": 126,
+    "growth": "MEDIUM_SLOW"
+  },
+  "94": {
+    "yield": 190,
+    "growth": "MEDIUM_SLOW"
+  },
+  "95": {
+    "yield": 108,
+    "growth": "MEDIUM_FAST"
+  },
+  "96": {
+    "yield": 102,
+    "growth": "MEDIUM_FAST"
+  },
+  "97": {
+    "yield": 165,
+    "growth": "MEDIUM_FAST"
+  },
+  "98": {
+    "yield": 115,
+    "growth": "MEDIUM_FAST"
+  },
+  "99": {
+    "yield": 206,
+    "growth": "MEDIUM_FAST"
+  },
+  "100": {
+    "yield": 103,
+    "growth": "MEDIUM_FAST"
+  },
+  "101": {
+    "yield": 150,
+    "growth": "MEDIUM_FAST"
+  },
+  "102": {
+    "yield": 98,
+    "growth": "SLOW"
+  },
+  "103": {
+    "yield": 212,
+    "growth": "SLOW"
+  },
+  "104": {
+    "yield": 87,
+    "growth": "MEDIUM_FAST"
+  },
+  "105": {
+    "yield": 124,
+    "growth": "MEDIUM_FAST"
+  },
+  "106": {
+    "yield": 139,
+    "growth": "MEDIUM_FAST"
+  },
+  "107": {
+    "yield": 140,
+    "growth": "MEDIUM_FAST"
+  },
+  "108": {
+    "yield": 127,
+    "growth": "MEDIUM_FAST"
+  },
+  "109": {
+    "yield": 114,
+    "growth": "MEDIUM_FAST"
+  },
+  "110": {
+    "yield": 173,
+    "growth": "MEDIUM_FAST"
+  },
+  "111": {
+    "yield": 135,
+    "growth": "SLOW"
+  },
+  "112": {
+    "yield": 204,
+    "growth": "SLOW"
+  },
+  "113": {
+    "yield": 255,
+    "growth": "FAST"
+  },
+  "114": {
+    "yield": 166,
+    "growth": "MEDIUM_FAST"
+  },
+  "115": {
+    "yield": 175,
+    "growth": "MEDIUM_FAST"
+  },
+  "116": {
+    "yield": 83,
+    "growth": "MEDIUM_FAST"
+  },
+  "117": {
+    "yield": 155,
+    "growth": "MEDIUM_FAST"
+  },
+  "118": {
+    "yield": 111,
+    "growth": "MEDIUM_FAST"
+  },
+  "119": {
+    "yield": 170,
+    "growth": "MEDIUM_FAST"
+  },
+  "120": {
+    "yield": 106,
+    "growth": "SLOW"
+  },
+  "121": {
+    "yield": 207,
+    "growth": "SLOW"
+  },
+  "122": {
+    "yield": 136,
+    "growth": "MEDIUM_FAST"
+  },
+  "123": {
+    "yield": 187,
+    "growth": "MEDIUM_FAST"
+  },
+  "124": {
+    "yield": 137,
+    "growth": "MEDIUM_FAST"
+  },
+  "125": {
+    "yield": 156,
+    "growth": "MEDIUM_FAST"
+  },
+  "126": {
+    "yield": 167,
+    "growth": "MEDIUM_FAST"
+  },
+  "127": {
+    "yield": 200,
+    "growth": "SLOW"
+  },
+  "128": {
+    "yield": 211,
+    "growth": "SLOW"
+  },
+  "129": {
+    "yield": 20,
+    "growth": "SLOW"
+  },
+  "130": {
+    "yield": 214,
+    "growth": "SLOW"
+  },
+  "131": {
+    "yield": 219,
+    "growth": "SLOW"
+  },
+  "132": {
+    "yield": 61,
+    "growth": "MEDIUM_FAST"
+  },
+  "133": {
+    "yield": 92,
+    "growth": "MEDIUM_FAST"
+  },
+  "134": {
+    "yield": 196,
+    "growth": "MEDIUM_FAST"
+  },
+  "135": {
+    "yield": 197,
+    "growth": "MEDIUM_FAST"
+  },
+  "136": {
+    "yield": 198,
+    "growth": "MEDIUM_FAST"
+  },
+  "137": {
+    "yield": 130,
+    "growth": "MEDIUM_FAST"
+  },
+  "138": {
+    "yield": 120,
+    "growth": "MEDIUM_FAST"
+  },
+  "139": {
+    "yield": 199,
+    "growth": "MEDIUM_FAST"
+  },
+  "140": {
+    "yield": 119,
+    "growth": "MEDIUM_FAST"
+  },
+  "141": {
+    "yield": 201,
+    "growth": "MEDIUM_FAST"
+  },
+  "142": {
+    "yield": 202,
+    "growth": "SLOW"
+  },
+  "143": {
+    "yield": 154,
+    "growth": "SLOW"
+  },
+  "144": {
+    "yield": 215,
+    "growth": "SLOW"
+  },
+  "145": {
+    "yield": 216,
+    "growth": "SLOW"
+  },
+  "146": {
+    "yield": 217,
+    "growth": "SLOW"
+  },
+  "147": {
+    "yield": 67,
+    "growth": "SLOW"
+  },
+  "148": {
+    "yield": 144,
+    "growth": "SLOW"
+  },
+  "149": {
+    "yield": 218,
+    "growth": "SLOW"
+  },
+  "150": {
+    "yield": 220,
+    "growth": "SLOW"
+  },
+  "151": {
+    "yield": 64,
+    "growth": "MEDIUM_SLOW"
+  },
+  "152": {
+    "yield": 64,
+    "growth": "MEDIUM_SLOW"
+  },
+  "185": {
+    "yield": 135,
+    "growth": "MEDIUM_FAST"
+  },
+  "197": {
+    "yield": 197,
+    "growth": "MEDIUM_FAST"
+  },
+  "355": {
+    "yield": 97,
+    "growth": "FAST"
+  },
+  "361": {
+    "yield": 74,
+    "growth": "MEDIUM_FAST"
+  },
+  "599": {
+    "yield": 100,
+    "growth": "MEDIUM_FAST"
+  },
+  "821": {
+    "yield": 100,
+    "growth": "MEDIUM_FAST"
+  }
+}

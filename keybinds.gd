@@ -5,12 +5,13 @@ const SAVE = "user://controls-v1.json"
 const DEFINITIONS = [
 	["up","Move up",3,KEY_W,KEY_UP], ["down","Move down",3,KEY_S,KEY_DOWN],
 	["left","Move left",3,KEY_A,KEY_LEFT], ["right","Move right",3,KEY_D,KEY_RIGHT],
-	["sprint","Sprint / run",3,KEY_E,0], ["click_move","Move to cursor",3,-2,0],
+	["sprint","Sprint / run",3,KEY_X,0], ["click_move","Move to cursor",3,-2,0],
 	["move1","Attack 1",1,KEY_Q,-1], ["move2","Attack 2",1,KEY_SPACE,0],
 	["move3","Attack 3",1,KEY_F,0], ["move4","Attack 4",1,KEY_C,0],
 	["switch","Switch team menu",1,KEY_B,0], ["roster","Roster / league hub",1,KEY_TAB,0],
 	["restart","Restart battle",1,KEY_R,0], ["capture","Throw Poke Ball",1,KEY_G,0],
 	["bag","Bag",3,KEY_I,0], ["interact","Interact / talk",2,KEY_SPACE,0],
+	["encounter","Search for wild Pokemon",2,KEY_E,0],
 	["party","Adventure team",2,KEY_P,0], ["map","Kanto guide",2,KEY_M,0],
 	["save","Save adventure",2,KEY_F5,0],
 	["slot1","Pokemon slot 1",1,KEY_1,0], ["slot2","Pokemon slot 2",1,KEY_2,0],
@@ -156,7 +157,7 @@ func tests(c):
 	c.check(matches(mouse,"move1"),"Mouse action matching")
 	reset_defaults(false)
 	c.check(bindings.move1==[KEY_Q,-1],"Restore includes primary and alternate defaults")
-	c.check(bindings.sprint==[KEY_E,0] and bindings.move2==[KEY_SPACE,0] and bindings.interact==[KEY_SPACE,0],"Restore defaults swaps E and Space for running, attack 2 and interaction")
+	c.check(bindings.sprint==[KEY_X,0] and bindings.move2==[KEY_SPACE,0] and bindings.interact==[KEY_SPACE,0] and bindings.encounter==[KEY_E,0],"Restore defaults uses X to run, Space to talk, E to search")
 	var saved=bindings.duplicate(true)
 	saved.up=[KEY_Z,KEY_UP]
 	saved.move1=[KEY_W,-1]
@@ -179,6 +180,10 @@ func tests(c):
 
 func load_bindings(data):
 	if not data is Dictionary: return
+	data=data.duplicate(true)
+	# Upgrade the old combined talk/search controls once, preserving other bindings.
+	if not data.has("encounter"):
+		data["sprint"]=[KEY_X,0]; data["interact"]=[KEY_SPACE,0]; data["encounter"]=[KEY_E,0]
 	var original=bindings.duplicate(true)
 	for def in DEFINITIONS:
 		var pair=data.get(def[0],[])

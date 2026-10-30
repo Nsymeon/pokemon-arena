@@ -82,7 +82,22 @@ func tree(at: Vector3, variation: int=0, small: bool=false):
 	stamp("ball",at+Vector3(-.1,2.4,-.05)*s,Vector3(.98,1.05,1)*s,"88b96d")
 
 func furnishing(at: Vector3, kind: String, variation: int=0, theme: String=""):
-	if kind=="plant":
+	if kind=="bed":
+		stamp("box",at+Vector3(0,.2,.5),Vector3(.92,.4,1.9),"957856")
+		stamp("box",at+Vector3(0,.48,.5),Vector3(.9,.22,1.85),"f2ebd8")
+		stamp("box",at+Vector3(0,.62,-.1),Vector3(.7,.16,.4),"fff7e4")
+		stamp("box",at+Vector3(0,.61,.85),Vector3(.92,.12,1.12),"80b79b")
+		stamp("box",at+Vector3(0,.5,-.48),Vector3(1,.9,.12),"aa8c65")
+	elif kind=="chair":
+		for x in [-.26,.26]:
+			for z in [-.25,.25]: stamp("box",at+Vector3(x,.23,z),Vector3(.09,.46,.09),"8c735c")
+		stamp("box",at+Vector3(0,.48,0),Vector3(.65,.16,.65),"7aa6b4")
+		stamp("box",at+Vector3(0,.8,-.28),Vector3(.65,.55,.12),"a3c3c5")
+	elif kind=="table" and not ("CENTER" in theme or "LAB" in theme or "MART" in theme):
+		for x in [-.33,.33]:
+			for z in [-.33,.33]: stamp("box",at+Vector3(x,.35,z),Vector3(.1,.7,.1),"977653")
+		stamp("box",at+Vector3(0,.76,0),Vector3(1,.13,1),"d9ba88")
+	elif kind=="plant":
 		stamp("cylinder",at+Vector3(0,.22,0),Vector3(.53,.44,.53),"bc8364")
 		stamp("ball",at+Vector3(0,.66,0),Vector3(.7,.65,.7),"63985c")
 		stamp("ball",at+Vector3(.1,.9,0),Vector3(.4,.5,.4),"82b568")

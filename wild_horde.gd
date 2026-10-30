@@ -89,22 +89,22 @@ func tests(c):
 	for f in c.foes(): f.hp=0
 	settle(c,0.1)
 	c.check(a.encounter.rewarded.size()==5,"Each horde knockout pays rewards once")
-	c.check(a.data.party[0].xp==175 and a.data.party[1].xp==85 and a.data.party[2].xp==0,"Participants get XP; bench Exp. Share holder gets half; ordinary bench gets none")
+	c.check(a.data.party[0].xp==80 and a.data.party[1].xp==40 and a.data.party[2].xp==0,"Participants get XP; bench Exp. Share holder gets half; ordinary bench gets none")
 	c.check(c.ivs.ev_total(a.data.party[0])==5 and c.ivs.ev_total(a.data.party[1])==0 and c.ivs.ev_total(a.data.party[2])==0,"Only horde battle participants earn EVs")
-	settle(c,0.1); c.check(a.data.party[0].xp==175,"Horde rewards are idempotent")
+	settle(c,0.1); c.check(a.data.party[0].xp==80,"Horde rewards are idempotent")
 	c.finish_round(); c.result_time=10; var money=a.data.money; a.return_world()
 	c.check(a.exploring and not a.in_battle and a.data.money==money,"Defeating a horde returns to the map without awarding money")
 	a.clear_ui(); a.data.party[0].xp=0; a.data.party[1].xp=0
 	a.begin_battle("wild",[25],[2]); c.countdown=0
 	a.return_world(true)
-	c.check(a.data.party[0].xp==35 and a.data.party[1].xp==17 and a.data.party.back().xp==0,"Capture awards participation XP, never XP to the newly caught Pokemon")
+	c.check(a.data.party[0].xp==23 and a.data.party[1].xp==11 and a.data.party.back().xp==0,"Capture awards participation XP, never XP to the newly caught Pokemon")
 	c.check(a.modal!="" and a.data.pokedex["25"].caught,"First capture opens a registered Pokedex entry")
 	a.finish_capture_entry(); a.evolutions.clear(); a.clear_ui(); a.dialog=""
 	a.begin_battle("wild",[25],[2]); a.return_world(true)
 	c.check(a.modal=="","Repeat capture does not reopen the new Pokedex entry")
 	a.clear_ui(); a.data.party=[a.new_mon(1,50),a.new_mon(7,50),a.new_mon(4,50)]; a.data.party[1]["held_item"]="expshare"
 	a.begin_battle("wild",[19],[2]); c.activate_player(2); c.enemy.hp=0; a.record_knockout(true)
-	c.check(a.data.party[0].xp==17 and a.data.party[2].xp==17 and a.data.party[1].xp==17,"Switching shares XP among participants and keeps bench share separate")
+	c.check(a.data.party[0].xp==8 and a.data.party[2].xp==8 and a.data.party[1].xp==8,"Switching shares XP among participants and keeps bench share separate")
 	c.check(c.ivs.ev_total(a.data.party[0])==1 and c.ivs.ev_total(a.data.party[2])==1 and c.ivs.ev_total(a.data.party[1])==0,"Both actual participants gain EVs; bench holder does not")
 	a.clear_ui(); a.in_battle=false; a.exploring=false; a.visible=false; a.data=before; a.save_allowed=old_save; a.world.enabled=old_world
 	for key in arena_before: c.set(key,arena_before[key])

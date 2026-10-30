@@ -73,6 +73,7 @@ scripts='\n'.join(p.read_text(encoding='utf8') for p in (SRC/'data').rglob('*.in
 lookup={}
 for match in re.finditer(r'^(\w+)::?\s*\n([^:]*?trainerbattle[^\n]*?\b(TRAINER_\w+))',scripts,re.M):
     if match[3] in trainers: lookup[match[1]]=trainers[match[3]]
+lookup['MtMoon_B2F_EventScript_Miguel']=trainers['TRAINER_SUPER_NERD_MIGUEL']
 for m in maps.values():
     for obj in m['objects']:
         if obj.get('script') in lookup: obj['battle']=lookup[obj['script']]

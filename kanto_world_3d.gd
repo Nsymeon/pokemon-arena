@@ -79,7 +79,7 @@ func _process(dt):
 		var scene_key=str(w.scenes.actor.get("key",""))
 		for key in actors:
 			if key=="player" or scene_key=="" or not str(key).begins_with(scene_key): continue
-			if w.scenes.positions.has(scene_key): move_actor(actors[key],w.scenes.positions[scene_key],Vector2.DOWN,w.scenes.actor.get("walking",false))
+			if w.scenes.positions.has(scene_key): move_actor(actors[key],w.scenes.positions[scene_key],w.scenes.actor.get("look",Vector2.DOWN),w.scenes.actor.get("walking",false))
 	a.queue_redraw()
 
 func build():
@@ -118,7 +118,7 @@ func build():
 				if (x+z)%3==0:
 					kit.stamp("ball",p+Vector3(.1,.025,-.1),Vector3(.42,.012,.035),"8eced1")
 			"tree":
-				if (tile in [0x14,0x16,0x24,0x26]) or (tile>=640 and x%2==0 and z%2==0): kit.tree(p+Vector3(.45,0,-.3),x+z)
+				pass
 			"shrub": kit.tree(p,x+z,true)
 			"grass":
 				for j in range(4):
@@ -130,9 +130,7 @@ func build():
 					kit.stamp("ball",p+offset,Vector3(.28,.24,.28),"dd7e86" if (x+z)%2==0 else "e9c77e")
 			"path": pass
 			"floor":
-				var shade="d6d1bd" if (x+z)%2==0 else "cec9b4"
-				if "GYM" in loaded: shade="a2b9b0" if (x+z)%2==0 else "9db4aa"
-				kit.stamp("box",p,Vector3(.99,.025,.99),shade)
+				pass # Original floor/rug/stair pattern is baked into the ground.
 			"sand": pass
 			"cliff":
 				kit.stamp("box",p+Vector3(0,.48,0),Vector3(1.0,.96,1.0),"828574" if cave else "a79c7e")
@@ -140,15 +138,23 @@ func build():
 				if not edge: edge=meta.tiles[i-1]!="cliff" or meta.tiles[i+1]!="cliff" or meta.tiles[i-width]!="cliff" or meta.tiles[i+width]!="cliff"
 				if edge: kit.stamp("rock",p+Vector3(0,.73,0),Vector3(1.06,.85,1.04),"969882" if cave else "b6a887",(x+z)*.3)
 				elif (x+z)%5==0: kit.stamp("rock",p+Vector3(0,.99,0),Vector3(.4,.22,.35),"999b82")
+			"ledge":
+				var behavior=int(w.events.catalog[loaded].behavior[i])
+				var axis=Vector3(.16,.2,1) if behavior in [0x38,0x39] else Vector3(1,.2,.16)
+				kit.stamp("box",p+Vector3(0,.1,0),axis,"9d926c")
 			"fence":
 				kit.stamp("box",p+Vector3(0,.37,0),Vector3(.13,.74,.15),"eee6ce")
-				for y in [.27,.56]: kit.stamp("box",p+Vector3(0,y,0),Vector3(1,.1,.1),"d7d8bd")
+				for direction in [Vector2i.LEFT,Vector2i.RIGHT,Vector2i.UP,Vector2i.DOWN]:
+					var next=Vector2i(x,z)+direction
+					if next.x<0 or next.y<0 or next.x>=width or next.y>=height: continue
+					if meta.tiles[next.y*width+next.x]!="fence": continue
+					for y in [.27,.56]: kit.stamp("box",p+Vector3(direction.x*.25,y,direction.y*.25),Vector3(.55,.1,.1) if direction.x!=0 else Vector3(.1,.1,.55),"d7d8bd")
 			"sign":
 				kit.stamp("box",p+Vector3(0,.35,0),Vector3(.12,.7,.12),"876950")
 				kit.stamp("box",p+Vector3(0,.77,0),Vector3(.7,.44,.14),"f0dfb6")
 				for y in [.69,.8]: kit.stamp("box",p+Vector3(0,y,.08),Vector3(.43,.035,.02),"9a9982")
 			"wall": kit.stamp("box",p+Vector3(0,.65,0),Vector3(1,1.3,1),"babaa9")
-			"furniture", "cabinet", "plant", "computer", "table": kit.furnishing(p,kind,x+z,loaded)
+			"furniture", "cabinet", "plant", "computer", "table", "bed", "chair": kit.furnishing(p,kind,x+z,loaded)
 			"void": kit.stamp("box",p+Vector3(0,-.01,0),Vector3(1,.03,1),"404e4e")
 	# Source floor art on important pads preserves visual puzzle clues.
 	var image: Image
@@ -163,6 +169,7 @@ func build():
 		var rect=Rect2(float(b[0]),float(b[1]),float(b[2]),float(b[3]))
 		var doors=room.warps.filter(func(d):return rect.grow(.5).has_point(Vector2(d.x,d.y)))
 		kit.building(rect,str(b[4]),str(b[5]),doors)
+	for tree in meta.get("trees",[]): kit.tree(Vector3(float(tree[0]),0,float(tree[1])),int(tree[0])+int(tree[1]),bool(tree[2]))
 	kit.flush(terrain)
 	# Entrances use a clear doorstep marker, matching the original warp tile exactly.
 	for door in room.warps:
@@ -206,12 +213,16 @@ func sync_actors():
 	for npc in w.actors():
 		var identity=str(npc.get("graphics_id","")); var key=str(npc.get("script",identity))+str(npc.get("local_id",""))
 		alive[key]=true
-		if identity.contains("FOSSIL") or identity.contains("OLD_AMBER") or identity.contains("ITEM_BALL") or identity.contains("SNORLAX") or identity.contains("ARTICUNO") or identity.contains("ZAPDOS") or identity.contains("MOLTRES") or identity.contains("MEWTWO"):
+		if identity.contains("POKEDEX") or identity.contains("FOSSIL") or identity.contains("OLD_AMBER") or identity.contains("ITEM_BALL") or identity.contains("SNORLAX") or identity.contains("ARTICUNO") or identity.contains("ZAPDOS") or identity.contains("MOLTRES") or identity.contains("MEWTWO"):
 			if not actors.has(key):
 				var node=Node3D.new(); people.add_child(node); actors[key]=node
 				var species=143 if identity.contains("SNORLAX") else 144 if identity.contains("ARTICUNO") else 145 if identity.contains("ZAPDOS") else 146 if identity.contains("MOLTRES") else 150 if identity.contains("MEWTWO") else 0
 				if species>0:
 					var sprite=Sprite3D.new(); sprite.texture=a.c.portraits[species]; sprite.pixel_size=.025; sprite.billboard=BaseMaterial3D.BILLBOARD_ENABLED; sprite.position.y=.7; node.add_child(sprite)
+				elif identity.contains("POKEDEX"):
+					kit.shape(node,"box",Vector3(0,.92,0),Vector3(.48,.12,.65),"cc5866")
+					kit.shape(node,"box",Vector3(0,.99,-.1),Vector3(.32,.025,.28),"8ac3c1")
+					kit.shape(node,"ball",Vector3(-.13,1,.21),Vector3(.08,.035,.08),"e8dfa1")
 				else: kit.shape(node,"ball",Vector3(0,.22,0),Vector3(.4,.4,.4),"d4bb85")
 			actors[key].position=Vector3(npc.pos.x/w.TILE,0,npc.pos.y/w.TILE)
 		else:

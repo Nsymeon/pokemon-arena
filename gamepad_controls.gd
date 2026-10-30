@@ -85,7 +85,7 @@ func _input(event):
 
 func action_for(button,exploring) -> String:
 	if exploring:
-		return {JOY_BUTTON_A:"interact",JOY_BUTTON_X:"party",JOY_BUTTON_Y:"map",JOY_BUTTON_BACK:"bag",JOY_BUTTON_RIGHT_SHOULDER:"sprint",JOY_BUTTON_LEFT_SHOULDER:"save"}.get(button,"")
+		return {JOY_BUTTON_LEFT_STICK:"encounter",JOY_BUTTON_A:"interact",JOY_BUTTON_X:"party",JOY_BUTTON_Y:"map",JOY_BUTTON_BACK:"bag",JOY_BUTTON_RIGHT_SHOULDER:"sprint",JOY_BUTTON_LEFT_SHOULDER:"save"}.get(button,"")
 	return {JOY_BUTTON_A:"move1",JOY_BUTTON_B:"move2",JOY_BUTTON_X:"move3",JOY_BUTTON_Y:"move4",JOY_BUTTON_LEFT_SHOULDER:"switch",JOY_BUTTON_RIGHT_SHOULDER:"sprint",JOY_BUTTON_BACK:"bag"}.get(button,"")
 
 func press(button):
@@ -176,7 +176,7 @@ func show_settings():
 	toggle.toggled.connect(func(value): enabled=value; active=false; save_settings()); c.frontend.layer.add_child(toggle)
 	setting_slider("STICK DEADZONE",Vector2(180,290),0.1,0.5,0.01,deadzone,func(value): deadzone=value; save_settings())
 	setting_slider("CURSOR SPEED",Vector2(180,350),300,1600,50,cursor_speed,func(value): cursor_speed=value; save_settings())
-	c.frontend.label("Left stick / D-pad: move  |  Right stick: aim / pointer\nMenus: either stick moves pointer, A / Cross: click\nY / Triangle: keyboard for a selected text field\nD-pad up/down: scroll  |  left/right: adjust focused slider\nA/B/X/Y (Cross/Circle/Square/Triangle): battle moves 1-4\nRB / R1: run toggle  |  LB / L1: switch Pokemon (save on map)\nView / Share: Bag (capture and Run / Flee are in the Bag)\nAdventure: A / Cross: talk, X / Square: team, Y / Triangle: map\nStart / Options: pause  |  B / Circle: back in menus\nBattle result: A / Cross: continue",Vector2(180,430),21)
+	c.frontend.label("Left stick / D-pad: move  |  Right stick: aim / pointer\nMenus: either stick moves pointer, A / Cross: click\nY / Triangle: keyboard for a selected text field\nD-pad up/down: scroll  |  left/right: adjust focused slider\nA/B/X/Y (Cross/Circle/Square/Triangle): battle moves 1-4\nRB / R1: run toggle  |  LB / L1: switch Pokemon (save on map)\nView / Share: Bag (capture and Run / Flee are in the Bag)\nAdventure: A / Cross: talk, L3: wild encounter, X / Square: team, Y / Triangle: map\nStart / Options: pause  |  B / Circle: back in menus\nBattle result: A / Cross: continue",Vector2(180,430),21)
 	c.frontend.button("RESTORE DEFAULTS",Rect2(240,850,380,60),func(): reset_defaults(); show_settings())
 	c.frontend.button("BACK",Rect2(680,850,300,60),c.frontend.show_settings)
 
