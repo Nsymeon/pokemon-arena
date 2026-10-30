@@ -19,11 +19,13 @@ var step_target=Vector2.ZERO
 var events=preload("res://kanto_events.gd").new()
 var scenes=preload("res://kanto_scenes.gd").new()
 var warp_latch=""
+var view3d=preload("res://kanto_world_3d.gd").new()
 
 func install(adventure):
 	a=adventure
 	events.install(self)
 	scenes.install(self)
+	view3d.install(self)
 	for id in maps: names[maps[id].name]=id
 
 func activate():
@@ -414,38 +416,41 @@ func tests():
 	a.save_allowed=old_save_allowed
 
 func draw():
-	if not textures.has(current): textures[current]=ImageTexture.create_from_image(Image.load_from_file(room().image))
-	a.draw_rect(Rect2(0,0,1280,960),Color("152f32"))
-	a.draw_set_transform(Vector2(0,90)-a.camera)
-	a.draw_texture_rect(textures[current],Rect2(Vector2.ZERO,size()),false)
-	events.draw()
-	for door in room().warps:
-		var p=Vector2(float(door.x)+0.5,float(door.y)+0.5)*TILE
-		if a.position_world.distance_to(p)<TILE*1.5: a.words("ENTER",p+Vector2(-35,-22),14,Color("fff0b0"))
-	for npc in actors():
-		if str(npc.get("graphics_id","")).contains("FOSSIL") or str(npc.get("graphics_id","")).contains("OLD_AMBER"):
-			a.draw_circle(npc.pos,15,Color("c7a46e")); a.draw_arc(npc.pos,9,0,TAU*0.8,20,Color("685141"),3)
-		elif str(npc.get("graphics_id","")).trim_prefix("OBJ_EVENT_GFX_") in ["ARTICUNO","ZAPDOS","MEWTWO","MOLTRES"]:
-			var species={"ARTICUNO":144,"ZAPDOS":145,"MEWTWO":150,"MOLTRES":146}[str(npc.graphics_id).trim_prefix("OBJ_EVENT_GFX_")]
-			a.draw_texture_rect(a.c.portraits[species],Rect2(npc.pos-Vector2(38,60),Vector2(76,76)),false)
-		elif str(npc.get("script","")).ends_with("EventScript_Ruby") or str(npc.get("script","")).ends_with("EventScript_Sapphire"):
-			var gem=Color("eb5568") if str(npc.script).ends_with("Ruby") else Color("629df5")
-			a.draw_colored_polygon(PackedVector2Array([npc.pos+Vector2(0,-22),npc.pos+Vector2(14,0),npc.pos+Vector2(0,14),npc.pos+Vector2(-14,0)]),gem)
-		elif str(npc.get("script","")).ends_with("EeveeBall"):
-			a.draw_circle(npc.pos,10,Color("f5eee0")); a.draw_arc(npc.pos,9,PI,TAU,12,Color("e75151"),9)
-		elif "Snorlax" in str(npc.get("script","")):
-			a.draw_texture_rect(a.c.portraits[143],Rect2(npc.pos-Vector2(38,60),Vector2(76,76)),false)
-		else: person(npc.pos,str(npc.get("graphics_id","OBJ_EVENT_GFX_WOMAN_1")).trim_prefix("OBJ_EVENT_GFX_"),false,scenes.trainer_direction(npc),scenes.active and str(scenes.actor.get("key",""))==str(npc.get("script","")) and scenes.actor.get("walking",false))
-		if can_talk(npc.pos): a.words(a.c.controls.text("interact")+" / "+(str(npc.battle.name) if npc.has("battle") else "TALK"),npc.pos+Vector2(-35,-65),14,Color("fff0b0"))
-	for npc in quest_actors():
-		var identity={"oak":"prof_oak","rival":"blue","heal":"nurse","shop":"man","brock":"brock","misty":"misty","bug":"bug_catcher","rocket":"rocket_m","guide":"man","story_captain":"captain","story_shipblue":"blue","story_bill":"bill","story_surge":"lt_surge","late_task_erika":"erika","late_task_koga":"koga","late_task_sabrina":"sabrina","late_task_blaine":"blaine","late_task_giovanni":"giovanni","late_task_flute":"mr_fuji","late_task_hideout_boss":"giovanni","late_task_silph_boss":"giovanni","late_task_silph_blue":"blue","late_league":"lorelei"}.get(npc[2],"scientist")
-		if npc[2]=="late_league": identity=["lorelei","bruno","agatha","lance","blue"][clampi(int(a.Finale.state(a).get("league",0)),0,4)]
-		person(npc[0],identity)
-		a.words(npc[1],npc[0]+Vector2(-45,20),12)
-	for spawn in wild():
-		a.draw_texture_rect(a.c.portraits[spawn[1]],Rect2(spawn[0]-Vector2(24,40),Vector2(48,48)),false)
-		a.words(a.mon_name(spawn[1])+" Lv."+str(spawn[2]),spawn[0]+Vector2(-35,22),12)
-	person(a.position_world,"red_normal",true)
+	if view3d.enabled:
+		view3d.draw()
+	else:
+		if not textures.has(current): textures[current]=ImageTexture.create_from_image(Image.load_from_file(room().image))
+		a.draw_rect(Rect2(0,0,1280,960),Color("152f32"))
+		a.draw_set_transform(Vector2(0,90)-a.camera)
+		a.draw_texture_rect(textures[current],Rect2(Vector2.ZERO,size()),false)
+		events.draw()
+		for door in room().warps:
+			var p=Vector2(float(door.x)+0.5,float(door.y)+0.5)*TILE
+			if a.position_world.distance_to(p)<TILE*1.5: a.words("ENTER",p+Vector2(-35,-22),14,Color("fff0b0"))
+		for npc in actors():
+			if str(npc.get("graphics_id","")).contains("FOSSIL") or str(npc.get("graphics_id","")).contains("OLD_AMBER"):
+				a.draw_circle(npc.pos,15,Color("c7a46e")); a.draw_arc(npc.pos,9,0,TAU*0.8,20,Color("685141"),3)
+			elif str(npc.get("graphics_id","")).trim_prefix("OBJ_EVENT_GFX_") in ["ARTICUNO","ZAPDOS","MEWTWO","MOLTRES"]:
+				var species={"ARTICUNO":144,"ZAPDOS":145,"MEWTWO":150,"MOLTRES":146}[str(npc.graphics_id).trim_prefix("OBJ_EVENT_GFX_")]
+				a.draw_texture_rect(a.c.portraits[species],Rect2(npc.pos-Vector2(38,60),Vector2(76,76)),false)
+			elif str(npc.get("script","")).ends_with("EventScript_Ruby") or str(npc.get("script","")).ends_with("EventScript_Sapphire"):
+				var gem=Color("eb5568") if str(npc.script).ends_with("Ruby") else Color("629df5")
+				a.draw_colored_polygon(PackedVector2Array([npc.pos+Vector2(0,-22),npc.pos+Vector2(14,0),npc.pos+Vector2(0,14),npc.pos+Vector2(-14,0)]),gem)
+			elif str(npc.get("script","")).ends_with("EeveeBall"):
+				a.draw_circle(npc.pos,10,Color("f5eee0")); a.draw_arc(npc.pos,9,PI,TAU,12,Color("e75151"),9)
+			elif "Snorlax" in str(npc.get("script","")):
+				a.draw_texture_rect(a.c.portraits[143],Rect2(npc.pos-Vector2(38,60),Vector2(76,76)),false)
+			else: person(npc.pos,str(npc.get("graphics_id","OBJ_EVENT_GFX_WOMAN_1")).trim_prefix("OBJ_EVENT_GFX_"),false,scenes.trainer_direction(npc),scenes.active and str(scenes.actor.get("key",""))==str(npc.get("script","")) and scenes.actor.get("walking",false))
+			if can_talk(npc.pos): a.words(a.c.controls.text("interact")+" / "+(str(npc.battle.name) if npc.has("battle") else "TALK"),npc.pos+Vector2(-35,-65),14,Color("fff0b0"))
+		for npc in quest_actors():
+			var identity={"oak":"prof_oak","rival":"blue","heal":"nurse","shop":"man","brock":"brock","misty":"misty","bug":"bug_catcher","rocket":"rocket_m","guide":"man","story_captain":"captain","story_shipblue":"blue","story_bill":"bill","story_surge":"lt_surge","late_task_erika":"erika","late_task_koga":"koga","late_task_sabrina":"sabrina","late_task_blaine":"blaine","late_task_giovanni":"giovanni","late_task_flute":"mr_fuji","late_task_hideout_boss":"giovanni","late_task_silph_boss":"giovanni","late_task_silph_blue":"blue","late_league":"lorelei"}.get(npc[2],"scientist")
+			if npc[2]=="late_league": identity=["lorelei","bruno","agatha","lance","blue"][clampi(int(a.Finale.state(a).get("league",0)),0,4)]
+			person(npc[0],identity)
+			a.words(npc[1],npc[0]+Vector2(-45,20),12)
+		for spawn in wild():
+			a.draw_texture_rect(a.c.portraits[spawn[1]],Rect2(spawn[0]-Vector2(24,40),Vector2(48,48)),false)
+			a.words(a.mon_name(spawn[1])+" Lv."+str(spawn[2]),spawn[0]+Vector2(-35,22),12)
+		person(a.position_world,"red_normal",true)
 	a.draw_set_transform(Vector2.ZERO)
 	a.draw_rect(Rect2(0,0,1280,90),Color("112b32"))
 	a.words(room().name.replace("_"," / "),Vector2(24,32),24,Color("ffe19a"))

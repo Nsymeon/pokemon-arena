@@ -118,6 +118,7 @@ func show_settings():
 	page="settings"
 	background()
 	label("SETTINGS",Vector2(465,50),42,Color("f9d86b"))
+	button("GRAPHICS",Rect2(900,45,200,44),show_graphics)
 	label("Click a key, then press its replacement. Settings save automatically.",Vector2(220,110),20)
 	label("Esc: cancel   /   Backspace: clear   /   Conflicting keys in the same mode are rejected.",Vector2(160,145),18,Color("77e2b0"))
 	var scroll=ScrollContainer.new()
@@ -203,3 +204,15 @@ func capture_key(action,slot,title,key_button):
 		else:
 			key_button.text=c.controls.key_name(c.controls.bindings[action][slot])
 			shade.queue_free()
+
+func show_graphics():
+	page="graphics"; background()
+	label("WORLD GRAPHICS",Vector2(370,100),40,Color("f9d86b"))
+	label("Choose the Adventure map appearance.",Vector2(345,200),23)
+	var modern=c.adventure.world.view3d.enabled
+	button(("[SELECTED] " if modern else "")+"MODERN 3D KANTO",Rect2(300,300,680,75),func():c.adventure.world.view3d.set_enabled(true);show_graphics())
+	label("3D scenery, animated trainers, sunlight and shadows.",Vector2(320,400),21)
+	button(("[SELECTED] " if not modern else "")+"CLASSIC 2D KANTO",Rect2(300,485,680,75),func():c.adventure.world.view3d.set_enabled(false);show_graphics())
+	label("Original tiles. A lighter option for older computers.",Vector2(320,585),21)
+	label("Both appearances share the same saves, maps, events and controls.",Vector2(250,690),21)
+	button("BACK",Rect2(480,790,320,65),show_settings)

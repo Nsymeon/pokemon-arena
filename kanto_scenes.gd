@@ -229,7 +229,7 @@ func seek_wild() -> bool:
 
 func draw():
 	if not active: return
-	if actor.get("key","")=="scene_oak":
+	if actor.get("key","")=="scene_oak" and not w.view3d.enabled:
 		a.draw_set_transform(Vector2(0,90)-a.camera)
 		w.person(positions.scene_oak,"prof_oak")
 		a.draw_set_transform(Vector2.ZERO)
@@ -244,12 +244,13 @@ func draw():
 			a.draw_circle(Vector2(640,390),115,Color(0.8,0.95,1,0.15))
 			a.draw_texture_rect(a.c.portraits[int(step.portrait)],Rect2(540,290,200,200),false)
 		if step.get("effect","")=="smash":
-			var center=Vector2(step.point)-a.camera+Vector2(0,90)
+			var center=w.view3d.screen_point(Vector2(step.point)) if w.view3d.enabled else Vector2(step.point)-a.camera+Vector2(0,90)
 			for i in range(10):
 				var velocity=Vector2.from_angle(i*TAU/10)*90+Vector2(0,-70)
 				a.draw_circle(center+velocity*elapsed+Vector2(0,150*elapsed*elapsed),4,Color("ceb18b"))
 	if subtitle=="!" and not actor.is_empty():
-		var p=Vector2(positions.get(str(actor.key),a.position_world))-a.camera+Vector2(0,90)
+		var at=Vector2(positions.get(str(actor.key),a.position_world))
+		var p=w.view3d.screen_point(at) if w.view3d.enabled else at-a.camera+Vector2(0,90)
 		a.draw_circle(p+Vector2(24,-78),19,Color("fff1be"))
 		a.words("!",p+Vector2(18,-66),32,Color("382a23"))
 

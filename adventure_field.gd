@@ -227,7 +227,7 @@ func draw():
 		# A light overlay preserves navigation; Flash visibly removes it.
 		a.draw_rect(Rect2(0,90,1280,700),Color(0.025,0.025,0.08,0.42))
 	if riding and outdoor():
-		var p=a.position_world-a.camera+Vector2(0,101)
+		var p=w().view3d.screen_point(a.position_world)+Vector2(0,11) if w().view3d.enabled else a.position_world-a.camera+Vector2(0,101)
 		a.draw_arc(p+Vector2(-15,0),11,0,TAU,20,Color("324859"),3)
 		a.draw_arc(p+Vector2(15,0),11,0,TAU,20,Color("324859"),3)
 		a.draw_polyline(PackedVector2Array([p+Vector2(-15,0),p+Vector2(0,-12),p+Vector2(15,0),p+Vector2(-15,0)]),Color("d9e7ed"),2)

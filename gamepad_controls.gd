@@ -124,7 +124,7 @@ func press(button):
 func back_frontend():
 	match c.frontend.page:
 		"slots": c.frontend.show_modes()
-		"controller": c.frontend.show_settings()
+		"controller", "graphics": c.frontend.show_settings()
 		"title": pass
 		_: c.frontend.show_title()
 

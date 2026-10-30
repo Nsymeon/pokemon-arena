@@ -333,7 +333,7 @@ func handle_input(event):
 		return
 	if c.controls.matches(event,"click_move"):
 		if modal=="" and dialog=="" and Rect2(0,90,1280,700).has_point(c.get_global_mouse_position()):
-			var target = c.get_global_mouse_position()-Vector2(0,90)+camera
+			var target = world.view3d.ground_point(c.get_global_mouse_position()) if world.enabled and world.view3d.enabled else c.get_global_mouse_position()-Vector2(0,90)+camera
 			if (world.click_destination_allowed(target) if world.enabled else not blocked(target)):
 				c.click_destination = target
 				c.click_move = true
