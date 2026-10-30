@@ -9,6 +9,7 @@ import io
 import time
 from collections import deque, Counter
 from pathlib import Path
+from random import Random
 from PIL import Image, ImageDraw, ImageFilter, ImageChops
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -160,26 +161,50 @@ for key,m in maps.items():
     for i,kind in enumerate(kinds):
         if kind=='building': kinds[i]='cliff' if ('Ember' in m['name'] or 'Kindle' in m['name'] or 'Route23' in m['name']) else 'fence'
     # Rounded path edges and fine soil variation avoid a solid checkerboard floor.
-    ground=Image.new('RGB',(w*16,h*16),'#86ad76' if outdoor else '#938e7b' if cave else '#bdbba9')
+    ground=Image.new('RGB',(w*16,h*16),'#78a260' if outdoor else '#858b87' if cave else '#bdbba9')
     pen=ImageDraw.Draw(ground)
-    palette={'path':'#d9cb9e','sand':'#a49a80','grass':'#70965b','water':'#4c94a5','floor':'#bdbba9','void':'#3e4c4d'}
+    palette={'path':'#b5a17b','sand':'#91958b' if cave else '#b8a581','grass':'#659048','water':'#408fab','floor':'#bdbba9','void':'#3e4c4d'}
     for i,k in enumerate(kinds):
         if k in palette:
             x,y=i%w*16,i//w*16;pen.rectangle((x,y,x+15,y+15),fill=palette[k])
     ground=ground.filter(ImageFilter.GaussianBlur(2))
     # Fixed noise is reproducible and evaluated in Pillow, not millions of Python loops.
-    noise=Image.new('L',(64,64)); noise.putdata([128+((i*73+i//64*31)%7)-3 for i in range(4096)])
+    rng=Random(42)
+    noise=Image.new('L',(64,64)); noise.putdata([128+rng.randrange(-2,3) for i in range(4096)])
     grain=Image.new('L',ground.size)
     for y in range(0,ground.height,64):
         for x in range(0,ground.width,64): grain.paste(noise,(x,y))
     ground=ImageChops.add(ground,grain.convert('RGB'),offset=-128)
+    ground=ground.resize((w*32,h*32),Image.Resampling.LANCZOS)
     # Keep the actual room's rugs, parquet and stair artwork. A generic tiled
     # overlay erased interior identity and hid the staircase entrances.
     if not outdoor and not cave:
         for i,kind in enumerate(kinds):
             if kind!='floor': continue
-            x,y=i%w*16,i//w*16
-            ground.paste(original.crop((x,y,x+16,y+16)),(x,y))
+            x,y=i%w*32,i//w*32; idx=m['cells'][i]&1023
+            pen=ImageDraw.Draw(ground)
+            home=any(word in key for word in ['HOUSE','COTTAGE','DAY_CARE'])
+            if home:
+                shade=['#b59b76','#bca17d','#b29a79'][(i%w+i//w)%3]
+                pen.rectangle((x,y,x+31,y+31),fill=shade)
+                for row in range(0,32,8):
+                    pen.line((x,y+row,x+31,y+row),fill='#a08b6d')
+                    joint=x+(8 if row%16 else 23)
+                    pen.line((joint,y+row,joint,y+row+7),fill='#a08b6d')
+            else:
+                shade='#bdc7c5' if (i%w+i//w)%2 else '#c5ceca'
+                pen.rectangle((x,y,x+31,y+31),fill=shade)
+                pen.line((x,y,x+31,y),fill='#aab9b5'); pen.line((x,y,x,y+31),fill='#aab9b5')
+            if layout['primary_tileset']=='gTileset_Building' and idx in [0x43,0x44,0x45,0x46,0x4b,0x4e,0x53,0x56,0x5b,0x5c,0x5d,0x5e]:
+                pen.rectangle((x,y,x+31,y+31),fill='#80a7a3')
+                for dx,dy in [(8,8),(24,24)]:pen.ellipse((x+dx,y+dy,x+dx+2,y+dy+2),fill='#b9d0b7')
+                if idx in [0x43,0x44,0x46]:pen.line((x,y+3,x+31,y+3),fill='#d6d7b9',width=3)
+                if idx in [0x5b,0x5c,0x5e]:pen.line((x,y+28,x+31,y+28),fill='#d6d7b9',width=3)
+                if idx in [0x43,0x4b,0x53,0x5b]:pen.line((x+3,y,x+3,y+31),fill='#d6d7b9',width=3)
+                if idx in [0x46,0x4e,0x56,0x5e]:pen.line((x+28,y,x+28,y+31),fill='#d6d7b9',width=3)
+            if layout['primary_tileset']=='gTileset_Building' and idx in [0x5,0x6,0xd,0xe,0x15,0x16,0x17,0x1e,0x1f]:
+                ox,oy=i%w*16,i//w*16
+                ground.paste(original.crop((ox,oy,ox+16,oy+16)).resize((32,32),Image.Resampling.LANCZOS),(x,y))
     folder=ROOT/'assets/kanto/modern';folder.mkdir(exist_ok=True)
     buffer=io.BytesIO(); ground.save(buffer,format='PNG')
     write_changed(folder/(m['name']+'.png'),buffer.getvalue())
@@ -191,7 +216,7 @@ for key,m in maps.items():
         if not block: continue
         covered.update(block)
         trees.append([sum(j%w+.5 for j in block)/len(block),sum(j//w+.5 for j in block)/len(block),len(block)<3])
-    result[key]={'outdoor':outdoor,'cave':cave,'tiles':kinds,'trees':trees,'buildings':buildings,'ground':'res://assets/kanto/modern/'+m['name']+'.png'}
+    result[key]={'outdoor':outdoor,'cave':cave,'texels_per_tile':32,'tiles':kinds,'trees':trees,'buildings':buildings,'ground':'res://assets/kanto/modern/'+m['name']+'.png'}
 
 path=ROOT/'assets/kanto/world-3d.json'
 write_changed(path,json.dumps(result,separators=(',',':')).encode('utf8'))

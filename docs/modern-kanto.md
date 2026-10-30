@@ -13,6 +13,26 @@ This is an initial modular 3D art pass, not a reproduction of the commercial gam
 asset quality. Unique landmarks and bespoke interiors still need individual art.
 Some original puzzle decals and special Pokémon portraits remain 2D within the world.
 
+## Vegetation and material upgrade
+
+The second visual pass uses Route 201's broad grass leaves, layered tree silhouette,
+low banks and warm paths as its reference:
+https://www.pokekalos.fr/jeux/switch/dp/articles-route-201-3585.html
+
+Grass now consists of curved mesh blades with root-to-tip color and wind animation.
+Layered trees have visible trunks and scalloped foliage. Rocks use irregular beveled
+profiles; cliff edges and jump ledges have distinct heights. Shore foam follows the
+actual water boundary. Flowers have petals; buildings have masonry joints, roof
+tile seams and window mullions. Smoother shared character meshes, cooler ambient
+lighting and less yellow sunlight help unify the scene.
+
+All 392 ground textures use 32 texels per tile, with parquet, rug borders and tiled
+interiors drawn at that resolution. Gameplay-significant puzzle decals and stairs
+retain their source artwork. The texture audit reads the explicit texel resolution.
+Meshes and foliage remain batched; terrain generation never edits collision,
+encounters, source warps or player saves. This is an original modular interpretation
+of the reference, with bespoke landmarks and character art still below BDSP fidelity.
+
 ## Architecture
 
 - `kanto_world.gd` remains authoritative for all 392 maps, collision, NPC positions,

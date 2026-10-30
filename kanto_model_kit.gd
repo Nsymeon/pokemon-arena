@@ -6,6 +6,27 @@ var batches={}
 
 func material(hex: String) -> Material:
 	if materials.has(hex): return materials[hex]
+	if hex.begins_with("grass_"):
+		var shader=Shader.new()
+		shader.code="""shader_type spatial;
+render_mode cull_disabled;
+uniform vec4 tint : source_color;
+varying float blade_height;
+void vertex() {
+ blade_height=VERTEX.y;
+ vec3 p=(MODEL_MATRIX*vec4(VERTEX,1.)).xyz;
+ VERTEX.x+=sin(TIME*1.65+p.x*1.7+p.z*.8)*.045*blade_height*blade_height;
+ VERTEX.z+=cos(TIME*1.2+p.z*1.4)*.025*blade_height;
+}
+void fragment() {
+ ALBEDO=tint.rgb*mix(.68,1.18,clamp(blade_height,0.,1.));
+ ROUGHNESS=.86;
+ BACKLIGHT=tint.rgb*.22;
+}
+"""
+		var foliage=ShaderMaterial.new(); foliage.shader=shader
+		foliage.set_shader_parameter("tint",Color(hex.trim_prefix("grass_")))
+		materials[hex]=foliage; return foliage
 	if hex=="489eaf":
 		var shader=Shader.new()
 		shader.code="""shader_type spatial;
@@ -16,7 +37,7 @@ void fragment() {
  float wave=sin(p.x*3.4+TIME*.7+sin(p.y*2.1-TIME*.4));
  float cross_wave=sin(p.y*4.7-TIME*.8+cos(p.x*2.6+TIME*.35));
  float light=smoothstep(.72,.99,wave*cross_wave);
- ALBEDO=mix(vec3(.12,.43,.48),vec3(.36,.69,.68),.45+.1*wave);
+ ALBEDO=mix(vec3(.10,.39,.61),vec3(.28,.65,.78),.45+.1*wave);
  ALBEDO+=vec3(.18,.25,.23)*light;
  ROUGHNESS=.3; SPECULAR=.45;
  NORMAL=normalize(NORMAL+vec3(wave*.07,0.,cross_wave*.07));
@@ -33,11 +54,13 @@ func mesh(kind: String) -> Mesh:
 	var m: Mesh
 	match kind:
 		"ball":
-			var sphere=SphereMesh.new(); sphere.radius=0.5; sphere.height=1.0; sphere.radial_segments=12; sphere.rings=6; m=sphere
+			var sphere=SphereMesh.new(); sphere.radius=0.5; sphere.height=1.0; sphere.radial_segments=20; sphere.rings=10; m=sphere
 		"cylinder":
 			var cylinder=CylinderMesh.new(); cylinder.top_radius=0.5; cylinder.bottom_radius=0.5; cylinder.height=1; cylinder.radial_segments=12; m=cylinder
 		"rock":
-			var sphere=SphereMesh.new(); sphere.radius=.5; sphere.height=1; sphere.radial_segments=7; sphere.rings=3; m=sphere
+			m=profile_mesh([Vector2(.34,-.5),Vector2(.5,-.28),Vector2(.46,.2),Vector2(.28,.48),Vector2(0,.53)],10,true)
+		"canopy":
+			m=profile_mesh([Vector2(.12,0),Vector2(.48,.1),Vector2(.5,.2),Vector2(.41,.36),Vector2(.32,.58),Vector2(.16,.82),Vector2(0,1)],20,false)
 		"roof":
 			var st=SurfaceTool.new(); st.begin(Mesh.PRIMITIVE_TRIANGLES)
 			var points=[Vector3(-.5,0,-.5),Vector3(.5,0,-.5),Vector3(.5,0,.5),Vector3(-.5,0,.5),Vector3(-.5,.5,0),Vector3(.5,.5,0)]
@@ -45,14 +68,36 @@ func mesh(kind: String) -> Mesh:
 			st.generate_normals(); m=st.commit()
 		"grass":
 			var st=SurfaceTool.new(); st.begin(Mesh.PRIMITIVE_TRIANGLES)
-			for side in range(3):
-				var rotate=Basis(Vector3.UP,side*TAU/3)
-				for point in [Vector3(-.35,0,0),Vector3(.15,.9,-.08),Vector3(.35,0,0),Vector3(.35,0,0),Vector3(.15,.9,-.08),Vector3(-.35,0,0)]: st.add_vertex(rotate*point)
-			st.generate_normals(); m=st.commit()
+			# Curved, broad blades rather than crossed triangular spikes.
+			for blade in range(5):
+				var rotate=Basis(Vector3.UP,blade*2.39996)
+				var h=.68+float(blade%3)*.14
+				for segment in 8:
+					var points=[]; var normals=[]
+					for pair in [[segment,-1],[segment,1],[segment+1,-1],[segment+1,1]]:
+						var t=float(pair[0])/8.0
+						var width=.16*pow(sin(t*PI),.7)+.008*(1-t)
+						points.append(rotate*Vector3(pair[1]*width,h*t,.04+.4*t*t))
+						normals.append((rotate*Vector3(0,.3+t*.5,.9-t*.4)).normalized())
+					for index in [0,2,1,1,2,3]:
+						st.set_normal(normals[index]); st.add_vertex(points[index])
+			m=st.commit()
 		_:
 			m=BoxMesh.new(); m.size=Vector3.ONE
 	meshes[kind]=m
 	return m
+
+func profile_mesh(profile: Array, sides: int, irregular: bool) -> Mesh:
+	var st=SurfaceTool.new(); st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for ring in range(profile.size()-1):
+		for side in sides:
+			var points=[]
+			for pair in [[ring,side],[ring+1,side],[ring,side+1],[ring+1,side+1]]:
+				var angle=float(pair[1])*TAU/sides
+				var radius=profile[pair[0]].x*(1.0+.08*sin(angle*3+.7) if irregular else 1.0)
+				points.append(Vector3(cos(angle)*radius,profile[pair[0]].y,sin(angle)*radius))
+			for index in ([0,2,1] if profile[ring+1].x==0 else [0,2,1,1,2,3]): st.add_vertex(points[index])
+	st.generate_normals(); return st.commit()
 
 func shape(parent: Node3D, kind: String, at: Vector3, extent: Vector3, color: String) -> MeshInstance3D:
 	var n=MeshInstance3D.new(); n.mesh=mesh(kind); n.material_override=material(color)
@@ -73,13 +118,24 @@ func flush(parent: Node3D):
 	batches.clear()
 
 func tree(at: Vector3, variation: int=0, small: bool=false):
-	var s=0.55 if small else 1.0
-	stamp("cylinder",at+Vector3(0,.65*s,0),Vector3(.3,1.3,.3)*s,"8b6949")
-	var tones=["478953","55995a","3d7d53"]
-	stamp("ball",at+Vector3(0,1.7*s,0),Vector3(1.7,1.65,1.65)*s,tones[posmod(variation,3)])
-	stamp("ball",at+Vector3(-.43,1.9,.13)*s,Vector3(1.1,1.1,1.1)*s,"65a45e")
-	stamp("ball",at+Vector3(.4,2.04,-.15)*s,Vector3(1.15,1.2,1.15)*s,"75af65")
-	stamp("ball",at+Vector3(-.1,2.4,-.05)*s,Vector3(.98,1.05,1)*s,"88b96d")
+	var s=0.68 if small else 1.0
+	stamp("cylinder",at+Vector3(0,.7*s,0),Vector3(.34,1.4,.34)*s,"8b6949")
+	var tones=["377e55","41865b","397d5d"]
+	stamp("canopy",at+Vector3(0,.78*s,0),Vector3(1.82,1.6,1.82)*s,tones[posmod(variation,3)])
+	stamp("canopy",at+Vector3(0,1.46*s,0),Vector3(1.48,1.4,1.48)*s,"4c9863")
+	stamp("canopy",at+Vector3(0,2.1*s,0),Vector3(1.05,1.25,1.05)*s,"65a970")
+	for tier in 3:
+		var radius=[.78,.63,.44][tier]*s
+		for leaf in 12:
+			var angle=leaf*TAU/12+tier*.2
+			stamp("ball",at+Vector3(cos(angle)*radius,(1.06+tier*.65+.04*sin(leaf*2.3))*s,sin(angle)*radius),Vector3(.32,.13,.36)*s,["428858","549b62","6cab6b"][tier])
+
+func flower(at: Vector3, color: String):
+	stamp("cylinder",at+Vector3(0,.12,0),Vector3(.035,.24,.035),"4f8f52")
+	for petal in 5:
+		var angle=petal*TAU/5
+		stamp("ball",at+Vector3(cos(angle)*.09,.25,sin(angle)*.09),Vector3(.15,.07,.15),color)
+	stamp("ball",at+Vector3(0,.28,0),Vector3(.08,.06,.08),"f4d36b")
 
 func furnishing(at: Vector3, kind: String, variation: int=0, theme: String=""):
 	if kind=="bed":
@@ -139,6 +195,23 @@ func building(rect: Rect2, style: String, roof: String, doors: Array):
 				stamp("box",center+Vector3(0,height+.825*(1-t)+.025,side*(depth+.5)*.5*t),Vector3(width+.48,.045,.055),roof)
 		stamp("box",center+Vector3(-width*.28,height+.85,-depth*.18),Vector3(.48,.9,.55),"e2cfb1")
 	var front=center.z+depth*.5+.02
+	# Recessed masonry joints and corner trims give the facade readable depth.
+	for course in 3:
+		var y=.13+course*.13
+		stamp("box",Vector3(center.x,y,front+.015),Vector3(width-.2,.018,.02),"9fada8")
+		for brick in range(int(width*2)):
+			var bx=rect.position.x+.3+brick*.5+(course%2)*.25
+			if bx<rect.end.x-.2: stamp("box",Vector3(bx,y+.05,front+.02),Vector3(.018,.1,.025),"9fada8")
+	for side in [-1,1]:
+		stamp("box",Vector3(center.x+side*(width*.5-.12),height*.55,front+.045),Vector3(.16,height*.87,.14),"d8d9c5")
+	if style in ["house","center","mart"]:
+		for side in [-1,1]:
+			for row in range(1,5):
+				var t=row/5.0
+				for column in range(int(width/.6)):
+					var rx=rect.position.x+.3+column*.6+(row%2)*.14
+					if rx>rect.end.x: continue
+					stamp("box",center+Vector3(rx-center.x,height+.825*(1-t)+.035,side*(depth+.5)*.5*t),Vector3(.035,.04,.15),"a87b71" if style=="house" else "b86d75" if style=="center" else "6c94b1")
 	for x in range(maxi(1,int(width/1.4))):
 		var xx=rect.position.x+.75+x*1.35
 		if xx>rect.end.x-.5: continue
@@ -147,6 +220,7 @@ func building(rect: Rect2, style: String, roof: String, doors: Array):
 		stamp("box",Vector3(xx,1.23,front+.075),Vector3(.71,.51,.06),"639da9")
 		stamp("box",Vector3(xx-.17,1.29,front+.112),Vector3(.12,.32,.025),"b0dfdc")
 		stamp("box",Vector3(xx,.8,front+.1),Vector3(.98,.12,.24),"ced9cc")
+		stamp("box",Vector3(xx,1.23,front+.12),Vector3(.045,.51,.025),"dce6dd")
 	for door in doors:
 		var x=float(door.x)+.5; var z=front+.03
 		stamp("box",Vector3(x,.7,z),Vector3(1.12,1.4,.15),"f5ead3")

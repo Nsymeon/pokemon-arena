@@ -15,7 +15,8 @@ for key,room in maps.items():
     assert ground.is_file(),ground
     with ground.open('rb') as file: header=file.read(24)
     assert header[:8]==b'\x89PNG\r\n\x1a\n',ground
-    assert struct.unpack('>II',header[16:24])==(width*16,height*16),ground
+    resolution=view.get('texels_per_tile',16)
+    assert struct.unpack('>II',header[16:24])==(width*resolution,height*resolution),ground
     doors={(d['x'],d['y']) for d in room['warps']}
     for x,y,w,h,style,color in view['buildings']:
         buildings+=1
