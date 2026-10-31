@@ -5,6 +5,7 @@ var w:
 	get: return world_ref.get_ref()
 var a
 var catalog: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://assets/kanto/events.json"))
+var badge_checkpoints: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://assets/kanto/badge-checkpoints.json"))
 var patches={}
 var textures={}
 var spin=Vector2.ZERO
@@ -276,7 +277,25 @@ func draw():
 		a.draw_line(p-Vector2(10,0),p+Vector2(10,0),Color("25333c"),3)
 
 
+func badge_owned(name: String) -> bool:
+	var names=["Boulder","Cascade","Thunder","Rainbow","Soul","Marsh","Volcano","Earth"]
+	return bool(w.scenes.dialogue_flag("FLAG_BADGE0"+str(names.find(name)+1)+"_GET"))
+
+func allow_step(target: Vector2) -> bool:
+	var tile=Vector2i(target/w.TILE)
+	for gate in badge_checkpoints.get(w.current,[]):
+		if tile==Vector2i(int(gate[0]),int(gate[1])) and not badge_owned(gate[2]):
+			a.dialog="LEAGUE GUARD: Only trainers with the "+str(gate[2])+" Badge may pass."
+			a.c.click_move=false
+			return false
+	return true
+
 func allow_door(destination: String) -> bool:
+	if destination=="MAP_ROUTE23" and not badge_owned("Boulder"):
+		a.dialog="LEAGUE GUARD: You need the Boulder Badge to pass."; return false
+	if destination in ["MAP_VICTORY_ROAD_1F","MAP_INDIGO_PLATEAU_EXTERIOR"]:
+		if a.Finale.missing(a,["eight"])!="":
+			a.dialog="LEAGUE GUARD: Show all eight Gym Badges before entering."; return false
 	if not a.sevii.gate(destination): return false
 	if destination.begins_with("MAP_SAFARI_ZONE") and not a.services.state().safari:
 		a.services.safari_menu(); return false

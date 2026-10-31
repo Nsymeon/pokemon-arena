@@ -139,6 +139,7 @@ func tick(dt):
 			advance_step(dt)
 			update_camera(); a.queue_redraw(); return
 		if scenes.check_oak_intro(): return
+		if scenes.route22_rival(): return
 		if try_warp(): return
 		if scenes.detect_trainer(): return
 		if events.tick(dt):
@@ -174,9 +175,11 @@ func tick(dt):
 				if a.data.starter==0:
 					scenes.oak_rescue()
 					return
-				enter(link.map,target); return
+				if events.allow_door(link.map): enter(link.map,target)
+				return
 		if direction!=Vector2.ZERO:
 			step_target=a.position_world+motion
+			if not events.allow_step(step_target): return
 			if a.sevii.waterfall(direction): return
 			if try_ledge(direction):
 				advance_step(dt)
@@ -194,6 +197,7 @@ func actors() -> Array:
 	var result=[]
 	var quests=quest_actors()
 	for object in room().objects:
+		if current=="MAP_ROUTE22" and object.get("graphics_id","")=="OBJ_EVENT_GFX_BLUE": continue
 		if object.get("graphics_id","")=="OBJ_EVENT_GFX_POKEDEX" and events.done("parcel_delivered"): continue
 		if object.get("graphics_id","")=="OBJ_EVENT_GFX_BLUE" and current=="MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB" and a.data.rival: continue
 		if object.get("graphics_id","")=="OBJ_EVENT_GFX_PROF_OAK" and current=="MAP_PALLET_TOWN": continue

@@ -92,5 +92,35 @@ func run():
 	fixture("MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB")
 	a.position_world=Vector2(6.5,4.5)*48; w.heading=Vector2.UP
 	key(KEY_SPACE); c.check(not a.dialog.is_empty(),"Oak still responds before parcel delivery")
+
+	fixture("MAP_ROUTE22")
+	a.position_world=Vector2(33.5,5.5)*48
+	c.check(w.scenes.route22_rival() and w.scenes.active,"Route22 west approach triggers Blue")
+	w.scenes.tick(1)
+	await snap("route22-blue")
+	w.scenes.finish()
+	c.check(a.in_battle and a.encounter.ids==[16,7] and a.encounter.levels==[9,9] and c.opponent_identity=="blue","Route22 Blue has the matching level-9 party")
+	a.in_battle=false; w.events.battle_reward("world_Route22_EarlyRival",true)
+	c.check(not w.scenes.route22_rival(),"Defeated Route22 Blue never repeats")
+	fixture("MAP_ROUTE22_NORTH_ENTRANCE")
+	c.check(not w.events.allow_step(Vector2(7.5,2.5)*48),"Boulder guard blocks his original checkpoint")
+	c.check(not w.events.allow_door("MAP_ROUTE23"),"Boulder requirement also guards the exit")
+	a.data.badge=true; a.dialog=""
+	c.check(w.events.allow_step(Vector2(7.5,2.5)*48) and w.events.allow_door("MAP_ROUTE23"),"Boulder Badge opens its checkpoint")
+	fixture("MAP_ROUTE23")
+	for gate in w.events.badge_checkpoints.MAP_ROUTE23:
+		c.check(not w.events.allow_step((Vector2(gate[0],gate[1])+Vector2.ONE*.5)*48),"Missing badge blocks checkpoint "+str(gate))
+	c.check(not w.events.allow_door("MAP_VICTORY_ROAD_1F") and not w.events.allow_door("MAP_INDIGO_PLATEAU_EXTERIOR"),"Cannot bypass badges through map transitions")
+
+	a.data.badge=true; a.data.cascade=true; a.Story.state(a)["thunder"]=true
+	for badge in ["rainbow","soul","marsh","volcano","earth"]: a.Finale.state(a)[badge]=true
+	for gate in w.events.badge_checkpoints.MAP_ROUTE23:
+		c.check(w.events.allow_step((Vector2(gate[0],gate[1])+Vector2.ONE*.5)*48),"Earned badge opens checkpoint "+str(gate))
+	c.check(w.events.allow_door("MAP_VICTORY_ROAD_1F"),"Eight badges open Victory Road")
+	var visual: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://assets/kanto/world-3d.json"))
+	for id in w.maps:
+		var tiles=visual[id].tiles
+		for i in tiles.size():
+			if tiles[i]=="fence": c.check((int(w.maps[id].cells[i])&0xC00)!=0,"Fence matches source collision "+str(id)+":"+str(i))
 	print("ADVENTURE FIX CHECK: ",c.test_failures)
 	quit(0 if c.test_failures.is_empty() else 1)

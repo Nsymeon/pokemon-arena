@@ -7,7 +7,7 @@ func run():
 	a.data.avatar={"gender":"boy","shirt":"df6367","pants":"48779d","hair":"714737","shoes":"efe5ce"}
 	a.exploring=true; a.in_battle=false; a.dialog=""; a.modal=""; a.world.enabled=true
 	var w=a.world; w.scenes.reset(); w.view3d.enabled=true
-	for spec in [["MAP_PALLET_TOWN",Vector2(12,10)],["MAP_VIRIDIAN_CITY",Vector2(18,20)],["MAP_VIRIDIAN_FOREST",Vector2(15,20)],["MAP_MT_MOON_1F",Vector2(15,15)],["MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB",Vector2(6,9)],["MAP_CERULEAN_CITY",Vector2(20,20)],["MAP_VIRIDIAN_CITY_POKEMON_CENTER_1F",Vector2(7,7)],["MAP_SAFFRON_CITY_GYM",Vector2(9,9)],["MAP_ROUTE19",Vector2(10,15)]]:
+	for spec in [["MAP_ROUTE22",Vector2(33,5)],["MAP_ROUTE3",Vector2(10,10)],["MAP_PALLET_TOWN",Vector2(12,10)],["MAP_VIRIDIAN_CITY",Vector2(18,20)],["MAP_VIRIDIAN_FOREST",Vector2(15,20)],["MAP_MT_MOON_1F",Vector2(15,15)],["MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB",Vector2(6,9)],["MAP_CERULEAN_CITY",Vector2(20,20)],["MAP_VIRIDIAN_CITY_POKEMON_CENTER_1F",Vector2(7,7)],["MAP_SAFFRON_CITY_GYM",Vector2(9,9)],["MAP_ROUTE19",Vector2(10,15)]]:
 		w.current=spec[0]; w.events.refresh(); a.position_world=w.walkable((spec[1]+Vector2(.5,.5))*48); w.update_camera()
 		for i in 4: await process_frame
 		await RenderingServer.frame_post_draw

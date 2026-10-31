@@ -377,3 +377,18 @@ func tests():
 	a.c.check(not active and calls.size()==1,"Saved one-shot scenes are not replayed")
 	reset(); a.data=before; a.save_allowed=old_allowed; w.current=old_current; a.position_world=old_position; a.dialog=old_dialog; w.warp_latch=old_latch
 	w.events.refresh(); w.update_camera()
+
+# FireRed's three approach lanes share one persistent early rival encounter.
+func route22_rival() -> bool:
+	if w.current!="MAP_ROUTE22" or a.data.starter==0 or not a.data.rival: return false
+	if w.events.done("trainer:Route22_EarlyRival") or a.Finale.has(a,"league_rival"): return false
+	var tile=Vector2i(a.position_world/w.TILE)
+	if tile.x!=33 or tile.y not in [4,5,6]: return false
+	var origin=Vector2(25.5,tile.y+.5)*w.TILE
+	var target=a.position_world-Vector2.RIGHT*w.TILE
+	var rival_id=7 if a.data.starter==4 else 4 if a.data.starter==1 else 1
+	play([
+		{"actor":{"key":"scene_blue","gfx":"blue","from":origin,"to":target},"text":"BLUE: Hey! You're off to the Pokemon League?","duration":2.6},
+		{"text":"BLUE: You need Gym Badges to get through. Let's see how your Pokemon are doing!","duration":3.0}
+	],func():a.begin_battle("world_Route22_EarlyRival",[16,rival_id],[9,9]))
+	return true

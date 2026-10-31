@@ -480,7 +480,7 @@ func begin_battle(kind: String, ids: Array, levels: Array):
 	c.enemy_team = ids.map(func(id): return c.Dex.find_id(c.roster,int(id)))
 	c.enemy_party = []
 	for i in range(ids.size()): c.enemy_party.append(battle_mon(ids[i],levels[i]))
-	c.opponent_identity = "wild" if kind=="wild" else "blue" if kind=="rival" else "brock" if kind=="brock" else "misty" if kind=="misty" else "giovanni" if kind=="rocket" else "bug_catcher"
+	c.opponent_identity = "wild" if kind=="wild" else "blue" if kind in ["rival","world_Route22_EarlyRival"] else "brock" if kind=="brock" else "misty" if kind=="misty" else "giovanni" if kind=="rocket" else "bug_catcher"
 	c.arena_choice.select(4 if kind=="misty" else 0 if data.map==6 else 3 if kind=="brock" else 6 if data.map==3 else 2)
 	Story.prepare(self,kind)
 	Finale.prepare(self,kind)

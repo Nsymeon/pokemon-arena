@@ -137,7 +137,7 @@ func build():
 					var next=Vector2i(x,z)+direction
 					if next.x<0 or next.y<0 or next.x>=width or next.y>=height: continue
 					if meta.tiles[next.y*width+next.x] in ["water","waterfall"]: continue
-					kit.stamp("ball",p+Vector3(direction.x*.46,.018,direction.y*.46),Vector3(.13,.025,.96) if direction.x!=0 else Vector3(.96,.025,.13),"aadbd1")
+					kit.stamp("ball",p+Vector3(direction.x*.46,.018,direction.y*.46),Vector3(.13,.025,.96) if direction.x!=0 else Vector3(.96,.025,.13),"718768")
 			"tree":
 				pass
 			"shrub": kit.tree(p,x+z,true)
@@ -145,7 +145,7 @@ func build():
 				for j in range(3):
 					var angle=j*2.39996+float((x*17+z*31)%11)*.12
 					var offset=Vector3(cos(angle)*.27,0,sin(angle)*.27) if j>0 else Vector3.ZERO
-					kit.stamp("grass",p+offset,Vector3(.92,.62+float((x+z+j)%3)*.035,.92),["grass_67ad32","grass_78ba3d","grass_87c447"][posmod(x+z+j,3)],angle)
+					kit.stamp("grass",p+offset,Vector3(.92,.82+float((x+z+j)%3)*.035,.92),["grass_67ad32","grass_78ba3d","grass_87c447"][posmod(x+z+j,3)],angle)
 			"flowers":
 				for j in range(4):
 					var offset=Vector3((j%2-.5)*.4,.16,(int(j/2)-.5)*.4)
@@ -155,27 +155,32 @@ func build():
 				pass # Original floor/rug/stair pattern is baked into the ground.
 			"sand": pass
 			"cliff":
-				kit.stamp("box",p+Vector3(0,.23,0),Vector3(1.0,.46,1.0),"747d82" if cave else "928d7d")
-				var edge=x==0 or z==0 or x==width-1 or z==height-1
-				if not edge: edge=meta.tiles[i-1]!="cliff" or meta.tiles[i+1]!="cliff" or meta.tiles[i-width]!="cliff" or meta.tiles[i+width]!="cliff"
-				if edge:
-					kit.stamp("rock",p+Vector3(0,.36,0),Vector3(1.12,.76,1.12),"8e9697" if cave else "aaa390",float((x+z)%4)*PI*.5)
-				else:
-					kit.stamp("box",p+Vector3(0,.5,0),Vector3(1,.12,1),"939b98" if cave else "7fa268")
-					if cave and (x+z)%3==0: kit.stamp("rock",p+Vector3(0,.58,0),Vector3(.65,.22,.6),"889392",float(x+z))
+				# Contiguous layered rock faces, with recessed joints and turf caps.
+				var rock_colors=["cliff_outdoor","cliff_outdoor","cliff_outdoor"] if not cave else ["626c72","778087","879095"]
+				kit.stamp("box",p+Vector3(0,.59,0),Vector3(1.0,1.18,1.0),rock_colors[0])
+				for layer in range(3):
+					kit.stamp("softbox",p+Vector3(0,.19+layer*.36,0),Vector3(1.01,.355,1.025),rock_colors[(x+z+layer)%3])
+				kit.stamp("box",p+Vector3(0,1.2,0),Vector3(1.015,.14,1.015),"turf" if not cave else "89908b")
+			"stairs":
+				for step in range(5):
+					kit.stamp("box",p+Vector3(0,.03+(4-step)*.045,-.4+step*.2),Vector3(1,.06+(4-step)*.09,.21),"b6bfc0")
+				for side in [-1,1]:
+					var neighbor=x+side
+					if neighbor>=0 and neighbor<width and meta.tiles[z*width+neighbor]=="stairs": continue
+					for step in range(5): kit.stamp("softbox",p+Vector3(side*.46,.23+(4-step)*.045,-.4+step*.2),Vector3(.12,.13,.24),"c7965e")
 			"ledge":
 				var behavior=int(w.events.catalog[loaded].behavior[i])
 				var axis=Vector3(.32,.22,1) if behavior in [0x38,0x39] else Vector3(1,.22,.32)
-				kit.stamp("box",p+Vector3(0,.1,0),axis,"a39c85")
-				kit.stamp("ball",p+Vector3(0,.22,0),axis*Vector3(1.15,.35,1.15),"83a66c")
+				kit.stamp("box",p+Vector3(0,.1,0),axis,"997044")
+				kit.stamp("ball",p+Vector3(0,.22,0),axis*Vector3(1.15,.35,1.15),"6b934a")
 			"fence":
-				kit.stamp("box",p+Vector3(0,.37,0),Vector3(.13,.74,.15),"eee6ce")
-				kit.stamp("ball",p+Vector3(0,.76,0),Vector3(.2,.13,.2),"e4e2cc")
+				kit.stamp("box",p+Vector3(0,.37,0),Vector3(.13,.74,.15),"cba976")
+				kit.stamp("ball",p+Vector3(0,.76,0),Vector3(.2,.13,.2),"e2bf87")
 				for direction in [Vector2i.LEFT,Vector2i.RIGHT,Vector2i.UP,Vector2i.DOWN]:
 					var next=Vector2i(x,z)+direction
 					if next.x<0 or next.y<0 or next.x>=width or next.y>=height: continue
 					if meta.tiles[next.y*width+next.x]!="fence": continue
-					for y in [.27,.56]: kit.stamp("box",p+Vector3(direction.x*.25,y,direction.y*.25),Vector3(.55,.1,.1) if direction.x!=0 else Vector3(.1,.1,.55),"d7d8bd")
+					for y in [.27,.56]: kit.stamp("box",p+Vector3(direction.x*.25,y,direction.y*.25),Vector3(.55,.1,.1) if direction.x!=0 else Vector3(.1,.1,.55),"b68e59")
 			"sign": kit.sign(p)
 			"wall": kit.stamp("box",p+Vector3(0,.65,0),Vector3(1,1.3,1),"babaa9")
 			"furniture", "cabinet", "plant", "computer", "table", "bed", "chair": kit.furnishing(p,kind,x+z,loaded)
@@ -269,6 +274,8 @@ func sync_actors():
 				if original.get("local_id","")==npc[3]: identity=str(original.graphics_id); break
 		ensure_actor(key,npc[0],identity,Vector2.DOWN)
 		if w.can_talk(npc[0]): labels.append([npc[0],a.c.controls.text("interact")+" / "+str(npc[1])])
+	if w.scenes.active and w.scenes.actor.get("key","")=="scene_blue":
+		alive.scene_blue=true; ensure_actor("scene_blue",w.scenes.positions.scene_blue,"blue",w.scenes.actor.get("look",Vector2.RIGHT),w.scenes.actor.get("walking",false))
 	if w.scenes.active and w.scenes.actor.get("key","")=="scene_oak":
 		alive.scene_oak=true; ensure_actor("scene_oak",w.scenes.positions.scene_oak,"prof_oak",Vector2.DOWN,w.scenes.actor.get("walking",false))
 	for key in actors.keys():
@@ -281,7 +288,7 @@ func sync_props():
 	for node in props.get_children(): node.free()
 	for o in w.room().objects:
 		var p=Vector3(float(o.x)+.5,0,float(o.y)+.5)
-		if "CUT_TREE" in str(o.graphics_id) and not w.events.done(loaded+"tree"+str(o.x)+":"+str(o.y)): kit.tree(p,0,true)
+		if "CUT_TREE" in str(o.graphics_id) and not w.events.done(loaded+"tree"+str(o.x)+":"+str(o.y)): kit.cut_tree(p)
 		if "ROCK_SMASH_ROCK" in str(o.graphics_id) and not w.events.done(a.field.smash_key(o)):
 			kit.stamp("rock",p+Vector3(0,.24,0),Vector3(.72,.48,.65),"aba69b",float(o.x+o.y))
 	for rock in w.events.rocks(): kit.stamp("rock",Vector3(float(rock.x)+.5,.38,float(rock.y)+.5),Vector3(.87,.76,.84),"959e9e",float(rock.x+rock.y))

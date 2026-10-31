@@ -40,6 +40,39 @@ void fragment() {
 		var foliage=ShaderMaterial.new(); foliage.shader=shader
 		foliage.set_shader_parameter("tint",Color(hex.trim_prefix("grass_")))
 		materials[hex]=foliage; return foliage
+	if hex=="turf":
+		var shader=Shader.new()
+		shader.code="""shader_type spatial;
+varying vec3 p;
+void vertex() { p=(MODEL_MATRIX*vec4(VERTEX,1.)).xyz; }
+float turf_hash(vec2 q) { return fract(sin(dot(q,vec2(127.1,311.7)))*43758.5453); }
+float turf_noise(vec2 q) {
+ vec2 i=floor(q); vec2 f=fract(q); f=f*f*(3.-2.*f);
+ return mix(mix(turf_hash(i),turf_hash(i+vec2(1.,0.)),f.x),mix(turf_hash(i+vec2(0.,1.)),turf_hash(i+vec2(1.,1.)),f.x),f.y);
+}
+void fragment() {
+ float shade=turf_noise(p.xz*2.)-.5;
+ float grain=turf_noise(p.xz*35.)-.5;
+ ALBEDO=vec3(.30,.46,.20)*(1.+shade*.12+grain*.04);
+ ROUGHNESS=1.;
+}
+"""
+		var turf=ShaderMaterial.new(); turf.shader=shader; materials[hex]=turf; return turf
+	if hex=="cliff_outdoor":
+		var shader=Shader.new()
+		shader.code="""shader_type spatial;
+varying vec3 p;
+void vertex() { p=(MODEL_MATRIX*vec4(VERTEX,1.)).xyz; }
+void fragment() {
+ float grain=sin(p.x*18.+sin(p.z*11.))*sin(p.y*23.+p.z*17.);
+ float strata=sin((p.y+p.x*.09+p.z*.08)*26.+sin(p.x*2.+p.z*3.)*.5);
+ float seam=smoothstep(.90,.99,strata);
+ ALBEDO=mix(vec3(.39,.23,.12),vec3(.57,.36,.20),.60+grain*.06);
+ ALBEDO*=1.-seam*.19;
+ ROUGHNESS=.95;
+}
+"""
+		var rock=ShaderMaterial.new(); rock.shader=shader; materials[hex]=rock; return rock
 	if hex=="489eaf":
 		var shader=Shader.new()
 		shader.code="""shader_type spatial;
@@ -50,10 +83,10 @@ void fragment() {
  float wave=sin(p.x*3.4+TIME*.7+sin(p.y*2.1-TIME*.4));
  float cross_wave=sin(p.y*4.7-TIME*.8+cos(p.x*2.6+TIME*.35));
  float light=smoothstep(.72,.99,wave*cross_wave);
- ALBEDO=mix(vec3(.10,.39,.61),vec3(.28,.65,.78),.45+.1*wave);
- ALBEDO+=vec3(.18,.25,.23)*light;
+ ALBEDO=mix(vec3(.19,.29,.48),vec3(.30,.42,.62),.45+.06*wave);
+ ALBEDO+=vec3(.08,.11,.15)*light*.25;
  ROUGHNESS=.3; SPECULAR=.45;
- NORMAL=normalize(NORMAL+vec3(wave*.07,0.,cross_wave*.07));
+ NORMAL=normalize(NORMAL+vec3(wave*.015,0.,cross_wave*.015));
 }
 """
 		var water=ShaderMaterial.new(); water.shader=shader; materials[hex]=water; return water
@@ -78,6 +111,8 @@ func mesh(kind: String) -> Mesh:
 			var sphere=SphereMesh.new(); sphere.radius=0.5; sphere.height=1.0; sphere.radial_segments=20; sphere.rings=10; m=sphere
 		"cylinder":
 			var cylinder=CylinderMesh.new(); cylinder.top_radius=0.5; cylinder.bottom_radius=0.5; cylinder.height=1; cylinder.radial_segments=12; m=cylinder
+		"leaf":
+			var leaf=SphereMesh.new(); leaf.radius=.5; leaf.height=1.0; leaf.radial_segments=8; leaf.rings=4; m=leaf
 		"rock":
 			m=profile_mesh([Vector2(.34,-.5),Vector2(.5,-.28),Vector2(.46,.2),Vector2(.28,.48),Vector2(0,.53)],10,true)
 		"torso":
@@ -105,9 +140,9 @@ func mesh(kind: String) -> Mesh:
 					var points=[]; var normals=[]
 					for pair in [[segment,-1],[segment,1],[segment+1,-1],[segment+1,1]]:
 						var t=float(pair[0])/8.0
-						var width=.16*pow(sin(t*PI),.7)+.008*(1-t)
+						var width=.20*pow(sin(t*PI),.8)+.008*(1-t)
 						points.append(rotate*Vector3(pair[1]*width,h*t,.04+.4*t*t))
-						normals.append((rotate*Vector3(0,.3+t*.5,.9-t*.4)).normalized())
+						normals.append((rotate*Vector3(0,.8*t,-h)).normalized())
 					for index in [0,2,1,1,2,3]:
 						st.set_normal(normals[index]); st.add_vertex(points[index])
 			m=st.commit()
@@ -149,15 +184,24 @@ func flush(parent: Node3D):
 func tree(at: Vector3, variation: int=0, small: bool=false):
 	var s=0.68 if small else 1.0
 	stamp("cylinder",at+Vector3(0,.7*s,0),Vector3(.34,1.4,.34)*s,"8b6949")
-	var tones=["377e55","41865b","397d5d"]
+	var tones=["24592c","2e6730","285f30"]
 	stamp("canopy",at+Vector3(0,.78*s,0),Vector3(1.82,1.6,1.82)*s,tones[posmod(variation,3)])
-	stamp("canopy",at+Vector3(0,1.46*s,0),Vector3(1.48,1.4,1.48)*s,"4c9863")
-	stamp("canopy",at+Vector3(0,2.1*s,0),Vector3(1.05,1.25,1.05)*s,"65a970")
+	stamp("canopy",at+Vector3(0,1.46*s,0),Vector3(1.48,1.4,1.48)*s,"438632")
+	stamp("canopy",at+Vector3(0,2.1*s,0),Vector3(1.05,1.25,1.05)*s,"71b638")
 	for tier in 3:
-		var radius=[.78,.63,.44][tier]*s
-		for leaf in 12:
-			var angle=leaf*TAU/12+tier*.2
-			stamp("ball",at+Vector3(cos(angle)*radius,(1.06+tier*.65+.04*sin(leaf*2.3))*s,sin(angle)*radius),Vector3(.32,.13,.36)*s,["428858","549b62","6cab6b"][tier])
+		for row in 2:
+			var radius=([.78,.63,.44][tier]-row*.09)*s
+			for leaf in 12:
+				var angle=leaf*TAU/12+tier*.2+row*.13
+				stamp("leaf",at+Vector3(cos(angle)*radius,(1.06+tier*.65+row*.18+.025*sin(leaf*2.3))*s,sin(angle)*radius),Vector3(.27,.11,.3)*s,["327032","4d9636","79bd42"][tier])
+
+func cut_tree(at: Vector3):
+	# A distinct waist-high sapling; full forest trees reach 3.35 units.
+	stamp("cylinder",at+Vector3(0,.27,0),Vector3(.17,.54,.17),"aa804b")
+	stamp("canopy",at+Vector3(0,.32,0),Vector3(.78,.7,.78),"4f8e31")
+	stamp("canopy",at+Vector3(0,.65,0),Vector3(.52,.55,.52),"88be47")
+	for side in [-1,1]:
+		stamp("ball",at+Vector3(side*.22,.58,.06),Vector3(.4,.16,.3),"6aa438")
 
 func flower(at: Vector3, color: String):
 	stamp("cylinder",at+Vector3(0,.12,0),Vector3(.035,.24,.035),"4f8f52")

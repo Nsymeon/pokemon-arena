@@ -51,7 +51,8 @@ def classify(tile, primary, idx, behavior, blocked, outdoor, underground):
         if idx==5: return 'shrub',rgb
         if idx in [2,3,0x168]: return 'sign',rgb
         if idx==4: return 'flowers',rgb
-        if idx in [0xe7,0xec,0xed,0xf4,0xf5,0xfc,0xfd]: return 'fence',rgb
+        if idx in [0x162,0x163,0x164,0x16a,0x16b,0x16c,0x172,0x173,0x174]: return 'path',rgb
+        if idx in [0xd6,0xd7,0xdf,0xe6,0xe7,0xe8,0xe9,0xec,0xed,0xee,0xef,0xf0,0xf1,0xf2,0xf4,0xf5,0xf8,0xf9,0xfc,0xfd]: return ('fence' if blocked else 'lawn'),rgb
         if 0x28<=idx<=0x63 or 0x141<=idx<=0x163 or idx in [0x150,0x151,0x186,0x187,0x18f,0x197,0x19d,0x19e,0x19f]: return 'building',rgb
         if (0x69<=idx<=0xbb) and blocked: return 'cliff',rgb
     if outdoor:
@@ -90,6 +91,8 @@ for key,m in maps.items():
             x,y=i%w*16,i//w*16
             cache[ck]=classify(original.crop((x,y,x+16,y+16)),layout['primary_tileset'],idx,b,blocked,outdoor,cave)
         kind,color=cache[ck]; kinds.append(kind); colors.append(color)
+        # Verified Cerulean outdoor stair treads; secondary tile IDs are NOT global.
+        if m['name']=='CeruleanCity' and idx in [0x2d6,0x2ed]: kinds[-1]='stairs'
         if layout['secondary_tileset']=='gTileset_GenericBuilding1':
             if idx==0x28c: kinds[-1]='bed'
             elif idx==0x294: kinds[-1]='bed_foot'
@@ -102,7 +105,7 @@ for key,m in maps.items():
             for yy in range(y,y+bh):
                 for xx in range(x,x+bw): kinds[yy*w+xx]='foundation'
         for i,c in enumerate(m['cells']):
-            if c&1023 in [0x284,0x287,0x288]: kinds[i]='fence'
+            if c&1023 in [0x284,0x287,0x288]: kinds[i]='fence' if c&0xC00 else 'lawn'
             elif c&1023==0x2ad: kinds[i]='sign'
     # All source doors remain visibly reachable even if a palette heuristic differs.
     for door in m['warps']:
@@ -160,10 +163,13 @@ for key,m in maps.items():
     # Unclaimed blocked structures get low relief, never an opaque roof over paths.
     for i,kind in enumerate(kinds):
         if kind=='building': kinds[i]='cliff' if ('Ember' in m['name'] or 'Kindle' in m['name'] or 'Route23' in m['name']) else 'fence'
+    # Never draw a solid fence over a source-walkable cell.
+    for i,kind in enumerate(kinds):
+        if kind=='fence' and not m['cells'][i]&0xC00: kinds[i]='lawn'
     # Rounded path edges and fine soil variation avoid a solid checkerboard floor.
-    ground=Image.new('RGB',(w*16,h*16),'#78a260' if outdoor else '#858b87' if cave else '#bdbba9')
+    ground=Image.new('RGB',(w*16,h*16),'#719753' if outdoor else '#858b87' if cave else '#bdbba9')
     pen=ImageDraw.Draw(ground)
-    palette={'path':'#b5a17b','sand':'#91958b' if cave else '#b8a581','grass':'#659048','water':'#408fab','floor':'#bdbba9','void':'#3e4c4d'}
+    palette={'path':'#ac9466','sand':'#91958b' if cave else '#b8a581','grass':'#508034','water':'#4b6793','floor':'#bdbba9','void':'#3e4c4d'}
     for i,k in enumerate(kinds):
         if k in palette:
             x,y=i%w*16,i//w*16;pen.rectangle((x,y,x+15,y+15),fill=palette[k])
@@ -176,6 +182,12 @@ for key,m in maps.items():
         for x in range(0,ground.width,64): grain.paste(noise,(x,y))
     ground=ImageChops.add(ground,grain.convert('RGB'),offset=-128)
     ground=ground.resize((w*32,h*32),Image.Resampling.LANCZOS)
+    if outdoor:
+        # Broad, irregular turf mottling instead of a uniformly painted plane.
+        macro=Image.new('L',(w*2,h*2))
+        macro.putdata([128+rng.randrange(-12,13) for _ in range(w*h*4)])
+        macro=macro.resize(ground.size,Image.Resampling.BICUBIC).filter(ImageFilter.GaussianBlur(7))
+        ground=ImageChops.add(ground,macro.convert('RGB'),offset=-128)
     # Keep the actual room's rugs, parquet and stair artwork. A generic tiled
     # overlay erased interior identity and hid the staircase entrances.
     if not outdoor and not cave:
