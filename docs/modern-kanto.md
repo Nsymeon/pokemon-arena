@@ -33,6 +33,29 @@ Meshes and foliage remain batched; terrain generation never edits collision,
 encounters, source warps or player saves. This is an original modular interpretation
 of the reference, with bespoke landmarks and character art still below BDSP fidelity.
 
+## Characters and interactable props
+
+`kanto_character_models.gd` now supplies the shared overworld rig: shaped torso,
+separate hands, inset eyes, brows, ears, layered hair, sneaker soles and laces.
+Player clothing/hair/shoe colors and gender still come from the saved avatar.
+Oak, Nurse Joy, Blue, Brock, Misty and Rocket uniforms have recognizable silhouettes
+and palettes. Quest actors inherit their matched source NPC's appearance (Mom is
+not rendered as Nurse Joy). Limb names remain compatible with walking and scenes.
+
+References include the official BDSP Trainer Fundamentals screenshots:
+https://diamondpearl.pokemon.com/en-us/trainersguide/fundamentals/
+
+Furniture uses rounded meshes, PC keys/screens, individual book spines, leaf-shaped
+houseplants and detailed signboards. Center/Mart/lab counters merge into contiguous
+sections instead of padded tile cubes. Healing machines carry six small Poké Balls.
+Poké Balls use one sphere with an equator paint shader and front button; Pokédex
+devices have a screen frame and controls, and fossils have a spiral relief.
+
+`tools/capture-character-models.gd` renders an unsaved asset preview and checks the
+shared rig nodes. The all-map render test and interaction regression script verify
+map integration, actor facing, avatar replacement, PC/counter access and Oak's scene.
+These are original modular assets inspired by BDSP, not extracted BDSP models.
+
 ## Architecture
 
 - `kanto_world.gd` remains authoritative for all 392 maps, collision, NPC positions,

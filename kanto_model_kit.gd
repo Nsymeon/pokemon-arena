@@ -6,6 +6,19 @@ var batches={}
 
 func material(hex: String) -> Material:
 	if materials.has(hex): return materials[hex]
+	if hex=="pokeball":
+		var shader=Shader.new()
+		shader.code="""shader_type spatial;
+varying float height;
+void vertex() { height=VERTEX.y; }
+void fragment() {
+ ALBEDO=vec3(.08,.11,.14);
+ if (height>.025) { ALBEDO=vec3(.74,.055,.085); }
+ else if (height<-.025) { ALBEDO=vec3(.91,.93,.91); }
+ ROUGHNESS=.28; SPECULAR=.55;
+}
+"""
+		var paint=ShaderMaterial.new(); paint.shader=shader; materials[hex]=paint; return paint
 	if hex.begins_with("grass_"):
 		var shader=Shader.new()
 		shader.code="""shader_type spatial;
@@ -53,12 +66,28 @@ func mesh(kind: String) -> Mesh:
 	if meshes.has(kind): return meshes[kind]
 	var m: Mesh
 	match kind:
+		"softbox":
+			var box=BoxMesh.new(); box.size=Vector3.ONE; box.subdivide_width=6; box.subdivide_height=6; box.subdivide_depth=6
+			var arrays=box.surface_get_arrays(0); var vertices=arrays[Mesh.ARRAY_VERTEX]; var normals=arrays[Mesh.ARRAY_NORMAL]
+			for i in vertices.size():
+				var v=vertices[i]; var center=Vector3(clampf(v.x,-.40,.40),clampf(v.y,-.40,.40),clampf(v.z,-.40,.40))
+				normals[i]=(v-center).normalized(); vertices[i]=center+normals[i]*.10
+			arrays[Mesh.ARRAY_VERTEX]=vertices; arrays[Mesh.ARRAY_NORMAL]=normals
+			var rounded=ArrayMesh.new(); rounded.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,arrays); m=rounded
 		"ball":
 			var sphere=SphereMesh.new(); sphere.radius=0.5; sphere.height=1.0; sphere.radial_segments=20; sphere.rings=10; m=sphere
 		"cylinder":
 			var cylinder=CylinderMesh.new(); cylinder.top_radius=0.5; cylinder.bottom_radius=0.5; cylinder.height=1; cylinder.radial_segments=12; m=cylinder
 		"rock":
 			m=profile_mesh([Vector2(.34,-.5),Vector2(.5,-.28),Vector2(.46,.2),Vector2(.28,.48),Vector2(0,.53)],10,true)
+		"torso":
+			m=profile_mesh([Vector2(.34,-.5),Vector2(.44,-.43),Vector2(.49,.2),Vector2(.36,.45),Vector2(0,.5)],24,false)
+		"haircap":
+			m=profile_mesh([Vector2(.5,0),Vector2(.48,.16),Vector2(.39,.32),Vector2(.24,.44),Vector2(0,.5)],32,false)
+		"pot":
+			m=profile_mesh([Vector2(.32,-.5),Vector2(.36,-.45),Vector2(.5,.43),Vector2(.5,.5)],24,false)
+		"ring":
+			var ring=TorusMesh.new(); ring.inner_radius=.4; ring.outer_radius=.5; ring.rings=24; ring.ring_segments=8; m=ring
 		"canopy":
 			m=profile_mesh([Vector2(.12,0),Vector2(.48,.1),Vector2(.5,.2),Vector2(.41,.36),Vector2(.32,.58),Vector2(.16,.82),Vector2(0,1)],20,false)
 		"roof":
@@ -137,42 +166,79 @@ func flower(at: Vector3, color: String):
 		stamp("ball",at+Vector3(cos(angle)*.09,.25,sin(angle)*.09),Vector3(.15,.07,.15),color)
 	stamp("ball",at+Vector3(0,.28,0),Vector3(.08,.06,.08),"f4d36b")
 
+func pokeball(at: Vector3, diameter: float=.42):
+	stamp("ball",at,Vector3.ONE*diameter,"pokeball")
+	stamp("ball",at+Vector3(0,0,diameter*.48),Vector3(.28,.28,.09)*diameter,"34414c")
+	stamp("ball",at+Vector3(0,0,diameter*.53),Vector3(.18,.18,.04)*diameter,"f4f4e9")
+
+func sign(at: Vector3):
+	stamp("softbox",at+Vector3(0,.38,0),Vector3(.16,.76,.16),"8d7257")
+	stamp("softbox",at+Vector3(0,.8,0),Vector3(.78,.48,.18),"886d51")
+	stamp("softbox",at+Vector3(0,.81,.1),Vector3(.68,.37,.035),"e2d9b7")
+	for y in [.73,.81,.89]: stamp("box",at+Vector3(.04,y,.125),Vector3(.39,.025,.01),"778880")
+	stamp("ball",at+Vector3(-.24,.81,.13),Vector3(.13,.13,.025),"a96359")
+
+func counter(at: Vector3, size: Vector2, theme: String):
+	var center="POKEMON_CENTER" in theme
+	var top="c77f62" if center else "8eafb5" if "LAB" in theme else "78a3ad"
+	stamp("softbox",at+Vector3(0,.38,0),Vector3(size.x-.04,.76,size.y-.04),"d2d1c3")
+	stamp("softbox",at+Vector3(0,.8,0),Vector3(size.x,.14,size.y),top)
+	stamp("box",at+Vector3(0,.2,size.y*.5-.012),Vector3(size.x-.08,.08,.035),top)
+	if center and size.x>=3:
+		var emblem=at+Vector3(0,.48,size.y*.5+.012)
+		stamp("ball",emblem,Vector3(.45,.45,.04),"f5e8d3")
+		stamp("box",emblem+Vector3(0,0,.025),Vector3(.43,.045,.02),top)
+		stamp("ball",emblem+Vector3(0,0,.04),Vector3(.14,.14,.025),top)
+
 func furnishing(at: Vector3, kind: String, variation: int=0, theme: String=""):
 	if kind=="bed":
-		stamp("box",at+Vector3(0,.2,.5),Vector3(.92,.4,1.9),"957856")
-		stamp("box",at+Vector3(0,.48,.5),Vector3(.9,.22,1.85),"f2ebd8")
-		stamp("box",at+Vector3(0,.62,-.1),Vector3(.7,.16,.4),"fff7e4")
-		stamp("box",at+Vector3(0,.61,.85),Vector3(.92,.12,1.12),"80b79b")
-		stamp("box",at+Vector3(0,.5,-.48),Vector3(1,.9,.12),"aa8c65")
+		stamp("softbox",at+Vector3(0,.2,.5),Vector3(.92,.4,1.9),"957856")
+		stamp("softbox",at+Vector3(0,.48,.5),Vector3(.9,.22,1.85),"f2ebd8")
+		stamp("softbox",at+Vector3(0,.62,-.1),Vector3(.7,.16,.4),"fff7e4")
+		stamp("softbox",at+Vector3(0,.61,.85),Vector3(.92,.12,1.12),"80b79b")
+		stamp("softbox",at+Vector3(0,.5,-.48),Vector3(1,.9,.12),"aa8c65")
 	elif kind=="chair":
 		for x in [-.26,.26]:
-			for z in [-.25,.25]: stamp("box",at+Vector3(x,.23,z),Vector3(.09,.46,.09),"8c735c")
-		stamp("box",at+Vector3(0,.48,0),Vector3(.65,.16,.65),"7aa6b4")
-		stamp("box",at+Vector3(0,.8,-.28),Vector3(.65,.55,.12),"a3c3c5")
+			for z in [-.25,.25]: stamp("softbox",at+Vector3(x,.23,z),Vector3(.09,.46,.09),"8c735c")
+		stamp("softbox",at+Vector3(0,.48,0),Vector3(.65,.16,.65),"7aa6b4")
+		stamp("softbox",at+Vector3(0,.8,-.28),Vector3(.65,.55,.12),"a3c3c5")
 	elif kind=="table" and not ("CENTER" in theme or "LAB" in theme or "MART" in theme):
 		for x in [-.33,.33]:
-			for z in [-.33,.33]: stamp("box",at+Vector3(x,.35,z),Vector3(.1,.7,.1),"977653")
-		stamp("box",at+Vector3(0,.76,0),Vector3(1,.13,1),"d9ba88")
+			for z in [-.33,.33]: stamp("softbox",at+Vector3(x,.35,z),Vector3(.1,.7,.1),"977653")
+		stamp("softbox",at+Vector3(0,.76,0),Vector3(1,.13,1),"d9ba88")
 	elif kind=="plant":
-		stamp("cylinder",at+Vector3(0,.22,0),Vector3(.53,.44,.53),"bc8364")
-		stamp("ball",at+Vector3(0,.66,0),Vector3(.7,.65,.7),"63985c")
-		stamp("ball",at+Vector3(.1,.9,0),Vector3(.4,.5,.4),"82b568")
+		stamp("pot",at+Vector3(0,.22,0),Vector3(.56,.44,.56),"bc8364")
+		stamp("ring",at+Vector3(0,.43,0),Vector3(.59,.5,.59),"d8a180")
+		stamp("cylinder",at+Vector3(0,.42,0),Vector3(.47,.035,.47),"655b43")
+		stamp("cylinder",at+Vector3(0,.64,0),Vector3(.055,.44,.055),"538050")
+		for leaf in 8:
+			var angle=leaf*2.39996; var height=.57+float(leaf%3)*.13
+			stamp("ball",at+Vector3(sin(angle)*.2,height,cos(angle)*.2),Vector3(.25,.095,.57),"619456" if leaf%2 else "7eab64",angle)
+			stamp("ball",at+Vector3(sin(angle)*.2,height+.048,cos(angle)*.2),Vector3(.018,.015,.42),"95b774",angle)
 	elif kind=="computer":
-		stamp("box",at+Vector3(0,.42,0),Vector3(.78,.84,.7),"aebbb8")
-		stamp("box",at+Vector3(0,1.06,-.18),Vector3(.7,.6,.23),"e0deca")
-		stamp("box",at+Vector3(0,1.07,-.05),Vector3(.54,.4,.035),"62b7c0")
-		stamp("box",at+Vector3(0,.87,.12),Vector3(.5,.035,.24),"e2e5da")
+		stamp("softbox",at+Vector3(0,.42,0),Vector3(.78,.84,.7),"aebbb8")
+		stamp("softbox",at+Vector3(0,1.06,-.18),Vector3(.7,.6,.23),"e0deca")
+		stamp("softbox",at+Vector3(0,1.07,-.05),Vector3(.54,.4,.035),"62b7c0")
+		stamp("softbox",at+Vector3(0,.87,.12),Vector3(.5,.035,.24),"e2e5da")
+		for row in 3:
+			for col in 6: stamp("softbox",at+Vector3(-.19+col*.075,.895,.045+row*.07),Vector3(.045,.012,.035),"758c92")
+		for col in 3: stamp("softbox",at+Vector3(-.16+col*.16,1.08,-.026),Vector3(.09,.09,.012),["c3e7dd","a6d4e8","d6db9f"][col])
+		stamp("ball",at+Vector3(.29,.6,.36),Vector3(.045,.045,.02),"74cfaa")
 	elif kind=="cabinet":
-		stamp("box",at+Vector3(0,.55,0),Vector3(.97,1.1,.88),"a99470")
-		stamp("box",at+Vector3(0,1.12,0),Vector3(1,.1,.95),"d4c9a4")
+		stamp("softbox",at+Vector3(0,.55,0),Vector3(.97,1.1,.88),"a99470")
+		stamp("softbox",at+Vector3(0,1.12,0),Vector3(1,.1,.95),"d4c9a4")
+		stamp("softbox",at+Vector3(0,.59,.445),Vector3(.84,.92,.03),"705d4c")
 		for shelf in [.27,.71]:
-			stamp("box",at+Vector3(0,shelf,.46),Vector3(.82,.06,.05),"e6d7ad")
-			for j in range(4): stamp("box",at+Vector3(-.3+j*.2,shelf+.16,.4),Vector3(.13,.27,.15),["7d9d9b","b58179","d2ba81"][posmod(j+variation,3)])
+			stamp("softbox",at+Vector3(0,shelf,.46),Vector3(.82,.06,.05),"e6d7ad")
+			for j in range(5):
+				var height=.24+float(posmod(j+variation,3))*.03
+				stamp("softbox",at+Vector3(-.32+j*.16,shelf+height*.5,.47),Vector3(.11,height,.12),["7d9d9b","b58179","d2ba81"][posmod(j+variation,3)])
+				stamp("softbox",at+Vector3(-.32+j*.16,shelf+.08,.535),Vector3(.085,.02,.008),"e8ddbd")
 	else:
 		var center="POKEMON_CENTER" in theme; var lab="LAB" in theme; var mart="MART" in theme
-		stamp("box",at+Vector3(0,.38,0),Vector3(.85,.76,.85),"cbd4cb" if center or lab else "acc3bf" if mart else "a79271")
-		stamp("box",at+Vector3(0,.8,0),Vector3(.99,.14,.99),"c9878e" if center else "9db9be" if lab else "7eabb1" if mart else "cfbda0")
-		stamp("box",at+Vector3(0,.5,.435),Vector3(.8,.06,.025),"b95f71" if center else "dccab0")
+		stamp("softbox",at+Vector3(0,.38,0),Vector3(.85,.76,.85),"cbd4cb" if center or lab else "acc3bf" if mart else "a79271")
+		stamp("softbox",at+Vector3(0,.8,0),Vector3(.99,.14,.99),"c9878e" if center else "9db9be" if lab else "7eabb1" if mart else "cfbda0")
+		stamp("softbox",at+Vector3(0,.5,.435),Vector3(.8,.06,.025),"b95f71" if center else "dccab0")
 
 func building(rect: Rect2, style: String, roof: String, doors: Array):
 	var center=Vector3(rect.get_center().x,0,rect.get_center().y)
@@ -235,38 +301,4 @@ func building(rect: Rect2, style: String, roof: String, doors: Array):
 		stamp("ball",emblem+Vector3(0,0,.1),Vector3(.2,.2,.05),roof)
 
 func trainer(config: Dictionary, identity: String="") -> Node3D:
-	var root=Node3D.new()
-	var shirt=str(config.get("shirt","6b9dc1")); var pants=str(config.get("pants","536779")); var hair=str(config.get("hair","6c4938")); var shoes=str(config.get("shoes","f3e6ce"))
-	var skin="f4cda6"; var professor="oak" in identity.to_lower(); var nurse="nurse" in identity.to_lower()
-	var female=config.get("gender","boy")=="girl" or ["WOMAN","GIRL","LASS","MOM","NURSE","MISTY","ERIKA","SABRINA","LORELEI","AGATHA"].any(func(word):return identity.to_upper().contains(word))
-	if professor: shirt="eee7d2"; hair="9eaaa3"
-	if nurse: shirt="efc0c7"; hair="b96a77"
-	if "scientist" in identity.to_lower(): shirt="e5e6d9"
-	if "rocket" in identity.to_lower(): shirt="48515a"; pants="48515a"
-	for side in [-1,1]:
-		var leg=Node3D.new(); leg.name="LeftLeg" if side<0 else "RightLeg"; leg.position=Vector3(side*.16,.43,0); root.add_child(leg)
-		shape(leg,"cylinder",Vector3(0,-.11,0),Vector3(.23,.42,.24),pants)
-		shape(leg,"ball",Vector3(0,-.32,.08),Vector3(.29,.19,.43),shoes)
-		var arm=Node3D.new(); arm.name="LeftArm" if side<0 else "RightArm"; arm.position=Vector3(side*.36,.87,0); root.add_child(arm)
-		shape(arm,"ball",Vector3(0,-.05,0),Vector3(.24,.34,.27),shirt)
-		shape(arm,"ball",Vector3(0,-.24,0),Vector3(.19,.24,.2),skin)
-	shape(root,"ball",Vector3(0,.73,0),Vector3(.69,.75,.5),shirt)
-	shape(root,"box",Vector3(0,.55,.18),Vector3(.38,.06,.1),"f4ead4")
-	shape(root,"ball",Vector3(0,1.3,0),Vector3(.84,.84,.77),skin)
-	shape(root,"ball",Vector3(0,1.55,-.08),Vector3(.89,.49,.78),hair)
-	shape(root,"ball",Vector3(-.3,1.43,.15),Vector3(.22,.38,.27),hair)
-	if female:
-		for side in [-1,1]: shape(root,"ball",Vector3(side*.36,1.18,-.15),Vector3(.24,.7,.32),hair)
-	for side in [-1,1]:
-		shape(root,"ball",Vector3(side*.155,1.31,.354),Vector3(.16,.22,.062),"fffaf0")
-		shape(root,"ball",Vector3(side*.155,1.3,.388),Vector3(.078,.145,.035),"384b52")
-		shape(root,"ball",Vector3(side*.145,1.34,.409),Vector3(.024,.038,.015),"ffffff")
-	shape(root,"ball",Vector3(0,1.2,.39),Vector3(.09,.08,.09),skin)
-	shape(root,"box",Vector3(0,1.12,.35),Vector3(.12,.025,.02),"ad7d6b")
-	if nurse: shape(root,"ball",Vector3(0,1.72,0),Vector3(.65,.18,.55),"eeeadd")
-	if professor: shape(root,"box",Vector3(0,.8,.25),Vector3(.22,.43,.025),"9e8871")
-	if config.has("shoes"):
-		shape(root,"ball",Vector3(0,1.65,-.02),Vector3(.91,.32,.84),shirt)
-		shape(root,"ball",Vector3(0,1.56,.36),Vector3(.69,.1,.42),"f3e9d5")
-		shape(root,"box",Vector3(0,.86,-.3),Vector3(.38,.48,.18),"b28a57")
-	return root
+	return preload("res://kanto_character_models.gd").new().build(self,config,identity)

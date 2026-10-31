@@ -102,6 +102,23 @@ func build():
 	var surface=StandardMaterial3D.new(); surface.albedo_texture=ImageTexture.create_from_image(ground_image); surface.texture_filter=BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS; surface.roughness=1
 	ground.mesh=plane; ground.material_override=surface; ground.position=Vector3(width*.5,.005,height*.5); terrain.add_child(ground)
 	camera.size=14.0 if outside or cave else clampf(height*.8,11,16)
+	# Build contiguous service counters once, rather than a grid of padded cubes.
+	var merged={}
+	if "POKEMON_CENTER" in loaded or "LAB" in loaded or "MART" in loaded:
+		for i in room.cells.size():
+			if merged.has(i) or meta.tiles[i] not in ["furniture","table"]: continue
+			var x=i%width; var z=int(i/width); var span=1; var depth=1
+			while x+span<width and not merged.has(i+span) and meta.tiles[i+span] in ["furniture","table"]: span+=1
+			while z+depth<height:
+				var complete=true
+				for dx in span:
+					var next=(z+depth)*width+x+dx
+					if merged.has(next) or meta.tiles[next] not in ["furniture","table"]: complete=false; break
+				if not complete: break
+				depth+=1
+			for dz in depth:
+				for dx in span: merged[(z+dz)*width+x+dx]=true
+			kit.counter(Vector3(x+span*.5,0,z+depth*.5),Vector2(span,depth),loaded)
 	for i in room.cells.size():
 		var x=i%width; var z=int(i/width); var p=Vector3(x+.5,0,z+.5); var kind=str(meta.tiles[i]); var tile=int(room.cells[i])&1023
 		var patch=w.events.patches.get(Vector2i(x,z),{})
@@ -109,6 +126,7 @@ func build():
 			# Patched doors/ice/spinners retain their exact source artwork and collision.
 			patch_plane(p,patch.image)
 			continue
+		if merged.has(i): continue
 		match kind:
 			"waterfall":
 				kit.stamp("box",p+Vector3(0,.7,-.3),Vector3(1.01,1.4,.13),"489eaf")
@@ -158,10 +176,7 @@ func build():
 					if next.x<0 or next.y<0 or next.x>=width or next.y>=height: continue
 					if meta.tiles[next.y*width+next.x]!="fence": continue
 					for y in [.27,.56]: kit.stamp("box",p+Vector3(direction.x*.25,y,direction.y*.25),Vector3(.55,.1,.1) if direction.x!=0 else Vector3(.1,.1,.55),"d7d8bd")
-			"sign":
-				kit.stamp("box",p+Vector3(0,.35,0),Vector3(.12,.7,.12),"876950")
-				kit.stamp("box",p+Vector3(0,.77,0),Vector3(.7,.44,.14),"f0dfb6")
-				for y in [.69,.8]: kit.stamp("box",p+Vector3(0,y,.08),Vector3(.43,.035,.02),"9a9982")
+			"sign": kit.sign(p)
 			"wall": kit.stamp("box",p+Vector3(0,.65,0),Vector3(1,1.3,1),"babaa9")
 			"furniture", "cabinet", "plant", "computer", "table", "bed", "chair": kit.furnishing(p,kind,x+z,loaded)
 			"void": kit.stamp("box",p+Vector3(0,-.01,0),Vector3(1,.03,1),"404e4e")
@@ -229,17 +244,30 @@ func sync_actors():
 				if species>0:
 					var sprite=Sprite3D.new(); sprite.texture=a.c.portraits[species]; sprite.pixel_size=.025; sprite.billboard=BaseMaterial3D.BILLBOARD_ENABLED; sprite.position.y=.7; node.add_child(sprite)
 				elif identity.contains("POKEDEX"):
-					kit.shape(node,"box",Vector3(0,.92,0),Vector3(.48,.12,.65),"cc5866")
-					kit.shape(node,"box",Vector3(0,.99,-.1),Vector3(.32,.025,.28),"8ac3c1")
+					kit.shape(node,"softbox",Vector3(0,.92,0),Vector3(.48,.12,.65),"cc5866")
+					kit.shape(node,"softbox",Vector3(0,.99,-.1),Vector3(.36,.025,.32),"344752")
+					kit.shape(node,"softbox",Vector3(0,1.006,-.1),Vector3(.28,.015,.24),"8ac3c1")
 					kit.shape(node,"ball",Vector3(-.13,1,.21),Vector3(.08,.035,.08),"e8dfa1")
-				else: kit.shape(node,"ball",Vector3(0,.22,0),Vector3(.4,.4,.4),"d4bb85")
+					kit.shape(node,"box",Vector3(.11,1,.2),Vector3(.12,.015,.03),"344752")
+					kit.shape(node,"box",Vector3(.11,1,.2),Vector3(.03,.015,.12),"344752")
+				elif identity.contains("ITEM_BALL"):
+					kit.pokeball(Vector3(0,.22,0)); kit.flush(node)
+				else:
+					kit.shape(node,"rock",Vector3(0,.19,0),Vector3(.55,.32,.48),"c4a173" if not identity.contains("AMBER") else "d79947")
+					for mark in 14:
+						var t=float(mark)/13; var angle=t*TAU*1.5
+						kit.shape(node,"ball",Vector3(cos(angle)*t*.18,.365,sin(angle)*t*.15),Vector3(.055,.025,.055),"846546")
 			actors[key].position=Vector3(npc.pos.x/w.TILE,0,npc.pos.y/w.TILE)
 		else:
 			ensure_actor(key,npc.pos,identity,w.scenes.trainer_direction(npc),w.scenes.active and str(w.scenes.actor.get("key",""))==str(npc.get("script","")) and w.scenes.actor.get("walking",false))
 		if w.can_talk(npc.pos): labels.append([npc.pos,a.c.controls.text("interact")+" / TALK"])
 	for npc in w.quest_actors():
 		var key="quest:"+str(npc[2]); alive[key]=true
-		ensure_actor(key,npc[0],str(npc[2]),Vector2.DOWN)
+		var identity=str(npc[2])
+		if npc.size()>3:
+			for original in w.room().objects:
+				if original.get("local_id","")==npc[3]: identity=str(original.graphics_id); break
+		ensure_actor(key,npc[0],identity,Vector2.DOWN)
 		if w.can_talk(npc[0]): labels.append([npc[0],a.c.controls.text("interact")+" / "+str(npc[1])])
 	if w.scenes.active and w.scenes.actor.get("key","")=="scene_oak":
 		alive.scene_oak=true; ensure_actor("scene_oak",w.scenes.positions.scene_oak,"prof_oak",Vector2.DOWN,w.scenes.actor.get("walking",false))
@@ -257,13 +285,20 @@ func sync_props():
 		if "ROCK_SMASH_ROCK" in str(o.graphics_id) and not w.events.done(a.field.smash_key(o)):
 			kit.stamp("rock",p+Vector3(0,.24,0),Vector3(.72,.48,.65),"aba69b",float(o.x+o.y))
 	for rock in w.events.rocks(): kit.stamp("rock",Vector3(float(rock.x)+.5,.38,float(rock.y)+.5),Vector3(.87,.76,.84),"959e9e",float(rock.x+rock.y))
+	if "POKEMON_CENTER_1F" in loaded:
+		for npc in w.room().objects:
+			if not "NURSE" in str(npc.graphics_id): continue
+			var at=Vector3(float(npc.x)+.5,0,float(npc.y)-.5)
+			var cell=Vector2i(floori(at.x),floori(at.z))
+			if cell.y<0 or not (int(w.room().cells[cell.y*int(w.room().width)+cell.x])&0xc00): continue
+			kit.stamp("softbox",at+Vector3(0,.55,0),Vector3(1.35,1.1,.85),"e3d9ca")
+			kit.stamp("softbox",at+Vector3(0,1.13,0),Vector3(1.25,.13,.78),"779da6")
+			for slot in 6: kit.pokeball(at+Vector3(-.35+(slot%3)*.35,1.26,-.18+int(slot/3)*.36),.22)
+			kit.stamp("softbox",at+Vector3(0,.82,.445),Vector3(.55,.2,.035),"81c7bf")
 	for item in w.events.catalog[loaded].items:
 		if w.events.done(loaded+"item"+str(item.id)): continue
 		var p=Vector3(float(item.x)+.5,.2,float(item.y)+.5)
-		kit.stamp("ball",p,Vector3.ONE*.35,"f0e9d6")
-		kit.stamp("ball",p+Vector3(0,.09,0),Vector3(.35,.19,.35),"d95f62")
-		kit.stamp("box",p+Vector3(0,0,.16),Vector3(.32,.045,.03),"4e6062")
-		kit.stamp("ball",p+Vector3(0,0,.19),Vector3.ONE*.09,"fff4dd")
+		kit.pokeball(p,.42)
 	kit.flush(props)
 
 func screen_point(point: Vector2, elevation: float=0) -> Vector2:
