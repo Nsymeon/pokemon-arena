@@ -235,7 +235,28 @@ func counter(at: Vector3, size: Vector2, theme: String):
 		stamp("ball",emblem+Vector3(0,0,.04),Vector3(.14,.14,.025),top)
 
 func furnishing(at: Vector3, kind: String, variation: int=0, theme: String=""):
-	if kind=="bed":
+	if kind=="television":
+		stamp("softbox",at+Vector3(0,.32,0),Vector3(.94,.64,.68),"b48e61")
+		for x in [-.22,.22]: stamp("softbox",at+Vector3(x,.43,.35),Vector3(.38,.23,.025),"dac59c")
+		stamp("cylinder",at+Vector3(0,.77,0),Vector3(.08,.25,.08),"46505c")
+		stamp("softbox",at+Vector3(0,1.08,0),Vector3(.91,.59,.13),"303c4a")
+		stamp("softbox",at+Vector3(0,1.08,.073),Vector3(.8,.47,.015),"83bdcf")
+		stamp("softbox",at+Vector3(.18,.7,.15),Vector3(.32,.07,.16),"354654")
+		for side in [-1,1]: stamp("softbox",at+Vector3(.18+side*.17,.7,.15),Vector3(.07,.075,.17),"60b6ca" if side<0 else "e97670")
+	elif kind=="kitchen":
+		stamp("softbox",at+Vector3(0,.42,0),Vector3(1,.84,.9),"e6d9b5")
+		stamp("softbox",at+Vector3(0,.87,0),Vector3(1.02,.12,.98),"b7c8c6")
+		stamp("softbox",at+Vector3(0,.43,.46),Vector3(.88,.63,.025),"b2cbb9")
+		stamp("softbox",at+Vector3(.28,.65,.49),Vector3(.18,.035,.035),"657779")
+		if variation==0x31:
+			stamp("softbox",at+Vector3(0,.94,0),Vector3(.64,.035,.55),"657d86")
+			stamp("softbox",at+Vector3(0,.96,0),Vector3(.5,.035,.4),"9db9c0")
+			stamp("cylinder",at+Vector3(0,1.08,-.3),Vector3(.05,.35,.05),"d1dcdb")
+			stamp("softbox",at+Vector3(0,1.24,-.22),Vector3(.06,.055,.2),"d1dcdb")
+		elif variation==0x32:
+			for x in [-.21,.21]:
+				for z in [-.2,.2]: stamp("ring",at+Vector3(x,.94,z),Vector3(.26,.1,.26),"59636a")
+	elif kind=="bed":
 		stamp("softbox",at+Vector3(0,.2,.5),Vector3(.92,.4,1.9),"957856")
 		stamp("softbox",at+Vector3(0,.48,.5),Vector3(.9,.22,1.85),"f2ebd8")
 		stamp("softbox",at+Vector3(0,.62,-.1),Vector3(.7,.16,.4),"fff7e4")
@@ -346,3 +367,18 @@ func building(rect: Rect2, style: String, roof: String, doors: Array):
 
 func trainer(config: Dictionary, identity: String="") -> Node3D:
 	return preload("res://kanto_character_models.gd").new().build(self,config,identity)
+
+func dining_table(at: Vector3, size: Vector2):
+	for x in [-1,1]:
+		for z in [-1,1]: stamp("softbox",at+Vector3(x*(size.x*.5-.2),.36,z*(size.y*.5-.2)),Vector3(.13,.72,.13),"95714d")
+	stamp("softbox",at+Vector3(0,.78,0),Vector3(size.x,.15,size.y),"dac197")
+	stamp("softbox",at+Vector3(0,.866,0),Vector3(size.x*.48,.015,size.y*.85),"84bfc3")
+	stamp("pot",at+Vector3(0,1.01,0),Vector3(.22,.28,.22),"eee4d0")
+	flower(at+Vector3(0,1.08,0),"efb777")
+
+func home_window(at: Vector3):
+	stamp("softbox",at,Vector3(.88,.76,.08),"b29b78")
+	stamp("box",at+Vector3(0,0,.048),Vector3(.74,.62,.025),"b7dce3")
+	for x in [-.33,.33]: stamp("softbox",at+Vector3(x,0,.08),Vector3(.18,.74,.09),"f2dca7")
+	stamp("box",at+Vector3(0,0,.075),Vector3(.035,.64,.035),"f1e8d5")
+	stamp("box",at+Vector3(0,0,.075),Vector3(.76,.035,.035),"f1e8d5")

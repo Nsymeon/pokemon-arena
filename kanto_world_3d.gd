@@ -90,6 +90,7 @@ func build():
 	actors.clear(); loaded=w.current; props_key=""; labels.clear()
 	var room=w.room(); var meta=catalog[loaded]; var width=int(room.width); var height=int(room.height)
 	var outside=bool(meta.outdoor); var cave=bool(meta.cave)
+	var home=not outside and ("HOUSE" in loaded or "COTTAGE" in loaded or "DAY_CARE" in loaded)
 	sun.light_energy=.58 if outside else .38
 	environment.ambient_light_energy=.42 if outside else .5
 	environment.background_color=Color("a2bca3") if outside else Color("37474b")
@@ -104,9 +105,9 @@ func build():
 	camera.size=14.0 if outside or cave else clampf(height*.8,11,16)
 	# Build contiguous service counters once, rather than a grid of padded cubes.
 	var merged={}
-	if "POKEMON_CENTER" in loaded or "LAB" in loaded or "MART" in loaded:
+	if "POKEMON_CENTER" in loaded or "LAB" in loaded or "MART" in loaded or home:
 		for i in room.cells.size():
-			if merged.has(i) or meta.tiles[i] not in ["furniture","table"]: continue
+			if merged.has(i) or meta.tiles[i] not in (["table"] if home else ["furniture","table"]): continue
 			var x=i%width; var z=int(i/width); var span=1; var depth=1
 			while x+span<width and not merged.has(i+span) and meta.tiles[i+span] in ["furniture","table"]: span+=1
 			while z+depth<height:
@@ -118,7 +119,8 @@ func build():
 				depth+=1
 			for dz in depth:
 				for dx in span: merged[(z+dz)*width+x+dx]=true
-			kit.counter(Vector3(x+span*.5,0,z+depth*.5),Vector2(span,depth),loaded)
+			if home: kit.dining_table(Vector3(x+span*.5,0,z+depth*.5),Vector2(span,depth))
+			else: kit.counter(Vector3(x+span*.5,0,z+depth*.5),Vector2(span,depth),loaded)
 	for i in room.cells.size():
 		var x=i%width; var z=int(i/width); var p=Vector3(x+.5,0,z+.5); var kind=str(meta.tiles[i]); var tile=int(room.cells[i])&1023
 		var patch=w.events.patches.get(Vector2i(x,z),{})
@@ -182,8 +184,16 @@ func build():
 					if meta.tiles[next.y*width+next.x]!="fence": continue
 					for y in [.27,.56]: kit.stamp("box",p+Vector3(direction.x*.25,y,direction.y*.25),Vector3(.55,.1,.1) if direction.x!=0 else Vector3(.1,.1,.55),"b68e59")
 			"sign": kit.sign(p)
-			"wall": kit.stamp("box",p+Vector3(0,.65,0),Vector3(1,1.3,1),"babaa9")
-			"furniture", "cabinet", "plant", "computer", "table", "bed", "chair": kit.furnishing(p,kind,x+z,loaded)
+			"wall":
+				kit.stamp("box",p+Vector3(0,.75,0),Vector3(1.01,1.5,1),"eee2c8" if home else "babaa9")
+				if home:
+					kit.stamp("box",p+Vector3(0,.16,.51),Vector3(1.01,.3,.06),"a68159")
+					kit.stamp("box",p+Vector3(0,1.47,.51),Vector3(1.01,.09,.07),"c7a777")
+					if tile in [0x29,0x2a]: kit.home_window(p+Vector3(0,.85,.53))
+			"furniture", "cabinet", "plant", "computer", "table", "bed", "chair":
+				if home and tile==0x35: kit.furnishing(p,"television",x+z,loaded)
+				elif home and tile in [0x31,0x32,0x36,0x37]: kit.furnishing(p,"kitchen",tile,loaded)
+				else: kit.furnishing(p,kind,x+z,loaded)
 			"void": kit.stamp("box",p+Vector3(0,-.01,0),Vector3(1,.03,1),"404e4e")
 	# Source floor art on important pads preserves visual puzzle clues.
 	var image: Image
@@ -238,7 +248,7 @@ func move_actor(node: Node3D, pos: Vector2, look: Vector2, walking: bool):
 
 func sync_actors():
 	var alive={"player":true}; labels.clear()
-	ensure_actor("player",a.position_world,"player",w.heading,w.stepping,true)
+	ensure_actor("player",a.position_world,"player",w.heading,w.stepping or (w.scenes.active and not w.scenes.sequence.is_empty() and w.scenes.sequence[w.scenes.index].has("player_from")),true)
 	for npc in w.actors():
 		var identity=str(npc.get("graphics_id","")); var key=str(npc.get("script",identity))+str(npc.get("local_id",""))
 		alive[key]=true

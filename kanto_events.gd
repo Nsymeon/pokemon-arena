@@ -291,6 +291,8 @@ func allow_step(target: Vector2) -> bool:
 	return true
 
 func allow_door(destination: String) -> bool:
+	if w.current=="MAP_VIRIDIAN_CITY" and destination=="MAP_ROUTE2" and not done("trainer:Route22_EarlyRival"):
+		a.dialog="Before heading north, meet Blue on Route 22, west of Viridian, and win your second rival battle."; a.c.click_move=false; return false
 	if destination=="MAP_ROUTE23" and not badge_owned("Boulder"):
 		a.dialog="LEAGUE GUARD: You need the Boulder Badge to pass."; return false
 	if destination in ["MAP_VICTORY_ROAD_1F","MAP_INDIGO_PLATEAU_EXTERIOR"]:

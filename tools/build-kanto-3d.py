@@ -107,6 +107,12 @@ for key,m in maps.items():
         for i,c in enumerate(m['cells']):
             if c&1023 in [0x284,0x287,0x288]: kinds[i]='fence' if c&0xC00 else 'lawn'
             elif c&1023==0x2ad: kinds[i]='sign'
+    if key=='MAP_VIRIDIAN_CITY':
+        # Both green-roof buildings use this secondary tileset, not vegetation.
+        for x,y,bw,bh in [(24,8,5,4),(24,15,5,4)]:
+            buildings.append([x,y,bw,bh,'house','71934b'])
+            for yy in range(y,y+bh):
+                for xx in range(x,x+bw): kinds[yy*w+xx]='foundation'
     # All source doors remain visibly reachable even if a palette heuristic differs.
     for door in m['warps']:
         i=door['y']*w+door['x']

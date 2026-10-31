@@ -33,6 +33,10 @@ func tick(dt: float) -> bool:
 	if sequence.is_empty(): finish(); return true
 	var step=sequence[index]
 	elapsed+=dt
+	if step.has("player_from"):
+		var delta_position=Vector2(step.player_to)-Vector2(step.player_from)
+		a.position_world=Vector2(step.player_from).lerp(Vector2(step.player_to),clampf(elapsed/float(step.duration),0,1))
+		w.heading=w.cardinal(delta_position); a.walk_age+=dt
 	subtitle=str(step.get("text",""))
 	if step.has("actor"):
 		actor=step.actor
@@ -54,9 +58,9 @@ func finish():
 	if after.is_valid(): after.call()
 
 func entrance():
-	if w.current=="MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB" and a.data.starter==0:
+	if w.current=="MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB" and a.data.starter==0 and w.events.done("oak_intro"):
 		play([{"text":"OAK: Welcome to my laboratory. A Pokemon partner will keep you safe on your journey.","duration":3.2},{"text":"OAK: Choose Bulbasaur, Charmander or Squirtle.","duration":2.2}],a.starter_menu)
-	elif w.current=="MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB" and not a.data.rival:
+	elif w.current=="MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB" and a.data.starter!=0 and not a.data.rival:
 		starter_battle()
 	elif w.current=="MAP_POKEMON_LEAGUE_HALL_OF_FAME" and a.Finale.has(a,"champion"):
 		play([{"text":"OAK: You and your Pokemon have earned your place here.","duration":3.0},{"text":"HALL OF FAME — Your winning team is recorded. Congratulations, Champion!","duration":3.5}],Callable(),"scene:hall_of_fame")
@@ -65,14 +69,40 @@ func check_oak_intro() -> bool:
 	if w.current=="MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB" and not a.data.rival:
 		entrance()
 		return active
-	if a.data.starter!=0 or w.current!="MAP_PALLET_TOWN" or a.position_world.y>w.TILE: return false
+	if a.data.starter!=0 or w.current!="MAP_PALLET_TOWN" or a.position_world.y>w.TILE*2: return false
 	oak_rescue()
 	return true
 
 func oak_rescue():
+	if active: return
 	var target=w.walkable(a.position_world+Vector2.DOWN*w.TILE)
 	var origin=w.walkable(target+Vector2.DOWN*w.TILE*2)
-	play([{"text":"OAK: Wait! Wild Pokemon live beyond the town!","duration":1.7},{"actor":{"key":"scene_oak","gfx":"prof_oak","from":origin,"to":target},"text":"OAK: Come with me. You need a Pokemon of your own.","duration":2.2}],func():w.enter("MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB",Vector2(6.5,9.5)*w.TILE))
+	var steps=[{"text":"OAK: Wait! Wild Pokemon live beyond the town!","duration":1.7},{"actor":{"key":"scene_oak","gfx":"prof_oak","from":origin,"to":target},"text":"OAK: Come with me. You need a Pokemon of your own.","duration":2.2}]
+	var door=w.room().warps.filter(func(d):return d.dest_map=="MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB")[0]
+	var destination=w.events.point(door)+Vector2.DOWN*w.TILE
+	var route=escort_path(a.position_world,destination)
+	var player=a.position_world
+	var oak=target
+	for next in route:
+		steps.append({"actor":{"key":"scene_oak","gfx":"prof_oak","from":oak,"to":next},"player_from":player,"player_to":oak,"duration":.24})
+		player=oak; oak=next
+	play(steps,func():w.events.finish("oak_intro"); w.enter("MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB",Vector2(6.5,9.5)*w.TILE); a.save())
+
+func escort_path(start: Vector2, goal: Vector2) -> Array:
+	var source=Vector2i(start/w.TILE); var end=Vector2i(goal/w.TILE)
+	var queue=[source]; var previous={source:source}; var cursor=0
+	while cursor<queue.size() and not previous.has(end):
+		var cell=queue[cursor]; cursor+=1
+		for direction in [Vector2i.DOWN,Vector2i.LEFT,Vector2i.RIGHT,Vector2i.UP]:
+			var next=cell+direction
+			if previous.has(next) or w.blocked((Vector2(next)+Vector2.ONE*.5)*w.TILE): continue
+			previous[next]=cell; queue.append(next)
+	var result=[]
+	if not previous.has(end): return result
+	var cell=end
+	while cell!=source:
+		result.push_front((Vector2(cell)+Vector2.ONE*.5)*w.TILE); cell=previous[cell]
+	return result
 
 func starter_battle():
 	if a.data.starter==0 or a.data.rival or a.in_battle: return

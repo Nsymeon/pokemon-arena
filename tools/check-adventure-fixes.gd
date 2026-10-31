@@ -122,5 +122,27 @@ func run():
 		var tiles=visual[id].tiles
 		for i in tiles.size():
 			if tiles[i]=="fence": c.check((int(w.maps[id].cells[i])&0xC00)!=0,"Fence matches source collision "+str(id)+":"+str(i))
+	fixture("MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB")
+	a.data.starter=0; a.data.rival=false
+	w.scenes.entrance()
+	c.check(not w.scenes.active and a.modal=="","Early lab visit cannot give a starter")
+	c.check(not w.quest_actors().any(func(n):return n[2]=="oak") and not w.actors().any(func(n):return n.graphics_id=="OBJ_EVENT_GFX_PROF_OAK"),"Oak absent before rescue")
+	w.current="MAP_PALLET_TOWN"; w.events.refresh(); a.position_world=Vector2(12.5,1.5)*48
+	c.check(w.scenes.check_oak_intro(),"Oak triggers on the original Pallet exit row")
+	c.check(w.scenes.active and w.scenes.sequence.size()>4,"Oak escorts the player along a real walking path")
+	for step in w.scenes.sequence:
+		if step.has("player_to"): c.check(not w.terrain_blocked(step.player_to),"Oak escort stays on walkable ground")
+	w.scenes.finish()
+	c.check(w.current=="MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB" and w.events.done("oak_intro") and w.scenes.active,"Escort enters lab and starts the introduction")
+	w.scenes.finish()
+	c.check(a.modal!="","Starter choice opens after escort")
+	fixture("MAP_VIRIDIAN_CITY")
+	c.check(not w.events.allow_door("MAP_ROUTE2"),"Viridian north blocked before second Blue fight")
+	c.check(w.events.allow_door("MAP_ROUTE22"),"West path to Blue stays open")
+	w.events.battle_reward("world_Route22_EarlyRival",true)
+	c.check(w.events.allow_door("MAP_ROUTE2"),"Second Blue victory opens north")
+	var town=visual.MAP_VIRIDIAN_CITY
+	c.check(town.buildings.any(func(b):return b[0]==24 and b[1]==15),"Viridian school is a building")
+	c.check(town.tiles[16*int(w.room().width)+25]=="foundation","School roof is not foliage")
 	print("ADVENTURE FIX CHECK: ",c.test_failures)
 	quit(0 if c.test_failures.is_empty() else 1)

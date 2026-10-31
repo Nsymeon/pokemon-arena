@@ -197,6 +197,7 @@ func actors() -> Array:
 	var result=[]
 	var quests=quest_actors()
 	for object in room().objects:
+		if object.get("graphics_id","")=="OBJ_EVENT_GFX_PROF_OAK" and a.data.starter==0 and not events.done("oak_intro"): continue
 		if current=="MAP_ROUTE22" and object.get("graphics_id","")=="OBJ_EVENT_GFX_BLUE": continue
 		if object.get("graphics_id","")=="OBJ_EVENT_GFX_POKEDEX" and events.done("parcel_delivered"): continue
 		if object.get("graphics_id","")=="OBJ_EVENT_GFX_BLUE" and current=="MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB" and a.data.rival: continue
@@ -225,6 +226,7 @@ func quest_actors() -> Array:
 			if action in ["story_bill","story_console"] and room().name!="Route25_SeaCottage": continue
 			if action=="story_captain" and room().name!="SSAnne_CaptainsRoom": continue
 			if action=="story_shipblue" and room().name!="SSAnne_2F_Corridor": continue
+			if action=="oak" and a.data.starter==0 and not events.done("oak_intro"): continue
 			if action=="oak" and room().name!="PalletTown_ProfessorOaksLab": continue
 			if action=="rival" and room().name!="PalletTown": continue
 			if action=="heal" and room().name!="PalletTown_PlayersHouse_1F" and logical!=28: continue
@@ -355,7 +357,7 @@ func tests():
 	current="MAP_VIRIDIAN_FOREST"
 	a.c.check(scenes.encounters.has(current),"Canonical forest has manual habitat encounter slots")
 	current="MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB"
-	a.c.check(quest_actors().any(func(q):return q[2]=="oak"),"Starter interaction exists inside Oak lab")
+	a.c.check(quest_actors().any(func(q):return q[2]=="oak")==bool(a.data.starter!=0 or events.done("oak_intro")),"Oak visibility follows the introduction")
 	current="MAP_PEWTER_CITY_GYM"
 	a.c.check(quest_actors().any(func(q):return q[2]=="brock"),"Brock badge encounter remains in canonical gym")
 	current="MAP_PALLET_TOWN"
