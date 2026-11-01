@@ -80,6 +80,7 @@ result={}
 for key,m in maps.items():
     w,h=m['width'],m['height']; src=sources[key]; layout=layouts[src['layout']]
     outdoor=m['type'] in ['MAP_TYPE_TOWN','MAP_TYPE_CITY','MAP_TYPE_ROUTE'] or 'Forest' in m['name'] or 'SafariZone' in m['name'] or m['name'].endswith('_Exterior')
+    if m['type']=='MAP_TYPE_INDOOR' and not m['name'].endswith('_Exterior'): outdoor=False
     cave=m['type']=='MAP_TYPE_UNDERGROUND'
     if 'Forest' in m['name']: cave=False
     original=Image.open(ROOT/m['image'].replace('res://',''))
@@ -113,6 +114,11 @@ for key,m in maps.items():
             buildings.append([x,y,bw,bh,'house','71934b'])
             for yy in range(y,y+bh):
                 for xx in range(x,x+bw): kinds[yy*w+xx]='foundation'
+    extra={'MAP_CELADON_CITY':[(40,25,4,5,'house','929969'),(36,25,4,5,'house','929969'),(48,25,4,5,'house','929969'),(27,6,7,6,'tower','929969')], 'MAP_PEWTER_CITY':[(23,2,5,3,'lab','ab7995')], 'MAP_VERMILION_CITY':[(11,14,5,4,'house','6aa58a')]}.get(key,[])
+    for x,y,bw,bh,style,roof in extra:
+        buildings.append([x,y,bw,bh,style,roof])
+        for yy in range(y,y+bh):
+            for xx in range(x,x+bw): kinds[yy*w+xx]='foundation'
     # All source doors remain visibly reachable even if a palette heuristic differs.
     for door in m['warps']:
         i=door['y']*w+door['x']
@@ -166,6 +172,9 @@ for key,m in maps.items():
             buildings.append([*rect,style,roof])
             for yy in range(top,dy+1):
                 for xx in range(left,right+1): kinds[yy*w+xx]='foundation'
+    if 'PEWTER_CITY_MUSEUM' in key:
+        for i,c in enumerate(m['cells']):
+            if i//w<2 and c&0xc00: kinds[i]='wall'
     # Unclaimed blocked structures get low relief, never an opaque roof over paths.
     for i,kind in enumerate(kinds):
         if kind=='building': kinds[i]='cliff' if ('Ember' in m['name'] or 'Kindle' in m['name'] or 'Route23' in m['name']) else 'fence'
@@ -226,6 +235,16 @@ for key,m in maps.items():
     folder=ROOT/'assets/kanto/modern';folder.mkdir(exist_ok=True)
     buffer=io.BytesIO(); ground.save(buffer,format='PNG')
     write_changed(folder/(m['name']+'.png'),buffer.getvalue())
+    exhibits=[]
+    if key=='MAP_PEWTER_CITY_MUSEUM_1F': exhibits=[[3,3,4,2,'aerodactyl'],[3,6,4,2,'kabutops']]
+    elif key=='MAP_PEWTER_CITY_MUSEUM_2F': exhibits=[[2,4,4,3,'meteorites'],[14,4,3,2,'shuttle']]
+    stairs=[]
+    if layout['primary_tileset']=='gTileset_Building' and not outdoor and not cave:
+        stairs=[i for i,c in enumerate(m['cells']) if c&1023 in [0x5,0x6,0xd,0xe,0x15,0x16,0x17,0x1e,0x1f]]
+    if key=='MAP_PEWTER_CITY_MUSEUM_1F': stairs += [y*w+x for y in range(6,9) for x in range(9,12)]
+    elif key=='MAP_PEWTER_CITY_MUSEUM_2F': stairs += [y*w+x for y in range(6,9) for x in range(8,11)]
+    stairs=sorted(set(stairs+[i for i,b in enumerate(events[key]['behavior']) if int(b) in [0x2a,0x6a,0x6b,0x6c,0x6d,0x6e,0x6f]]))
+    ladders=[i for i,b in enumerate(events[key]['behavior']) if int(b)==0x61]
     trees=[]; covered=set()
     for i,kind in enumerate(kinds):
         if kind!='tree' or i in covered or not (m['cells'][i]&0xc00): continue
@@ -234,7 +253,7 @@ for key,m in maps.items():
         if not block: continue
         covered.update(block)
         trees.append([sum(j%w+.5 for j in block)/len(block),sum(j//w+.5 for j in block)/len(block),len(block)<3])
-    result[key]={'outdoor':outdoor,'cave':cave,'texels_per_tile':32,'tiles':kinds,'trees':trees,'buildings':buildings,'ground':'res://assets/kanto/modern/'+m['name']+'.png'}
+    result[key]={'outdoor':outdoor,'cave':cave,'texels_per_tile':32,'stairs':stairs,'ladders':ladders,'exhibits':exhibits,'tiles':kinds,'trees':trees,'buildings':buildings,'ground':'res://assets/kanto/modern/'+m['name']+'.png'}
 
 path=ROOT/'assets/kanto/world-3d.json'
 write_changed(path,json.dumps(result,separators=(',',':')).encode('utf8'))

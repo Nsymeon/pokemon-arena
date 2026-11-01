@@ -59,9 +59,9 @@ for path in sorted((SRC/'data/maps').glob('*/map.json')):
 roster=json.loads((ROOT/'data/roster.json').read_text(encoding='utf8'))
 species={norm(m['key']):m['id'] for m in roster}
 parties={}
-for name,body in re.findall(r'static const struct \w+ (sParty_\w+)\[\] = \{(.*?)\n\};',read('src/data/trainer_parties.h'),re.S):
+for name,body in re.findall(r'^static const struct \w+ (sParty_\w+)\[\] = \{(.*?)(?=^static const|\Z)',read('src/data/trainer_parties.h'),re.M|re.S):
     team=[]
-    for entry in re.findall(r'\{([^{}]+)\}',body,re.S):
+    for entry in re.findall(r'\{((?:[^{}]|\{[^{}]*\})*)\}',body,re.S):
         level=re.search(r'\.lvl = (\d+)',entry); mon=re.search(r'\.species = SPECIES_(\w+)',entry)
         if level and mon and norm(mon[1]) in species: team.append([species[norm(mon[1])],int(level[1])])
     if team: parties[name]=team
@@ -71,8 +71,9 @@ for name,body in re.findall(r'\[(TRAINER_\w+)\] = \{(.*?)\n    \}',read('src/dat
     if party and party[1] in parties: trainers[name]={'name':label[1].title() if label else name,'party':parties[party[1]]}
 scripts='\n'.join(p.read_text(encoding='utf8') for p in (SRC/'data').rglob('*.inc'))
 lookup={}
-for match in re.finditer(r'^(\w+)::?\s*\n([^:]*?trainerbattle[^\n]*?\b(TRAINER_\w+))',scripts,re.M):
-    if match[3] in trainers: lookup[match[1]]=trainers[match[3]]
+for label,body in re.findall(r'^(\w+)::?[^\n]*\n(.*?)(?=^\w+::?|\Z)',scripts,re.M|re.S):
+    match=re.search(r'trainerbattle[^\n]*?\b(TRAINER_\w+)',body)
+    if match and match[1] in trainers: lookup[label]=trainers[match[1]]
 lookup['MtMoon_B2F_EventScript_Miguel']=trainers['TRAINER_SUPER_NERD_MIGUEL']
 for m in maps.values():
     for obj in m['objects']:

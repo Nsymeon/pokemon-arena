@@ -340,7 +340,6 @@ func _unhandled_input(event):
 		paused = not paused
 		return
 	if not paused and result == "" and countdown <= 0:
-		controls.handle_run(event)
 		for i in range(4):
 			if controls.matches(event,"move"+str(i+1)): attack(i)
 		if controls.matches(event,"switch") and team_mode: switch_menu=true
@@ -688,7 +687,7 @@ func update_battle(dt: float):
 	round_time += dt
 	notice_time -= dt
 	switch_cooldown = maxf(0, switch_cooldown - dt)
-	sprinting = controls.held("sprint") and movement_input() != Vector2.ZERO and player.dash_time <= 0 and player.energy >= 12.0 * dt and not Conditions.immobilized(player)
+	sprinting = controls.held("battle_sprint") and movement_input() != Vector2.ZERO and player.dash_time <= 0 and player.energy >= 12.0 * dt and not Conditions.immobilized(player)
 	for i in range(4):
 		cooldowns[i] = maxf(0, cooldowns[i] - dt)
 		if not horde.active(self): enemy_cooldowns[i] = maxf(0, enemy_cooldowns[i] - dt)
@@ -727,7 +726,7 @@ func update_battle(dt: float):
 	if player.dash_time <= 0:
 		quick_attack_active = false
 		var direction = movement_input()
-		sprint_movement(direction, dt, controls.held("sprint"))
+		sprint_movement(direction, dt, controls.held("battle_sprint"))
 		if absf(direction.x) > 0:
 			player.face = signf(direction.x)
 	elif quick_attack_active and player.pos.distance_to(enemy.pos) < 48 * player.dash_move.get("area_scale", 1.0) and player.inv > 0:
@@ -1440,8 +1439,8 @@ func draw_moves():
 			bar(Vector2(x, 753), 233, 1 - cooldowns[i] / (12.0 if move.id in support.PROTECT else move.cooldown), type_color, 3)
 			label_at("%.1fs" % remaining, Vector2(x + 184, 720), 12, GOLD)
 	panel(Rect2(1028, 678, 212, 78), Color("142831"))
-	label_at(controls.text("sprint")+" / SPRINT", Vector2(1042, 704), 16, MINT)
-	label_at(("TOGGLE" if controls.run_toggle else "HOLD")+" / +35% SPEED", Vector2(1042, 731), 12, WHITE)
+	label_at(controls.text("battle_sprint")+" / SPRINT", Vector2(1042, 704), 16, MINT)
+	label_at("HOLD / +35% SPEED", Vector2(1042, 731), 12, WHITE)
 	label_at("Move: "+controls.text("up")+", "+controls.text("left")+", "+controls.text("down")+", "+controls.text("right")+" / "+controls.text("click_move")+"    Aim: Mouse", Vector2(40, 783), 12, Color("91a6a7"))
 	if adventure.in_battle and adventure.encounter.get("kind","")=="wild":
 		label_at(controls.text("switch")+": Team / Esc: Pause",Vector2(820,783),11,Color("91a6a7"))

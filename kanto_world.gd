@@ -207,7 +207,7 @@ func actors() -> Array:
 		if a.field.hidden(object) or (str(object.get("script","")).ends_with("EeveeBall") and a.field.done("gift:eevee")): continue
 		var npc=object.duplicate(true)
 		npc["pos"]=scenes.positions.get(str(object.get("script","")),Vector2(float(object.x)+0.5,float(object.y)+0.5)*TILE)
-		if quests.any(func(q):return q[0].distance_to(npc.pos)<TILE*0.5 or (q.size()>3 and q[3]==object.get("local_id",""))): continue
+		if quests.any(func(q):return q[0].distance_to(npc.pos)<TILE*0.5 or (q.size()>3 and str(q[3])!="" and q[3]==object.get("local_id",""))): continue
 		result.append(npc)
 	return result
 

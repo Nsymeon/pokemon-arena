@@ -144,5 +144,33 @@ func run():
 	var town=visual.MAP_VIRIDIAN_CITY
 	c.check(town.buildings.any(func(b):return b[0]==24 and b[1]==15),"Viridian school is a building")
 	c.check(town.tiles[16*int(w.room().width)+25]=="foundation","School roof is not foliage")
+	c.controls.tests(c)
+	var old_bindings=c.controls.bindings.duplicate(true); old_bindings.erase("battle_sprint"); old_bindings.move2=[KEY_SPACE,0]
+	c.controls.load_bindings(old_bindings)
+	c.check(c.controls.bindings.battle_sprint==[KEY_SPACE,0] and c.controls.bindings.move2==[KEY_E,0],"Old Space attack migrates to E and hold sprint")
+	c.controls.run_active=true
+	c.check(not c.controls.held("battle_sprint"),"Adventure toggle cannot latch battle sprint")
+	c.controls.run_active=false
+	for map_id in w.maps:
+		if map_id!="MAP_VIRIDIAN_FOREST" and not map_id.ends_with("_GYM"): continue
+		fixture(map_id)
+		for npc in w.room().objects:
+			if npc.get("trainer_type","")!="TRAINER_TYPE_NORMAL": continue
+			c.check(npc.has("battle") and not npc.battle.party.is_empty(),"Imported trainer party "+str(npc.script))
+			c.check(w.actors().any(func(n):return n.script==npc.script),"Trainer remains visible "+str(npc.script))
+	fixture("MAP_VIRIDIAN_FOREST")
+	var anthony=w.actors().filter(func(n):return str(n.script).ends_with("_Anthony"))[0]
+	c.check(anthony.battle.party.size()==2 and int(anthony.battle.party[0][0])==10 and int(anthony.battle.party[0][1])==7 and int(anthony.battle.party[1][0])==10 and int(anthony.battle.party[1][1])==8,"Anthony has both original Caterpie")
+	var tested=false
+	for direction in [Vector2.DOWN,Vector2.UP,Vector2.LEFT,Vector2.RIGHT]:
+		var target=anthony.pos+direction*48
+		if w.blocked(target): continue
+		anthony.movement_type="MOVEMENT_TYPE_FACE_"+({Vector2.DOWN:"DOWN",Vector2.UP:"UP",Vector2.LEFT:"LEFT",Vector2.RIGHT:"RIGHT"}[direction])
+		a.position_world=target; tested=true
+		c.check(w.scenes.sees(anthony),"Forest trainer detects a player in his sight line")
+		w.scenes.start_trainer(anthony); w.scenes.finish()
+		c.check(a.in_battle and a.encounter.ids==[10,10],"Forest trainer actually starts battle")
+		break
+	c.check(tested,"Forest sight test has a reachable tile")
 	print("ADVENTURE FIX CHECK: ",c.test_failures)
 	quit(0 if c.test_failures.is_empty() else 1)

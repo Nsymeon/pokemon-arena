@@ -90,6 +90,8 @@ func build():
 	actors.clear(); loaded=w.current; props_key=""; labels.clear()
 	var room=w.room(); var meta=catalog[loaded]; var width=int(room.width); var height=int(room.height)
 	var outside=bool(meta.outdoor); var cave=bool(meta.cave)
+	var stairs=meta.get("stairs",[]).map(func(index):return int(index))
+	var ladders=meta.get("ladders",[]).map(func(index):return int(index))
 	var home=not outside and ("HOUSE" in loaded or "COTTAGE" in loaded or "DAY_CARE" in loaded)
 	sun.light_energy=.58 if outside else .38
 	environment.ambient_light_energy=.42 if outside else .5
@@ -103,18 +105,24 @@ func build():
 	var surface=StandardMaterial3D.new(); surface.albedo_texture=ImageTexture.create_from_image(ground_image); surface.texture_filter=BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS; surface.roughness=1
 	ground.mesh=plane; ground.material_override=surface; ground.position=Vector3(width*.5,.005,height*.5); terrain.add_child(ground)
 	camera.size=14.0 if outside or cave else clampf(height*.8,11,16)
+	# Exhibit footprints come from the source museum layout.
+	var exhibit_cells={}
+	for display in meta.get("exhibits",[]):
+		kit.exhibit(Vector3(display[0]+display[2]*.5,0,display[1]+display[3]*.5),Vector2(display[2],display[3]),display[4])
+		for zz in range(int(display[1]),int(display[1]+display[3])):
+			for xx in range(int(display[0]),int(display[0]+display[2])): exhibit_cells[zz*width+xx]=true
 	# Build contiguous service counters once, rather than a grid of padded cubes.
 	var merged={}
 	if "POKEMON_CENTER" in loaded or "LAB" in loaded or "MART" in loaded or home:
 		for i in room.cells.size():
-			if merged.has(i) or meta.tiles[i] not in (["table"] if home else ["furniture","table"]): continue
+			if i in stairs or i in ladders or merged.has(i) or meta.tiles[i] not in (["table"] if home else ["furniture","table"]): continue
 			var x=i%width; var z=int(i/width); var span=1; var depth=1
-			while x+span<width and not merged.has(i+span) and meta.tiles[i+span] in ["furniture","table"]: span+=1
+			while x+span<width and not i+span in stairs+ladders and not merged.has(i+span) and meta.tiles[i+span] in ["furniture","table"]: span+=1
 			while z+depth<height:
 				var complete=true
 				for dx in span:
 					var next=(z+depth)*width+x+dx
-					if merged.has(next) or meta.tiles[next] not in ["furniture","table"]: complete=false; break
+					if next in stairs+ladders or merged.has(next) or meta.tiles[next] not in ["furniture","table"]: complete=false; break
 				if not complete: break
 				depth+=1
 			for dz in depth:
@@ -128,7 +136,17 @@ func build():
 			# Patched doors/ice/spinners retain their exact source artwork and collision.
 			patch_plane(p,patch.image)
 			continue
-		if merged.has(i): continue
+		if merged.has(i) or exhibit_cells.has(i): continue
+		if i in ladders:
+			kit.ladder(p)
+			continue
+		if i in stairs:
+			var start_x=x; var end_x=x
+			while start_x>0 and z*width+start_x-1 in stairs: start_x-=1
+			while end_x<width-1 and z*width+end_x+1 in stairs: end_x+=1
+			kit.stair_tile(p,x-start_x,end_x-start_x+1)
+			terrain.set_meta("stair_count",int(terrain.get_meta("stair_count",0))+1)
+			continue
 		match kind:
 			"waterfall":
 				kit.stamp("box",p+Vector3(0,.7,-.3),Vector3(1.01,1.4,.13),"489eaf")
@@ -213,7 +231,11 @@ func build():
 	# Entrances use a clear doorstep marker, matching the original warp tile exactly.
 	for door in room.warps:
 		if not outside:
-			var p=Vector3(float(door.x)+.5,.045,float(door.y)+.5)
+			if room.warps.any(func(other):return other.y==door.y and other.x==door.x-1 and other.dest_map==door.dest_map): continue
+			var span=1
+			while room.warps.any(func(other):return other.y==door.y and other.x==door.x+span and other.dest_map==door.dest_map): span+=1
+			var p=Vector3(float(door.x)+span*.5,.045,float(door.y)+.5)
+			if not int(door.y)*width+int(door.x) in stairs+ladders and not cave: kit.doorway(p,home,span)
 			kit.stamp("box",p,Vector3(.85,.04,.75),"b58d73")
 			for step in range(3): kit.stamp("box",p+Vector3(0,.035,step*.19-.2),Vector3(.64,.025,.045),"f0d8ac")
 	kit.flush(terrain)

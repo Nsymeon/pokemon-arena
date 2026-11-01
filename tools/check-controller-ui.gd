@@ -19,7 +19,7 @@ func run():
 	c.gamepad.active=true; c.gamepad.press(JOY_BUTTON_A); await process_frame
 	c.check(c.player.has("last_move"),"Controller A casts a battle move through event dispatch")
 	c.controls.run_active=false; c.gamepad.press(JOY_BUTTON_RIGHT_SHOULDER); await process_frame
-	c.check(c.controls.run_active,"Controller shoulder toggles sprint")
+	c.check(not c.controls.run_active,"Battle shoulder does not toggle adventure run")
 	c.gamepad.press(JOY_BUTTON_START); await process_frame
 	c.check(c.paused,"Controller Start pauses combat")
 	c.gamepad.press(JOY_BUTTON_B); await process_frame

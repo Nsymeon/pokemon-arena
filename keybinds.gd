@@ -5,8 +5,8 @@ const SAVE = "user://controls-v1.json"
 const DEFINITIONS = [
 	["up","Move up",3,KEY_W,KEY_UP], ["down","Move down",3,KEY_S,KEY_DOWN],
 	["left","Move left",3,KEY_A,KEY_LEFT], ["right","Move right",3,KEY_D,KEY_RIGHT],
-	["sprint","Sprint / run",3,KEY_X,0], ["click_move","Move to cursor",3,-2,0],
-	["move1","Attack 1",1,KEY_Q,-1], ["move2","Attack 2",1,KEY_SPACE,0],
+	["sprint","Adventure run (toggle / hold)",2,KEY_X,0], ["battle_sprint","Battle sprint (hold)",1,KEY_SPACE,0], ["click_move","Move to cursor",3,-2,0],
+	["move1","Attack 1",1,KEY_Q,-1], ["move2","Attack 2",1,KEY_E,0],
 	["move3","Attack 3",1,KEY_F,0], ["move4","Attack 4",1,KEY_C,0],
 	["switch","Switch team menu",1,KEY_B,0], ["roster","Roster / league hub",1,KEY_TAB,0],
 	["restart","Restart battle",1,KEY_R,0], ["capture","Throw Poke Ball",1,KEY_G,0],
@@ -84,7 +84,7 @@ func matches(event, action: String) -> bool:
 
 func held(action: String) -> bool:
 	if action=="sprint" and run_toggle: return run_active
-	if action=="sprint" and gamepad!=null and gamepad.sprint_held(): return true
+	if action in ["sprint","battle_sprint"] and gamepad!=null and gamepad.sprint_held(): return true
 	for code in bindings[action]:
 		if code>0 and Input.is_physical_key_pressed(code): return true
 		if code<0 and Input.is_mouse_button_pressed(-code): return true
@@ -157,7 +157,7 @@ func tests(c):
 	c.check(matches(mouse,"move1"),"Mouse action matching")
 	reset_defaults(false)
 	c.check(bindings.move1==[KEY_Q,-1],"Restore includes primary and alternate defaults")
-	c.check(bindings.sprint==[KEY_X,0] and bindings.move2==[KEY_SPACE,0] and bindings.interact==[KEY_SPACE,0] and bindings.encounter==[KEY_E,0],"Restore defaults uses X to run, Space to talk, E to search")
+	c.check(bindings.sprint==[KEY_X,0] and bindings.move2==[KEY_E,0] and bindings.battle_sprint==[KEY_SPACE,0] and bindings.interact==[KEY_SPACE,0] and bindings.encounter==[KEY_E,0],"Restore defaults uses X to run, Space to talk, E to search")
 	var saved=bindings.duplicate(true)
 	saved.up=[KEY_Z,KEY_UP]
 	saved.move1=[KEY_W,-1]
@@ -184,6 +184,21 @@ func load_bindings(data):
 	# Upgrade the old combined talk/search controls once, preserving other bindings.
 	if not data.has("encounter"):
 		data["sprint"]=[KEY_X,0]; data["interact"]=[KEY_SPACE,0]; data["encounter"]=[KEY_E,0]
+	if not data.has("battle_sprint"):
+		data["battle_sprint"]=[KEY_SPACE,0]
+		for def in DEFINITIONS:
+			if def[0]=="battle_sprint" or (int(def[2])&1)==0: continue
+			var pair=data.get(def[0],[def[3],def[4]])
+			if not pair is Array or pair.size()!=2: return
+			for slot in range(2):
+				if pair[slot]!=KEY_SPACE: continue
+				pair[slot]=0
+				for candidate in [KEY_E,KEY_V,KEY_T,KEY_Y,KEY_H]:
+					var used=false
+					for other in DEFINITIONS:
+						if (int(other[2])&1)!=0 and candidate in data.get(other[0],[]): used=true
+					if not used: pair[slot]=candidate; break
+			data[def[0]]=pair
 	var original=bindings.duplicate(true)
 	for def in DEFINITIONS:
 		var pair=data.get(def[0],[])

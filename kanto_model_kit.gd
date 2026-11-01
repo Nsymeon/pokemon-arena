@@ -354,6 +354,9 @@ func building(rect: Rect2, style: String, roof: String, doors: Array):
 		stamp("box",Vector3(xx,1.23,front+.12),Vector3(.045,.51,.025),"dce6dd")
 	for door in doors:
 		var x=float(door.x)+.5; var z=front+.03
+		if style in ["center","mart"]:
+			doorway(Vector3(x,0,z+.12),false)
+			continue
 		stamp("box",Vector3(x,.7,z),Vector3(1.12,1.4,.15),"f5ead3")
 		stamp("box",Vector3(x,.64,z+.09),Vector3(.86,1.25,.08),"658b98")
 		stamp("box",Vector3(x,.83,z+.14),Vector3(.61,.59,.03),"b1dcdb")
@@ -382,3 +385,49 @@ func home_window(at: Vector3):
 	for x in [-.33,.33]: stamp("softbox",at+Vector3(x,0,.08),Vector3(.18,.74,.09),"f2dca7")
 	stamp("box",at+Vector3(0,0,.075),Vector3(.035,.64,.035),"f1e8d5")
 	stamp("box",at+Vector3(0,0,.075),Vector3(.76,.035,.035),"f1e8d5")
+
+func stair_tile(at: Vector3, column: int=0, columns: int=1):
+	for step in range(6):
+		var height=.06+.42*(column+(step+1)/6.0)/columns
+		stamp("box",at+Vector3(-.416+step/6.0,height*.5,0),Vector3(.18,height,1.01),"ac9273")
+		stamp("box",at+Vector3(-.416+step/6.0,height+.012,0),Vector3(.18,.025,1.01),"c8bda6")
+
+func doorway(at: Vector3, wood: bool=false, span: float=1.0):
+	for side in [-1,1]:
+		stamp("softbox",at+Vector3(side*(span*.5-.02),.8,0),Vector3(.12,1.6,.17),"b5946c" if wood else "a1b8c5")
+		stamp("softbox",at+Vector3(side*(span*.5-.11),.65,0),Vector3(.12,1.25,.07),"c6e4e2")
+	stamp("softbox",at+Vector3(0,1.62,0),Vector3(span+.1,.15,.19),"ead7b5" if wood else "d4e1de")
+	stamp("box",at+Vector3(0,.02,.2),Vector3(span-.1,.03,.62),"b5826d")
+
+func exhibit(at: Vector3, size: Vector2, subject: String):
+	stamp("softbox",at+Vector3(0,.22,0),Vector3(size.x-.12,.44,size.y-.12),"c4b38c")
+	stamp("softbox",at+Vector3(0,.46,0),Vector3(size.x-.28,.06,size.y-.28),"547d91")
+	stamp("softbox",at+Vector3(0,.5,size.y*.5-.15),Vector3(.65,.06,.25),"eadbb1")
+	for corner in [-1,1]:
+		stamp("cylinder",at+Vector3(corner*(size.x*.5-.16),.66,0),Vector3(.04,.4,.04),"bcc8c5")
+	if subject=="shuttle":
+		stamp("ball",at+Vector3(0,.8,0),Vector3(2.2,.48,.64),"f2ede1")
+		stamp("ball",at+Vector3(-.65,.97,0),Vector3(.45,.15,.48),"46677d")
+		for side in [-1,1]: stamp("softbox",at+Vector3(.32,.7,side*.48),Vector3(1.0,.09,.7),"dedccf",side*.35)
+		stamp("softbox",at+Vector3(.78,1.05,0),Vector3(.48,.65,.08),"e8e5d9")
+	elif subject=="meteorites":
+		for i in range(4):
+			stamp("rock",at+Vector3((i%2-.5)*1.4,.78,(int(i/2)-.5)*.85),Vector3(.64,.55,.55),["6d6866","8a7b64","506a6d","a79177"][i],i)
+	else:
+		var bone="e3d1a2"
+		for i in range(9):
+			var x=-1.1+i*.26
+			stamp("ball",at+Vector3(x,.88+sin(i*.35)*.14,0),Vector3(.27,.22,.22),bone)
+			if i in [2,3,4,5,6]:
+				for side in [-1,1]: stamp("softbox",at+Vector3(x,.81,side*.24),Vector3(.09,.1,.48),bone,side*.3)
+		stamp("rock",at+Vector3(-1.28,.94,0),Vector3(.6,.45,.42),bone)
+		stamp("ball",at+Vector3(-1.42,1.03,.2),Vector3(.12,.12,.03),"5e5a4d")
+		for side in [-1,1]:
+			stamp("softbox",at+Vector3(.2,.71,side*.6),Vector3(.12,.12,.85),bone,side*.5)
+			if subject=="aerodactyl":
+				for finger in range(3): stamp("softbox",at+Vector3(-.5+finger*.4,.77,side*.65),Vector3(.09,.09,.9),bone,side*(.5+finger*.3))
+
+func ladder(at: Vector3):
+	stamp("box",at+Vector3(0,.02,0),Vector3(.82,.035,.9),"353e43")
+	for side in [-1,1]: stamp("softbox",at+Vector3(side*.32,.09,0),Vector3(.08,.09,.96),"c9ad7b")
+	for rung in range(5): stamp("softbox",at+Vector3(0,.1,-.36+rung*.18),Vector3(.69,.07,.065),"e4c993")
