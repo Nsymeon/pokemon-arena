@@ -1,11 +1,14 @@
 extends RefCounted
 # Shared meshes and MultiMesh batches keep forests independent of tree count.
+var art=preload("res://kanto_art_assets.gd").new()
 var materials={}
 var meshes={}
 var batches={}
 
 func material(hex: String) -> Material:
 	if materials.has(hex): return materials[hex]
+	var crafted=art.material(hex)
+	if crafted!=null: materials[hex]=crafted; return crafted
 	if hex=="pokeball":
 		var shader=Shader.new()
 		shader.code="""shader_type spatial;
@@ -32,13 +35,14 @@ void vertex() {
  VERTEX.z+=cos(TIME*1.2+p.z*1.4)*.025*blade_height;
 }
 void fragment() {
- ALBEDO=tint.rgb*mix(.68,1.18,clamp(blade_height,0.,1.));
+ float vein=1.-smoothstep(.01,.055,abs(UV.x-.5));
+ ALBEDO=tint.rgb*mix(.55,1.16,clamp(blade_height,0.,1.))*(1.+vein*.12);
  ROUGHNESS=.86;
- BACKLIGHT=tint.rgb*.22;
+ BACKLIGHT=tint.rgb*.10;
 }
 """
 		var foliage=ShaderMaterial.new(); foliage.shader=shader
-		foliage.set_shader_parameter("tint",Color(hex.trim_prefix("grass_")))
+		foliage.set_shader_parameter("tint",Color(hex.trim_prefix("grass_")).srgb_to_linear())
 		materials[hex]=foliage; return foliage
 	if hex=="turf":
 		var shader=Shader.new()
@@ -65,10 +69,10 @@ varying vec3 p;
 void vertex() { p=(MODEL_MATRIX*vec4(VERTEX,1.)).xyz; }
 void fragment() {
  float grain=sin(p.x*18.+sin(p.z*11.))*sin(p.y*23.+p.z*17.);
- float strata=sin((p.y+p.x*.09+p.z*.08)*26.+sin(p.x*2.+p.z*3.)*.5);
- float seam=smoothstep(.90,.99,strata);
+ float strata=sin((p.y+p.x*.19+p.z*.11)*11.+sin(p.x*1.2+p.z*.7)*.6);
+ float seam=smoothstep(.74,.99,strata);
  ALBEDO=mix(vec3(.39,.23,.12),vec3(.57,.36,.20),.60+grain*.06);
- ALBEDO*=1.-seam*.19;
+ ALBEDO*=1.-seam*.26;
  ROUGHNESS=.95;
 }
 """
@@ -76,17 +80,15 @@ void fragment() {
 	if hex=="489eaf":
 		var shader=Shader.new()
 		shader.code="""shader_type spatial;
-varying vec3 world_pos;
-void vertex() { world_pos=(MODEL_MATRIX*vec4(VERTEX,1.0)).xyz; }
-void fragment() {
- vec2 p=world_pos.xz;
- float wave=sin(p.x*3.4+TIME*.7+sin(p.y*2.1-TIME*.4));
- float cross_wave=sin(p.y*4.7-TIME*.8+cos(p.x*2.6+TIME*.35));
- float light=smoothstep(.72,.99,wave*cross_wave);
- ALBEDO=mix(vec3(.19,.29,.48),vec3(.30,.42,.62),.45+.06*wave);
- ALBEDO+=vec3(.08,.11,.15)*light*.25;
- ROUGHNESS=.3; SPECULAR=.45;
- NORMAL=normalize(NORMAL+vec3(wave*.015,0.,cross_wave*.015));
+uniform vec4 deep:source_color=vec4(.24,.39,.55,1.);
+uniform vec4 shallow:source_color=vec4(.36,.57,.65,1.);
+varying vec3 p;
+void vertex(){p=(MODEL_MATRIX*vec4(VERTEX,1.)).xyz;}
+void fragment(){
+ float wave=sin(p.x*1.4+p.z*.8+TIME*.35)+sin(p.z*2.2-p.x*.6-TIME*.27);
+ float lines=pow(max(0.,sin(p.x*5.+p.z*2.+TIME*.5)*sin(p.z*3.-TIME*.23)),18.);
+ ALBEDO=mix(deep.rgb,shallow.rgb,.24+.10*wave)+vec3(.02,.025,.03)*lines;
+ ROUGHNESS=.42; SPECULAR=.28;
 }
 """
 		var water=ShaderMaterial.new(); water.shader=shader; materials[hex]=water; return water
@@ -97,6 +99,7 @@ void fragment() {
 
 func mesh(kind: String) -> Mesh:
 	if meshes.has(kind): return meshes[kind]
+	if kind in art.MESHES: return art.mesh(kind)
 	var m: Mesh
 	match kind:
 		"softbox":
@@ -182,18 +185,15 @@ func flush(parent: Node3D):
 	batches.clear()
 
 func tree(at: Vector3, variation: int=0, small: bool=false):
-	var s=0.68 if small else 1.0
-	stamp("cylinder",at+Vector3(0,.7*s,0),Vector3(.34,1.4,.34)*s,"8b6949")
-	var tones=["24592c","2e6730","285f30"]
-	stamp("canopy",at+Vector3(0,.78*s,0),Vector3(1.82,1.6,1.82)*s,tones[posmod(variation,3)])
-	stamp("canopy",at+Vector3(0,1.46*s,0),Vector3(1.48,1.4,1.48)*s,"438632")
-	stamp("canopy",at+Vector3(0,2.1*s,0),Vector3(1.05,1.25,1.05)*s,"71b638")
-	for tier in 3:
-		for row in 2:
-			var radius=([.78,.63,.44][tier]-row*.09)*s
-			for leaf in 12:
-				var angle=leaf*TAU/12+tier*.2+row*.13
-				stamp("leaf",at+Vector3(cos(angle)*radius,(1.06+tier*.65+row*.18+.025*sin(leaf*2.3))*s,sin(angle)*radius),Vector3(.27,.11,.3)*s,["327032","4d9636","79bd42"][tier])
+	var s=.68 if small else 1.
+	stamp("contact_plane",at+Vector3(0,.018,0),Vector3(2.05,1,1.75)*s,"contact_shadow")
+	stamp("cylinder",at+Vector3(0,.64*s,0),Vector3(.42,1.28,.42)*s,"wood_a57a46")
+	for root in range(5):
+		var angle=root*TAU/5
+		stamp("rock",at+Vector3(sin(angle)*.21,.17,cos(angle)*.21)*s,Vector3(.25,.38,.44)*s,"wood_b38a51",angle)
+	for tier in range(3):
+		var size=[2.05,1.66,1.19][tier]*s
+		stamp("crown",at+Vector3(0,(.89+tier*.63)*s,0),Vector3(size,(1.31-tier*.08)*s,size),"foliage",float(variation)*.27+tier*.19)
 
 func cut_tree(at: Vector3):
 	# A distinct waist-high sapling; full forest trees reach 3.35 units.
@@ -235,8 +235,9 @@ func counter(at: Vector3, size: Vector2, theme: String):
 		stamp("ball",emblem+Vector3(0,0,.04),Vector3(.14,.14,.025),top)
 
 func furnishing(at: Vector3, kind: String, variation: int=0, theme: String=""):
+	stamp("contact_plane",at+Vector3(0,.018,0),Vector3(1.15,1,1.05),"contact_shadow")
 	if kind=="television":
-		stamp("softbox",at+Vector3(0,.32,0),Vector3(.94,.64,.68),"b48e61")
+		stamp("softbox",at+Vector3(0,.32,0),Vector3(.94,.64,.68),"wood_b48e61")
 		for x in [-.22,.22]: stamp("softbox",at+Vector3(x,.43,.35),Vector3(.38,.23,.025),"dac59c")
 		stamp("cylinder",at+Vector3(0,.77,0),Vector3(.08,.25,.08),"46505c")
 		stamp("softbox",at+Vector3(0,1.08,0),Vector3(.91,.59,.13),"303c4a")
@@ -257,11 +258,12 @@ func furnishing(at: Vector3, kind: String, variation: int=0, theme: String=""):
 			for x in [-.21,.21]:
 				for z in [-.2,.2]: stamp("ring",at+Vector3(x,.94,z),Vector3(.26,.1,.26),"59636a")
 	elif kind=="bed":
-		stamp("softbox",at+Vector3(0,.2,.5),Vector3(.92,.4,1.9),"957856")
+		stamp("softbox",at+Vector3(0,.2,.5),Vector3(.92,.4,1.9),"wood_957856")
 		stamp("softbox",at+Vector3(0,.48,.5),Vector3(.9,.22,1.85),"f2ebd8")
 		stamp("softbox",at+Vector3(0,.62,-.1),Vector3(.7,.16,.4),"fff7e4")
-		stamp("softbox",at+Vector3(0,.61,.85),Vector3(.92,.12,1.12),"80b79b")
-		stamp("softbox",at+Vector3(0,.5,-.48),Vector3(1,.9,.12),"aa8c65")
+		stamp("softbox",at+Vector3(0,.61,.85),Vector3(.92,.12,1.12),"quilt")
+		stamp("softbox",at+Vector3(0,.66,.33),Vector3(.94,.05,.14),"c4d6bd")
+		stamp("softbox",at+Vector3(0,.5,-.48),Vector3(1,.9,.12),"wood_aa8c65")
 	elif kind=="chair":
 		for x in [-.26,.26]:
 			for z in [-.25,.25]: stamp("softbox",at+Vector3(x,.23,z),Vector3(.09,.46,.09),"8c735c")
@@ -290,7 +292,7 @@ func furnishing(at: Vector3, kind: String, variation: int=0, theme: String=""):
 		for col in 3: stamp("softbox",at+Vector3(-.16+col*.16,1.08,-.026),Vector3(.09,.09,.012),["c3e7dd","a6d4e8","d6db9f"][col])
 		stamp("ball",at+Vector3(.29,.6,.36),Vector3(.045,.045,.02),"74cfaa")
 	elif kind=="cabinet":
-		stamp("softbox",at+Vector3(0,.55,0),Vector3(.97,1.1,.88),"a99470")
+		stamp("softbox",at+Vector3(0,.55,0),Vector3(.97,1.1,.88),"wood_a99470")
 		stamp("softbox",at+Vector3(0,1.12,0),Vector3(1,.1,.95),"d4c9a4")
 		stamp("softbox",at+Vector3(0,.59,.445),Vector3(.84,.92,.03),"705d4c")
 		for shelf in [.27,.71]:
@@ -306,76 +308,85 @@ func furnishing(at: Vector3, kind: String, variation: int=0, theme: String=""):
 		stamp("softbox",at+Vector3(0,.5,.435),Vector3(.8,.06,.025),"b95f71" if center else "dccab0")
 
 func building(rect: Rect2, style: String, roof: String, doors: Array):
-	var center=Vector3(rect.get_center().x,0,rect.get_center().y)
-	var width=rect.size.x; var depth=maxf(1.0,rect.size.y-1.0)
-	var height=1.9 if style!="tower" else 3.6
-	center.z=rect.end.y-depth*.5-.65
-	stamp("box",center+Vector3(0,.12,0),Vector3(width+.1,.24,depth+.15),"bdc9bd")
-	stamp("box",center+Vector3(0,height*.5,0),Vector3(width-.18,height,depth-.15),"eee3c8")
-	stamp("box",center+Vector3(0,.35,0),Vector3(width-.1,.32,depth),"b6c7c6")
-	stamp("box",center+Vector3(0,height-.08,0),Vector3(width+.18,.16,depth+.18),"f4ebd6")
-	if style in ["lab","gym","tower"]:
-		stamp("box",center+Vector3(0,height+.14,0),Vector3(width+.38,.35,depth+.35),roof)
-		stamp("box",center+Vector3(width*.26,height+.55,-depth*.16),Vector3(.8,.6,.8),"9caeb4")
-	else:
-		stamp("roof",center+Vector3(0,height,0),Vector3(width+.5,1.65,depth+.5),roof)
-		# Parallel raised tiles catch the sun across both roof slopes.
-		for side in [-1,1]:
-			for stripe in range(1,5):
-				var t=stripe/5.0
-				stamp("box",center+Vector3(0,height+.825*(1-t)+.025,side*(depth+.5)*.5*t),Vector3(width+.48,.045,.055),roof)
-		stamp("box",center+Vector3(-width*.28,height+.85,-depth*.18),Vector3(.48,.9,.55),"e2cfb1")
+	var width=rect.size.x; var depth=maxf(1.,rect.size.y-1.)
+	var height=1.95 if style!="tower" else 3.5
+	var center=Vector3(rect.get_center().x,0,rect.end.y-depth*.5-.65)
 	var front=center.z+depth*.5+.02
-	# Recessed masonry joints and corner trims give the facade readable depth.
-	for course in 3:
-		var y=.13+course*.13
-		stamp("box",Vector3(center.x,y,front+.015),Vector3(width-.2,.018,.02),"9fada8")
-		for brick in range(int(width*2)):
-			var bx=rect.position.x+.3+brick*.5+(course%2)*.25
-			if bx<rect.end.x-.2: stamp("box",Vector3(bx,y+.05,front+.02),Vector3(.018,.1,.025),"9fada8")
+	var timber=style=="house"
+	stamp("contact_plane",center+Vector3(0,.021,.15),Vector3(width+.8,1,depth+1.1),"contact_shadow")
+	stamp("softbox",center+Vector3(0,.16,0),Vector3(width+.08,.32,depth+.08),"939b91")
+	stamp("box",center+Vector3(0,height*.5+.1,0),Vector3(width-.16,height,depth-.12),"wood_b99c70" if timber else "plaster_e0e5d7")
+	# Timber siding wraps the exterior. Narrow joints give each board a lit upper edge.
+	for row in range(7):
+		var y=.39+row*.22
+		stamp("softbox",Vector3(center.x,y,front+.01),Vector3(width-.18,.205,.08),"wood_c5aa7d" if timber else "plaster_d3dbd4")
+		for side in [-1,1]: stamp("softbox",center+Vector3(side*(width*.5-.07),y,0),Vector3(.08,.205,depth-.1),"wood_b99c70" if timber else "plaster_d3dbd4")
 	for side in [-1,1]:
-		stamp("box",Vector3(center.x+side*(width*.5-.12),height*.55,front+.045),Vector3(.16,height*.87,.14),"d8d9c5")
-	if style in ["house","center","mart"]:
+		stamp("softbox",Vector3(center.x+side*(width*.5-.16),height*.5+.12,front+.06),Vector3(.17,height,.15),"wood_82674c" if timber else "c6d0c9")
+	stamp("box",center+Vector3(0,height+.07,0),Vector3(width+.23,.16,depth+.22),"wood_8e7452" if timber else "cad8d5")
+	if style in ["lab","gym","tower"]:
+		stamp("softbox",center+Vector3(0,height+.22,0),Vector3(width+.35,.35,depth+.3),"roof_"+roof)
+		stamp("box",center+Vector3(0,height+.42,0),Vector3(width-.2,.06,depth-.25),"roof_"+roof)
+		for side in [-1,1]: stamp("box",center+Vector3(side*(width*.5),height+.48,0),Vector3(.12,.22,depth+.2),"d1d8c6")
+	else:
+		var half=(depth+.5)*.5; var rise=.95
+		stamp("roof",center+Vector3(0,height+.1,0),Vector3(width+.5,rise*2,depth+.5),"roof_"+roof)
+		var columns=maxi(3,ceili((width+.5)/.45)); var rows=maxi(3,ceili(half/.42))
+		var pitch=atan2(rise,half)
 		for side in [-1,1]:
-			for row in range(1,5):
-				var t=row/5.0
-				for column in range(int(width/.6)):
-					var rx=rect.position.x+.3+column*.6+(row%2)*.14
-					if rx>rect.end.x: continue
-					stamp("box",center+Vector3(rx-center.x,height+.825*(1-t)+.035,side*(depth+.5)*.5*t),Vector3(.035,.04,.15),"a87b71" if style=="house" else "b86d75" if style=="center" else "6c94b1")
-	for x in range(maxi(1,int(width/1.4))):
-		var xx=rect.position.x+.75+x*1.35
-		if xx>rect.end.x-.5: continue
-		if doors.any(func(d):return absf(float(d.x)+.5-xx)<.8): continue
-		stamp("box",Vector3(xx,1.2,front),Vector3(.91,.74,.12),"faf3db")
-		stamp("box",Vector3(xx,1.23,front+.075),Vector3(.71,.51,.06),"639da9")
-		stamp("box",Vector3(xx-.17,1.29,front+.112),Vector3(.12,.32,.025),"b0dfdc")
-		stamp("box",Vector3(xx,.8,front+.1),Vector3(.98,.12,.24),"ced9cc")
-		stamp("box",Vector3(xx,1.23,front+.12),Vector3(.045,.51,.025),"dce6dd")
+			for row in range(rows):
+				var t=(row+.5)/rows
+				for column in range(columns):
+					var p=center+Vector3(-(width+.5)*.5+(column+.5)*(width+.5)/columns,height+.1+rise*(1.-t)+.025,side*half*t)
+					var basis=Basis(Vector3.RIGHT,side*pitch)*Basis.from_scale(Vector3((width+.5)/columns+.015,.14,sqrt(half*half+rise*rise)/rows+.035))
+					stamp_pose("roof_shingle",Transform3D(basis,p),"roof_"+roof)
+			stamp("softbox",center+Vector3(0,height+.04,side*half),Vector3(width+.62,.11,.12),"wood_80664b" if timber else "a8babd")
+		stamp("softbox",center+Vector3(0,height+rise+.13,0),Vector3(width+.6,.16,.2),"roof_"+roof)
+		stamp("softbox",center+Vector3(-width*.29,height+.7,-depth*.12),Vector3(.42,1.05,.52),"plaster_c6b59b")
+		stamp("softbox",center+Vector3(-width*.29,height+1.25,-depth*.12),Vector3(.56,.12,.65),"a38b70")
+	for column in range(maxi(1,int(width/1.6))):
+		var x=rect.position.x+.85+column*1.6
+		if x>rect.end.x-.5 or doors.any(func(d):return absf(d.x+.5-x)<.85): continue
+		stamp("softbox",Vector3(x,1.16,front+.09),Vector3(.98,.87,.18),"wood_8e704f" if timber else "aabac2")
+		stamp("box",Vector3(x,1.18,front+.19),Vector3(.79,.66,.025),"538a9e")
+		if timber:
+			for side in [-1,1]: stamp("softbox",Vector3(x+side*.29,1.18,front+.22),Vector3(.13,.62,.035),"eedba7")
+		stamp("box",Vector3(x,1.18,front+.23),Vector3(.045,.67,.04),"e1d3b1")
+		stamp("box",Vector3(x,1.18,front+.23),Vector3(.8,.045,.04),"e1d3b1")
+		stamp("softbox",Vector3(x,.7,front+.18),Vector3(1.1,.14,.26),"wood_957452")
+		if timber:
+			stamp("softbox",Vector3(x,.57,front+.16),Vector3(.86,.18,.23),"wood_9c7855")
+			for flower_index in range(3): flower(Vector3(x-.27+flower_index*.27,.61,front+.18),["e9af9a","e6c780","c0ce9d"][flower_index])
 	for door in doors:
-		var x=float(door.x)+.5; var z=front+.03
-		if style in ["center","mart"]:
-			doorway(Vector3(x,0,z+.12),false)
-			continue
-		stamp("box",Vector3(x,.7,z),Vector3(1.12,1.4,.15),"f5ead3")
-		stamp("box",Vector3(x,.64,z+.09),Vector3(.86,1.25,.08),"658b98")
-		stamp("box",Vector3(x,.83,z+.14),Vector3(.61,.59,.03),"b1dcdb")
-		stamp("ball",Vector3(x+.27,.52,z+.18),Vector3.ONE*.08,"f7d999")
-		stamp("box",Vector3(x,.04,z+.45),Vector3(1.3,.08,.65),"dfd8c1")
+		var x=float(door.x)+.5
+		if style in ["center","mart"]: doorway(Vector3(x,0,front+.16),false); continue
+		stamp("softbox",Vector3(x,.73,front+.09),Vector3(1.09,1.46,.16),"wood_84674b")
+		stamp("softbox",Vector3(x,.7,front+.18),Vector3(.84,1.34,.07),"wood_b38b58")
+		stamp("softbox",Vector3(x,1.03,front+.23),Vector3(.56,.45,.035),"79a5ac")
+		stamp("box",Vector3(x,1.03,front+.255),Vector3(.035,.46,.02),"e1c892")
+		stamp("box",Vector3(x,.35,front+.23),Vector3(.58,.38,.03),"wood_987349")
+		stamp("ball",Vector3(x+.27,.64,front+.26),Vector3(.075,.075,.04),"c9ad6c")
+		stamp("softbox",Vector3(x,.045,front+.36),Vector3(1.18,.09,.48),"b1aca0")
 	if style in ["center","mart","gym","lab"]:
-		var emblem=Vector3(center.x,height-.1,front+.19)
-		stamp("ball",emblem,Vector3(.68,.68,.12),"f5ebd2")
-		stamp("box",emblem+Vector3(0,0,.08),Vector3(.48,.09,.04),roof)
-		stamp("ball",emblem+Vector3(0,0,.1),Vector3(.2,.2,.05),roof)
+		var emblem=Vector3(center.x,height-.11,front+.25)
+		stamp("ball",emblem,Vector3(.62,.62,.12),"e9e4d3")
+		stamp("box",emblem+Vector3(0,0,.075),Vector3(.55,.075,.035),roof)
+		stamp("ball",emblem+Vector3(0,0,.1),Vector3(.19,.19,.04),roof)
+
+func stamp_pose(kind: String, transform: Transform3D, color: String):
+	var key=kind+":"+color
+	if not batches.has(key): batches[key]=[]
+	batches[key].append(transform)
 
 func trainer(config: Dictionary, identity: String="") -> Node3D:
 	return preload("res://kanto_character_models.gd").new().build(self,config,identity)
 
 func dining_table(at: Vector3, size: Vector2):
+	stamp("contact_plane",at+Vector3(0,.02,0),Vector3(size.x+1,1,size.y+1),"contact_shadow")
 	for x in [-1,1]:
 		for z in [-1,1]: stamp("softbox",at+Vector3(x*(size.x*.5-.2),.36,z*(size.y*.5-.2)),Vector3(.13,.72,.13),"95714d")
 	stamp("softbox",at+Vector3(0,.78,0),Vector3(size.x,.15,size.y),"dac197")
-	stamp("softbox",at+Vector3(0,.866,0),Vector3(size.x*.48,.015,size.y*.85),"84bfc3")
+	stamp("softbox",at+Vector3(0,.866,0),Vector3(size.x*.58,.025,size.y*.92),"tablecloth")
 	stamp("pot",at+Vector3(0,1.01,0),Vector3(.22,.28,.22),"eee4d0")
 	flower(at+Vector3(0,1.08,0),"efb777")
 
@@ -386,16 +397,29 @@ func home_window(at: Vector3):
 	stamp("box",at+Vector3(0,0,.075),Vector3(.035,.64,.035),"f1e8d5")
 	stamp("box",at+Vector3(0,0,.075),Vector3(.76,.035,.035),"f1e8d5")
 
-func stair_tile(at: Vector3, column: int=0, columns: int=1):
-	for step in range(6):
-		var height=.06+.42*(column+(step+1)/6.0)/columns
-		stamp("box",at+Vector3(-.416+step/6.0,height*.5,0),Vector3(.18,height,1.01),"ac9273")
-		stamp("box",at+Vector3(-.416+step/6.0,height+.012,0),Vector3(.18,.025,1.01),"c8bda6")
+func stair_tile(at: Vector3, column: int=0, columns: int=1, front_rail: bool=false, back_rail: bool=false):
+	for step in range(4):
+		var height=.06+.75*(column+(step+1)/4.0)/columns
+		stamp("box",at+Vector3(-.375+step/4.0,height*.5,0),Vector3(.26,height,1.01),"ac9273")
+		stamp("box",at+Vector3(-.375+step/4.0,height+.012,0),Vector3(.26,.025,1.01),"c8bda6")
+		stamp("box",at+Vector3(-.49+step/4.0,height+.027,0),Vector3(.022,.012,1.01),"9a8b76")
+	for side in [-1,1]:
+		if not (front_rail if side>0 else back_rail): continue
+		var height=.06+.75*(column+.5)/columns
+		stamp("softbox",at+Vector3(0,height+.17,side*.46),Vector3(.08,.35,.08),"wood_b29363")
+		var basis=Basis(Vector3.BACK,atan2(.75,columns))*Basis.from_scale(Vector3(sqrt(1.+pow(.75/columns,2)),.065,.09))
+		stamp_pose("softbox",Transform3D(basis,at+Vector3(0,height+.36,side*.46)),"wood_c6a271")
 
 func doorway(at: Vector3, wood: bool=false, span: float=1.0):
+	# The front wall is cut away in homes; a threshold reads as an exit without
+	# freestanding glass panels hiding the player and the room.
+	if wood:
+		stamp("box",at+Vector3(0,.035,0),Vector3(span,.06,.25),"wood_b1956e")
+		stamp("softbox",at+Vector3(0,.026,.30),Vector3(span-.1,.045,.45),"a98669")
+		return
 	for side in [-1,1]:
 		stamp("softbox",at+Vector3(side*(span*.5-.02),.8,0),Vector3(.12,1.6,.17),"b5946c" if wood else "a1b8c5")
-		stamp("softbox",at+Vector3(side*(span*.5-.11),.65,0),Vector3(.12,1.25,.07),"c6e4e2")
+		stamp("box",at+Vector3(side*(span-.2)*.25,.69,0),Vector3((span-.2)*.5,1.3,.07),"door_left" if side<0 else "door_right")
 	stamp("softbox",at+Vector3(0,1.62,0),Vector3(span+.1,.15,.19),"ead7b5" if wood else "d4e1de")
 	stamp("box",at+Vector3(0,.02,.2),Vector3(span-.1,.03,.62),"b5826d")
 
@@ -431,3 +455,23 @@ func ladder(at: Vector3):
 	stamp("box",at+Vector3(0,.02,0),Vector3(.82,.035,.9),"353e43")
 	for side in [-1,1]: stamp("softbox",at+Vector3(side*.32,.09,0),Vector3(.08,.09,.96),"c9ad7b")
 	for rung in range(5): stamp("softbox",at+Vector3(0,.1,-.36+rung*.18),Vector3(.69,.07,.065),"e4c993")
+
+func shore(at: Vector3, direction: Vector2i):
+	var vertical=direction.x!=0
+	stamp("box",at+Vector3(direction.x*.48,.035,direction.y*.48),Vector3(.12,.10,1.005) if vertical else Vector3(1.005,.10,.12),"8b7953")
+	stamp("box",at+Vector3(direction.x*.49,.084,direction.y*.49),Vector3(.12,.025,1.005) if vertical else Vector3(1.005,.025,.12),"70914b")
+	stamp("contact_plane",at+Vector3(direction.x*.38,.029,direction.y*.38),Vector3(.12,1,1.005) if vertical else Vector3(1.005,1,.12),"shore_foam")
+
+func fence(at: Vector3, connections: Array):
+	stamp("softbox",at+Vector3(0,.40,0),Vector3(.15,.8,.15),"e1ddc4")
+	stamp("softbox",at+Vector3(0,.82,0),Vector3(.19,.06,.19),"f0ebd6")
+	for direction in connections:
+		var along=Vector3(direction.x,0,direction.y)
+		for height in [.25,.57]:
+			stamp("box",at+along*.25+Vector3(0,height,0),Vector3(.52,.09,.075) if direction.x else Vector3(.075,.09,.52),"c5cab8")
+		for offset in [.20,.40]:
+			stamp("softbox",at+along*offset+Vector3(0,.40,0),Vector3(.13,.65,.07) if direction.x else Vector3(.07,.65,.13),"e4e1cb")
+
+func update_player(at: Vector3):
+	for key in ["door_left","door_right"]:
+		if materials.has(key): materials[key].set_shader_parameter("player",at)

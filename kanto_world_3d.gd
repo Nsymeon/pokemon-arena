@@ -38,7 +38,7 @@ func initialize():
 	catalog=JSON.parse_string(FileAccess.get_file_as_string("res://assets/kanto/world-3d.json"))
 	viewport=SubViewport.new(); viewport.size=Vector2i(1280,700)
 	viewport.own_world_3d=true; viewport.transparent_bg=false
-	viewport.msaa_3d=Viewport.MSAA_2X
+	viewport.msaa_3d=Viewport.MSAA_4X
 	viewport.render_target_update_mode=SubViewport.UPDATE_DISABLED
 	add_child(viewport)
 	stage=Node3D.new(); viewport.add_child(stage)
@@ -66,6 +66,7 @@ func _process(dt):
 	if loaded!=w.current or patches!=patch_key:
 		build(); patch_key=patches
 	var target=Vector3(a.position_world.x/w.TILE,0,a.position_world.y/w.TILE)
+	kit.update_player(target)
 	focus=focus.lerp(target,1.0-exp(-dt*9.0))
 	camera.position=focus+Vector3(0,22,20)
 	camera.look_at(focus+Vector3(0,0,-1.4))
@@ -93,8 +94,8 @@ func build():
 	var stairs=meta.get("stairs",[]).map(func(index):return int(index))
 	var ladders=meta.get("ladders",[]).map(func(index):return int(index))
 	var home=not outside and ("HOUSE" in loaded or "COTTAGE" in loaded or "DAY_CARE" in loaded)
-	sun.light_energy=.58 if outside else .38
-	environment.ambient_light_energy=.42 if outside else .5
+	sun.light_energy=.65 if outside else .42
+	environment.ambient_light_energy=.31 if outside else .43
 	environment.background_color=Color("a2bca3") if outside else Color("37474b")
 	var base="6e9867" if outside else "6f7569" if cave else "a9a18e"
 	kit.stamp("box",Vector3(width*.5,-.24,height*.5),Vector3(width+.2,.42,height+.2),base)
@@ -103,7 +104,7 @@ func build():
 	var ground_image=Image.load_from_file(meta.ground); ground_image.generate_mipmaps()
 	var ground=MeshInstance3D.new(); var plane=PlaneMesh.new(); plane.size=Vector2(width,height)
 	var surface=StandardMaterial3D.new(); surface.albedo_texture=ImageTexture.create_from_image(ground_image); surface.texture_filter=BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS; surface.roughness=1
-	ground.mesh=plane; ground.material_override=surface; ground.position=Vector3(width*.5,.005,height*.5); terrain.add_child(ground)
+	ground.mesh=plane; ground.material_override=kit.art.ground(surface.albedo_texture) if home else surface; ground.position=Vector3(width*.5,.005,height*.5); terrain.add_child(ground)
 	camera.size=14.0 if outside or cave else clampf(height*.8,11,16)
 	# Exhibit footprints come from the source museum layout.
 	var exhibit_cells={}
@@ -144,28 +145,28 @@ func build():
 			var start_x=x; var end_x=x
 			while start_x>0 and z*width+start_x-1 in stairs: start_x-=1
 			while end_x<width-1 and z*width+end_x+1 in stairs: end_x+=1
-			kit.stair_tile(p,x-start_x,end_x-start_x+1)
+			kit.stair_tile(p,x-start_x,end_x-start_x+1,not i+width in stairs,not i-width in stairs)
 			terrain.set_meta("stair_count",int(terrain.get_meta("stair_count",0))+1)
 			continue
 		match kind:
 			"waterfall":
-				kit.stamp("box",p+Vector3(0,.7,-.3),Vector3(1.01,1.4,.13),"489eaf")
+				kit.stamp("box",p+Vector3(0,.7,-.3),Vector3(1.01,1.4,.13),"waterfall")
 				kit.stamp("ball",p+Vector3(0,.07,.1),Vector3(1,.12,.65),"b2dcd6")
 			"water":
-				kit.stamp("box",p+Vector3(0,-.025,0),Vector3(1.01,.07,1.01),"489eaf")
+				kit.stamp("contact_plane",p+Vector3(0,.025,0),Vector3(1.01,1,1.01),"489eaf")
 				for direction in [Vector2i.LEFT,Vector2i.RIGHT,Vector2i.UP,Vector2i.DOWN]:
 					var next=Vector2i(x,z)+direction
 					if next.x<0 or next.y<0 or next.x>=width or next.y>=height: continue
 					if meta.tiles[next.y*width+next.x] in ["water","waterfall"]: continue
-					kit.stamp("ball",p+Vector3(direction.x*.46,.018,direction.y*.46),Vector3(.13,.025,.96) if direction.x!=0 else Vector3(.96,.025,.13),"718768")
+					kit.shore(p,direction)
 			"tree":
 				pass
 			"shrub": kit.tree(p,x+z,true)
 			"grass":
-				for j in range(3):
+				for j in range(2):
 					var angle=j*2.39996+float((x*17+z*31)%11)*.12
 					var offset=Vector3(cos(angle)*.27,0,sin(angle)*.27) if j>0 else Vector3.ZERO
-					kit.stamp("grass",p+offset,Vector3(.92,.82+float((x+z+j)%3)*.035,.92),["grass_67ad32","grass_78ba3d","grass_87c447"][posmod(x+z+j,3)],angle)
+					kit.stamp("blade_tuft",p+offset,Vector3(.92,.82+float((x+z+j)%3)*.035,.92),["grass_5b9631","grass_76ac37","grass_81b640"][posmod(x+z+j,3)],angle)
 			"flowers":
 				for j in range(4):
 					var offset=Vector3((j%2-.5)*.4,.16,(int(j/2)-.5)*.4)
@@ -176,14 +177,20 @@ func build():
 			"sand": pass
 			"cliff":
 				# Contiguous layered rock faces, with recessed joints and turf caps.
-				var rock_colors=["cliff_outdoor","cliff_outdoor","cliff_outdoor"] if not cave else ["626c72","778087","879095"]
+				var rock_colors=["cliff_outdoor","cliff_outdoor","cliff_outdoor"] if not cave else ["stone","stone","stone"]
 				kit.stamp("box",p+Vector3(0,.59,0),Vector3(1.0,1.18,1.0),rock_colors[0])
-				for layer in range(3):
-					kit.stamp("softbox",p+Vector3(0,.19+layer*.36,0),Vector3(1.01,.355,1.025),rock_colors[(x+z+layer)%3])
-				kit.stamp("box",p+Vector3(0,1.2,0),Vector3(1.015,.14,1.015),"turf" if not cave else "89908b")
+				for direction in [Vector2i.LEFT,Vector2i.RIGHT,Vector2i.UP,Vector2i.DOWN]:
+					var next=Vector2i(x,z)+direction
+					if next.x<0 or next.y<0 or next.x>=width or next.y>=height: continue
+					if meta.tiles[next.y*width+next.x]=="cliff": continue
+					kit.stamp_pose("cliff_face",Transform3D(Basis(Vector3.UP,atan2(direction.x,direction.y))*Basis.from_scale(Vector3(1.,1.18,1.)),p),rock_colors[1])
+				kit.stamp("box",p+Vector3(0,1.2,0),Vector3(1.0,.14,1.0),"turf" if not cave else "stone")
+				if cave:
+					kit.stamp("rock_surface",p+Vector3(0,1.27,0),Vector3.ONE,"cave_cap")
 			"stairs":
 				for step in range(5):
 					kit.stamp("box",p+Vector3(0,.03+(4-step)*.045,-.4+step*.2),Vector3(1,.06+(4-step)*.09,.21),"b6bfc0")
+					kit.stamp("box",p+Vector3(0,.065+(4-step)*.09,-.31+step*.2),Vector3(1,.015,.025),"909a98")
 				for side in [-1,1]:
 					var neighbor=x+side
 					if neighbor>=0 and neighbor<width and meta.tiles[z*width+neighbor]=="stairs": continue
@@ -192,21 +199,22 @@ func build():
 				var behavior=int(w.events.catalog[loaded].behavior[i])
 				var axis=Vector3(.32,.22,1) if behavior in [0x38,0x39] else Vector3(1,.22,.32)
 				kit.stamp("box",p+Vector3(0,.1,0),axis,"997044")
-				kit.stamp("ball",p+Vector3(0,.22,0),axis*Vector3(1.15,.35,1.15),"6b934a")
+				kit.stamp("box",p+Vector3(0,.22,0),axis*Vector3(1.01,.15,1.01),"turf")
 			"fence":
-				kit.stamp("box",p+Vector3(0,.37,0),Vector3(.13,.74,.15),"cba976")
-				kit.stamp("ball",p+Vector3(0,.76,0),Vector3(.2,.13,.2),"e2bf87")
+				var connections=[]
 				for direction in [Vector2i.LEFT,Vector2i.RIGHT,Vector2i.UP,Vector2i.DOWN]:
 					var next=Vector2i(x,z)+direction
 					if next.x<0 or next.y<0 or next.x>=width or next.y>=height: continue
 					if meta.tiles[next.y*width+next.x]!="fence": continue
-					for y in [.27,.56]: kit.stamp("box",p+Vector3(direction.x*.25,y,direction.y*.25),Vector3(.55,.1,.1) if direction.x!=0 else Vector3(.1,.1,.55),"b68e59")
+					connections.append(direction)
+				kit.fence(p,connections)
 			"sign": kit.sign(p)
 			"wall":
-				kit.stamp("box",p+Vector3(0,.75,0),Vector3(1.01,1.5,1),"eee2c8" if home else "babaa9")
-				if home:
-					kit.stamp("box",p+Vector3(0,.16,.51),Vector3(1.01,.3,.06),"a68159")
-					kit.stamp("box",p+Vector3(0,1.47,.51),Vector3(1.01,.09,.07),"c7a777")
+				var wall_height=.28 if z>height*.65 else 1.5
+				kit.stamp("box",p+Vector3(0,wall_height*.5,0),Vector3(1.01,wall_height,1),"wallpaper" if home else "plaster_c3cec5")
+				if home and wall_height>1.:
+					kit.stamp("box",p+Vector3(0,.16,.51),Vector3(1.01,.3,.06),"wood_987957")
+					kit.stamp("box",p+Vector3(0,1.47,.51),Vector3(1.01,.09,.07),"wood_c5af86")
 					if tile in [0x29,0x2a]: kit.home_window(p+Vector3(0,.85,.53))
 			"furniture", "cabinet", "plant", "computer", "table", "bed", "chair":
 				if home and tile==0x35: kit.furnishing(p,"television",x+z,loaded)
@@ -217,7 +225,7 @@ func build():
 	var image: Image
 	for i in room.cells.size():
 		var behavior=int(w.events.catalog[loaded].behavior[i])
-		if behavior in [0x20,0x23,0x26,0x27] or (behavior>=0x40 and behavior<=0x58) or (behavior>=0x60 and behavior<=0x6f):
+		if behavior in [0x20,0x23,0x26,0x27,0x66,0x67,0x68] or (behavior>=0x40 and behavior<=0x58):
 			if image==null: image=Image.load_from_file(room.image)
 			var x=i%width; var z=int(i/width)
 			var crop=image.get_region(Rect2i(x*16,z*16,16,16))
@@ -322,8 +330,8 @@ func sync_props():
 		var p=Vector3(float(o.x)+.5,0,float(o.y)+.5)
 		if "CUT_TREE" in str(o.graphics_id) and not w.events.done(loaded+"tree"+str(o.x)+":"+str(o.y)): kit.cut_tree(p)
 		if "ROCK_SMASH_ROCK" in str(o.graphics_id) and not w.events.done(a.field.smash_key(o)):
-			kit.stamp("rock",p+Vector3(0,.24,0),Vector3(.72,.48,.65),"aba69b",float(o.x+o.y))
-	for rock in w.events.rocks(): kit.stamp("rock",Vector3(float(rock.x)+.5,.38,float(rock.y)+.5),Vector3(.87,.76,.84),"959e9e",float(rock.x+rock.y))
+			kit.stamp("rock",p+Vector3(0,.24,0),Vector3(.72,.48,.65),"stone",float(o.x+o.y))
+	for rock in w.events.rocks(): kit.stamp("rock",Vector3(float(rock.x)+.5,.38,float(rock.y)+.5),Vector3(.87,.76,.84),"stone",float(rock.x+rock.y))
 	if "POKEMON_CENTER_1F" in loaded:
 		for npc in w.room().objects:
 			if not "NURSE" in str(npc.graphics_id): continue

@@ -175,6 +175,10 @@ for key,m in maps.items():
     if 'PEWTER_CITY_MUSEUM' in key:
         for i,c in enumerate(m['cells']):
             if i//w<2 and c&0xc00: kinds[i]='wall'
+    if not outdoor and not cave:
+        # Rear architectural tiles are walls, not giant service counters.
+        for i in range(w):
+            if kinds[i]=='furniture' and m['cells'][i]&0xc00: kinds[i]='wall'
     # Unclaimed blocked structures get low relief, never an opaque roof over paths.
     for i,kind in enumerate(kinds):
         if kind=='building': kinds[i]='cliff' if ('Ember' in m['name'] or 'Kindle' in m['name'] or 'Route23' in m['name']) else 'fence'
@@ -212,12 +216,12 @@ for key,m in maps.items():
             pen=ImageDraw.Draw(ground)
             home=any(word in key for word in ['HOUSE','COTTAGE','DAY_CARE'])
             if home:
-                shade=['#b59b76','#bca17d','#b29a79'][(i%w+i//w)%3]
+                shade=['#a9895f','#ad8d63','#a48559'][(i%w+i//w)%3]
                 pen.rectangle((x,y,x+31,y+31),fill=shade)
                 for row in range(0,32,8):
-                    pen.line((x,y+row,x+31,y+row),fill='#a08b6d')
+                    pen.line((x,y+row,x+31,y+row),fill='#91774f')
                     joint=x+(8 if row%16 else 23)
-                    pen.line((joint,y+row,joint,y+row+7),fill='#a08b6d')
+                    pen.line((joint,y+row,joint,y+row+7),fill='#91774f')
             else:
                 shade='#bdc7c5' if (i%w+i//w)%2 else '#c5ceca'
                 pen.rectangle((x,y,x+31,y+31),fill=shade)

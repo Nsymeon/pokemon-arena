@@ -2,7 +2,7 @@ extends SceneTree
 func _initialize(): run.call_deferred()
 func run():
 	var c=load("res://arena.tscn").instantiate(); root.add_child(c); await process_frame
-	c.set_process(false); c.frontend.layer.visible=false; c.campaign.layer.visible=false
+	c.set_process(false); c.selecting=false; c.selection_controls.visible=false; c.frontend.layer.visible=false; c.campaign.layer.visible=false
 	var a=c.adventure; a.save_allowed=false; a.loaded=true; a.enter(); a.choose_starter(4)
 	a.data.avatar={"gender":"boy","shirt":"df6367","pants":"48779d","hair":"714737","shoes":"efe5ce"}
 	a.exploring=true; a.in_battle=false; a.dialog=""; a.modal=""; a.world.enabled=true
