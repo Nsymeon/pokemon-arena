@@ -17,6 +17,8 @@ func full_picture(mon) -> Texture2D:
 	return picture
 
 func assign(mon, fresh=false):
+	if not mon.has("friendship"): mon.friendship=70
+	if not mon.has("personality"): mon.personality=a.c.ivs.random.randi_range(0,2147483647)
 	if not mon.has("nature"): mon["nature"]=NAMES[a.c.ivs.random.randi_range(0,24)] if fresh else "Hardy"
 	if not mon.has("box"): mon["box"]=0
 

@@ -1,0 +1,186 @@
+{
+  "routes": {
+    "MAP_ROUTE1": [
+      "MAP_ROUTE2",
+      "MAP_ROUTE21_NORTH",
+      "MAP_ROUTE22"
+    ],
+    "MAP_ROUTE2": [
+      "MAP_ROUTE1",
+      "MAP_ROUTE3",
+      "MAP_ROUTE22"
+    ],
+    "MAP_ROUTE3": [
+      "MAP_ROUTE2",
+      "MAP_ROUTE4"
+    ],
+    "MAP_ROUTE4": [
+      "MAP_ROUTE3",
+      "MAP_ROUTE5",
+      "MAP_ROUTE9",
+      "MAP_ROUTE24"
+    ],
+    "MAP_ROUTE5": [
+      "MAP_ROUTE4",
+      "MAP_ROUTE6",
+      "MAP_ROUTE7",
+      "MAP_ROUTE8",
+      "MAP_ROUTE9",
+      "MAP_ROUTE24"
+    ],
+    "MAP_ROUTE6": [
+      "MAP_ROUTE5",
+      "MAP_ROUTE7",
+      "MAP_ROUTE8",
+      "MAP_ROUTE11"
+    ],
+    "MAP_ROUTE7": [
+      "MAP_ROUTE5",
+      "MAP_ROUTE6",
+      "MAP_ROUTE8",
+      "MAP_ROUTE16"
+    ],
+    "MAP_ROUTE8": [
+      "MAP_ROUTE5",
+      "MAP_ROUTE6",
+      "MAP_ROUTE7",
+      "MAP_ROUTE10",
+      "MAP_ROUTE12"
+    ],
+    "MAP_ROUTE9": [
+      "MAP_ROUTE4",
+      "MAP_ROUTE5",
+      "MAP_ROUTE10",
+      "MAP_ROUTE24"
+    ],
+    "MAP_ROUTE10": [
+      "MAP_ROUTE8",
+      "MAP_ROUTE9",
+      "MAP_ROUTE12"
+    ],
+    "MAP_ROUTE11": [
+      "MAP_ROUTE6",
+      "MAP_ROUTE12"
+    ],
+    "MAP_ROUTE12": [
+      "MAP_ROUTE10",
+      "MAP_ROUTE11",
+      "MAP_ROUTE13"
+    ],
+    "MAP_ROUTE13": [
+      "MAP_ROUTE12",
+      "MAP_ROUTE14"
+    ],
+    "MAP_ROUTE14": [
+      "MAP_ROUTE13",
+      "MAP_ROUTE15"
+    ],
+    "MAP_ROUTE15": [
+      "MAP_ROUTE14",
+      "MAP_ROUTE18",
+      "MAP_ROUTE19"
+    ],
+    "MAP_ROUTE16": [
+      "MAP_ROUTE7",
+      "MAP_ROUTE17"
+    ],
+    "MAP_ROUTE17": [
+      "MAP_ROUTE16",
+      "MAP_ROUTE18"
+    ],
+    "MAP_ROUTE18": [
+      "MAP_ROUTE15",
+      "MAP_ROUTE17",
+      "MAP_ROUTE19"
+    ],
+    "MAP_ROUTE19": [
+      "MAP_ROUTE15",
+      "MAP_ROUTE18",
+      "MAP_ROUTE20"
+    ],
+    "MAP_ROUTE20": [
+      "MAP_ROUTE19",
+      "MAP_ROUTE21_NORTH"
+    ],
+    "MAP_ROUTE21_NORTH": [
+      "MAP_ROUTE1",
+      "MAP_ROUTE20"
+    ],
+    "MAP_ROUTE22": [
+      "MAP_ROUTE1",
+      "MAP_ROUTE2",
+      "MAP_ROUTE23"
+    ],
+    "MAP_ROUTE23": [
+      "MAP_ROUTE22",
+      "MAP_ROUTE2"
+    ],
+    "MAP_ROUTE24": [
+      "MAP_ROUTE4",
+      "MAP_ROUTE5",
+      "MAP_ROUTE9"
+    ],
+    "MAP_ROUTE25": [
+      "MAP_ROUTE24",
+      "MAP_ROUTE9"
+    ]
+  },
+  "triangle": [
+    [
+      15,
+      12
+    ],
+    [
+      11,
+      14
+    ],
+    [
+      15,
+      8
+    ],
+    [
+      19,
+      14
+    ],
+    [
+      12,
+      11
+    ],
+    [
+      18,
+      11
+    ],
+    [
+      15,
+      14
+    ],
+    [
+      11,
+      14
+    ],
+    [
+      19,
+      14
+    ],
+    [
+      15,
+      15
+    ],
+    [
+      15,
+      10
+    ]
+  ],
+  "caps": [
+    4,
+    8,
+    8,
+    8,
+    4,
+    4,
+    4,
+    6,
+    3,
+    3
+  ]
+}

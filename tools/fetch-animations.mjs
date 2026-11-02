@@ -1,13 +1,15 @@
 import fs from 'node:fs/promises';
 const root='https://raw.githubusercontent.com/PMDCollab/SpriteCollab/';
 const roster=JSON.parse(await fs.readFile('data/roster.json','utf8'));
-const revision=await fetch('https://api.github.com/repos/PMDCollab/SpriteCollab/commits/master').then(r=>r.json()).then(r=>r.sha);
+const previous=JSON.parse(await fs.readFile('assets/animated/source.json','utf8'));
+const revision=previous.revision;
 if(!revision) throw Error('Cannot pin sprite revision');
 const base=root+revision+'/';
 async function get(path){for(let i=0;i<3;i++){const r=await fetch(base+path);if(r.ok)return Buffer.from(await r.arrayBuffer());if(r.status===404)return null;}throw Error(path);}
 await fs.mkdir('assets/animated',{recursive:true});
-const manifest={};let next=0;
+const manifest=JSON.parse(await fs.readFile('assets/animated/manifest.json','utf8'));let next=0;
 async function worker(){while(next<roster.length){const mon=roster[next++], folder=String(mon.id).padStart(4,'0'), dir=`assets/animated/${mon.id}`;
+ if(manifest[mon.id]?.Idle && manifest[mon.id]?.Walk)continue;
  const xml=await get(`sprite/${folder}/AnimData.xml`);if(!xml){console.log('Missing',mon.name);continue;}
  await fs.mkdir(dir,{recursive:true});await fs.writeFile(`${dir}/AnimData.xml`,xml);
  const blocks=[...xml.toString().matchAll(/<Anim>([\s\S]*?)<\/Anim>/g)].map(m=>m[1]);
@@ -27,7 +29,8 @@ async function worker(){while(next<roster.length){const mon=roster[next++], fold
  if(Object.keys(manifest).length%20===0)console.log('Animated species',Object.keys(manifest).length);
 }}
 await Promise.all(Array.from({length:8},worker));
-await fs.writeFile('assets/animated/manifest.json',JSON.stringify(manifest,null,2));
+await fs.writeFile('assets/animated/manifest.json.tmp',JSON.stringify(manifest,null,2));
+await fs.rename('assets/animated/manifest.json.tmp','assets/animated/manifest.json');
 for(const name of ['README.md','credit_names.txt']){const b=await get(name);if(b)await fs.writeFile(`assets/animated/${name}`,b);}
 await fs.writeFile('assets/animated/source.json',JSON.stringify({repository:'https://github.com/PMDCollab/SpriteCollab',revision,downloaded:new Date().toISOString(),species:Object.keys(manifest).length},null,2));
 console.log('Done',Object.keys(manifest).length);

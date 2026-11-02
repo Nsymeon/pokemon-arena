@@ -79,7 +79,10 @@ func run():
 		w.scenes.start_trainer(npc); w.scenes.completion=Callable()
 		w.scenes.tick(.7); w.scenes.tick(.1)
 		c.check(w.scenes.actor.look==direction and w.scenes.actor.walking,"Approaching trainer faces his actual walking direction "+str(direction))
-		w.view3d.move_actor(w.view3d.actors.player,a.position_world,direction,true)
+		# The rig turns smoothly; evaluate after its bounded turning interval.
+		for frame in 18:
+			w.view3d.age+=1.0/60.0
+			w.view3d.move_actor(w.view3d.actors.player,a.position_world,direction,true)
 		c.check(w.view3d.actors.player.basis.z.dot(Vector3(direction.x,0,direction.y))>.99,"3D model face matches world direction "+str(direction))
 		w.scenes.reset()
 	for map_id in ["MAP_PALLET_TOWN_PLAYERS_HOUSE_1F","MAP_PALLET_TOWN_PLAYERS_HOUSE_2F"]:

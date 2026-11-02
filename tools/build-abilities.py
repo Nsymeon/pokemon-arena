@@ -9,7 +9,7 @@ source = read('data/source/frlg-species-info.h')
 names = {re.sub('[^A-Z0-9]', '', a.upper()): a for p in dex.values() for a in p.get('abilities', {}).values()}
 result = {}
 for mon in roster:
-    key = mon['key'].upper().replace('NIDORANF', 'NIDORAN_F').replace('NIDORANM', 'NIDORAN_M').replace('MRMIME', 'MR_MIME')
+    key = mon['key'].upper().replace('NIDORANF', 'NIDORAN_F').replace('NIDORANM', 'NIDORAN_M').replace('MRMIME', 'MR_MIME').replace('HOOH', 'HO_OH')
     match = re.search(r'\[SPECIES_'+key+r'\]\s*=\s*\{(.*?)\n    \}', source, re.S)
     if match:
         values = re.search(r'\.abilities = \{(.*?)\}', match[1])[1].split(',')
@@ -21,6 +21,6 @@ for mon in roster:
 (root/'data/abilities.json').write_text(json.dumps(result, indent=2)+'\n', encoding='utf8')
 moves = json.loads(read('data/source/moves.json'))
 (root/'data/move-flags.json').write_text(json.dumps({k:v.get('flags', {}) for k,v in moves.items()}), encoding='utf8')
-assert len(result) == 158
+assert len(result) == len(roster) == 388
 assert result['19'] == ['Run Away', 'Guts'] and result['94'] == ['Levitate']
 print(f'PASS: {len(result)} species, {len(set(a for options in result.values() for a in options))} normal abilities')

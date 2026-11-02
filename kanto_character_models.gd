@@ -19,11 +19,14 @@ func build(k, config: Dictionary, identity: String) -> Node3D:
 	if brock: shirt="799354"; pants="9b815d"; hair="53443b"; skin="d8ae83"
 	# Short, separate legs and shaped sneakers; shoulders no longer form a ball.
 	for side in [-1,1]:
-		var leg=Node3D.new(); leg.name="LeftLeg" if side<0 else "RightLeg"; leg.position=Vector3(side*.145,.43,0); root.add_child(leg)
-		k.shape(leg,"ball",Vector3(0,-.11,0),Vector3(.225,.43,.25),pants)
-		k.shape(leg,"ball",Vector3(0,-.31,.075),Vector3(.265,.16,.39),shoes)
-		k.shape(leg,"ball",Vector3(0,-.365,.08),Vector3(.28,.065,.4),"e9e7df")
-		for lace in 2: k.shape(leg,"box",Vector3(0,-.25,.16+lace*.045),Vector3(.14,.018,.018),"eee7da")
+		var leg=Node3D.new(); leg.name="LeftLeg" if side<0 else "RightLeg"; leg.position=Vector3(side*.135,.53,0); root.add_child(leg)
+		k.shape(leg,"ball",Vector3(0,-.105,0),Vector3(.21,.28,.23),pants)
+		var knee=Node3D.new(); knee.name="Knee"; knee.position.y=-.23; leg.add_child(knee)
+		k.shape(knee,"ball",Vector3(0,-.095,0),Vector3(.185,.25,.21),pants)
+		var foot=Node3D.new(); foot.name="Foot"; foot.position.y=-.23; knee.add_child(foot)
+		k.shape(foot,"ball",Vector3(0,.015,.055),Vector3(.23,.14,.32),shoes)
+		k.shape(foot,"ball",Vector3(0,-.045,.06),Vector3(.24,.045,.33),"e9e7df")
+		for lace in 2: k.shape(foot,"box",Vector3(0,.072,.1+lace*.04),Vector3(.13,.014,.016),"eee7da")
 		var arm=Node3D.new(); arm.name="LeftArm" if side<0 else "RightArm"; arm.position=Vector3(side*.30,.85,0); root.add_child(arm)
 		k.shape(arm,"ball",Vector3(side*.015,-.04,0),Vector3(.22,.31,.25),shirt)
 		k.shape(arm,"ball",Vector3(side*.025,-.22,.015),Vector3(.145,.22,.16),skin)
@@ -91,4 +94,21 @@ func build(k, config: Dictionary, identity: String) -> Node3D:
 		k.shape(root,"ball",Vector3(0,.78,-.28),Vector3(.45,.52,.22),"ac8259")
 		k.shape(root,"box",Vector3(0,.69,-.405),Vector3(.3,.17,.04),"c49d70")
 		for side in [-1,1]: k.shape(root,"box",Vector3(side*.20,.81,.21),Vector3(.055,.34,.035),"997454")
+	# Rotate the head around its neck, not around the character's feet.
+	head.position.y=1.4
+	for child in head.get_children(): child.position.y-=1.4
 	return root
+
+func pose(root: Node3D, phase: float, blend: float):
+	for side in [-1,1]:
+		var leg=root.get_node("LeftLeg" if side<0 else "RightLeg")
+		var t=phase+(PI if side>0 else 0.0)
+		var z=sin(t)*.21*blend
+		var down=.458-maxf(0.0,cos(t))*.105*blend
+		var distance=clampf(Vector2(z,down).length(),.1,.459)
+		var bend=acos(clampf(distance/.46,-1,1))
+		leg.rotation.x=atan2(-z,down)-bend
+		leg.get_node("Knee").rotation.x=2*bend
+		leg.get_node("Knee/Foot").rotation.x=-leg.rotation.x-2*bend
+		root.get_node("LeftArm" if side<0 else "RightArm").rotation.x=sin(t)*.26*blend
+	root.get_node("Head").rotation.z=sin(phase)*.018*blend

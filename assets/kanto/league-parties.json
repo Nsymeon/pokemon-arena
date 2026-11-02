@@ -1,0 +1,866 @@
+{
+  "ELITE_FOUR_LORELEI": [
+    {
+      "id": 87,
+      "level": 52,
+      "moves": [
+        "icebeam",
+        "surf",
+        "hail",
+        "safeguard"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 91,
+      "level": 51,
+      "moves": [
+        "spikes",
+        "protect",
+        "hail",
+        "dive"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 80,
+      "level": 52,
+      "moves": [
+        "icebeam",
+        "surf",
+        "amnesia",
+        "yawn"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 124,
+      "level": 54,
+      "moves": [
+        "icepunch",
+        "doubleslap",
+        "lovelykiss",
+        "attract"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 131,
+      "level": 54,
+      "moves": [
+        "confuseray",
+        "icebeam",
+        "surf",
+        "bodyslam"
+      ],
+      "item": "sitrusberry"
+    }
+  ],
+  "ELITE_FOUR_BRUNO": [
+    {
+      "id": 95,
+      "level": 51,
+      "moves": [
+        "earthquake",
+        "rocktomb",
+        "irontail",
+        "roar"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 107,
+      "level": 53,
+      "moves": [
+        "skyuppercut",
+        "machpunch",
+        "rocktomb",
+        "counter"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 106,
+      "level": 53,
+      "moves": [
+        "megakick",
+        "foresight",
+        "brickbreak",
+        "facade"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 95,
+      "level": 54,
+      "moves": [
+        "doubleedge",
+        "earthquake",
+        "irontail",
+        "sandtomb"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 68,
+      "level": 56,
+      "moves": [
+        "crosschop",
+        "bulkup",
+        "scaryface",
+        "rocktomb"
+      ],
+      "item": "sitrusberry"
+    }
+  ],
+  "ELITE_FOUR_AGATHA": [
+    {
+      "id": 94,
+      "level": 54,
+      "moves": [
+        "shadowpunch",
+        "confuseray",
+        "toxic",
+        "doubleteam"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 42,
+      "level": 54,
+      "moves": [
+        "confuseray",
+        "poisonfang",
+        "aircutter",
+        "bite"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 93,
+      "level": 53,
+      "moves": [
+        "hypnosis",
+        "dreameater",
+        "curse",
+        "meanlook"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 24,
+      "level": 56,
+      "moves": [
+        "sludgebomb",
+        "screech",
+        "irontail",
+        "bite"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 94,
+      "level": 58,
+      "moves": [
+        "shadowball",
+        "sludgebomb",
+        "hypnosis",
+        "nightmare"
+      ],
+      "item": "sitrusberry"
+    }
+  ],
+  "ELITE_FOUR_LANCE": [
+    {
+      "id": 130,
+      "level": 56,
+      "moves": [
+        "hyperbeam",
+        "dragonrage",
+        "twister",
+        "bite"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 148,
+      "level": 54,
+      "moves": [
+        "hyperbeam",
+        "safeguard",
+        "dragonrage",
+        "outrage"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 148,
+      "level": 54,
+      "moves": [
+        "hyperbeam",
+        "safeguard",
+        "thunderwave",
+        "outrage"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 142,
+      "level": 58,
+      "moves": [
+        "hyperbeam",
+        "ancientpower",
+        "wingattack",
+        "scaryface"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 149,
+      "level": 60,
+      "moves": [
+        "hyperbeam",
+        "safeguard",
+        "outrage",
+        "wingattack"
+      ],
+      "item": "sitrusberry"
+    }
+  ],
+  "CHAMPION_FIRST_SQUIRTLE": [
+    {
+      "id": 18,
+      "level": 59,
+      "moves": [
+        "aerialace",
+        "featherdance",
+        "sandattack",
+        "whirlwind"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 65,
+      "level": 57,
+      "moves": [
+        "psychic",
+        "futuresight",
+        "recover",
+        "reflect"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 112,
+      "level": 59,
+      "moves": [
+        "takedown",
+        "earthquake",
+        "rocktomb",
+        "scaryface"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 59,
+      "level": 59,
+      "moves": [
+        "extremespeed",
+        "flamethrower",
+        "roar",
+        "bite"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 103,
+      "level": 61,
+      "moves": [
+        "gigadrain",
+        "eggbomb",
+        "sleeppowder",
+        "lightscreen"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 9,
+      "level": 63,
+      "moves": [
+        "hydropump",
+        "raindance",
+        "skullbash",
+        "bite"
+      ],
+      "item": "sitrusberry"
+    }
+  ],
+  "CHAMPION_FIRST_BULBASAUR": [
+    {
+      "id": 18,
+      "level": 59,
+      "moves": [
+        "aerialace",
+        "featherdance",
+        "sandattack",
+        "whirlwind"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 65,
+      "level": 57,
+      "moves": [
+        "psychic",
+        "futuresight",
+        "recover",
+        "reflect"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 112,
+      "level": 59,
+      "moves": [
+        "takedown",
+        "earthquake",
+        "rocktomb",
+        "scaryface"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 130,
+      "level": 59,
+      "moves": [
+        "hydropump",
+        "dragonrage",
+        "bite",
+        "thrash"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 59,
+      "level": 61,
+      "moves": [
+        "extremespeed",
+        "flamethrower",
+        "roar",
+        "bite"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 3,
+      "level": 63,
+      "moves": [
+        "solarbeam",
+        "synthesis",
+        "sunnyday",
+        "growth"
+      ],
+      "item": "sitrusberry"
+    }
+  ],
+  "CHAMPION_FIRST_CHARMANDER": [
+    {
+      "id": 18,
+      "level": 59,
+      "moves": [
+        "aerialace",
+        "featherdance",
+        "sandattack",
+        "whirlwind"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 65,
+      "level": 57,
+      "moves": [
+        "psychic",
+        "futuresight",
+        "recover",
+        "reflect"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 112,
+      "level": 59,
+      "moves": [
+        "takedown",
+        "earthquake",
+        "rocktomb",
+        "scaryface"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 103,
+      "level": 59,
+      "moves": [
+        "gigadrain",
+        "eggbomb",
+        "sleeppowder",
+        "lightscreen"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 130,
+      "level": 61,
+      "moves": [
+        "hydropump",
+        "dragonrage",
+        "bite",
+        "thrash"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 6,
+      "level": 63,
+      "moves": [
+        "fireblast",
+        "aerialace",
+        "slash",
+        "firespin"
+      ],
+      "item": "sitrusberry"
+    }
+  ],
+  "ELITE_FOUR_LORELEI_2": [
+    {
+      "id": 87,
+      "level": 64,
+      "moves": [
+        "icebeam",
+        "surf",
+        "signalbeam",
+        "doubleteam"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 91,
+      "level": 63,
+      "moves": [
+        "icebeam",
+        "surf",
+        "supersonic",
+        "raindance"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 221,
+      "level": 63,
+      "moves": [
+        "blizzard",
+        "earthquake",
+        "doubleedge",
+        "rockslide"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 124,
+      "level": 66,
+      "moves": [
+        "icebeam",
+        "psychic",
+        "lovelykiss",
+        "attract"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 131,
+      "level": 66,
+      "moves": [
+        "icebeam",
+        "surf",
+        "psychic",
+        "thunder"
+      ],
+      "item": "cheriberry"
+    }
+  ],
+  "ELITE_FOUR_BRUNO_2": [
+    {
+      "id": 208,
+      "level": 65,
+      "moves": [
+        "earthquake",
+        "irontail",
+        "crunch",
+        "rocktomb"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 107,
+      "level": 65,
+      "moves": [
+        "skyuppercut",
+        "machpunch",
+        "rockslide",
+        "counter"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 106,
+      "level": 65,
+      "moves": [
+        "megakick",
+        "foresight",
+        "earthquake",
+        "rockslide"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 208,
+      "level": 66,
+      "moves": [
+        "earthquake",
+        "irontail",
+        "crunch",
+        "dragonbreath"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 68,
+      "level": 68,
+      "moves": [
+        "crosschop",
+        "earthquake",
+        "brickbreak",
+        "rockslide"
+      ],
+      "item": "persimberry"
+    }
+  ],
+  "ELITE_FOUR_AGATHA_2": [
+    {
+      "id": 94,
+      "level": 66,
+      "moves": [
+        "shadowball",
+        "psychic",
+        "confuseray",
+        "hypnosis"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 169,
+      "level": 66,
+      "moves": [
+        "sludgebomb",
+        "aircutter",
+        "shadowball",
+        "confuseray"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 200,
+      "level": 65,
+      "moves": [
+        "shadowball",
+        "psychic",
+        "thunderbolt",
+        "attract"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 24,
+      "level": 68,
+      "moves": [
+        "sludgebomb",
+        "earthquake",
+        "gigadrain",
+        "doubleteam"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 94,
+      "level": 70,
+      "moves": [
+        "shadowball",
+        "psychic",
+        "thunderbolt",
+        "sludgebomb"
+      ],
+      "item": "chestoberry"
+    }
+  ],
+  "ELITE_FOUR_LANCE_2": [
+    {
+      "id": 130,
+      "level": 68,
+      "moves": [
+        "hyperbeam",
+        "dragondance",
+        "earthquake",
+        "thunderwave"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 149,
+      "level": 66,
+      "moves": [
+        "hyperbeam",
+        "earthquake",
+        "dragonclaw",
+        "flamethrower"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 230,
+      "level": 66,
+      "moves": [
+        "hyperbeam",
+        "dragondance",
+        "surf",
+        "icebeam"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 142,
+      "level": 70,
+      "moves": [
+        "hyperbeam",
+        "ancientpower",
+        "aerialace",
+        "earthquake"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 149,
+      "level": 72,
+      "moves": [
+        "hyperbeam",
+        "outrage",
+        "thunderbolt",
+        "icebeam"
+      ],
+      "item": "persimberry"
+    }
+  ],
+  "CHAMPION_REMATCH_SQUIRTLE": [
+    {
+      "id": 214,
+      "level": 72,
+      "moves": [
+        "megahorn",
+        "earthquake",
+        "counter",
+        "rocktomb"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 65,
+      "level": 73,
+      "moves": [
+        "psychic",
+        "shadowball",
+        "calmmind",
+        "reflect"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 248,
+      "level": 72,
+      "moves": [
+        "crunch",
+        "earthquake",
+        "thunderbolt",
+        "aerialace"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 59,
+      "level": 73,
+      "moves": [
+        "extremespeed",
+        "overheat",
+        "aerialace",
+        "irontail"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 103,
+      "level": 73,
+      "moves": [
+        "gigadrain",
+        "psychic",
+        "sleeppowder",
+        "lightscreen"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 9,
+      "level": 75,
+      "moves": [
+        "hydropump",
+        "icebeam",
+        "earthquake",
+        "raindance"
+      ],
+      "item": "sitrusberry"
+    }
+  ],
+  "CHAMPION_REMATCH_BULBASAUR": [
+    {
+      "id": 214,
+      "level": 72,
+      "moves": [
+        "megahorn",
+        "earthquake",
+        "counter",
+        "rocktomb"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 65,
+      "level": 73,
+      "moves": [
+        "psychic",
+        "shadowball",
+        "calmmind",
+        "reflect"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 248,
+      "level": 72,
+      "moves": [
+        "crunch",
+        "earthquake",
+        "thunderbolt",
+        "aerialace"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 130,
+      "level": 73,
+      "moves": [
+        "hydropump",
+        "dragondance",
+        "earthquake",
+        "hyperbeam"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 59,
+      "level": 73,
+      "moves": [
+        "extremespeed",
+        "overheat",
+        "aerialace",
+        "irontail"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 3,
+      "level": 75,
+      "moves": [
+        "solarbeam",
+        "sludgebomb",
+        "earthquake",
+        "sunnyday"
+      ],
+      "item": "sitrusberry"
+    }
+  ],
+  "CHAMPION_REMATCH_CHARMANDER": [
+    {
+      "id": 214,
+      "level": 72,
+      "moves": [
+        "megahorn",
+        "earthquake",
+        "counter",
+        "rocktomb"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 65,
+      "level": 73,
+      "moves": [
+        "psychic",
+        "shadowball",
+        "calmmind",
+        "reflect"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 248,
+      "level": 72,
+      "moves": [
+        "crunch",
+        "earthquake",
+        "thunderbolt",
+        "aerialace"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 103,
+      "level": 73,
+      "moves": [
+        "gigadrain",
+        "psychic",
+        "sleeppowder",
+        "lightscreen"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 130,
+      "level": 73,
+      "moves": [
+        "hydropump",
+        "dragondance",
+        "earthquake",
+        "hyperbeam"
+      ],
+      "item": "none"
+    },
+    {
+      "id": 6,
+      "level": 75,
+      "moves": [
+        "fireblast",
+        "dragonclaw",
+        "aerialace",
+        "earthquake"
+      ],
+      "item": "sitrusberry"
+    }
+  ]
+}

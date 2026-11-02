@@ -19,6 +19,8 @@ var collection=preload("res://pokemon_collection.gd").new()
 var extras=preload("res://adventure_items.gd").new()
 var sevii=preload("res://adventure_sevii.gd").new()
 var progression=preload("res://adventure_progression.gd").new()
+var postgame=preload("res://adventure_postgame.gd").new()
+var evolution_rules=preload("res://adventure_evolutions.gd").new()
 var services=preload("res://adventure_services.gd").new()
 var field=preload("res://adventure_field.gd").new()
 var avatar=preload("res://adventure_avatar.gd").new()
@@ -66,6 +68,8 @@ func install(context):
 	services.a = self
 	sevii.a = self
 	progression.a = self
+	postgame.a = self
+	evolution_rules.a=self
 	avatar.a = self
 	world.install(self)
 	inventory.install(self)
@@ -125,7 +129,7 @@ func valid(value) -> bool:
 	if not Finale.valid(value): return false
 	for member in value.get("hall_of_fame",[]):
 		if not c.roster.any(func(mon):return int(mon.id)==int(member.id)): return false
-	return expansion.valid(value) and collection.valid(value) and inventory.valid(value) and extras.valid(value) and Story.valid(value) and services.valid(value)
+	return postgame.valid(value) and expansion.valid(value) and collection.valid(value) and inventory.valid(value) and extras.valid(value) and Story.valid(value) and services.valid(value)
 
 func load_save():
 	loaded = true
@@ -455,6 +459,7 @@ func battle_mon(id: int, level: int, individual: Dictionary={}) -> Dictionary:
 	mon.hp = roundf(mon.hp*scale)
 	for key in mon.base_stats: mon.base_stats[key] = roundf((mon.base_stats[key]+float(values[key])/2.0+floorf(float(individual.get("training",{}).get(key,0))/4.0))*scale)
 	mon.hp += roundf((float(values.hp)/2.0+floorf(float(individual.get("training",{}).get("hp",0))/4.0))*scale)
+	if id==292: mon.hp=1
 	mon.moves = inventory.definitions(inventory.starting(id,level))
 	mon["level"] = level
 	mon["nature"]=individual.get("nature", "Hardy" if not individual.is_empty() else collection.NAMES[c.ivs.random.randi_range(0,24)])
@@ -563,13 +568,14 @@ func flee():
 	clear_ui()
 	return_world(false,true)
 
-func return_world(caught: bool = false, escaped: bool = false):
+func return_world(caught: bool = false, escaped: bool = false, roamer_escaped: bool = false):
 	if not in_battle: return
-	if escaped and not can_flee(): return
+	if escaped and not (roamer_escaped and postgame.pending) and not can_flee(): return
 	if not caught and not escaped and (not c.resolution_ready() or c.can_continue_team()): return
 	if not caught and not escaped: record_knockout()
 	sync_health()
 	var win = c.result == "VICTORY"
+	postgame.result(caught,win and not escaped)
 	var message = ""
 	var new_entry={}
 	var blackout_loss=-1
@@ -1096,11 +1102,10 @@ func grant_xp(amount: int) -> String:
 			mon.level += 1
 			mon.hp = minf(1,mon.hp+0.2)
 			message += mon_name(mon.id)+" reached Lv."+str(mon.level)+"! "
-			if mon.get("held_item","")!="everstone" and EVOLUTIONS.has(int(mon.id)) and mon.level >= EVOLUTIONS[int(mon.id)][0]:
-				evolutions.append([int(mon.id),int(EVOLUTIONS[int(mon.id)][1]),mon.get("shiny",false)])
-				collection.register(mon)
-				mon.id = EVOLUTIONS[int(mon.id)][1]
-				c.abilities.assign(mon)
+			mon.friendship=mini(255,int(mon.get("friendship",70))+3)
+			var target=evolution_rules.level_target(mon)
+			if target>0:
+				evolution_rules.evolve(mon,target)
 				message += "Evolved into "+mon_name(mon.id)+"! "
 			var known_before = mon.moves.duplicate()
 			var pending_before = mon.pending.duplicate()
@@ -1349,7 +1354,7 @@ func menu():
 	panel_bg.add_theme_stylebox_override("panel",style); ui.add_child(panel_bg)
 	ui_label("ADVENTURE",Vector2(950,130),25)
 	ui.get_child(ui.get_child_count()-1).add_theme_color_override("font_color",Color("354e58"))
-	var entries=[["POKEDEX",collection.dex],["POKEMON",party_menu],["BAG",inventory.bag],["TRAINER / JOURNAL",expansion.journal],["SAVE",func():save();clear_ui()],["OPTIONS",adventure_options],["SAVE SLOTS / RESET",management_menu],["EXIT MENU",clear_ui]]
+	var entries=[["POKEDEX",collection.dex],["POKEMON",party_menu],["BAG",inventory.bag],["TRAINER / JOURNAL",expansion.journal],["SAVE",func():save();clear_ui()],["OPTIONS",adventure_options],["SAVE SLOTS / RESET",management_menu],["SAVE & MAIN MENU",leave]]
 	for i in entries.size(): ui_button(entries[i][0],Vector2(925,180+i*67),Vector2(290,52),entries[i][1])
 
 func adventure_options():

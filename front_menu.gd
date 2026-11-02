@@ -76,7 +76,7 @@ func show_modes():
 	background()
 	label("CHOOSE YOUR MODE",Vector2(330,115),46,Color("f9d86b"))
 	var names = ["Adventure","Gym Leaders","Free Battles"]
-	var descriptions = ["Explore Kanto, catch Pokemon,\ngain XP and earn badges.\nYour adventure autosaves.","Daily random team, Lv.100.\nEight gyms, Elite Four and Blue.\nFixed full opponent teams.","Choose Pokemon and trainers,\ncustomize teams and arenas.\nPractice without progression."]
+	var descriptions = ["Explore Kanto, catch Pokemon,\ngain XP and earn badges.\nYour adventure autosaves.","Daily random team, Lv.50.\nEight gyms, Elite Four and Blue.\nFixed full opponent teams.","Choose Pokemon and trainers,\ncustomize teams and arenas.\nPractice without progression."]
 	for i in range(3):
 		var x = 65+i*390
 		var card = ColorRect.new()
@@ -102,7 +102,7 @@ func show_instructions():
 	label("HOW TO PLAY",Vector2(430,65),42,Color("f9d86b"))
 	var sections=[
 		["ADVENTURE", "Walk through doors automatically. Trainers spot you and approach to battle.\nPress the encounter key (E) in grass, water or caves to seek wild Pokemon.\nChoose a starter, earn eight badges and become Champion. Your journey autosaves."],
-		["GYM LEADERS", "Daily challenge: your random six change at 00:00 UTC. Everyone is Lv.100.\nLeaders, Elite Four and Blue keep fixed full teams. Customize your moves.\nDaily progress saves separately from Adventure."],
+		["GYM LEADERS", "Daily challenge: your random six change at 00:00 UTC. Lv.50; locked nature and ability; no held items.\nLeaders, Elite Four and Blue keep fixed full teams. Customize your moves.\nDaily progress saves separately from Adventure."],
 		["FREE BATTLES", "Choose Pokemon, moves, opponents and arenas for practice matches.\nExperiment with team combinations without changing Adventure progress."],
 		["REAL-TIME COMBAT", "Aim with the mouse. Use four moves, sprint and switch Pokemon.\nMoves have energy costs and cooldowns: normally 1 second between attacks.\nAfter casting, walking/sprint pauses for 0.4 seconds. Sprint gives no invulnerability.\nHoming attacks can chase for 3 seconds: sprint sideways to evade them."],
 		["CONTROLS", "Settings changes keyboard/mouse bindings; Controller shows gamepad controls.\nGamepad: left stick moves, right stick aims, A/B/X/Y cast four battle moves.\nMenus use a stick-controlled pointer: A clicks, B goes back, Y opens text entry."]

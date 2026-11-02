@@ -30,10 +30,13 @@ func team(day: String) -> Array:
 
 func member(c, id: int, individual: Dictionary={}) -> Dictionary:
 	var base={"ivs":c.ivs.uniform(31),"nature":"Hardy","ability_slot":0,"shiny":false,"gender":"N"}
-	base.merge(individual,true)
-	var result=c.adventure.battle_mon(id,100,base)
+	# Challenge rules override saved Free Battle loadouts on both sides.
+	var result=c.adventure.battle_mon(id,50,base)
 	result.moves=c.roster[c.Dex.find_id(c.roster,id)].moves.duplicate(true)
 	return result
+
+func locked(c) -> bool:
+	return c.campaign.active and c.campaign.daily_enabled
 
 func opponent(c, stage: int) -> Array:
 	return TEAMS[stage].map(func(id):return member(c,id))

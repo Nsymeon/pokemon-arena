@@ -509,18 +509,778 @@
   "152": [
     "Overgrow"
   ],
+  "153": [
+    "Overgrow"
+  ],
+  "154": [
+    "Overgrow"
+  ],
+  "155": [
+    "Blaze"
+  ],
+  "156": [
+    "Blaze"
+  ],
+  "157": [
+    "Blaze"
+  ],
+  "158": [
+    "Torrent"
+  ],
+  "159": [
+    "Torrent"
+  ],
+  "160": [
+    "Torrent"
+  ],
+  "161": [
+    "Run Away",
+    "Keen Eye"
+  ],
+  "162": [
+    "Run Away",
+    "Keen Eye"
+  ],
+  "163": [
+    "Insomnia",
+    "Keen Eye"
+  ],
+  "164": [
+    "Insomnia",
+    "Keen Eye"
+  ],
+  "165": [
+    "Swarm",
+    "Early Bird"
+  ],
+  "166": [
+    "Swarm",
+    "Early Bird"
+  ],
+  "167": [
+    "Swarm",
+    "Insomnia"
+  ],
+  "168": [
+    "Swarm",
+    "Insomnia"
+  ],
+  "169": [
+    "Inner Focus"
+  ],
+  "170": [
+    "Volt Absorb",
+    "Illuminate"
+  ],
+  "171": [
+    "Volt Absorb",
+    "Illuminate"
+  ],
+  "172": [
+    "Static"
+  ],
+  "173": [
+    "Cute Charm"
+  ],
+  "174": [
+    "Cute Charm"
+  ],
+  "175": [
+    "Hustle",
+    "Serene Grace"
+  ],
+  "176": [
+    "Hustle",
+    "Serene Grace"
+  ],
+  "177": [
+    "Synchronize",
+    "Early Bird"
+  ],
+  "178": [
+    "Synchronize",
+    "Early Bird"
+  ],
+  "179": [
+    "Static"
+  ],
+  "180": [
+    "Static"
+  ],
+  "181": [
+    "Static"
+  ],
+  "182": [
+    "Chlorophyll"
+  ],
+  "183": [
+    "Thick Fat",
+    "Huge Power"
+  ],
+  "184": [
+    "Thick Fat",
+    "Huge Power"
+  ],
   "185": [
     "Sturdy",
     "Rock Head"
   ],
+  "186": [
+    "Water Absorb",
+    "Damp"
+  ],
+  "187": [
+    "Chlorophyll"
+  ],
+  "188": [
+    "Chlorophyll"
+  ],
+  "189": [
+    "Chlorophyll"
+  ],
+  "190": [
+    "Run Away",
+    "Pickup"
+  ],
+  "191": [
+    "Chlorophyll"
+  ],
+  "192": [
+    "Chlorophyll"
+  ],
+  "193": [
+    "Speed Boost",
+    "Compound Eyes"
+  ],
+  "194": [
+    "Damp",
+    "Water Absorb"
+  ],
+  "195": [
+    "Damp",
+    "Water Absorb"
+  ],
+  "196": [
+    "Synchronize"
+  ],
   "197": [
     "Synchronize"
+  ],
+  "198": [
+    "Insomnia"
+  ],
+  "199": [
+    "Oblivious",
+    "Own Tempo"
+  ],
+  "200": [
+    "Levitate"
+  ],
+  "201": [
+    "Levitate"
+  ],
+  "202": [
+    "Shadow Tag"
+  ],
+  "203": [
+    "Inner Focus",
+    "Early Bird"
+  ],
+  "204": [
+    "Sturdy"
+  ],
+  "205": [
+    "Sturdy"
+  ],
+  "206": [
+    "Serene Grace",
+    "Run Away"
+  ],
+  "207": [
+    "Hyper Cutter",
+    "Sand Veil"
+  ],
+  "208": [
+    "Rock Head",
+    "Sturdy"
+  ],
+  "209": [
+    "Intimidate",
+    "Run Away"
+  ],
+  "210": [
+    "Intimidate"
+  ],
+  "211": [
+    "Poison Point",
+    "Swift Swim"
+  ],
+  "212": [
+    "Swarm"
+  ],
+  "213": [
+    "Sturdy"
+  ],
+  "214": [
+    "Swarm",
+    "Guts"
+  ],
+  "215": [
+    "Inner Focus",
+    "Keen Eye"
+  ],
+  "216": [
+    "Pickup"
+  ],
+  "217": [
+    "Guts"
+  ],
+  "218": [
+    "Magma Armor",
+    "Flame Body"
+  ],
+  "219": [
+    "Magma Armor",
+    "Flame Body"
+  ],
+  "220": [
+    "Oblivious"
+  ],
+  "221": [
+    "Oblivious"
+  ],
+  "222": [
+    "Hustle",
+    "Natural Cure"
+  ],
+  "223": [
+    "Hustle"
+  ],
+  "224": [
+    "Suction Cups"
+  ],
+  "225": [
+    "Vital Spirit",
+    "Hustle"
+  ],
+  "226": [
+    "Swift Swim",
+    "Water Absorb"
+  ],
+  "227": [
+    "Keen Eye",
+    "Sturdy"
+  ],
+  "228": [
+    "Early Bird",
+    "Flash Fire"
+  ],
+  "229": [
+    "Early Bird",
+    "Flash Fire"
+  ],
+  "230": [
+    "Swift Swim"
+  ],
+  "231": [
+    "Pickup"
+  ],
+  "232": [
+    "Sturdy"
+  ],
+  "233": [
+    "Trace"
+  ],
+  "234": [
+    "Intimidate"
+  ],
+  "235": [
+    "Own Tempo"
+  ],
+  "236": [
+    "Guts"
+  ],
+  "237": [
+    "Intimidate"
+  ],
+  "238": [
+    "Oblivious"
+  ],
+  "239": [
+    "Static"
+  ],
+  "240": [
+    "Flame Body"
+  ],
+  "241": [
+    "Thick Fat"
+  ],
+  "242": [
+    "Natural Cure",
+    "Serene Grace"
+  ],
+  "243": [
+    "Pressure"
+  ],
+  "244": [
+    "Pressure"
+  ],
+  "245": [
+    "Pressure"
+  ],
+  "246": [
+    "Guts"
+  ],
+  "247": [
+    "Shed Skin"
+  ],
+  "248": [
+    "Sand Stream"
+  ],
+  "249": [
+    "Pressure"
+  ],
+  "250": [
+    "Pressure"
+  ],
+  "251": [
+    "Natural Cure"
+  ],
+  "252": [
+    "Overgrow"
+  ],
+  "253": [
+    "Overgrow"
+  ],
+  "254": [
+    "Overgrow"
+  ],
+  "255": [
+    "Blaze"
+  ],
+  "256": [
+    "Blaze"
+  ],
+  "257": [
+    "Blaze"
+  ],
+  "258": [
+    "Torrent"
+  ],
+  "259": [
+    "Torrent"
+  ],
+  "260": [
+    "Torrent"
+  ],
+  "261": [
+    "Run Away"
+  ],
+  "262": [
+    "Intimidate"
+  ],
+  "263": [
+    "Pickup"
+  ],
+  "264": [
+    "Pickup"
+  ],
+  "265": [
+    "Shield Dust"
+  ],
+  "266": [
+    "Shed Skin"
+  ],
+  "267": [
+    "Swarm"
+  ],
+  "268": [
+    "Shed Skin"
+  ],
+  "269": [
+    "Shield Dust"
+  ],
+  "270": [
+    "Swift Swim",
+    "Rain Dish"
+  ],
+  "271": [
+    "Swift Swim",
+    "Rain Dish"
+  ],
+  "272": [
+    "Swift Swim",
+    "Rain Dish"
+  ],
+  "273": [
+    "Chlorophyll",
+    "Early Bird"
+  ],
+  "274": [
+    "Chlorophyll",
+    "Early Bird"
+  ],
+  "275": [
+    "Chlorophyll",
+    "Early Bird"
+  ],
+  "276": [
+    "Guts"
+  ],
+  "277": [
+    "Guts"
+  ],
+  "278": [
+    "Keen Eye"
+  ],
+  "279": [
+    "Keen Eye"
+  ],
+  "280": [
+    "Synchronize",
+    "Trace"
+  ],
+  "281": [
+    "Synchronize",
+    "Trace"
+  ],
+  "282": [
+    "Synchronize",
+    "Trace"
+  ],
+  "283": [
+    "Swift Swim"
+  ],
+  "284": [
+    "Intimidate"
+  ],
+  "285": [
+    "Effect Spore"
+  ],
+  "286": [
+    "Effect Spore"
+  ],
+  "287": [
+    "Truant"
+  ],
+  "288": [
+    "Vital Spirit"
+  ],
+  "289": [
+    "Truant"
+  ],
+  "290": [
+    "Compound Eyes"
+  ],
+  "291": [
+    "Speed Boost"
+  ],
+  "292": [
+    "Wonder Guard"
+  ],
+  "293": [
+    "Soundproof"
+  ],
+  "294": [
+    "Soundproof"
+  ],
+  "295": [
+    "Soundproof"
+  ],
+  "296": [
+    "Thick Fat",
+    "Guts"
+  ],
+  "297": [
+    "Thick Fat",
+    "Guts"
+  ],
+  "298": [
+    "Thick Fat",
+    "Huge Power"
+  ],
+  "299": [
+    "Sturdy",
+    "Magnet Pull"
+  ],
+  "300": [
+    "Cute Charm"
+  ],
+  "301": [
+    "Cute Charm"
+  ],
+  "302": [
+    "Keen Eye"
+  ],
+  "303": [
+    "Hyper Cutter",
+    "Intimidate"
+  ],
+  "304": [
+    "Sturdy",
+    "Rock Head"
+  ],
+  "305": [
+    "Sturdy",
+    "Rock Head"
+  ],
+  "306": [
+    "Sturdy",
+    "Rock Head"
+  ],
+  "307": [
+    "Pure Power"
+  ],
+  "308": [
+    "Pure Power"
+  ],
+  "309": [
+    "Static",
+    "Lightning Rod"
+  ],
+  "310": [
+    "Static",
+    "Lightning Rod"
+  ],
+  "311": [
+    "Plus"
+  ],
+  "312": [
+    "Minus"
+  ],
+  "313": [
+    "Illuminate",
+    "Swarm"
+  ],
+  "314": [
+    "Oblivious"
+  ],
+  "315": [
+    "Natural Cure",
+    "Poison Point"
+  ],
+  "316": [
+    "Liquid Ooze",
+    "Sticky Hold"
+  ],
+  "317": [
+    "Liquid Ooze",
+    "Sticky Hold"
+  ],
+  "318": [
+    "Rough Skin"
+  ],
+  "319": [
+    "Rough Skin"
+  ],
+  "320": [
+    "Water Veil",
+    "Oblivious"
+  ],
+  "321": [
+    "Water Veil",
+    "Oblivious"
+  ],
+  "322": [
+    "Oblivious"
+  ],
+  "323": [
+    "Magma Armor"
+  ],
+  "324": [
+    "White Smoke"
+  ],
+  "325": [
+    "Thick Fat",
+    "Own Tempo"
+  ],
+  "326": [
+    "Thick Fat",
+    "Own Tempo"
+  ],
+  "327": [
+    "Own Tempo"
+  ],
+  "328": [
+    "Hyper Cutter",
+    "Arena Trap"
+  ],
+  "329": [
+    "Levitate"
+  ],
+  "330": [
+    "Levitate"
+  ],
+  "331": [
+    "Sand Veil"
+  ],
+  "332": [
+    "Sand Veil"
+  ],
+  "333": [
+    "Natural Cure"
+  ],
+  "334": [
+    "Natural Cure"
+  ],
+  "335": [
+    "Immunity"
+  ],
+  "336": [
+    "Shed Skin"
+  ],
+  "337": [
+    "Levitate"
+  ],
+  "338": [
+    "Levitate"
+  ],
+  "339": [
+    "Oblivious"
+  ],
+  "340": [
+    "Oblivious"
+  ],
+  "341": [
+    "Hyper Cutter",
+    "Shell Armor"
+  ],
+  "342": [
+    "Hyper Cutter",
+    "Shell Armor"
+  ],
+  "343": [
+    "Levitate"
+  ],
+  "344": [
+    "Levitate"
+  ],
+  "345": [
+    "Suction Cups"
+  ],
+  "346": [
+    "Suction Cups"
+  ],
+  "347": [
+    "Battle Armor"
+  ],
+  "348": [
+    "Battle Armor"
+  ],
+  "349": [
+    "Swift Swim"
+  ],
+  "350": [
+    "Marvel Scale"
+  ],
+  "351": [
+    "Forecast"
+  ],
+  "352": [
+    "Color Change"
+  ],
+  "353": [
+    "Insomnia"
+  ],
+  "354": [
+    "Insomnia"
   ],
   "355": [
     "Levitate"
   ],
+  "356": [
+    "Pressure"
+  ],
+  "357": [
+    "Chlorophyll"
+  ],
+  "358": [
+    "Levitate"
+  ],
+  "359": [
+    "Pressure"
+  ],
+  "360": [
+    "Shadow Tag"
+  ],
   "361": [
     "Inner Focus"
+  ],
+  "362": [
+    "Inner Focus"
+  ],
+  "363": [
+    "Thick Fat"
+  ],
+  "364": [
+    "Thick Fat"
+  ],
+  "365": [
+    "Thick Fat"
+  ],
+  "366": [
+    "Shell Armor"
+  ],
+  "367": [
+    "Swift Swim"
+  ],
+  "368": [
+    "Swift Swim"
+  ],
+  "369": [
+    "Swift Swim",
+    "Rock Head"
+  ],
+  "370": [
+    "Swift Swim"
+  ],
+  "371": [
+    "Rock Head"
+  ],
+  "372": [
+    "Rock Head"
+  ],
+  "373": [
+    "Intimidate"
+  ],
+  "374": [
+    "Clear Body"
+  ],
+  "375": [
+    "Clear Body"
+  ],
+  "376": [
+    "Clear Body"
+  ],
+  "377": [
+    "Clear Body"
+  ],
+  "378": [
+    "Clear Body"
+  ],
+  "379": [
+    "Clear Body"
+  ],
+  "380": [
+    "Levitate"
+  ],
+  "381": [
+    "Levitate"
+  ],
+  "382": [
+    "Drizzle"
+  ],
+  "383": [
+    "Drought"
+  ],
+  "384": [
+    "Air Lock"
+  ],
+  "385": [
+    "Serene Grace"
+  ],
+  "386": [
+    "Pressure"
   ],
   "599": [
     "Plus",

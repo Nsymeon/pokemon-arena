@@ -41,7 +41,7 @@ def block(primary,secondary,idx):
         if value&2048: tile=tile.transpose(Image.Transpose.FLIP_TOP_BOTTOM)
         result.alpha_composite(tile,((i%2)*8,((i%4)//2)*8))
     return result
-prefixes=('PalletTown','Viridian','Pewter','Cerulean','Lavender','Vermilion','Celadon','Fuchsia','Cinnabar','IndigoPlateau','PokemonLeague','Saffron','Route','MtMoon','RockTunnel','PokemonTower','RocketHideout','SilphCo','SafariZone','Seafoam','VictoryRoad','DiglettsCave','PowerPlant','PokemonMansion','UndergroundPath','SSAnne','OneIsland','TwoIsland','ThreeIsland','FourIsland','FiveIsland','SixIsland','SevenIsland','MtEmber','TrainerTower')
+prefixes=('PalletTown','Viridian','Pewter','Cerulean','Lavender','Vermilion','Celadon','Fuchsia','Cinnabar','IndigoPlateau','PokemonLeague','Saffron','Route','MtMoon','RockTunnel','PokemonTower','RocketHideout','SilphCo','SafariZone','Seafoam','VictoryRoad','DiglettsCave','PowerPlant','PokemonMansion','UndergroundPath','SSAnne','OneIsland','TwoIsland','ThreeIsland','FourIsland','FiveIsland','SixIsland','SevenIsland','MtEmber','TrainerTower','NavelRock','BirthIsland')
 maps={}
 for path in sorted((SRC/'data/maps').glob('*/map.json')):
     m=json.loads(path.read_text())

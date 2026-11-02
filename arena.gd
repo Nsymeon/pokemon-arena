@@ -443,6 +443,23 @@ func execute_move(user: Dictionary, target: Dictionary, move: Dictionary, direct
 
 func execute_move_inner(user: Dictionary, target: Dictionary, move: Dictionary, direction: Vector2, friendly: bool):
 	user["movement_lock"] = 0.4
+	if move.id=="hiddenpower":
+		move=move.duplicate(true)
+		var parity=0; var stats=["hp","atk","def","spe","spa","spd"]
+		for i in 6: parity+=(int(user.data.get("ivs",{}).get(stats[i],0))%2)*(1<<i)
+		move.type=["Fighting","Flying","Poison","Ground","Rock","Bug","Ghost","Steel","Fire","Water","Grass","Electric","Psychic","Ice","Dragon","Dark"][int(parity*15/63)]
+	if move.id=="sketch":
+		var copied=target.get("last_move",{})
+		user.action_lock=1.0
+		if copied.is_empty() or copied.get("arena_only",false) or copied.id in ["sketch","struggle"]: Conditions.note(user,"NO MOVE TO SKETCH"); return
+		for i in user.data.moves.size():
+			if user.data.moves[i].id=="sketch":
+				user.data.moves[i]=copied.duplicate(true)
+				if friendly and adventure.in_battle:
+					adventure.data.party[player_active].moves[i]=copied.id
+					adventure.save()
+				break
+		Conditions.note(user,"SKETCHED "+copied.name); return
 	move = weather.prepare(move)
 	if move.id == "mirrormove":
 		var copied: Dictionary = target.get("last_move", {})
@@ -465,6 +482,7 @@ func execute_move_inner(user: Dictionary, target: Dictionary, move: Dictionary, 
 	if move.id not in support.PROTECT: user["protect_chain"]=0
 	user["last_move"] = move.duplicate(true)
 	user.action_lock = float(move.get("action_delay", 1.0))
+	if abilities.name_of(user)=="Truant": user.action_lock+=1.0
 	if user.data.get("held_item","")=="quickclaw" and rng.randf()<0.2:
 		user.action_lock*=0.5; Conditions.note(user,"QUICK CLAW")
 	var accuracy = 1.0 if move.get("accuracy", true) is bool else float(move.accuracy) / 100.0 * Conditions.stage(user, "accuracy")
@@ -642,6 +660,9 @@ func _process(delta):
 		adventure.tick_capture(delta)
 		queue_redraw()
 		return
+	if adventure.in_battle:
+		adventure.postgame.tick(delta)
+		if adventure.exploring: return
 	if not paused and not switch_menu: clock_time += delta
 	selection_controls.visible = selecting and not campaign.layer.visible
 	if not paused and not selecting and not switch_menu:
@@ -683,7 +704,7 @@ func update_battle(dt: float):
 	for foe in foes():
 		if foe.hp>0: abilities.entry(foe,player)
 	support.tick(dt)
-	weather.suppressed=([player]+foes()).any(func(f):return f.hp>0 and abilities.name_of(f)=="Cloud Nine")
+	weather.suppressed=([player]+foes()).any(func(f):return f.hp>0 and abilities.name_of(f) in ["Cloud Nine","Air Lock"])
 	weather.tick(self, dt)
 	if player.hp <= 0 or foes().all(func(f):return f.hp<=0):
 		finish_round()
@@ -1495,7 +1516,7 @@ func setup_selection_controls():
 	region_filter = OptionButton.new()
 	region_filter.position = Vector2(455, 112)
 	region_filter.size = Vector2(150, 35)
-	for region in ["All Pokémon", "Gen 1 · #001–151", "Retained extras"]: region_filter.add_item(region)
+	for region in ["All Pokémon", "Gen 1 · #001–151", "Gen 2 / Johto", "Gen 3 / Hoenn", "Retained guests"]: region_filter.add_item(region)
 	region_filter.item_selected.connect(func(_index): page = 0)
 	selection_controls.add_child(region_filter)
 	weather_choice = OptionButton.new()
@@ -1531,7 +1552,9 @@ func filtered_roster() -> Array:
 		if query != "" and not mon.name.to_lower().contains(query) and not ("%03d" % mon.id).contains(query): continue
 		if type_filter.selected > 0 and Dex.TYPES[type_filter.selected - 1] not in mon.types: continue
 		if region_filter.selected == 1 and mon.id > 151: continue
-		if region_filter.selected == 2 and mon.id <= 151: continue
+		if region_filter.selected == 2 and (mon.id<=151 or mon.id>251): continue
+		if region_filter.selected == 3 and (mon.id<=251 or mon.id>386): continue
+		if region_filter.selected == 4 and mon.id<=386: continue
 		indices.append(i)
 	return indices
 
@@ -1644,7 +1667,7 @@ func draw_selection():
 	var preview_enemy = preview_party[mini(opponent_preview_slot,preview_party.size()-1)] if not preview_party.is_empty() else roster[enemy_index]
 	var shown_enemy_index = Dex.find_id(roster,int(preview_enemy.id))
 	label_at("POKÉMON  ARENA", Vector2(40, 43), 30)
-	label_at("LEAGUE / " + campaign.NAMES[campaign.stage] if campaign.active else "KANTO 151 + 7 EXTRAS", Vector2(500, 39), 17, MINT)
+	label_at("LEAGUE / " + campaign.NAMES[campaign.stage] if campaign.active else "NATIONAL 386 + 2 GUESTS", Vector2(500, 39), 17, MINT)
 	panel(Rect2(40, 66, 260, 32), Color("233e3b") if not select_enemy else INK, MINT if not select_enemy else Color("29424b"))
 	panel(Rect2(310, 66, 260, 32), Color("43352f") if select_enemy else INK, GOLD if select_enemy else Color("29424b"))
 	label_at("1 / YOUR POKÉMON", Vector2(55, 88), 15, MINT)
@@ -1705,8 +1728,8 @@ func selection_details(mon: Dictionary, rival: Dictionary, pos: Vector2, friendl
 		label_at(move.type.to_upper() + " / " + move_description(move, rival.types), pos + offset + Vector2(0, 17), 9, Dex.color(move.type))
 	if friendly or opponent_choice.selected==0:
 		panel(Rect2(pos+Vector2(465,155),Vector2(108,26)),Color("243c49"))
-		label_at("BUILD [EDIT]",pos+Vector2(471,173),11,GOLD)
-	label_at("ABILITY: %s%s" % [mon.get("ability",abilities.legal(mon.id)[0]),"  [choose]" if friendly or opponent_choice.selected==0 else ""], pos + Vector2(16, 173), 10, Color("91a6a7"))
+		label_at("LOCKED / Lv.50" if campaign.daily.locked(self) else "BUILD [EDIT]",pos+Vector2(471,173),11,GOLD)
+	label_at("ABILITY: %s%s" % [mon.get("ability",abilities.legal(mon.id)[0])," [locked]" if campaign.daily.locked(self) else "  [choose]" if friendly or opponent_choice.selected==0 else ""], pos + Vector2(16, 173), 10, Color("91a6a7"))
 
 func overlay(title: String, subtitle: String):
 	draw_rect(Rect2(360, 337, 560, 132), Color(0.04, 0.09, 0.12, 0.94))
@@ -1830,7 +1853,7 @@ func smoke_test():
 	adventure.tests()
 	campaign.tests(self)
 	clashes.tests(self)
-	check(roster.size() == 158, "151 Kanto plus all seven existing non-Kanto species")
+	check(roster.size() == 388, "386 National plus two retained guests")
 	var ids = []
 	for mon in roster:
 		check(mon.id not in ids, "Unique species ID")
@@ -1887,7 +1910,7 @@ func smoke_test():
 	fields.tests(self)
 	sound.stop()
 	sound.stream = null
-	if test_failures.is_empty(): print("PASS: major statuses, secondary effects, immunity, stat stages, 1s action gate, charging/recovery, 158 species, sprint, switching, team exhaustion, combat, AI and trainers")
+	if test_failures.is_empty(): print("PASS: major statuses, secondary effects, immunity, stat stages, 1s action gate, charging/recovery, 388 species, sprint, switching, team exhaustion, combat, AI and trainers")
 	else: print("FAILED: ", test_failures)
 	if "--campaign-audit" in OS.get_cmdline_user_args():
 		var report=FileAccess.open("res://captures/campaign-audit.json",FileAccess.WRITE)
@@ -1954,8 +1977,8 @@ func type_tests():
 	var matches = filtered_roster()
 	check(Dex.find_id(roster, 81) in matches and Dex.find_id(roster, 599) in matches, "Dual type filtering")
 	type_filter.select(0)
-	region_filter.select(2)
-	check(filtered_roster().size() == 7, "Retained extras filter")
+	region_filter.select(4)
+	check(filtered_roster().size() == 2, "Retained guests filter")
 	region_filter.select(1)
 	check(filtered_roster().size() == 151, "Gen 1 filter")
 	region_filter.select(0)
@@ -1965,6 +1988,7 @@ func type_tests():
 	check(player_index == 144, "Pagination selects correct species")
 	selection_click(Vector2(260, 180), MOUSE_BUTTON_RIGHT)
 	check(enemy_index == 145, "Right click selects CPU on correct page")
+	page=int(ceil(float(roster.size())/18))-1
 	change_page(1)
 	check(page == 0, "Last page wraps")
 	start_match()

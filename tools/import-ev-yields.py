@@ -17,7 +17,7 @@ extras = json.loads((root/'data/source/extra-ev-yields.json').read_text(encoding
 api_names = {'hp':'hp','attack':'atk','defense':'def','special-attack':'spa','special-defense':'spd','speed':'spe'}
 for species, stats in extras.items():
     yields[species] = {api_names[s['stat']]: s['effort'] for s in stats}
-assert len(yields)==len(roster)==158
+assert len(yields)==len(roster)==388
 assert all(len(v)==6 and 1<=sum(v.values())<=3 for v in yields.values())
 (root/'assets/kanto/ev-yields.json').write_text(json.dumps(yields, indent=2)+'\n', encoding='utf8')
 print('Exported EV yields for',len(yields),'species')

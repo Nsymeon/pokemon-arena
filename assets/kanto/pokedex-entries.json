@@ -3,7 +3,7 @@
     "category": "SEED",
     "height": 0.7,
     "weight": 6.9,
-    "text": "There is a plant seed on its back right from the day this POKéMON is born. The seed slowly grows larger.",
+    "text": "There is a plant seed on its back right from the day this POK\u00e9MON is born. The seed slowly grows larger.",
     "source": "Pokemon FireRed"
   },
   "2": {
@@ -38,7 +38,7 @@
     "category": "FLAME",
     "height": 1.7,
     "weight": 90.5,
-    "text": "Its wings can carry this POKéMON close to an altitude of 4,600 feet. It blows out fire at very high temperatures.",
+    "text": "Its wings can carry this POK\u00e9MON close to an altitude of 4,600 feet. It blows out fire at very high temperatures.",
     "source": "Pokemon FireRed"
   },
   "7": {
@@ -52,7 +52,7 @@
     "category": "TURTLE",
     "height": 1.0,
     "weight": 22.5,
-    "text": "This POKéMON is very popular as a pet. Its fur-covered tail is a symbol of its longevity.",
+    "text": "This POK\u00e9MON is very popular as a pet. Its fur-covered tail is a symbol of its longevity.",
     "source": "Pokemon FireRed"
   },
   "9": {
@@ -80,7 +80,7 @@
     "category": "BUTTERFLY",
     "height": 1.1,
     "weight": 32.0,
-    "text": "The wings are protected by rain-repellent dust. As a result, this POKéMON can fly about even in rain.",
+    "text": "The wings are protected by rain-repellent dust. As a result, this POK\u00e9MON can fly about even in rain.",
     "source": "Pokemon FireRed"
   },
   "13": {
@@ -94,7 +94,7 @@
     "category": "COCOON",
     "height": 0.6,
     "weight": 10.0,
-    "text": "This POKéMON is in a temporary stage while making its body. It is almost completely unable to move on its own.",
+    "text": "This POK\u00e9MON is in a temporary stage while making its body. It is almost completely unable to move on its own.",
     "source": "Pokemon FireRed"
   },
   "15": {
@@ -297,7 +297,7 @@
     "category": "WEED",
     "height": 0.5,
     "weight": 5.4,
-    "text": "Its scientific name is “Oddium Wanderus.” At night, it is said to walk nearly 1,000 feet on its two roots.",
+    "text": "Its scientific name is \u201cOddium Wanderus.\u201d At night, it is said to walk nearly 1,000 feet on its two roots.",
     "source": "Pokemon FireRed"
   },
   "44": {
@@ -409,7 +409,7 @@
     "category": "LEGENDARY",
     "height": 1.9,
     "weight": 155.0,
-    "text": "A POKéMON that is described in Chinese legends. It is said to race at an unbelievable speed.",
+    "text": "A POK\u00e9MON that is described in Chinese legends. It is said to race at an unbelievable speed.",
     "source": "Pokemon FireRed"
   },
   "60": {
@@ -584,7 +584,7 @@
     "category": "TWIN BIRD",
     "height": 1.4,
     "weight": 39.2,
-    "text": "A two-headed POKéMON that was discovered as a sudden mutation. It runs at a pace of over 60 miles per hour.",
+    "text": "A two-headed POK\u00e9MON that was discovered as a sudden mutation. It runs at a pace of over 60 miles per hour.",
     "source": "Pokemon FireRed"
   },
   "85": {
@@ -703,7 +703,7 @@
     "category": "BALL",
     "height": 1.2,
     "weight": 66.6,
-    "text": "It explodes in response to even minor stimuli. It is feared, with the nickname of “The Bomb Ball.”",
+    "text": "It explodes in response to even minor stimuli. It is feared, with the nickname of \u201cThe Bomb Ball.\u201d",
     "source": "Pokemon FireRed"
   },
   "102": {
@@ -717,7 +717,7 @@
     "category": "COCONUT",
     "height": 2.0,
     "weight": 120.0,
-    "text": "It is called “The Walking Tropical Rainforest.” Each of the nuts has a face and a will of its own.",
+    "text": "It is called \u201cThe Walking Tropical Rainforest.\u201d Each of the nuts has a face and a will of its own.",
     "source": "Pokemon FireRed"
   },
   "104": {
@@ -745,7 +745,7 @@
     "category": "PUNCHING",
     "height": 1.4,
     "weight": 50.2,
-    "text": "The spirit of a pro boxer has infused this POKéMON. It throws punches that are faster than a bullet train.",
+    "text": "The spirit of a pro boxer has infused this POK\u00e9MON. It throws punches that are faster than a bullet train.",
     "source": "Pokemon FireRed"
   },
   "108": {
@@ -773,7 +773,7 @@
     "category": "SPIKES",
     "height": 1.0,
     "weight": 115.0,
-    "text": "Strong, but not too bright, this POKéMON can shatter even a skyscraper with its charging TACKLES.",
+    "text": "Strong, but not too bright, this POK\u00e9MON can shatter even a skyscraper with its charging TACKLES.",
     "source": "Pokemon FireRed"
   },
   "112": {
@@ -794,7 +794,7 @@
     "category": "VINE",
     "height": 1.0,
     "weight": 35.0,
-    "text": "Blue plant vines cloak the POKéMON's identity in a tangled mass. It entangles anything that gets close.",
+    "text": "Blue plant vines cloak the POK\u00e9MON's identity in a tangled mass. It entangles anything that gets close.",
     "source": "Pokemon FireRed"
   },
   "115": {
@@ -843,7 +843,7 @@
     "category": "MYSTERIOUS",
     "height": 1.1,
     "weight": 80.0,
-    "text": "This POKéMON has a geometric body. Because of its body, the locals suspect that it is an alien creature.",
+    "text": "This POK\u00e9MON has a geometric body. Because of its body, the locals suspect that it is an alien creature.",
     "source": "Pokemon FireRed"
   },
   "122": {
@@ -899,7 +899,7 @@
     "category": "FISH",
     "height": 0.9,
     "weight": 10.0,
-    "text": "It is virtually worthless in terms of both power and speed. It is the most weak and pathetic POKéMON in the world.",
+    "text": "It is virtually worthless in terms of both power and speed. It is the most weak and pathetic POK\u00e9MON in the world.",
     "source": "Pokemon FireRed"
   },
   "130": {
@@ -927,7 +927,7 @@
     "category": "EVOLUTION",
     "height": 0.3,
     "weight": 6.5,
-    "text": "An extremely rare POKéMON that may evolve in a number of different ways depending on stimuli.",
+    "text": "An extremely rare POK\u00e9MON that may evolve in a number of different ways depending on stimuli.",
     "source": "Pokemon FireRed"
   },
   "134": {
@@ -955,14 +955,14 @@
     "category": "VIRTUAL",
     "height": 0.8,
     "weight": 36.5,
-    "text": "Using the most advanced technologies, scientists finally succeeded in making the first artificial POKéMON.",
+    "text": "Using the most advanced technologies, scientists finally succeeded in making the first artificial POK\u00e9MON.",
     "source": "Pokemon FireRed"
   },
   "138": {
     "category": "SPIRAL",
     "height": 0.4,
     "weight": 7.5,
-    "text": "A prehistoric POKéMON that lived in the primordial sea, it swims by twisting its 10 tentacles about.",
+    "text": "A prehistoric POK\u00e9MON that lived in the primordial sea, it swims by twisting its 10 tentacles about.",
     "source": "Pokemon FireRed"
   },
   "139": {
@@ -976,7 +976,7 @@
     "category": "SHELLFISH",
     "height": 0.5,
     "weight": 11.5,
-    "text": "This POKéMON was regenerated from the fossil of an ancient creature. It protects itself with a hard shell.",
+    "text": "This POK\u00e9MON was regenerated from the fossil of an ancient creature. It protects itself with a hard shell.",
     "source": "Pokemon FireRed"
   },
   "141": {
@@ -1004,21 +1004,21 @@
     "category": "FREEZE",
     "height": 1.7,
     "weight": 55.4,
-    "text": "One of the legendary bird POKéMON. With its long tail trailing behind, its flying form is magnificent.",
+    "text": "One of the legendary bird POK\u00e9MON. With its long tail trailing behind, its flying form is magnificent.",
     "source": "Pokemon FireRed"
   },
   "145": {
     "category": "ELECTRIC",
     "height": 1.6,
     "weight": 52.6,
-    "text": "One of the legendary bird POKéMON. While it is flying, it makes crackling and snapping sounds.",
+    "text": "One of the legendary bird POK\u00e9MON. While it is flying, it makes crackling and snapping sounds.",
     "source": "Pokemon FireRed"
   },
   "146": {
     "category": "FLAME",
     "height": 2.0,
     "weight": 60.0,
-    "text": "One of the legendary bird POKéMON. Those seeing it are overwhelmed by its orange wings that seem to be on fire.",
+    "text": "One of the legendary bird POK\u00e9MON. Those seeing it are overwhelmed by its orange wings that seem to be on fire.",
     "source": "Pokemon FireRed"
   },
   "147": {
@@ -1046,14 +1046,14 @@
     "category": "GENETIC",
     "height": 2.0,
     "weight": 122.0,
-    "text": "A POKéMON whose genetic code was repeatedly recombined for research. It turned vicious as a result.",
+    "text": "A POK\u00e9MON whose genetic code was repeatedly recombined for research. It turned vicious as a result.",
     "source": "Pokemon FireRed"
   },
   "151": {
     "category": "NEW SPECIES",
     "height": 0.4,
     "weight": 4.0,
-    "text": "A POKéMON of South America that was thought to have been extinct. It is very intelligent and learns any move.",
+    "text": "A POK\u00e9MON of South America that was thought to have been extinct. It is very intelligent and learns any move.",
     "source": "Pokemon FireRed"
   },
   "152": {
@@ -1088,7 +1088,7 @@
     "category": "VOLCANO",
     "height": 0.9,
     "weight": 19.0,
-    "text": "This POKéMON is fully covered by nonflammable fur. It can withstand any kind of fire attack.",
+    "text": "This POK\u00e9MON is fully covered by nonflammable fur. It can withstand any kind of fire attack.",
     "source": "Pokemon FireRed"
   },
   "157": {
@@ -1550,7 +1550,7 @@
     "category": "CORAL",
     "height": 0.6,
     "weight": 5.0,
-    "text": "In a south sea nation, the people live in communities that are built on groups of these POKéMON.",
+    "text": "In a south sea nation, the people live in communities that are built on groups of these POK\u00e9MON.",
     "source": "Pokemon FireRed"
   },
   "223": {
@@ -1599,7 +1599,7 @@
     "category": "DARK",
     "height": 1.4,
     "weight": 35.0,
-    "text": "Upon hearing its eerie howls, other POKéMON get the shivers and head straight back to their nests.",
+    "text": "Upon hearing its eerie howls, other POK\u00e9MON get the shivers and head straight back to their nests.",
     "source": "Pokemon FireRed"
   },
   "230": {
@@ -1669,7 +1669,7 @@
     "category": "ELECTRIC",
     "height": 0.6,
     "weight": 23.5,
-    "text": "Even in the most vicious storm, this POKéMON plays happily if thunder rumbles in the sky.",
+    "text": "Even in the most vicious storm, this POK\u00e9MON plays happily if thunder rumbles in the sky.",
     "source": "Pokemon FireRed"
   },
   "240": {
@@ -1690,28 +1690,28 @@
     "category": "HAPPINESS",
     "height": 1.5,
     "weight": 46.8,
-    "text": "It has a very compassionate nature. If it sees a sick POKéMON, it will nurse the sufferer back to health.",
+    "text": "It has a very compassionate nature. If it sees a sick POK\u00e9MON, it will nurse the sufferer back to health.",
     "source": "Pokemon FireRed"
   },
   "243": {
     "category": "THUNDER",
     "height": 1.9,
     "weight": 178.0,
-    "text": "This POKéMON races across the land while barking a cry that sounds like crashing thunder.",
+    "text": "This POK\u00e9MON races across the land while barking a cry that sounds like crashing thunder.",
     "source": "Pokemon FireRed"
   },
   "244": {
     "category": "VOLCANO",
     "height": 2.1,
     "weight": 198.0,
-    "text": "A POKéMON that races across the land. It is said that one is born every time a new volcano appears.",
+    "text": "A POK\u00e9MON that races across the land. It is said that one is born every time a new volcano appears.",
     "source": "Pokemon FireRed"
   },
   "245": {
     "category": "AURORA",
     "height": 2.0,
     "weight": 187.0,
-    "text": "This POKéMON races across the land. It is said that north winds will somehow blow whenever it appears.",
+    "text": "This POK\u00e9MON races across the land. It is said that north winds will somehow blow whenever it appears.",
     "source": "Pokemon FireRed"
   },
   "246": {
@@ -1837,7 +1837,7 @@
     "category": "TINYRACCOON",
     "height": 0.4,
     "weight": 17.5,
-    "text": "A POKéMON with abundant curiosity. It shows an interest in everything, so it always zigs and zags.",
+    "text": "A POK\u00e9MON with abundant curiosity. It shows an interest in everything, so it always zigs and zags.",
     "source": "Pokemon FireRed"
   },
   "264": {
@@ -1921,7 +1921,7 @@
     "category": "WICKED",
     "height": 1.3,
     "weight": 59.6,
-    "text": "A POKéMON that was feared as a forest guardian. It can read the foe's mind and take preemptive action.",
+    "text": "A POK\u00e9MON that was feared as a forest guardian. It can read the foe's mind and take preemptive action.",
     "source": "Pokemon FireRed"
   },
   "276": {
@@ -1949,14 +1949,14 @@
     "category": "WATER BIRD",
     "height": 1.2,
     "weight": 28.0,
-    "text": "It is a flying transporter that carries small POKéMON in its beak. It bobs on the waves to rest its wings.",
+    "text": "It is a flying transporter that carries small POK\u00e9MON in its beak. It bobs on the waves to rest its wings.",
     "source": "Pokemon FireRed"
   },
   "280": {
     "category": "FEELING",
     "height": 0.4,
     "weight": 6.6,
-    "text": "It is highly attuned to the emotions of people and POKéMON. It hides if it senses hostility.",
+    "text": "It is highly attuned to the emotions of people and POK\u00e9MON. It hides if it senses hostility.",
     "source": "Pokemon FireRed"
   },
   "281": {
@@ -2019,7 +2019,7 @@
     "category": "LAZY",
     "height": 2.0,
     "weight": 130.5,
-    "text": "It is the world's most slothful POKéMON. However, it can exert horrifying power by releasing pent-up energy all at once.",
+    "text": "It is the world's most slothful POK\u00e9MON. However, it can exert horrifying power by releasing pent-up energy all at once.",
     "source": "Pokemon FireRed"
   },
   "290": {
@@ -2033,14 +2033,14 @@
     "category": "NINJA",
     "height": 0.8,
     "weight": 12.0,
-    "text": "This POKéMON is so quick, it is said to be able to avoid any attack. It loves to feed on tree sap.",
+    "text": "This POK\u00e9MON is so quick, it is said to be able to avoid any attack. It loves to feed on tree sap.",
     "source": "Pokemon FireRed"
   },
   "292": {
     "category": "SHED",
     "height": 0.8,
     "weight": 1.2,
-    "text": "A most peculiar POKéMON that somehow appears in a POKé BALL when a NINCADA evolves.",
+    "text": "A most peculiar POK\u00e9MON that somehow appears in a POK\u00e9 BALL when a NINCADA evolves.",
     "source": "Pokemon FireRed"
   },
   "293": {
@@ -2068,7 +2068,7 @@
     "category": "GUTS",
     "height": 1.0,
     "weight": 86.4,
-    "text": "It grows stronger by enduring harsh training. It is a gutsy POKéMON that can withstand any attack.",
+    "text": "It grows stronger by enduring harsh training. It is a gutsy POK\u00e9MON that can withstand any attack.",
     "source": "Pokemon FireRed"
   },
   "297": {
@@ -2243,7 +2243,7 @@
     "category": "FLOAT WHALE",
     "height": 14.5,
     "weight": 398.0,
-    "text": "It is among the largest of all POKéMON. It herds prey in a pack then swallows the massed prey in one gulp.",
+    "text": "It is among the largest of all POK\u00e9MON. It herds prey in a pack then swallows the massed prey in one gulp.",
     "source": "Pokemon FireRed"
   },
   "322": {
@@ -2425,7 +2425,7 @@
     "category": "OLD SHRIMP",
     "height": 0.7,
     "weight": 12.5,
-    "text": "It is a kind of POKéMON progenitor. It uses its extending claws to catch prey hiding among rocks on the seafloor.",
+    "text": "It is a kind of POK\u00e9MON progenitor. It uses its extending claws to catch prey hiding among rocks on the seafloor.",
     "source": "Pokemon FireRed"
   },
   "348": {
@@ -2474,7 +2474,7 @@
     "category": "MARIONETTE",
     "height": 1.1,
     "weight": 12.5,
-    "text": "Strong feelings of hatred turned a puppet into a POKéMON. If it opens its mouth, its cursed energy escapes.",
+    "text": "Strong feelings of hatred turned a puppet into a POK\u00e9MON. If it opens its mouth, its cursed energy escapes.",
     "source": "Pokemon FireRed"
   },
   "355": {
@@ -2670,14 +2670,14 @@
     "category": "SEA BASIN",
     "height": 4.5,
     "weight": 352.0,
-    "text": "This POKéMON is said to have expanded the sea by bringing heavy rains. It has the power to control water.",
+    "text": "This POK\u00e9MON is said to have expanded the sea by bringing heavy rains. It has the power to control water.",
     "source": "Pokemon FireRed"
   },
   "383": {
     "category": "CONTINENT",
     "height": 3.5,
     "weight": 950.0,
-    "text": "This legendary POKéMON is said to represent the land. It went to sleep after dueling KYOGRE.",
+    "text": "This legendary POK\u00e9MON is said to represent the land. It went to sleep after dueling KYOGRE.",
     "source": "Pokemon FireRed"
   },
   "384": {

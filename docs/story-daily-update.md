@@ -1,5 +1,9 @@
 # Story, defeat recovery and daily League
 
+Historical notes for playtest 52. The later [National update](national-update.md)
+expands the roster and event islands and changes the daily challenge to Lv.50
+with locked nature/ability and no held items; those newer rules take precedence.
+
 Implemented against the local `pret/pokefirered` checkout at
 `ce6406d8c2eaf46d543c8a2606de0c3cb1951982`.
 This is a source-informed adaptation to the existing arena game, not a claim

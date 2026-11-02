@@ -48,6 +48,13 @@ jobs:
           $storyCode = $LASTEXITCODE
           $story | Write-Output
           if ($storyCode -ne 0 -or ($story -match 'SCRIPT ERROR|ERROR:') -or -not ($story -match 'STORY / DAILY CHECK: \[\]')) { throw 'Story and daily League checks failed' }
+      - name: National and challenge regression
+        shell: pwsh
+        run: |
+          $national = & "$env:RUNNER_TEMP/godot/Godot_v4.3-stable_win64_console.exe" --headless --path . --script tools/check-national-update.gd -- --qa-national 2>&1
+          $code = $LASTEXITCODE
+          $national | Write-Output
+          if ($code -ne 0 -or ($national -match 'SCRIPT ERROR|ERROR:') -or -not ($national -match 'NATIONAL UPDATE: PASS')) { throw 'National update checks failed' }
       - name: Package Windows build
         shell: pwsh
         run: |

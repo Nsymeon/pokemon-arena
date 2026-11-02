@@ -218,6 +218,12 @@ static func prepare(a,kind):
 		if task.has("trainer"): trainer=a.c.league.trainers.filter(func(t):return t.id==task.trainer)[0]
 	if not trainer.is_empty():
 		a.c.opponent_identity=trainer.id
+		if a.world.enabled and key.begins_with("league_") and key.trim_prefix("league_").is_valid_int():
+			var team=a.postgame.league_team(int(key.trim_prefix("league_")))
+			for i in range(team.size()):
+				a.c.enemy_party[i].moves=a.inventory.definitions(team[i].moves)
+				if team[i].item!="none": a.c.enemy_party[i]["held_item"]=team[i].item
+			return
 		for i in range(trainer.team.size()): a.c.enemy_party[i].moves=trainer.team[i].moves.duplicate(true)
 
 static func reward(a,victory: bool) -> String:

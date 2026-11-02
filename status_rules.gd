@@ -3,7 +3,7 @@ extends RefCounted
 const NAMES = {"slp": "sleep", "par": "paralysis", "brn": "burn", "psn": "poison", "tox": "toxic", "frz": "freeze"}
 
 static func types(f) -> Array:
-	var current: Array = f.data.types.duplicate()
+	var current: Array = f.get("forecast_types",f.data.types).duplicate()
 	if f.get("volatile",{}).get("roost",0)>0:
 		current.erase("Flying")
 		if current.is_empty(): current.append("Normal")

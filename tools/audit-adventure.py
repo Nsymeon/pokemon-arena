@@ -22,7 +22,7 @@ while todo:
         if dest in maps and dest not in reached: reached.add(dest);todo.append(dest)
 unused=set(maps)-reached
 assert all('UNUSED_HOUSE' in key for key in unused),unused
-assert len(reached)==388 and len(maps)==392,(len(reached),len(maps))
+assert len(reached)==412 and len(maps)==416,(len(reached),len(maps))
 manifest=json.loads((root/'assets/audio/cries/sources.json').read_text())
 roster=json.loads((root/'data/roster.json').read_text())
 for mon in roster:

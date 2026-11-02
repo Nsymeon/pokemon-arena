@@ -176,14 +176,14 @@ func run():
 	a.progression.hall_scene.age=9; a.progression.hall_scene.set_process(false); a.progression.hall_scene._process(0); await snap("hall-of-fame")
 	a.progression.hall_scene.advance(); c.check(w.current=="MAP_PALLET_TOWN_PLAYERS_HOUSE_2F" and not a.progression.done("champion_pending"),"Completed ceremony returns home without replay loop")
 	c.check(a.data.hall_of_fame[3].shiny,"Hall record preserves shiny individual")
-	# Daily mode: deterministic player party; fixed opponents and actual Lv.100 combat.
+	# Daily mode: deterministic player party; fixed opponents and actual Lv.50 combat.
 	fixture(); a.exploring=false; a.visible=false
 	var campaign=c.campaign; campaign.day_override="2026-11-01"; campaign.daily_enabled=true; campaign.refresh_day()
 	var today=campaign.data.team.duplicate(); var adventure_before=a.data.duplicate(true)
 	c.check(today.size()==6 and today.all(func(id):return today.count(id)==1),"Daily team has six distinct available Pokemon")
 	for stage in 13:
 		var enemy=campaign.daily.opponent(c,stage)
-		c.check(enemy.size()==6 and enemy.all(func(mon):return mon.level==100 and mon.moves.size()==4),"Leader has six level-100 Pokemon with four moves: "+campaign.NAMES[stage])
+		c.check(enemy.size()==6 and enemy.all(func(mon):return mon.level==50 and mon.moves.size()==4),"Leader has six level-50 Pokemon with four moves: "+campaign.NAMES[stage])
 	c.check(campaign.valid(campaign.data,c.roster.map(func(m):return int(m.id))),"Daily save validates")
 	var changed=campaign.data.duplicate(true); changed.team[0]=1
 	c.check(not campaign.valid(changed,c.roster.map(func(m):return int(m.id))),"Daily save rejects species replacement")
@@ -192,8 +192,8 @@ func run():
 	c.check(campaign.data.team!=today and campaign.data.cleared==0 and campaign.daily.opponent(c,0)==opponent_before,"Next day changes only player's team and resets daily progress")
 	campaign.show_hub(); await snap("daily-league")
 	campaign.choose(0); c.start_match()
-	c.check(c.player_states.size()==6 and c.player_states.all(func(f):return f.data.level==100 and f.hp==f.data.hp),"Daily match really scales and heals all six player fighters")
-	c.check(c.enemy_party.size()==6 and c.enemy_party.all(func(m):return m.level==100),"Daily match uses fixed full opponent party")
+	c.check(c.player_states.size()==6 and c.player_states.all(func(f):return f.data.level==50 and f.hp==f.data.hp),"Daily match really scales and heals all six player fighters")
+	c.check(c.enemy_party.size()==6 and c.enemy_party.all(func(m):return m.level==50),"Daily match uses fixed full opponent party")
 	c.enemy.hp=0; c.finish_round(); c.shots.clear(); c.result_time=c.FAINT_RESULT_TIME; campaign.record_result()
 	c.check(campaign.data.cleared==0,"First of six KOs cannot award daily badge")
 	for i in range(1,6):

@@ -22,6 +22,7 @@ func identity(mon, friendly: bool, slot: int) -> String:
 
 func configured(mon, friendly: bool, slot: int) -> Dictionary:
 	var result = c.ivs.configured(c.abilities.configured(mon,friendly,slot),friendly,slot)
+	if c.campaign.daily.locked(c): result=c.campaign.daily.member(c,int(mon.id))
 	var ids = choices.get(identity(mon,friendly,slot),[])
 	if not ids is Array or ids.size()!=4: return result
 	var seen = []

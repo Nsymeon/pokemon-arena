@@ -64,6 +64,7 @@ func reward(key: String, text: String):
 	w().scenes.play([{"text":text,"duration":2.2,"flash":true}],func():finish(key); a.save())
 
 func hidden(o) -> bool:
+	if a.postgame.hidden(o): return true
 	if str(o.get("script",""))=="SixIsland_RuinValley_EventScript_Scientist" and a.sevii.done("lorelei"): return true
 	var script=str(o.get("script",""))
 	if script=="CeruleanCity_EventScript_CeruleanCaveGuard" and a.progression.legendary_requirement(150)=="": return true
@@ -79,6 +80,7 @@ func hidden(o) -> bool:
 	return (script.ends_with("DomeFossil") or script.ends_with("HelixFossil")) and done("fossil:chosen") or script.ends_with("_OldAmber") and done("fossil:amber")
 
 func npc(npc) -> bool:
+	if a.postgame.npc(npc): return true
 	if a.progression.npc(npc): return true
 	if a.services.npc(npc) or a.sevii.npc(npc): return true
 	var script=str(npc.get("script",""))
@@ -157,6 +159,7 @@ func outdoor() -> bool:
 	return w().room().type in ["MAP_TYPE_TOWN","MAP_TYPE_CITY","MAP_TYPE_ROUTE"]
 
 func entered(previous, at: Vector2):
+	a.postgame.entered(previous)
 	if previous.begins_with("MAP_SAFARI_ZONE") and not w().current.begins_with("MAP_SAFARI_ZONE"):
 		a.services.state().safari=false; a.services.safari_mon={}
 	riding=false

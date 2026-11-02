@@ -164,21 +164,25 @@ func tick(dt):
 			match link.direction:
 				"up":
 					crossing=proposed.y<TILE*0.5 and direction.y<0
-					target=Vector2(proposed.x-offset,(next.height-1.5)*TILE)
+					target=Vector2(proposed.x-offset,(next.height-.5)*TILE)
 				"down":
 					crossing=proposed.y>size().y-TILE*0.5 and direction.y>0
-					target=Vector2(proposed.x-offset,TILE*1.5)
+					target=Vector2(proposed.x-offset,TILE*.5)
 				"left":
 					crossing=proposed.x<TILE*0.5 and direction.x<0
-					target=Vector2((next.width-1.5)*TILE,proposed.y-offset)
+					target=Vector2((next.width-.5)*TILE,proposed.y-offset)
 				"right":
 					crossing=proposed.x>size().x-TILE*0.5 and direction.x>0
-					target=Vector2(TILE*1.5,proposed.y-offset)
+					target=Vector2(TILE*.5,proposed.y-offset)
 			if crossing and target.x>=0 and target.y>=0 and target.x<next.width*TILE and target.y<next.height*TILE:
 				if a.data.starter==0:
 					scenes.oak_rescue()
 					return
-				if events.allow_door(link.map): enter(link.map,target)
+				if events.allow_door(link.map):
+					view3d.rebase(current,link)
+					enter(link.map,target)
+					if a.position_world.is_equal_approx(target):
+						step_target=target; a.position_world=target-motion; stepping=true
 				return
 		if direction!=Vector2.ZERO:
 			step_target=a.position_world+motion
@@ -213,6 +217,7 @@ func actors() -> Array:
 		if a.field.hidden(object) or (str(object.get("script","")).ends_with("EeveeBall") and a.field.done("gift:eevee")): continue
 		var npc=object.duplicate(true)
 		npc["pos"]=scenes.positions.get(str(object.get("script","")),Vector2(float(object.x)+0.5,float(object.y)+0.5)*TILE)
+		npc.pos=a.postgame.position(object,npc.pos)
 		if quests.any(func(q):return q[0].distance_to(npc.pos)<TILE*0.5 or (q.size()>3 and str(q[3])!="" and q[3]==object.get("local_id",""))): continue
 		result.append(npc)
 	return result
@@ -572,6 +577,7 @@ func advance_step(dt: float):
 		var habitat=scenes.habitat()
 		a.c.audio.step("water" if habitat=="water_mons" else "cave" if room().type=="MAP_TYPE_UNDERGROUND" else "grass" if habitat=="land_mons" else "floor")
 		a.services.steps()
+		a.postgame.step()
 		if a.sevii.on_step(): return
 		if int(a.data.get("repel_steps",0))>0:
 			a.data.repel_steps-=1

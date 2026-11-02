@@ -5,6 +5,7 @@ extends RefCounted
 var book: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/abilities.json"))
 var random = RandomNumberGenerator.new()
 var choices = {}
+var genders: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://assets/kanto/gender-ratios.json"))
 var shiny_choices = {}
 var c
 var popup: PopupMenu
@@ -63,7 +64,7 @@ func assign(mon, roll: bool=false):
 	if not mon.has("ability_slot"): mon["ability_slot"]=random.randi_range(0,options.size()-1) if roll else 0
 	if not mon.has("shiny"): mon["shiny"]=random.randi_range(0,SHINY_DENOMINATOR-1)==0 if roll else false
 	if not mon.has("gender"):
-		var ratio=float(FEMALE.get(str(int(mon.id)),-1))
+		var ratio=float(genders.get(str(int(mon.id)),-1))
 		mon["gender"]="N" if ratio<0 else "F" if (random.randf() if roll else 0.5)<ratio else "M"
 	mon["ability"]=options[int(mon.ability_slot)%options.size()]
 
@@ -79,6 +80,7 @@ func configured(mon,friendly,slot):
 	return result
 
 func open(mon,friendly,slot):
+	if c.campaign.daily.locked(c): return
 	editing={"mon":mon,"friendly":friendly,"slot":slot}
 	popup.clear()
 	for name in legal(mon.id):
@@ -88,6 +90,7 @@ func open(mon,friendly,slot):
 	popup.popup()
 
 func choose(index):
+	if c.campaign.daily.locked(c): return
 	if editing.is_empty() or index<0 or index>=legal(editing.mon.id).size(): return
 	choices[c.move_editor.identity(editing.mon,editing.friendly,editing.slot)]=legal(editing.mon.id)[index]
 	if OS.get_cmdline_user_args().is_empty():
@@ -108,6 +111,7 @@ func entry(f,other):
 	if c.adventure.in_battle: c.adventure.collection.register(f.data,false)
 	f["ability_clock"]=0.0
 	var a=name_of(f)
+	if a in ["Drizzle","Drought"]: c.weather.set_weather("rain" if a=="Drizzle" else "sun"); announce(f)
 	if a=="Trace" and name_of(other) not in ["Trace",""]:
 		f["copied_ability"]=name_of(other)
 		announce(f)
@@ -124,13 +128,17 @@ func withdrawn(f):
 
 func trapped(f,other) -> bool:
 	var a=name_of(other)
-	return other.hp>0 and ((a=="Arena Trap" and "Flying" not in c.Conditions.types(f) and name_of(f)!="Levitate") or (a=="Magnet Pull" and "Steel" in c.Conditions.types(f)))
+	return other.hp>0 and (a=="Shadow Tag" or (a=="Arena Trap" and "Flying" not in c.Conditions.types(f) and name_of(f)!="Levitate") or (a=="Magnet Pull" and "Steel" in c.Conditions.types(f)))
 
 func tick(f,dt):
 	if f.hp<=0: return
+	if name_of(f)=="Forecast": f["forecast_types"]=[{"sun":"Fire","rain":"Water","hail":"Ice"}.get(c.weather.kind,"Normal")]
+	else: f.erase("forecast_types")
 	f["ability_clock"]=f.get("ability_clock",0.0)+dt
 	while f.ability_clock>=5:
 		f.ability_clock-=5
+		if name_of(f)=="Speed Boost": c.Conditions.apply(c,f,{"boosts":{"spe":1}},{}); announce(f)
+		if name_of(f)=="Rain Dish" and c.weather.kind=="rain" and not c.weather.suppressed: f.hp=minf(f.data.hp,f.hp+f.data.hp/16)
 		if name_of(f)=="Shed Skin" and f.ailment!="" and c.rng.randf()<1.0/3.0:
 			f.ailment=""; f.ailment_time=0; announce(f)
 
@@ -145,7 +153,7 @@ func status_block(f,status,volatile_status,move) -> bool:
 	return false
 
 func blocks_drop(f,stat) -> bool:
-	return name_of(f)=="Clear Body" or (name_of(f)=="Keen Eye" and stat=="accuracy") or (name_of(f)=="Hyper Cutter" and stat=="atk")
+	return name_of(f) in ["Clear Body","White Smoke"] or (name_of(f)=="Keen Eye" and stat=="accuracy") or (name_of(f)=="Hyper Cutter" and stat=="atk")
 
 func flag(move,key) -> bool:
 	return bool(c.move_flags.get(move.get("id",""),{}).get(key,0))
@@ -153,6 +161,7 @@ func flag(move,key) -> bool:
 func blocks_hit(f,move) -> bool:
 	var a=name_of(f)
 	var type=move.get("type","")
+	if a=="Wonder Guard" and move.get("category","")!="Status" and type!="" and c.Dex.effectiveness(type,c.Conditions.types(f))<=1: announce(f); return true
 	if (a=="Levitate" and type=="Ground") or (a=="Soundproof" and flag(move,"sound")) or (a=="Sturdy" and move.get("id","") in ["fissure","guillotine","horndrill","sheercold"]):
 		announce(f); return true
 	if (a=="Water Absorb" and type=="Water") or (a=="Volt Absorb" and type=="Electric"):
@@ -168,6 +177,8 @@ func damage(attacker,target,move) -> float:
 	var b=name_of(target)
 	var type=move.get("type","")
 	var factor=1.0
+	if a in ["Huge Power","Pure Power"] and move.get("category","")=="Physical": factor*=2
+	if a=="Hustle" and move.get("category","")=="Physical": factor*=1.5
 	if attacker.hp<=attacker.data.hp/3.0 and {"Overgrow":"Grass","Blaze":"Fire","Torrent":"Water","Swarm":"Bug"}.get(a,"?")==type: factor*=1.5
 	if a=="Guts" and attacker.ailment!="" and move.get("category","")=="Physical": factor*=1.5
 	if attacker.get("flash_fire",false) and type=="Fire": factor*=1.5
@@ -180,8 +191,10 @@ func accuracy(attacker,target,normal) -> float:
 	return normal
 
 func contact(attacker,target,move):
+	if target.hp>0 and name_of(target)=="Color Change" and move.get("category","")!="Status": target.data.types=[move.type]; announce(target)
 	if not flag(move,"contact") or attacker.hp<=0: return
 	var a=name_of(target)
+	if a=="Rough Skin": attacker.hp=maxf(0,attacker.hp-attacker.data.hp/16); announce(target)
 	var status={"Static":"par","Poison Point":"psn","Flame Body":"brn"}.get(a,"")
 	if a=="Effect Spore" and c.rng.randf()<0.1:
 		status=["slp","par","psn"][c.rng.randi_range(0,2)]

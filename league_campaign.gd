@@ -165,7 +165,7 @@ func show_hub():
 	layer.add_child(bg)
 	layer.visible = true
 	button("BACK TO MODES",Vector2(790,42),Vector2(430,50),c.frontend.show_modes)
-	text("DAILY LEAGUE / Lv.100" if daily_enabled else "GYM LEADERS",Vector2(60,42),30,Color("f9d86b"))
+	text("DAILY LEAGUE / Lv.50" if daily_enabled else "GYM LEADERS",Vector2(60,42),30,Color("f9d86b"))
 	text("%d / 8 BADGES     %d / 13 TRAINERS DEFEATED" % [mini(8,int(data.cleared)),int(data.cleared)],Vector2(60,98),20)
 	text("GYM CHALLENGE",Vector2(60,145),20,Color("77e2b0"))
 	text("INDIGO PLATEAU",Vector2(680,145),20,Color("77e2b0"))
@@ -182,7 +182,7 @@ func show_hub():
 		text(" / ".join(names.slice(0,3))+"\n"+" / ".join(names.slice(3)),Vector2(680,555),18)
 	else:
 		text("Next opponent: " + NAMES[int(data.cleared)],Vector2(680,530),24)
-		text("Your six Pokemon change daily.\nOpponents keep their fixed six-Pokemon teams.\nEveryone is Lv.100; teams heal between trainers." if daily_enabled else "Build your team before each match.\nTeam heals between trainers.\nLosses keep your earned badges.",Vector2(680,580),18)
+		text("Your six Pokemon change daily.\nOpponents keep their fixed six-Pokemon teams.\nLv.50 / locked Hardy nature and ability. No held items." if daily_enabled else "Build your team before each match.\nTeam heals between trainers.\nLosses keep your earned badges.",Vector2(680,580),18)
 	button("CONTINUE LEAGUE" if data.cleared < 13 else "REMATCH CHAMPION",Vector2(60,700),Vector2(540,60),choose.bind(mini(12,int(data.cleared))))
 	button("FREE BATTLE",Vector2(680,700),Vector2(540,60),free_battle)
 	text("TEAM / "+" / ".join(data.team.map(func(id):return c.adventure.mon_name(id))),Vector2(60,780),17)

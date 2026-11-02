@@ -1,6 +1,6 @@
 extends RefCounted
 var a
-const PORTS=["MAP_VERMILION_CITY","MAP_ONE_ISLAND","MAP_TWO_ISLAND","MAP_THREE_ISLAND","MAP_FOUR_ISLAND","MAP_FIVE_ISLAND","MAP_SIX_ISLAND","MAP_SEVEN_ISLAND"]
+const PORTS=["MAP_VERMILION_CITY","MAP_ONE_ISLAND","MAP_TWO_ISLAND","MAP_THREE_ISLAND","MAP_FOUR_ISLAND","MAP_FIVE_ISLAND","MAP_SIX_ISLAND","MAP_SEVEN_ISLAND","MAP_NAVEL_ROCK_HARBOR","MAP_BIRTH_ISLAND_HARBOR"]
 var tutors: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://assets/kanto/tutors.json"))
 var dialogue: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://assets/kanto/dialogue.json"))
 
@@ -52,15 +52,17 @@ func ferry_menu():
 	var list=a.inventory.page("SEAGALLOP FERRY / SEVII ISLANDS")
 	if not done("tri_pass"):
 		a.inventory.row(list,"Meet Bill outside Cinnabar Gym after earning the Volcano Badge to receive the Tri-Pass.",func():pass,true); return
-	for i in range(PORTS.size()):
+	for i in range(8):
 		var locked=i>=4 and not done("ruby_delivered")
 		a.inventory.row(list,a.world.maps[PORTS[i]].name+(" / Celio needs the Ruby first" if locked else ""),sail.bind(i),locked)
+	a.postgame.ferry_rows(list)
 
 func at_port() -> bool:
 	return a.world.current in PORTS or a.world.current.ends_with("_HARBOR")
 
 func sail(index):
 	if a.in_battle or not at_port() or index<0 or index>=PORTS.size() or not done("tri_pass"): return
+	if index>=8: a.postgame.sail(index-8); return
 	if index>=4 and not done("ruby_delivered"): return
 	a.clear_ui()
 	a.world.scenes.play([{"text":"The Seagallop sets sail for "+a.world.maps[PORTS[index]].name+"...","duration":1.6,"flash":true}],func():a.world.enter(PORTS[index],Vector2(10.5,10.5)*48))
@@ -176,5 +178,6 @@ func teach(script,slot,index):
 
 func journal():
 	var list=a.inventory.page("SEVII / STORY JOURNAL")
+	a.inventory.row(list,"POSTGAME / roaming legendary and event islands",a.postgame.journal)
 	for pair in [["bikers","Three Island: defeat the four biker gang members."],["tanoby","Seven Island: push all seven Tanoby Key boulders onto their floor switches."],["lostelle_quest","Two Island: speak with Lostelle's father at the Joyful Game Corner."],["lostelle_saved","Three Island: follow Bond Bridge into Berry Forest and rescue Lostelle."],["lostelle_returned","Return to Lostelle's father."],["network_quest","Become Champion, catch 60 Kanto species, receive the National Dex from Oak, then speak to Celio."],["ruby","Find the Ruby in Mt. Ember's underground path."],["ruby_delivered","Bring the Ruby to Celio for the Rainbow Pass."],["lorelei","Help Lorelei confront Rocket in Icefall Cave on Four Island."],["sapphire_stolen","Six Island: enter Dotted Hole with Cut Shears; follow UP, LEFT, RIGHT, DOWN."],["sapphire","Five Island: defeat Gideon in the Rocket Warehouse."],["network","Return the Sapphire to Celio."]]:
 		a.inventory.row(list,("DONE / " if done(pair[0]) else "NEXT / ")+pair[1],func():pass,true)

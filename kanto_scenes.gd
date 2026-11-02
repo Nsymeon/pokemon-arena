@@ -242,6 +242,7 @@ func habitat() -> String:
 	return ""
 
 func pool() -> Array:
+	if "TANOBY_RUINS_" in w.current and w.current.ends_with("_CHAMBER") and not a.sevii.done("tanoby"): return []
 	return encounters.get(w.current,{}).get(habitat(),[])
 
 func roll(slots: Array) -> Dictionary:
@@ -263,6 +264,7 @@ func horde_eligible() -> bool:
 func seek_wild() -> bool:
 	var slots=pool()
 	if slots.is_empty(): return false
+	if a.postgame.try_roamer(): return true
 	var mon=roll(slots)
 	if w.current.begins_with("MAP_SAFARI_ZONE"):
 		a.services.safari_encounter(mon); return true

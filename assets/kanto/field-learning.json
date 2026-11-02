@@ -2171,6 +2171,492 @@
       "substitute"
     ]
   },
+  "153": {
+    "hms": [
+      "cut",
+      "strength",
+      "flash",
+      "rocksmash"
+    ],
+    "tutors": [
+      "swordsdance",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "154": {
+    "hms": [
+      "cut",
+      "strength",
+      "flash",
+      "rocksmash"
+    ],
+    "tutors": [
+      "swordsdance",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "155": {
+    "hms": [
+      "cut"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "156": {
+    "hms": [
+      "cut",
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "157": {
+    "hms": [
+      "cut",
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "158": {
+    "hms": [
+      "cut",
+      "surf",
+      "waterfall",
+      "dive"
+    ],
+    "tutors": [
+      "megapunch",
+      "swordsdance",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "159": {
+    "hms": [
+      "cut",
+      "surf",
+      "strength",
+      "rocksmash",
+      "waterfall",
+      "dive"
+    ],
+    "tutors": [
+      "megapunch",
+      "swordsdance",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "160": {
+    "hms": [
+      "cut",
+      "surf",
+      "strength",
+      "rocksmash",
+      "waterfall",
+      "dive"
+    ],
+    "tutors": [
+      "megapunch",
+      "swordsdance",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "161": {
+    "hms": [
+      "cut",
+      "surf"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "162": {
+    "hms": [
+      "cut",
+      "surf",
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "163": {
+    "hms": [
+      "fly",
+      "flash"
+    ],
+    "tutors": [
+      "doubleedge",
+      "mimic",
+      "dreameater",
+      "substitute"
+    ]
+  },
+  "164": {
+    "hms": [
+      "fly",
+      "flash"
+    ],
+    "tutors": [
+      "doubleedge",
+      "mimic",
+      "dreameater",
+      "substitute"
+    ]
+  },
+  "165": {
+    "hms": [
+      "flash"
+    ],
+    "tutors": [
+      "megapunch",
+      "swordsdance",
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "166": {
+    "hms": [
+      "flash"
+    ],
+    "tutors": [
+      "megapunch",
+      "swordsdance",
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "167": {
+    "hms": [
+      "flash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "168": {
+    "hms": [
+      "flash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "169": {
+    "hms": [
+      "fly"
+    ],
+    "tutors": [
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "170": {
+    "hms": [
+      "surf",
+      "flash",
+      "waterfall",
+      "dive"
+    ],
+    "tutors": [
+      "doubleedge",
+      "mimic",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "171": {
+    "hms": [
+      "surf",
+      "flash",
+      "waterfall",
+      "dive"
+    ],
+    "tutors": [
+      "doubleedge",
+      "mimic",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "172": {
+    "hms": [
+      "flash"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "173": {
+    "hms": [
+      "flash"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "metronome",
+      "softboiled",
+      "dreameater",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "174": {
+    "hms": [
+      "flash"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "dreameater",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "175": {
+    "hms": [
+      "flash",
+      "rocksmash"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "metronome",
+      "softboiled",
+      "dreameater",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "176": {
+    "hms": [
+      "fly",
+      "flash",
+      "rocksmash"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "metronome",
+      "softboiled",
+      "dreameater",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "177": {
+    "hms": [
+      "flash"
+    ],
+    "tutors": [
+      "doubleedge",
+      "mimic",
+      "dreameater",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "178": {
+    "hms": [
+      "fly",
+      "flash"
+    ],
+    "tutors": [
+      "doubleedge",
+      "mimic",
+      "dreameater",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "179": {
+    "hms": [
+      "flash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "180": {
+    "hms": [
+      "strength",
+      "flash",
+      "rocksmash"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "181": {
+    "hms": [
+      "strength",
+      "flash",
+      "rocksmash"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "182": {
+    "hms": [
+      "cut",
+      "flash"
+    ],
+    "tutors": [
+      "swordsdance",
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "183": {
+    "hms": [
+      "surf",
+      "strength",
+      "rocksmash",
+      "waterfall",
+      "dive"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "seismictoss",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "184": {
+    "hms": [
+      "surf",
+      "strength",
+      "rocksmash",
+      "waterfall",
+      "dive"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "seismictoss",
+      "mimic",
+      "substitute"
+    ]
+  },
   "185": {
     "hms": [
       "strength",
@@ -2189,6 +2675,162 @@
       "substitute"
     ]
   },
+  "186": {
+    "hms": [
+      "surf",
+      "strength",
+      "rocksmash",
+      "waterfall",
+      "dive"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "metronome",
+      "substitute"
+    ]
+  },
+  "187": {
+    "hms": [
+      "flash"
+    ],
+    "tutors": [
+      "swordsdance",
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "188": {
+    "hms": [
+      "flash"
+    ],
+    "tutors": [
+      "swordsdance",
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "189": {
+    "hms": [
+      "flash"
+    ],
+    "tutors": [
+      "swordsdance",
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "190": {
+    "hms": [
+      "cut",
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "metronome",
+      "dreameater",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "191": {
+    "hms": [
+      "cut",
+      "flash"
+    ],
+    "tutors": [
+      "swordsdance",
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "192": {
+    "hms": [
+      "cut",
+      "flash"
+    ],
+    "tutors": [
+      "swordsdance",
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "193": {
+    "hms": [
+      "flash"
+    ],
+    "tutors": [
+      "doubleedge",
+      "mimic",
+      "dreameater",
+      "substitute"
+    ]
+  },
+  "194": {
+    "hms": [
+      "surf",
+      "flash",
+      "rocksmash",
+      "waterfall",
+      "dive"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "195": {
+    "hms": [
+      "surf",
+      "strength",
+      "flash",
+      "rocksmash",
+      "waterfall",
+      "dive"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "196": {
+    "hms": [
+      "cut",
+      "flash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "dreameater",
+      "substitute"
+    ]
+  },
   "197": {
     "hms": [
       "cut",
@@ -2199,6 +2841,2300 @@
       "doubleedge",
       "mimic",
       "dreameater",
+      "substitute"
+    ]
+  },
+  "198": {
+    "hms": [
+      "fly"
+    ],
+    "tutors": [
+      "doubleedge",
+      "mimic",
+      "dreameater",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "199": {
+    "hms": [
+      "surf",
+      "strength",
+      "flash",
+      "rocksmash",
+      "dive"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "dreameater",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "200": {
+    "hms": [
+      "flash"
+    ],
+    "tutors": [
+      "doubleedge",
+      "mimic",
+      "dreameater",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "201": {
+    "hms": [],
+    "tutors": []
+  },
+  "202": {
+    "hms": [],
+    "tutors": []
+  },
+  "203": {
+    "hms": [
+      "strength",
+      "flash",
+      "rocksmash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "dreameater",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "204": {
+    "hms": [
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "mimic",
+      "explosion",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "205": {
+    "hms": [
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "mimic",
+      "explosion",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "206": {
+    "hms": [
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "mimic",
+      "dreameater",
+      "thunderwave",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "207": {
+    "hms": [
+      "cut",
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "swordsdance",
+      "doubleedge",
+      "counter",
+      "mimic",
+      "dreameater",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "208": {
+    "hms": [
+      "cut",
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "explosion",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "209": {
+    "hms": [
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "metronome",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "210": {
+    "hms": [
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "metronome",
+      "thunderwave",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "211": {
+    "hms": [
+      "surf",
+      "waterfall",
+      "dive"
+    ],
+    "tutors": [
+      "swordsdance",
+      "doubleedge",
+      "mimic",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "212": {
+    "hms": [
+      "cut",
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "swordsdance",
+      "doubleedge",
+      "counter",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "213": {
+    "hms": [
+      "strength",
+      "flash",
+      "rocksmash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "214": {
+    "hms": [
+      "cut",
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "swordsdance",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "215": {
+    "hms": [
+      "cut",
+      "surf",
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "swordsdance",
+      "doubleedge",
+      "counter",
+      "mimic",
+      "dreameater",
+      "substitute"
+    ]
+  },
+  "216": {
+    "hms": [
+      "cut",
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "megapunch",
+      "swordsdance",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "metronome",
+      "substitute"
+    ]
+  },
+  "217": {
+    "hms": [
+      "cut",
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "megapunch",
+      "swordsdance",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "metronome",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "218": {
+    "hms": [
+      "rocksmash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "219": {
+    "hms": [
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "220": {
+    "hms": [
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "221": {
+    "hms": [
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "222": {
+    "hms": [
+      "surf",
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "explosion",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "223": {
+    "hms": [
+      "surf",
+      "waterfall",
+      "dive"
+    ],
+    "tutors": [
+      "doubleedge",
+      "mimic",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "224": {
+    "hms": [
+      "surf",
+      "waterfall",
+      "dive"
+    ],
+    "tutors": [
+      "doubleedge",
+      "seismictoss",
+      "mimic",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "225": {
+    "hms": [
+      "fly"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "226": {
+    "hms": [
+      "surf",
+      "waterfall",
+      "dive"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "227": {
+    "hms": [
+      "cut",
+      "fly",
+      "rocksmash"
+    ],
+    "tutors": [
+      "doubleedge",
+      "counter",
+      "mimic",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "228": {
+    "hms": [
+      "rocksmash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "mimic",
+      "dreameater",
+      "substitute"
+    ]
+  },
+  "229": {
+    "hms": [
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "mimic",
+      "dreameater",
+      "substitute"
+    ]
+  },
+  "230": {
+    "hms": [
+      "surf",
+      "waterfall",
+      "dive"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "231": {
+    "hms": [
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "232": {
+    "hms": [
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "mimic",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "233": {
+    "hms": [
+      "flash"
+    ],
+    "tutors": [
+      "doubleedge",
+      "mimic",
+      "dreameater",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "234": {
+    "hms": [
+      "flash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "dreameater",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "235": {
+    "hms": [],
+    "tutors": []
+  },
+  "236": {
+    "hms": [
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "237": {
+    "hms": [
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "238": {
+    "hms": [
+      "flash"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "metronome",
+      "dreameater",
+      "substitute"
+    ]
+  },
+  "239": {
+    "hms": [
+      "flash",
+      "rocksmash"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "240": {
+    "hms": [
+      "rocksmash"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "241": {
+    "hms": [
+      "surf",
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "metronome",
+      "thunderwave",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "242": {
+    "hms": [
+      "strength",
+      "flash",
+      "rocksmash"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "metronome",
+      "softboiled",
+      "dreameater",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "243": {
+    "hms": [
+      "cut",
+      "strength",
+      "flash",
+      "rocksmash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "244": {
+    "hms": [
+      "cut",
+      "strength",
+      "flash",
+      "rocksmash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "245": {
+    "hms": [
+      "cut",
+      "surf",
+      "rocksmash",
+      "waterfall",
+      "dive"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "246": {
+    "hms": [
+      "rocksmash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "247": {
+    "hms": [
+      "rocksmash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "248": {
+    "hms": [
+      "cut",
+      "surf",
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "thunderwave",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "249": {
+    "hms": [
+      "fly",
+      "surf",
+      "strength",
+      "rocksmash",
+      "waterfall",
+      "dive"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "dreameater",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "250": {
+    "hms": [
+      "fly",
+      "strength",
+      "flash",
+      "rocksmash"
+    ],
+    "tutors": [
+      "doubleedge",
+      "mimic",
+      "dreameater",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "251": {
+    "hms": [
+      "cut",
+      "flash"
+    ],
+    "tutors": [
+      "swordsdance",
+      "doubleedge",
+      "mimic",
+      "metronome",
+      "dreameater",
+      "substitute"
+    ]
+  },
+  "252": {
+    "hms": [
+      "cut",
+      "strength",
+      "flash",
+      "rocksmash"
+    ],
+    "tutors": [
+      "megapunch",
+      "swordsdance",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "253": {
+    "hms": [
+      "cut",
+      "strength",
+      "flash",
+      "rocksmash"
+    ],
+    "tutors": [
+      "megapunch",
+      "swordsdance",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "254": {
+    "hms": [
+      "cut",
+      "strength",
+      "flash",
+      "rocksmash"
+    ],
+    "tutors": [
+      "megapunch",
+      "swordsdance",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "255": {
+    "hms": [
+      "cut",
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "megapunch",
+      "swordsdance",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "256": {
+    "hms": [
+      "cut",
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "megapunch",
+      "swordsdance",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "257": {
+    "hms": [
+      "cut",
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "megapunch",
+      "swordsdance",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "258": {
+    "hms": [
+      "surf",
+      "strength",
+      "rocksmash",
+      "waterfall",
+      "dive"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "259": {
+    "hms": [
+      "surf",
+      "strength",
+      "rocksmash",
+      "waterfall",
+      "dive"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "260": {
+    "hms": [
+      "surf",
+      "strength",
+      "rocksmash",
+      "waterfall",
+      "dive"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "261": {
+    "hms": [
+      "rocksmash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "262": {
+    "hms": [
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "263": {
+    "hms": [
+      "cut",
+      "surf",
+      "rocksmash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "264": {
+    "hms": [
+      "cut",
+      "surf",
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "265": {
+    "hms": [],
+    "tutors": []
+  },
+  "266": {
+    "hms": [],
+    "tutors": []
+  },
+  "267": {
+    "hms": [
+      "flash"
+    ],
+    "tutors": [
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "268": {
+    "hms": [],
+    "tutors": []
+  },
+  "269": {
+    "hms": [
+      "flash"
+    ],
+    "tutors": [
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "270": {
+    "hms": [
+      "surf",
+      "flash"
+    ],
+    "tutors": [
+      "swordsdance",
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "271": {
+    "hms": [
+      "surf",
+      "strength",
+      "flash",
+      "rocksmash",
+      "waterfall",
+      "dive"
+    ],
+    "tutors": [
+      "swordsdance",
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "272": {
+    "hms": [
+      "surf",
+      "strength",
+      "flash",
+      "rocksmash",
+      "waterfall",
+      "dive"
+    ],
+    "tutors": [
+      "megapunch",
+      "swordsdance",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "metronome",
+      "substitute"
+    ]
+  },
+  "273": {
+    "hms": [
+      "flash",
+      "rocksmash"
+    ],
+    "tutors": [
+      "swordsdance",
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "explosion",
+      "substitute"
+    ]
+  },
+  "274": {
+    "hms": [
+      "cut",
+      "strength",
+      "flash",
+      "rocksmash"
+    ],
+    "tutors": [
+      "swordsdance",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "explosion",
+      "substitute"
+    ]
+  },
+  "275": {
+    "hms": [
+      "cut",
+      "strength",
+      "flash",
+      "rocksmash"
+    ],
+    "tutors": [
+      "swordsdance",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "explosion",
+      "substitute"
+    ]
+  },
+  "276": {
+    "hms": [
+      "fly"
+    ],
+    "tutors": [
+      "doubleedge",
+      "counter",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "277": {
+    "hms": [
+      "fly"
+    ],
+    "tutors": [
+      "doubleedge",
+      "counter",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "278": {
+    "hms": [
+      "fly"
+    ],
+    "tutors": [
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "279": {
+    "hms": [
+      "fly",
+      "surf"
+    ],
+    "tutors": [
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "280": {
+    "hms": [
+      "flash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "dreameater",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "281": {
+    "hms": [
+      "flash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "dreameater",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "282": {
+    "hms": [
+      "flash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "dreameater",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "283": {
+    "hms": [
+      "flash"
+    ],
+    "tutors": [
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "284": {
+    "hms": [
+      "flash"
+    ],
+    "tutors": [
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "285": {
+    "hms": [
+      "flash"
+    ],
+    "tutors": [
+      "swordsdance",
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "286": {
+    "hms": [
+      "cut",
+      "strength",
+      "flash",
+      "rocksmash"
+    ],
+    "tutors": [
+      "megapunch",
+      "swordsdance",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "287": {
+    "hms": [
+      "cut",
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "288": {
+    "hms": [
+      "cut",
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "289": {
+    "hms": [
+      "cut",
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "290": {
+    "hms": [
+      "cut",
+      "flash"
+    ],
+    "tutors": [
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "291": {
+    "hms": [
+      "cut",
+      "flash"
+    ],
+    "tutors": [
+      "swordsdance",
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "292": {
+    "hms": [
+      "cut",
+      "flash"
+    ],
+    "tutors": [
+      "doubleedge",
+      "mimic",
+      "dreameater",
+      "substitute"
+    ]
+  },
+  "293": {
+    "hms": [],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "294": {
+    "hms": [
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "295": {
+    "hms": [
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "296": {
+    "hms": [
+      "surf",
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "metronome",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "297": {
+    "hms": [
+      "surf",
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "metronome",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "298": {
+    "hms": [
+      "surf",
+      "waterfall"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "299": {
+    "hms": [
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "thunderwave",
+      "explosion",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "300": {
+    "hms": [
+      "flash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "dreameater",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "301": {
+    "hms": [
+      "strength",
+      "flash",
+      "rocksmash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "dreameater",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "302": {
+    "hms": [
+      "cut",
+      "flash",
+      "rocksmash"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "metronome",
+      "dreameater",
+      "substitute"
+    ]
+  },
+  "303": {
+    "hms": [
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "megapunch",
+      "swordsdance",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "304": {
+    "hms": [
+      "cut",
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "305": {
+    "hms": [
+      "cut",
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "306": {
+    "hms": [
+      "cut",
+      "surf",
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "thunderwave",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "307": {
+    "hms": [
+      "strength",
+      "flash",
+      "rocksmash"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "metronome",
+      "dreameater",
+      "substitute"
+    ]
+  },
+  "308": {
+    "hms": [
+      "strength",
+      "flash",
+      "rocksmash"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "metronome",
+      "dreameater",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "309": {
+    "hms": [
+      "strength",
+      "flash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "310": {
+    "hms": [
+      "strength",
+      "flash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "311": {
+    "hms": [
+      "flash"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "metronome",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "312": {
+    "hms": [
+      "flash"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "metronome",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "313": {
+    "hms": [
+      "flash"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "metronome",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "314": {
+    "hms": [
+      "flash"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "metronome",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "315": {
+    "hms": [
+      "cut",
+      "flash"
+    ],
+    "tutors": [
+      "swordsdance",
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "316": {
+    "hms": [
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "mimic",
+      "dreameater",
+      "explosion",
+      "substitute"
+    ]
+  },
+  "317": {
+    "hms": [
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "mimic",
+      "dreameater",
+      "explosion",
+      "substitute"
+    ]
+  },
+  "318": {
+    "hms": [
+      "surf",
+      "waterfall",
+      "dive"
+    ],
+    "tutors": [
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "319": {
+    "hms": [
+      "surf",
+      "strength",
+      "rocksmash",
+      "waterfall",
+      "dive"
+    ],
+    "tutors": [
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "320": {
+    "hms": [
+      "surf",
+      "strength",
+      "rocksmash",
+      "waterfall",
+      "dive"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "321": {
+    "hms": [
+      "surf",
+      "strength",
+      "rocksmash",
+      "waterfall",
+      "dive"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "322": {
+    "hms": [
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "323": {
+    "hms": [
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "explosion",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "324": {
+    "hms": [
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "explosion",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "325": {
+    "hms": [
+      "flash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "dreameater",
+      "substitute"
+    ]
+  },
+  "326": {
+    "hms": [
+      "flash"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "dreameater",
+      "substitute"
+    ]
+  },
+  "327": {
+    "hms": [
+      "strength",
+      "flash",
+      "rocksmash"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "metronome",
+      "dreameater",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "328": {
+    "hms": [
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "329": {
+    "hms": [
+      "fly",
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "330": {
+    "hms": [
+      "fly",
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "331": {
+    "hms": [
+      "cut",
+      "flash"
+    ],
+    "tutors": [
+      "megapunch",
+      "swordsdance",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "332": {
+    "hms": [
+      "cut",
+      "strength",
+      "flash"
+    ],
+    "tutors": [
+      "megapunch",
+      "swordsdance",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "333": {
+    "hms": [
+      "fly"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "dreameater",
+      "substitute"
+    ]
+  },
+  "334": {
+    "hms": [
+      "fly",
+      "rocksmash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "dreameater",
+      "substitute"
+    ]
+  },
+  "335": {
+    "hms": [
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "megapunch",
+      "swordsdance",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "thunderwave",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "336": {
+    "hms": [
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "337": {
+    "hms": [
+      "flash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "dreameater",
+      "explosion",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "338": {
+    "hms": [
+      "flash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "dreameater",
+      "explosion",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "339": {
+    "hms": [
+      "surf",
+      "waterfall",
+      "dive"
+    ],
+    "tutors": [
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "340": {
+    "hms": [
+      "surf",
+      "strength",
+      "rocksmash",
+      "waterfall",
+      "dive"
+    ],
+    "tutors": [
+      "doubleedge",
+      "mimic",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "341": {
+    "hms": [
+      "cut",
+      "surf",
+      "strength",
+      "rocksmash",
+      "waterfall"
+    ],
+    "tutors": [
+      "swordsdance",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "342": {
+    "hms": [
+      "cut",
+      "surf",
+      "strength",
+      "rocksmash",
+      "waterfall",
+      "dive"
+    ],
+    "tutors": [
+      "swordsdance",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "343": {
+    "hms": [
+      "flash"
+    ],
+    "tutors": [
+      "doubleedge",
+      "mimic",
+      "dreameater",
+      "explosion",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "344": {
+    "hms": [
+      "strength",
+      "flash",
+      "rocksmash"
+    ],
+    "tutors": [
+      "doubleedge",
+      "mimic",
+      "dreameater",
+      "explosion",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "345": {
+    "hms": [],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "346": {
+    "hms": [
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "347": {
+    "hms": [
+      "cut",
+      "rocksmash"
+    ],
+    "tutors": [
+      "swordsdance",
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "348": {
+    "hms": [
+      "cut",
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "swordsdance",
+      "bodyslam",
+      "doubleedge",
+      "seismictoss",
+      "mimic",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "349": {
+    "hms": [
+      "surf",
+      "waterfall",
+      "dive"
+    ],
+    "tutors": [
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "350": {
+    "hms": [
+      "surf",
+      "waterfall",
+      "dive"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "351": {
+    "hms": [
+      "flash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "352": {
+    "hms": [
+      "cut",
+      "strength",
+      "flash",
+      "rocksmash"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "metronome",
+      "thunderwave",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "353": {
+    "hms": [
+      "flash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "dreameater",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "354": {
+    "hms": [
+      "flash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "metronome",
+      "dreameater",
+      "thunderwave",
       "substitute"
     ]
   },
@@ -2214,6 +5150,76 @@
       "substitute"
     ]
   },
+  "356": {
+    "hms": [
+      "strength",
+      "flash",
+      "rocksmash"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "metronome",
+      "dreameater",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "357": {
+    "hms": [
+      "cut",
+      "fly",
+      "strength",
+      "flash",
+      "rocksmash"
+    ],
+    "tutors": [
+      "swordsdance",
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "358": {
+    "hms": [
+      "flash"
+    ],
+    "tutors": [
+      "doubleedge",
+      "mimic",
+      "dreameater",
+      "substitute"
+    ]
+  },
+  "359": {
+    "hms": [
+      "cut",
+      "strength",
+      "flash",
+      "rocksmash"
+    ],
+    "tutors": [
+      "swordsdance",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "mimic",
+      "dreameater",
+      "thunderwave",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "360": {
+    "hms": [],
+    "tutors": []
+  },
   "361": {
     "hms": [
       "flash"
@@ -2222,6 +5228,394 @@
       "bodyslam",
       "doubleedge",
       "mimic",
+      "substitute"
+    ]
+  },
+  "362": {
+    "hms": [
+      "flash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "explosion",
+      "substitute"
+    ]
+  },
+  "363": {
+    "hms": [
+      "surf",
+      "strength",
+      "rocksmash",
+      "waterfall",
+      "dive"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "364": {
+    "hms": [
+      "surf",
+      "strength",
+      "rocksmash",
+      "waterfall",
+      "dive"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "365": {
+    "hms": [
+      "surf",
+      "strength",
+      "rocksmash",
+      "waterfall",
+      "dive"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "366": {
+    "hms": [
+      "surf",
+      "waterfall",
+      "dive"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "367": {
+    "hms": [
+      "surf",
+      "waterfall",
+      "dive"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "368": {
+    "hms": [
+      "surf",
+      "waterfall",
+      "dive"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "369": {
+    "hms": [
+      "surf",
+      "rocksmash",
+      "waterfall",
+      "dive"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "370": {
+    "hms": [
+      "surf",
+      "waterfall",
+      "dive"
+    ],
+    "tutors": [
+      "doubleedge",
+      "mimic",
+      "substitute"
+    ]
+  },
+  "371": {
+    "hms": [
+      "cut",
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "372": {
+    "hms": [
+      "cut",
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "373": {
+    "hms": [
+      "cut",
+      "fly",
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "374": {
+    "hms": [],
+    "tutors": []
+  },
+  "375": {
+    "hms": [
+      "cut",
+      "strength",
+      "flash",
+      "rocksmash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "explosion",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "376": {
+    "hms": [
+      "cut",
+      "strength",
+      "flash",
+      "rocksmash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "explosion",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "377": {
+    "hms": [
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "thunderwave",
+      "explosion",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "378": {
+    "hms": [
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "thunderwave",
+      "explosion",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "379": {
+    "hms": [
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "thunderwave",
+      "explosion",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "380": {
+    "hms": [
+      "cut",
+      "fly",
+      "surf",
+      "flash",
+      "waterfall",
+      "dive"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "dreameater",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "381": {
+    "hms": [
+      "cut",
+      "fly",
+      "surf",
+      "flash",
+      "waterfall",
+      "dive"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "dreameater",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "382": {
+    "hms": [
+      "surf",
+      "strength",
+      "rocksmash",
+      "waterfall",
+      "dive"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "thunderwave",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "383": {
+    "hms": [
+      "cut",
+      "strength",
+      "rocksmash"
+    ],
+    "tutors": [
+      "megapunch",
+      "swordsdance",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "thunderwave",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "384": {
+    "hms": [
+      "fly",
+      "surf",
+      "strength",
+      "rocksmash",
+      "waterfall",
+      "dive"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "thunderwave",
+      "rockslide",
+      "substitute"
+    ]
+  },
+  "385": {
+    "hms": [
+      "flash"
+    ],
+    "tutors": [
+      "bodyslam",
+      "doubleedge",
+      "mimic",
+      "metronome",
+      "dreameater",
+      "thunderwave",
+      "substitute"
+    ]
+  },
+  "386": {
+    "hms": [
+      "cut",
+      "strength",
+      "flash",
+      "rocksmash"
+    ],
+    "tutors": [
+      "megapunch",
+      "megakick",
+      "bodyslam",
+      "doubleedge",
+      "counter",
+      "seismictoss",
+      "mimic",
+      "dreameater",
+      "thunderwave",
+      "rockslide",
       "substitute"
     ]
   },

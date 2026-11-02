@@ -1,6 +1,6 @@
-# Gen 1 + retained Pokémon
+# National 386 + two retained Pokémon
 
-Modern base stats and typings. Moves checked against recorded learnsets, including pre-evolutions across generations. Real-time execution is adapted. Ditto has Transform plus three explicitly marked arena actions until transformation.
+Modern base stats and typings. Moves checked against recorded learnsets, including pre-evolutions across generations. Real-time execution is adapted. Ditto, Unown and Smeargle keep their species move plus three explicitly marked arena actions.
 
 | No. | Pokémon | Types | HP / Atk / Def / SpA / SpD / Spe | Q | E | F | C |
 |---|---|---|---|---|---|---|---|
@@ -156,9 +156,239 @@ Modern base stats and typings. Moves checked against recorded learnsets, includi
 | 150 | Mewtwo | Psychic | 106 / 110 / 90 / 154 / 90 / 130 | Confusion | Shadow Ball | Psystrike | Recover |
 | 151 | Mew | Psychic | 100 / 100 / 100 / 100 / 100 / 100 | Psychic | Aura Sphere | Energy Ball | Life Dew |
 | 152 | Chikorita | Grass | 45 / 49 / 65 / 49 / 65 / 45 | Razor Leaf | Body Slam | Energy Ball | Synthesis |
+| 153 | Bayleef | Grass | 60 / 62 / 80 / 63 / 80 / 60 | Energy Ball | Leaf Storm | Solar Beam | Solar Blade |
+| 154 | Meganium | Grass | 80 / 82 / 100 / 83 / 100 / 80 | Energy Ball | Leaf Storm | Petal Dance | Solar Beam |
+| 155 | Cyndaquil | Fire | 39 / 52 / 43 / 60 / 50 / 65 | Burn Up | Fire Blast | Flamethrower | Heat Wave |
+| 156 | Quilava | Fire | 58 / 64 / 58 / 80 / 65 / 80 | Burn Up | Fire Blast | Flamethrower | Heat Wave |
+| 157 | Typhlosion | Fire | 78 / 84 / 78 / 109 / 85 / 100 | Burn Up | Fire Blast | Flamethrower | Heat Wave |
+| 158 | Totodile | Water | 50 / 65 / 64 / 44 / 48 / 43 | Aqua Tail | Liquidation | Hydro Pump | Muddy Water |
+| 159 | Croconaw | Water | 65 / 80 / 80 / 59 / 63 / 58 | Aqua Tail | Liquidation | Hydro Pump | Muddy Water |
+| 160 | Feraligatr | Water | 85 / 105 / 100 / 79 / 83 / 78 | Aqua Tail | Liquidation | Dive | Waterfall |
+| 161 | Sentret | Normal | 35 / 46 / 34 / 35 / 45 / 20 | Double-Edge | Take Down | Hyper Voice | Uproar |
+| 162 | Furret | Normal | 85 / 76 / 64 / 45 / 55 / 90 | Double-Edge | Take Down | Body Slam | Slam |
+| 163 | Hoothoot | Normal/Flying | 60 / 30 / 30 / 36 / 56 / 50 | Hurricane | Hyper Voice | Uproar | Brave Bird |
+| 164 | Noctowl | Normal/Flying | 100 / 50 / 50 / 86 / 96 / 70 | Hurricane | Hyper Voice | Uproar | Air Slash |
+| 165 | Ledyba | Bug/Flying | 40 / 20 / 30 / 40 / 80 / 55 | Bug Buzz | Air Slash | U-turn | Air Cutter |
+| 166 | Ledian | Bug/Flying | 55 / 35 / 50 / 55 / 110 / 85 | Bug Buzz | Air Slash | U-turn | Air Cutter |
+| 167 | Spinarak | Bug/Poison | 40 / 60 / 40 / 40 / 40 / 30 | Megahorn | Bug Buzz | Sludge Bomb | Sludge Wave |
+| 168 | Ariados | Bug/Poison | 70 / 90 / 70 / 60 / 70 / 40 | Megahorn | Leech Life | Lunge | Poison Jab |
+| 169 | Crobat | Poison/Flying | 85 / 90 / 80 / 70 / 80 / 130 | Brave Bird | Fly | Hurricane | Sludge Bomb |
+| 170 | Chinchou | Water/Electric | 75 / 38 / 38 / 56 / 56 / 67 | Hydro Pump | Muddy Water | Surf | Thunder |
+| 171 | Lanturn | Water/Electric | 125 / 58 / 58 / 76 / 76 / 67 | Hydro Pump | Muddy Water | Surf | Thunder |
+| 172 | Pichu | Electric | 20 / 40 / 15 / 35 / 35 / 60 | Volt Tackle | Wild Charge | Thunder | Thunderbolt |
+| 173 | Cleffa | Fairy | 50 / 25 / 28 / 45 / 55 / 15 | Play Rough | Alluring Voice | Dazzling Gleam | Draining Kiss |
+| 174 | Igglybuff | Normal/Fairy | 90 / 30 / 15 / 40 / 20 / 15 | Hyper Voice | Uproar | Double-Edge | Mega Kick |
+| 175 | Togepi | Fairy | 35 / 20 / 65 / 40 / 65 / 20 | Play Rough | Dazzling Gleam | Draining Kiss | Dream Eater |
+| 176 | Togetic | Fairy/Flying | 55 / 40 / 85 / 80 / 105 / 40 | Dazzling Gleam | Fly | Play Rough | Air Cutter |
+| 177 | Natu | Psychic/Flying | 40 / 50 / 45 / 70 / 45 / 70 | Dream Eater | Future Sight | Psychic | Synchronoise |
+| 178 | Xatu | Psychic/Flying | 65 / 75 / 70 / 95 / 70 / 95 | Dream Eater | Future Sight | Psychic | Synchronoise |
+| 179 | Mareep | Electric | 55 / 40 / 40 / 65 / 45 / 35 | Thunder | Thunderbolt | Zap Cannon | Discharge |
+| 180 | Flaaffy | Electric | 70 / 55 / 55 / 80 / 60 / 45 | Thunder | Thunderbolt | Zap Cannon | Discharge |
+| 181 | Ampharos | Electric | 90 / 75 / 85 / 115 / 90 / 55 | Thunder | Thunderbolt | Zap Cannon | Discharge |
+| 182 | Bellossom | Grass | 75 / 80 / 95 / 90 / 100 / 50 | Energy Ball | Leaf Storm | Petal Dance | Solar Beam |
+| 183 | Marill | Water/Fairy | 70 / 20 / 50 / 20 / 50 / 40 | Aqua Tail | Hydro Pump | Muddy Water | Play Rough |
+| 184 | Azumarill | Water/Fairy | 100 / 50 / 80 / 60 / 80 / 50 | Hydro Pump | Muddy Water | Surf | Aqua Tail |
 | 185 | Sudowoodo | Rock | 70 / 100 / 115 / 30 / 65 / 30 | Rock Throw | Low Kick | Rock Slide | Iron Defense |
+| 186 | Politoed | Water | 90 / 75 / 75 / 90 / 100 / 70 | Hydro Pump | Muddy Water | Surf | Scald |
+| 187 | Hoppip | Grass/Flying | 35 / 35 / 40 / 35 / 55 / 50 | Energy Ball | Leaf Storm | Solar Beam | Bounce |
+| 188 | Skiploom | Grass/Flying | 55 / 45 / 50 / 45 / 65 / 80 | Energy Ball | Leaf Storm | Solar Beam | Bounce |
+| 189 | Jumpluff | Grass/Flying | 75 / 55 / 70 / 55 / 95 / 110 | Energy Ball | Leaf Storm | Solar Beam | Bounce |
+| 190 | Aipom | Normal | 55 / 70 / 55 / 40 / 55 / 85 | Double-Edge | Mega Kick | Take Down | Body Slam |
+| 191 | Sunkern | Grass | 30 / 30 / 30 / 30 / 30 / 30 | Energy Ball | Leaf Storm | Solar Beam | Seed Bomb |
+| 192 | Sunflora | Grass | 75 / 75 / 55 / 105 / 85 / 30 | Energy Ball | Leaf Storm | Petal Dance | Solar Beam |
+| 193 | Yanma | Bug/Flying | 65 / 65 / 45 / 75 / 45 / 95 | Bug Buzz | Leech Life | Lunge | Air Slash |
+| 194 | Wooper | Water/Ground | 55 / 45 / 45 / 25 / 25 / 15 | Aqua Tail | Earthquake | Liquidation | Earth Power |
+| 195 | Quagsire | Water/Ground | 95 / 85 / 85 / 65 / 65 / 35 | Aqua Tail | Earthquake | High Horsepower | Liquidation |
+| 196 | Espeon | Psychic | 65 / 65 / 60 / 130 / 95 / 110 | Dream Eater | Future Sight | Psychic | Synchronoise |
 | 197 | Umbreon | Dark | 95 / 65 / 110 / 60 / 130 / 65 | Snarl | Foul Play | Dark Pulse | Moonlight |
+| 198 | Murkrow | Dark/Flying | 60 / 85 / 42 / 85 / 42 / 91 | Brave Bird | Fly | Foul Play | Hurricane |
+| 199 | Slowking | Water/Psychic | 95 / 75 / 80 / 100 / 110 / 30 | Dream Eater | Future Sight | Hydro Pump | Muddy Water |
+| 200 | Misdreavus | Ghost | 60 / 60 / 60 / 85 / 85 / 85 | Shadow Ball | Phantom Force | Poltergeist | Hex |
+| 201 | Unown | Psychic | 48 / 72 / 48 / 72 / 48 / 48 | Hidden Power | Reposition | Struggle (Arena) | Guard (Arena) |
+| 202 | Wobbuffet | Psychic | 190 / 33 / 58 / 33 / 58 / 33 | Counter | Mirror Coat | Safeguard | Destiny Bond |
+| 203 | Girafarig | Normal/Psychic | 70 / 80 / 65 / 90 / 65 / 85 | Dream Eater | Future Sight | Hyper Voice | Psychic |
+| 204 | Pineco | Bug | 50 / 65 / 90 / 35 / 35 / 15 | Lunge | Bug Buzz | Bug Bite | Pounce |
+| 205 | Forretress | Bug/Steel | 75 / 90 / 140 / 60 / 60 / 40 | Iron Head | Lunge | Bug Buzz | Smart Strike |
+| 206 | Dunsparce | Normal | 100 / 70 / 70 / 65 / 65 / 45 | Double-Edge | Hyper Drill | Take Down | Hyper Voice |
+| 207 | Gligar | Ground/Flying | 65 / 75 / 105 / 35 / 65 / 85 | Earthquake | High Horsepower | Dig | Earth Power |
+| 208 | Steelix | Steel/Ground | 75 / 85 / 200 / 55 / 65 / 30 | Earthquake | High Horsepower | Iron Tail | Steel Roller |
+| 209 | Snubbull | Fairy | 60 / 80 / 50 / 40 / 40 / 30 | Play Rough | Dazzling Gleam | Close Combat | Double-Edge |
+| 210 | Granbull | Fairy | 90 / 120 / 75 / 60 / 60 / 45 | Play Rough | Dazzling Gleam | Close Combat | Double-Edge |
+| 211 | Qwilfish | Water/Poison | 65 / 95 / 85 / 55 / 55 / 85 | Aqua Tail | Gunk Shot | Liquidation | Dive |
+| 212 | Scizor | Bug/Steel | 70 / 130 / 100 / 55 / 80 / 65 | Iron Head | Lunge | X-Scissor | Skitter Smack |
+| 213 | Shuckle | Bug/Rock | 20 / 10 / 230 / 10 / 230 / 5 | Meteor Beam | Stone Edge | Rock Slide | Skitter Smack |
+| 214 | Heracross | Bug/Fighting | 80 / 125 / 75 / 40 / 95 / 85 | Close Combat | Megahorn | Lunge | Brick Break |
+| 215 | Sneasel | Dark/Ice | 55 / 95 / 55 / 35 / 75 / 115 | Foul Play | Icicle Crash | Throat Chop | Ice Punch |
+| 216 | Teddiursa | Normal | 60 / 80 / 50 / 50 / 50 / 40 | Double-Edge | Mega Kick | Take Down | Thrash |
+| 217 | Ursaring | Normal | 90 / 130 / 75 / 75 / 75 / 55 | Double-Edge | Mega Kick | Rock Climb | Take Down |
+| 218 | Slugma | Fire | 40 / 40 / 40 / 70 / 40 / 20 | Fire Blast | Flamethrower | Heat Wave | Inferno |
+| 219 | Magcargo | Fire/Rock | 60 / 50 / 120 / 90 / 80 / 30 | Fire Blast | Flamethrower | Heat Wave | Overheat |
+| 220 | Swinub | Ice/Ground | 50 / 50 / 40 / 30 / 30 / 50 | Earthquake | High Horsepower | Icicle Crash | Blizzard |
+| 221 | Piloswine | Ice/Ground | 100 / 100 / 80 / 60 / 60 / 50 | Earthquake | High Horsepower | Icicle Crash | Dig |
+| 222 | Corsola | Water/Rock | 65 / 55 / 95 / 65 / 95 / 35 | Hydro Pump | Meteor Beam | Surf | Stone Edge |
+| 223 | Remoraid | Water | 35 / 65 / 35 / 65 / 35 / 65 | Hydro Pump | Surf | Dive | Scald |
+| 224 | Octillery | Water | 75 / 105 / 75 / 105 / 75 / 45 | Hydro Pump | Surf | Liquidation | Dive |
+| 225 | Delibird | Ice/Flying | 45 / 55 / 45 / 65 / 45 / 75 | Blizzard | Ice Beam | Brave Bird | Fly |
+| 226 | Mantine | Water/Flying | 85 / 40 / 70 / 80 / 140 / 70 | Hurricane | Hydro Pump | Surf | Scald |
+| 227 | Skarmory | Steel/Flying | 65 / 80 / 140 / 40 / 70 / 70 | Brave Bird | Fly | Drill Peck | Iron Head |
+| 228 | Houndour | Dark/Fire | 45 / 60 / 30 / 80 / 50 / 65 | Fire Blast | Flamethrower | Heat Wave | Inferno |
+| 229 | Houndoom | Dark/Fire | 75 / 90 / 50 / 110 / 80 / 95 | Fire Blast | Flamethrower | Heat Wave | Inferno |
+| 230 | Kingdra | Water/Dragon | 75 / 95 / 95 / 95 / 95 / 85 | Draco Meteor | Hydro Pump | Muddy Water | Outrage |
+| 231 | Phanpy | Ground | 90 / 60 / 60 / 40 / 40 / 40 | Earthquake | High Horsepower | Earth Power | Dig |
+| 232 | Donphan | Ground | 90 / 120 / 120 / 60 / 60 / 50 | Earthquake | High Horsepower | Dig | Stomping Tantrum |
+| 233 | Porygon2 | Normal | 85 / 80 / 90 / 105 / 95 / 60 | Tri Attack | Double-Edge | Take Down | Skull Bash |
+| 234 | Stantler | Normal | 73 / 95 / 62 / 85 / 65 / 85 | Double-Edge | Take Down | Thrash | Uproar |
+| 235 | Smeargle | Normal | 55 / 20 / 35 / 20 / 45 / 75 | Sketch | Reposition | Struggle (Arena) | Guard (Arena) |
+| 236 | Tyrogue | Fighting | 35 / 35 / 35 / 35 / 35 / 35 | High Jump Kick | Brick Break | Low Sweep | Upper Hand |
+| 237 | Hitmontop | Fighting | 50 / 95 / 95 / 35 / 110 / 70 | Close Combat | High Jump Kick | Brick Break | Low Sweep |
+| 238 | Smoochum | Ice/Psychic | 45 / 30 / 15 / 85 / 65 / 65 | Blizzard | Dream Eater | Ice Beam | Psychic |
+| 239 | Elekid | Electric | 45 / 63 / 37 / 65 / 55 / 95 | Thunder | Thunderbolt | Zap Cannon | Supercell Slam |
+| 240 | Magby | Fire | 45 / 75 / 37 / 70 / 55 / 83 | Flare Blitz | Fire Blast | Flamethrower | Heat Wave |
+| 241 | Miltank | Normal | 95 / 80 / 105 / 40 / 70 / 100 | Double-Edge | Mega Kick | Body Slam | Mega Punch |
+| 242 | Blissey | Normal | 255 / 10 / 10 / 75 / 135 / 55 | Hyper Voice | Uproar | Tri Attack | Double-Edge |
+| 243 | Raikou | Electric | 90 / 85 / 75 / 115 / 100 / 115 | Thunderbolt | Extrasensory | Shadow Ball | Calm Mind |
+| 244 | Entei | Fire | 115 / 115 / 85 / 90 / 75 / 100 | Flamethrower | Extrasensory | Stomp | Sunny Day |
+| 245 | Suicune | Water | 100 / 75 / 115 / 90 / 115 / 85 | Surf | Ice Beam | Extrasensory | Calm Mind |
+| 246 | Larvitar | Rock/Ground | 50 / 64 / 50 / 45 / 50 / 41 | Earthquake | Stone Edge | Earth Power | Dig |
+| 247 | Pupitar | Rock/Ground | 70 / 84 / 70 / 65 / 70 / 51 | Earthquake | High Horsepower | Stone Edge | Earth Power |
+| 248 | Tyranitar | Rock/Dark | 100 / 134 / 110 / 95 / 100 / 61 | Foul Play | Stone Edge | Crunch | Lash Out |
+| 249 | Lugia | Psychic/Flying | 106 / 90 / 130 / 90 / 154 / 110 | Aeroblast | Psychic | Hydro Pump | Recover |
+| 250 | Ho-Oh | Fire/Flying | 106 / 130 / 90 / 110 / 154 / 90 | Sacred Fire | Brave Bird | Earthquake | Recover |
+| 251 | Celebi | Psychic/Grass | 100 / 100 / 100 / 100 / 100 / 100 | Dream Eater | Energy Ball | Future Sight | Leaf Blade |
+| 252 | Treecko | Grass | 40 / 45 / 35 / 65 / 55 / 70 | Energy Ball | Leaf Storm | Solar Beam | Grass Pledge |
+| 253 | Grovyle | Grass | 50 / 65 / 45 / 85 / 65 / 95 | Energy Ball | Leaf Storm | Solar Beam | Leaf Blade |
+| 254 | Sceptile | Grass | 70 / 85 / 65 / 105 / 85 / 120 | Energy Ball | Leaf Storm | Solar Beam | Leaf Blade |
+| 255 | Torchic | Fire | 45 / 60 / 40 / 70 / 50 / 45 | Fire Blast | Flamethrower | Heat Wave | Overheat |
+| 256 | Combusken | Fire/Fighting | 60 / 85 / 60 / 85 / 60 / 55 | Close Combat | Dynamic Punch | Fire Blast | Flamethrower |
+| 257 | Blaziken | Fire/Fighting | 80 / 120 / 70 / 110 / 70 / 80 | Close Combat | Dynamic Punch | Flare Blitz | High Jump Kick |
+| 258 | Mudkip | Water | 50 / 70 / 50 / 50 / 50 / 40 | Aqua Tail | Liquidation | Hydro Pump | Muddy Water |
+| 259 | Marshtomp | Water/Ground | 70 / 85 / 70 / 60 / 70 / 50 | Aqua Tail | Earthquake | Liquidation | Dig |
+| 260 | Swampert | Water/Ground | 100 / 110 / 90 / 85 / 90 / 60 | Aqua Tail | Earthquake | High Horsepower | Liquidation |
+| 261 | Poochyena | Dark | 35 / 55 / 35 / 30 / 30 / 35 | Foul Play | Crunch | Lash Out | Sucker Punch |
+| 262 | Mightyena | Dark | 70 / 90 / 70 / 60 / 60 / 70 | Foul Play | Crunch | Throat Chop | Lash Out |
+| 263 | Zigzagoon | Normal | 38 / 30 / 41 / 30 / 41 / 60 | Double-Edge | Hyper Voice | Rock Climb | Take Down |
+| 264 | Linoone | Normal | 78 / 70 / 61 / 50 / 61 / 100 | Double-Edge | Take Down | Rock Climb | Body Slam |
+| 265 | Wurmple | Bug | 45 / 45 / 35 / 20 / 30 / 20 | Bug Bite | Electroweb | Tackle | Snore |
+| 266 | Silcoon | Bug | 50 / 35 / 55 / 25 / 25 / 15 | Bug Bite | Electroweb | Snore | Tackle |
+| 267 | Beautifly | Bug/Flying | 60 / 70 / 50 / 100 / 50 / 65 | Bug Buzz | Signal Beam | Air Cutter | Silver Wind |
+| 268 | Cascoon | Bug | 50 / 35 / 55 / 25 / 25 / 15 | Bug Bite | Electroweb | Snore | Tackle |
+| 269 | Dustox | Bug/Poison | 60 / 50 / 70 / 50 / 90 / 65 | Bug Buzz | Sludge Bomb | Signal Beam | U-turn |
+| 270 | Lotad | Water/Grass | 40 / 30 / 30 / 40 / 50 / 30 | Energy Ball | Muddy Water | Solar Beam | Surf |
+| 271 | Lombre | Water/Grass | 60 / 50 / 50 / 60 / 70 / 50 | Energy Ball | Hydro Pump | Muddy Water | Solar Beam |
+| 272 | Ludicolo | Water/Grass | 80 / 70 / 70 / 90 / 100 / 70 | Energy Ball | Hydro Pump | Leaf Storm | Muddy Water |
+| 273 | Seedot | Grass | 40 / 40 / 50 / 30 / 30 / 30 | Energy Ball | Leaf Storm | Solar Beam | Seed Bomb |
+| 274 | Nuzleaf | Grass/Dark | 70 / 70 / 40 / 60 / 40 / 60 | Foul Play | Leaf Blade | Solar Blade | Energy Ball |
+| 275 | Shiftry | Grass/Dark | 90 / 100 / 60 / 90 / 60 / 80 | Foul Play | Leaf Blade | Petal Blizzard | Solar Blade |
+| 276 | Taillow | Normal/Flying | 40 / 55 / 30 / 30 / 30 / 85 | Brave Bird | Double-Edge | Fly | Hurricane |
+| 277 | Swellow | Normal/Flying | 60 / 85 / 60 / 75 / 50 / 125 | Brave Bird | Double-Edge | Fly | Hurricane |
+| 278 | Wingull | Water/Flying | 40 / 30 / 30 / 55 / 30 / 85 | Hurricane | Hydro Pump | Muddy Water | Surf |
+| 279 | Pelipper | Water/Flying | 60 / 50 / 100 / 95 / 70 / 65 | Hurricane | Hydro Pump | Muddy Water | Surf |
+| 280 | Ralts | Psychic/Fairy | 28 / 25 / 25 / 45 / 35 / 40 | Dream Eater | Future Sight | Psychic | Synchronoise |
+| 281 | Kirlia | Psychic/Fairy | 38 / 35 / 35 / 65 / 55 / 50 | Dream Eater | Future Sight | Psychic | Synchronoise |
+| 282 | Gardevoir | Psychic/Fairy | 68 / 65 / 65 / 125 / 115 / 80 | Dream Eater | Future Sight | Moonblast | Psychic |
+| 283 | Surskit | Bug/Water | 40 / 30 / 32 / 50 / 52 / 65 | Bug Buzz | Hydro Pump | Surf | Scald |
+| 284 | Masquerain | Bug/Flying | 70 / 60 / 62 / 100 / 82 / 80 | Bug Buzz | Hurricane | Air Slash | Signal Beam |
+| 285 | Shroomish | Grass | 60 / 40 / 60 / 40 / 60 / 35 | Energy Ball | Solar Beam | Seed Bomb | Giga Drain |
+| 286 | Breloom | Grass/Fighting | 60 / 130 / 80 / 60 / 60 / 70 | Close Combat | Dynamic Punch | Superpower | Sky Uppercut |
+| 287 | Slakoth | Normal | 60 / 60 / 60 / 35 / 35 / 30 | Double-Edge | Mega Kick | Take Down | Body Slam |
+| 288 | Vigoroth | Normal | 80 / 80 / 80 / 55 / 55 / 90 | Double-Edge | Mega Kick | Rock Climb | Take Down |
+| 289 | Slaking | Normal | 150 / 160 / 100 / 95 / 65 / 100 | Double-Edge | Mega Kick | Rock Climb | Take Down |
+| 290 | Nincada | Bug/Ground | 31 / 45 / 90 / 30 / 30 / 40 | Bug Buzz | Dig | Leech Life | X-Scissor |
+| 291 | Ninjask | Bug/Flying | 61 / 90 / 45 / 50 / 50 / 160 | Leech Life | X-Scissor | Bug Buzz | Skitter Smack |
+| 292 | Shedinja | Bug/Ghost | 1 / 90 / 45 / 30 / 30 / 40 | Phantom Force | Poltergeist | Leech Life | X-Scissor |
+| 293 | Whismur | Normal | 64 / 51 / 23 / 51 / 23 / 28 | Double-Edge | Hyper Voice | Mega Kick | Take Down |
+| 294 | Loudred | Normal | 84 / 71 / 43 / 71 / 43 / 48 | Double-Edge | Hyper Voice | Mega Kick | Uproar |
+| 295 | Exploud | Normal | 104 / 91 / 63 / 91 / 73 / 68 | Double-Edge | Hyper Voice | Mega Kick | Rock Climb |
+| 296 | Makuhita | Fighting | 72 / 60 / 30 / 20 / 30 / 25 | Close Combat | Cross Chop | Dynamic Punch | Superpower |
+| 297 | Hariyama | Fighting | 144 / 120 / 60 / 40 / 60 / 50 | Close Combat | Dynamic Punch | Superpower | Cross Chop |
+| 298 | Azurill | Normal/Fairy | 50 / 20 / 40 / 20 / 40 / 20 | Double-Edge | Hyper Voice | Take Down | Uproar |
+| 299 | Nosepass | Rock | 30 / 45 / 135 / 45 / 90 / 30 | Meteor Beam | Stone Edge | Power Gem | Rock Slide |
+| 300 | Skitty | Normal | 50 / 45 / 45 / 35 / 35 / 50 | Double-Edge | Hyper Voice | Uproar | Body Slam |
+| 301 | Delcatty | Normal | 70 / 65 / 65 / 55 / 55 / 90 | Double-Edge | Hyper Voice | Uproar | Body Slam |
+| 302 | Sableye | Dark/Ghost | 50 / 75 / 75 / 65 / 65 / 50 | Foul Play | Phantom Force | Poltergeist | Throat Chop |
+| 303 | Mawile | Steel/Fairy | 50 / 85 / 85 / 55 / 55 / 50 | Play Rough | Iron Head | Flash Cannon | Draining Kiss |
+| 304 | Aron | Steel/Rock | 50 / 70 / 100 / 40 / 40 / 30 | Iron Tail | Steel Roller | Iron Head | Rock Slide |
+| 305 | Lairon | Steel/Rock | 60 / 90 / 140 / 50 / 50 / 40 | Iron Tail | Steel Roller | Stone Edge | Iron Head |
+| 306 | Aggron | Steel/Rock | 70 / 110 / 180 / 60 / 60 / 50 | Iron Tail | Steel Roller | Stone Edge | Iron Head |
+| 307 | Meditite | Fighting/Psychic | 30 / 40 / 55 / 40 / 55 / 60 | Close Combat | Dream Eater | Dynamic Punch | Focus Blast |
+| 308 | Medicham | Fighting/Psychic | 60 / 60 / 75 / 60 / 75 / 80 | Axe Kick | Close Combat | Dream Eater | Dynamic Punch |
+| 309 | Electrike | Electric | 40 / 45 / 40 / 65 / 40 / 65 | Thunder | Thunderbolt | Wild Charge | Discharge |
+| 310 | Manectric | Electric | 70 / 75 / 60 / 105 / 60 / 105 | Thunder | Thunderbolt | Discharge | Wild Charge |
+| 311 | Plusle | Electric | 60 / 50 / 40 / 85 / 75 / 95 | Thunder | Thunderbolt | Discharge | Wild Charge |
+| 312 | Minun | Electric | 60 / 40 / 50 / 75 / 85 / 95 | Thunder | Thunderbolt | Discharge | Wild Charge |
+| 313 | Volbeat | Bug | 65 / 73 / 75 / 47 / 85 / 85 | Lunge | Bug Buzz | Skitter Smack | U-turn |
+| 314 | Illumise | Bug | 65 / 47 / 75 / 73 / 85 / 85 | Bug Buzz | Silver Wind | Skitter Smack | U-turn |
+| 315 | Roselia | Grass/Poison | 50 / 60 / 45 / 100 / 80 / 65 | Energy Ball | Leaf Storm | Petal Dance | Sludge Bomb |
+| 316 | Gulpin | Poison | 70 / 43 / 53 / 43 / 53 / 40 | Belch | Gunk Shot | Sludge Bomb | Sludge Wave |
+| 317 | Swalot | Poison | 100 / 73 / 83 / 73 / 83 / 55 | Belch | Gunk Shot | Sludge Bomb | Sludge Wave |
+| 318 | Carvanha | Water/Dark | 45 / 90 / 20 / 65 / 20 / 65 | Liquidation | Crunch | Dive | Waterfall |
+| 319 | Sharpedo | Water/Dark | 70 / 120 / 40 / 95 / 40 / 95 | Liquidation | Crunch | Dive | Waterfall |
+| 320 | Wailmer | Water | 130 / 70 / 35 / 70 / 35 / 60 | Hydro Pump | Surf | Dive | Scald |
+| 321 | Wailord | Water | 170 / 90 / 45 / 90 / 45 / 60 | Hydro Pump | Surf | Liquidation | Dive |
+| 322 | Numel | Fire/Ground | 60 / 60 / 40 / 65 / 45 / 35 | Earth Power | Fire Blast | Flamethrower | Heat Wave |
+| 323 | Camerupt | Fire/Ground | 70 / 100 / 70 / 105 / 75 / 40 | Earth Power | Fire Blast | Flamethrower | Heat Wave |
+| 324 | Torkoal | Fire | 70 / 85 / 140 / 85 / 70 / 20 | Fire Blast | Flamethrower | Flare Blitz | Heat Wave |
+| 325 | Spoink | Psychic | 60 / 25 / 35 / 70 / 80 / 60 | Dream Eater | Future Sight | Psychic | Expanding Force |
+| 326 | Grumpig | Psychic | 80 / 45 / 65 / 90 / 110 / 80 | Dream Eater | Future Sight | Psychic | Expanding Force |
+| 327 | Spinda | Normal | 60 / 60 / 60 / 60 / 60 / 60 | Double-Edge | Hyper Voice | Mega Kick | Thrash |
+| 328 | Trapinch | Ground | 45 / 100 / 45 / 45 / 45 / 10 | Earthquake | Dig | Earth Power | Bulldoze |
+| 329 | Vibrava | Ground/Dragon | 50 / 70 / 50 / 50 / 50 / 70 | Dragon Rush | Earthquake | Outrage | Draco Meteor |
+| 330 | Flygon | Ground/Dragon | 80 / 100 / 80 / 80 / 80 / 100 | Dragon Rush | Earthquake | Outrage | Draco Meteor |
+| 331 | Cacnea | Grass | 50 / 85 / 40 / 85 / 40 / 35 | Energy Ball | Leaf Storm | Solar Beam | Seed Bomb |
+| 332 | Cacturne | Grass/Dark | 70 / 115 / 60 / 115 / 60 / 55 | Energy Ball | Foul Play | Leaf Storm | Solar Beam |
+| 333 | Swablu | Normal/Flying | 45 / 40 / 60 / 40 / 75 / 50 | Brave Bird | Double-Edge | Fly | Hurricane |
+| 334 | Altaria | Dragon/Flying | 75 / 70 / 90 / 70 / 105 / 80 | Brave Bird | Draco Meteor | Fly | Hurricane |
+| 335 | Zangoose | Normal | 73 / 115 / 60 / 60 / 60 / 90 | Double-Edge | Mega Kick | Rock Climb | Take Down |
+| 336 | Seviper | Poison | 73 / 100 / 60 / 100 / 60 / 65 | Belch | Gunk Shot | Sludge Bomb | Sludge Wave |
+| 337 | Lunatone | Rock/Psychic | 90 / 55 / 65 / 95 / 85 / 70 | Dream Eater | Future Sight | Meteor Beam | Psychic |
+| 338 | Solrock | Rock/Psychic | 90 / 95 / 85 / 55 / 65 / 70 | Stone Edge | Zen Headbutt | Rock Slide | Dream Eater |
+| 339 | Barboach | Water/Ground | 50 / 48 / 43 / 46 / 41 / 60 | Aqua Tail | Earthquake | High Horsepower | Earth Power |
+| 340 | Whiscash | Water/Ground | 110 / 78 / 73 / 76 / 71 / 60 | Aqua Tail | Earthquake | High Horsepower | Earth Power |
+| 341 | Corphish | Water | 43 / 80 / 65 / 50 / 35 / 35 | Crabhammer | Liquidation | Waterfall | Hydro Pump |
+| 342 | Crawdaunt | Water/Dark | 63 / 120 / 85 / 90 / 55 / 55 | Crabhammer | Liquidation | Crunch | Dive |
+| 343 | Baltoy | Ground/Psychic | 40 / 40 / 55 / 40 / 70 / 55 | Dream Eater | Earth Power | Earthquake | Psychic |
+| 344 | Claydol | Ground/Psychic | 60 / 70 / 105 / 70 / 120 / 75 | Dream Eater | Earth Power | Earthquake | Future Sight |
+| 345 | Lileep | Rock/Grass | 66 / 41 / 77 / 61 / 87 / 23 | Energy Ball | Meteor Beam | Solar Beam | Giga Drain |
+| 346 | Cradily | Rock/Grass | 86 / 81 / 97 / 81 / 107 / 43 | Energy Ball | Meteor Beam | Power Whip | Solar Beam |
+| 347 | Anorith | Rock/Bug | 45 / 95 / 50 / 40 / 50 / 75 | X-Scissor | Rock Slide | Meteor Beam | Bug Bite |
+| 348 | Armaldo | Rock/Bug | 75 / 125 / 100 / 70 / 80 / 45 | Stone Edge | X-Scissor | Rock Slide | Meteor Beam |
+| 349 | Feebas | Water | 20 / 15 / 20 / 10 / 55 / 80 | Muddy Water | Surf | Dive | Waterfall |
+| 350 | Milotic | Water | 95 / 60 / 79 / 100 / 125 / 81 | Hydro Pump | Muddy Water | Surf | Scald |
+| 351 | Castform | Normal | 70 / 70 / 70 / 70 / 70 / 70 | Double-Edge | Body Slam | Facade | Headbutt |
+| 352 | Kecleon | Normal | 60 / 90 / 70 / 60 / 120 / 40 | Double-Edge | Mega Kick | Body Slam | Mega Punch |
+| 353 | Shuppet | Ghost | 44 / 75 / 35 / 63 / 33 / 45 | Phantom Force | Poltergeist | Shadow Ball | Hex |
+| 354 | Banette | Ghost | 64 / 115 / 65 / 83 / 63 / 65 | Phantom Force | Poltergeist | Shadow Claw | Shadow Ball |
 | 355 | Duskull | Ghost | 20 / 40 / 90 / 30 / 90 / 25 | Astonish | Shadow Ball | Icy Wind | Will-O-Wisp |
+| 356 | Dusclops | Ghost | 40 / 70 / 130 / 60 / 130 / 25 | Phantom Force | Poltergeist | Shadow Ball | Hex |
+| 357 | Tropius | Grass/Flying | 99 / 68 / 83 / 72 / 87 / 51 | Energy Ball | Hurricane | Leaf Storm | Solar Beam |
+| 358 | Chimecho | Psychic | 75 / 50 / 80 / 95 / 90 / 65 | Dream Eater | Future Sight | Psychic | Synchronoise |
+| 359 | Absol | Dark | 65 / 130 / 60 / 75 / 60 / 75 | Foul Play | Throat Chop | Night Slash | Sucker Punch |
+| 360 | Wynaut | Psychic | 95 / 23 / 48 / 23 / 48 / 23 | Counter | Mirror Coat | Safeguard | Destiny Bond |
 | 361 | Snorunt | Ice | 50 / 50 / 50 / 50 / 50 / 50 | Powder Snow | Bite | Ice Beam | Protect |
+| 362 | Glalie | Ice | 80 / 80 / 80 / 80 / 80 / 80 | Blizzard | Ice Beam | Icicle Crash | Ice Spinner |
+| 363 | Spheal | Ice/Water | 70 / 40 / 50 / 55 / 50 / 25 | Blizzard | Ice Beam | Surf | Aqua Tail |
+| 364 | Sealeo | Ice/Water | 90 / 60 / 70 / 75 / 70 / 45 | Blizzard | Ice Beam | Surf | Aqua Tail |
+| 365 | Walrein | Ice/Water | 110 / 80 / 90 / 95 / 90 / 65 | Blizzard | Hydro Pump | Ice Beam | Surf |
+| 366 | Clamperl | Water | 35 / 64 / 85 / 74 / 55 / 32 | Muddy Water | Surf | Scald | Dive |
+| 367 | Huntail | Water | 55 / 104 / 105 / 94 / 75 / 52 | Aqua Tail | Hydro Pump | Surf | Muddy Water |
+| 368 | Gorebyss | Water | 55 / 84 / 105 / 114 / 75 / 52 | Hydro Pump | Surf | Muddy Water | Scald |
+| 369 | Relicanth | Water/Rock | 100 / 90 / 130 / 45 / 65 / 55 | Aqua Tail | Stone Edge | Liquidation | Dive |
+| 370 | Luvdisc | Water | 43 / 30 / 55 / 40 / 65 / 97 | Hydro Pump | Surf | Liquidation | Scald |
+| 371 | Bagon | Dragon | 45 / 75 / 60 / 40 / 30 / 50 | Dragon Rush | Outrage | Dragon Claw | Draco Meteor |
+| 372 | Shelgon | Dragon | 65 / 95 / 100 / 60 / 50 / 50 | Outrage | Dragon Rush | Dragon Claw | Draco Meteor |
+| 373 | Salamence | Dragon/Flying | 95 / 135 / 80 / 110 / 80 / 100 | Fly | Outrage | Dragon Rush | Dragon Claw |
+| 374 | Beldum | Steel/Psychic | 40 / 55 / 80 / 35 / 60 / 30 | Iron Head | Zen Headbutt | Take Down | Headbutt |
+| 375 | Metang | Steel/Psychic | 60 / 75 / 100 / 55 / 80 / 50 | Meteor Mash | Steel Roller | Future Sight | Psychic |
+| 376 | Metagross | Steel/Psychic | 80 / 135 / 130 / 95 / 90 / 70 | Meteor Mash | Steel Roller | Psychic Fangs | Iron Head |
+| 377 | Regirock | Rock | 80 / 100 / 200 / 50 / 100 / 50 | Stone Edge | Rock Slide | Meteor Beam | Rock Tomb |
+| 378 | Regice | Ice | 80 / 50 / 100 / 100 / 200 / 50 | Blizzard | Ice Beam | Frost Breath | Ice Spinner |
+| 379 | Registeel | Steel | 80 / 75 / 150 / 75 / 150 / 50 | Steel Roller | Flash Cannon | Iron Head | Metal Claw |
+| 380 | Latias | Dragon/Psychic | 80 / 80 / 90 / 110 / 130 / 110 | Draco Meteor | Dream Eater | Future Sight | Mist Ball |
+| 381 | Latios | Dragon/Psychic | 80 / 90 / 80 / 130 / 110 / 110 | Draco Meteor | Dream Eater | Future Sight | Luster Purge |
+| 382 | Kyogre | Water | 100 / 100 / 90 / 150 / 140 / 90 | Hydro Pump | Muddy Water | Origin Pulse | Surf |
+| 383 | Groudon | Ground | 100 / 150 / 140 / 100 / 90 / 90 | Earthquake | High Horsepower | Precipice Blades | Dig |
+| 384 | Rayquaza | Dragon/Flying | 105 / 150 / 90 / 150 / 90 / 95 | Draco Meteor | Dragon Ascent | Fly | Hurricane |
+| 385 | Jirachi | Steel/Psychic | 100 / 100 / 100 / 100 / 100 / 100 | Dream Eater | Future Sight | Meteor Mash | Psychic |
+| 386 | Deoxys | Psychic | 50 / 150 / 50 / 150 / 50 / 150 | Psychic | Superpower | Shadow Ball | Recover |
 | 599 | Klink | Steel | 40 / 55 / 70 / 45 / 60 / 30 | Thunder Shock | Vise Grip | Flash Cannon | Autotomize |
 | 821 | Rookidee | Flying | 38 / 47 / 35 / 33 / 35 / 57 | Peck | Power Trip | Pluck | Roost |

@@ -17,6 +17,34 @@ var props_key=""
 var actors={}
 var labels=[]
 var age=0.0
+var character_pose=preload("res://kanto_character_models.gd").new()
+var map_cache={}
+var neighbors=[]
+var keep_focus=false
+
+func connection_offset(from_id: String, link: Dictionary) -> Vector3:
+	var source=w.maps[from_id]; var target=w.maps[link.map]; var offset=float(link.offset)
+	match link.direction:
+		"up": return Vector3(offset,0,-float(target.height))
+		"down": return Vector3(offset,0,float(source.height))
+		"left": return Vector3(-float(target.width),0,offset)
+		"right": return Vector3(float(source.width),0,offset)
+	return Vector3.ZERO
+
+func rebase(from_id: String, link: Dictionary):
+	if not viewport: return
+	var offset=connection_offset(from_id,link)
+	focus-=offset; camera.position-=offset; keep_focus=true
+
+func preload_neighbor():
+	if neighbors.is_empty(): return
+	var next=neighbors.pop_front()
+	if not map_cache.has(next.id):
+		build_terrain(next.id)
+		map_cache[next.id]=terrain
+	map_cache[next.id].position=next.offset
+	map_cache[next.id].visible=true
+	terrain=map_cache[loaded]
 var refresh_clock=0.0
 var active=false
 var enabled=true
@@ -65,6 +93,7 @@ func _process(dt):
 	var patches=JSON.stringify(w.events.patches)
 	if loaded!=w.current or patches!=patch_key:
 		build(); patch_key=patches
+	elif not neighbors.is_empty(): preload_neighbor()
 	var target=Vector3(a.position_world.x/w.TILE,0,a.position_world.y/w.TILE)
 	kit.update_player(target)
 	focus=focus.lerp(target,1.0-exp(-dt*9.0))
@@ -85,27 +114,51 @@ func _process(dt):
 
 func build():
 	var started=Time.get_ticks_msec()
-	if terrain: terrain.free()
-	terrain=Node3D.new(); stage.add_child(terrain)
+	var patch_changed=map_cache.has(w.current) and map_cache[w.current].get_meta("patches","{}")!=JSON.stringify(w.events.patches)
+	if patch_changed and map_cache.has(w.current): map_cache[w.current].free(); map_cache.erase(w.current)
 	for node in people.get_children(): node.free()
 	actors.clear(); loaded=w.current; props_key=""; labels.clear()
-	var room=w.room(); var meta=catalog[loaded]; var width=int(room.width); var height=int(room.height)
+	var meta=catalog[loaded]; var outside=bool(meta.outdoor); var cave=bool(meta.cave)
+	sun.light_energy=.65 if outside else .42
+	environment.ambient_light_energy=.31 if outside else .43
+	environment.background_color=Color("a2bca3") if outside else Color("37474b")
+	camera.size=14.0 if outside or cave else clampf(w.room().height*.8,11,16)
+	for node in map_cache.values(): node.visible=false
+	if not map_cache.has(loaded): build_terrain(loaded); map_cache[loaded]=terrain
+	terrain=map_cache[loaded]; terrain.position=Vector3.ZERO; terrain.visible=true
+	neighbors.clear()
+	var wanted=[loaded]
+	if outside:
+		for link in w.room().connections:
+			if not catalog.has(link.map) or not catalog[link.map].outdoor: continue
+			wanted.append(link.map)
+			var offset=connection_offset(loaded,link)
+			if map_cache.has(link.map): map_cache[link.map].position=offset; map_cache[link.map].visible=true
+			else: neighbors.append({"id":link.map,"offset":offset})
+	for id in map_cache.keys():
+		if id not in wanted and map_cache.size()>7: map_cache[id].free(); map_cache.erase(id)
+	if not keep_focus: focus=Vector3(a.position_world.x/w.TILE,0,a.position_world.y/w.TILE)
+	keep_focus=false
+	sync_actors(); sync_props()
+	map_build_ms=Time.get_ticks_msec()-started
+
+func build_terrain(map_id: String):
+	terrain=Node3D.new(); stage.add_child(terrain)
+	terrain.set_meta("patches",JSON.stringify(w.events.patches) if map_id==w.current else "{}")
+	var loaded=map_id
+	var room=w.maps[map_id]; var meta=catalog[map_id]; var width=int(room.width); var height=int(room.height)
 	var outside=bool(meta.outdoor); var cave=bool(meta.cave)
 	var stairs=meta.get("stairs",[]).map(func(index):return int(index))
 	var ladders=meta.get("ladders",[]).map(func(index):return int(index))
 	var home=not outside and ("HOUSE" in loaded or "COTTAGE" in loaded or "DAY_CARE" in loaded)
-	sun.light_energy=.65 if outside else .42
-	environment.ambient_light_energy=.31 if outside else .43
-	environment.background_color=Color("a2bca3") if outside else Color("37474b")
 	var base="6e9867" if outside else "6f7569" if cave else "a9a18e"
 	kit.stamp("box",Vector3(width*.5,-.24,height*.5),Vector3(width+.2,.42,height+.2),base)
 	# A low landscape apron hides empty space along map borders, without collisions.
-	if outside: kit.stamp("box",Vector3(width*.5,-.48,height*.5),Vector3(width+40,.25,height+40),"739a6d")
+	if outside: kit.stamp("box",Vector3(width*.5,-.48,height*.5),Vector3(width,.25,height),"739a6d")
 	var ground_image=Image.load_from_file(meta.ground); ground_image.generate_mipmaps()
 	var ground=MeshInstance3D.new(); var plane=PlaneMesh.new(); plane.size=Vector2(width,height)
 	var surface=StandardMaterial3D.new(); surface.albedo_texture=ImageTexture.create_from_image(ground_image); surface.texture_filter=BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS; surface.roughness=1
 	ground.mesh=plane; ground.material_override=kit.art.ground(surface.albedo_texture) if home else surface; ground.position=Vector3(width*.5,.005,height*.5); terrain.add_child(ground)
-	camera.size=14.0 if outside or cave else clampf(height*.8,11,16)
 	# Exhibit footprints come from the source museum layout.
 	var exhibit_cells={}
 	for display in meta.get("exhibits",[]):
@@ -132,7 +185,7 @@ func build():
 			else: kit.counter(Vector3(x+span*.5,0,z+depth*.5),Vector2(span,depth),loaded)
 	for i in room.cells.size():
 		var x=i%width; var z=int(i/width); var p=Vector3(x+.5,0,z+.5); var kind=str(meta.tiles[i]); var tile=int(room.cells[i])&1023
-		var patch=w.events.patches.get(Vector2i(x,z),{})
+		var patch=w.events.patches.get(Vector2i(x,z),{}) if loaded==w.current else {}
 		if not patch.is_empty():
 			# Patched doors/ice/spinners retain their exact source artwork and collision.
 			patch_plane(p,patch.image)
@@ -247,9 +300,6 @@ func build():
 			kit.stamp("box",p,Vector3(.85,.04,.75),"b58d73")
 			for step in range(3): kit.stamp("box",p+Vector3(0,.035,step*.19-.2),Vector3(.64,.025,.045),"f0d8ac")
 	kit.flush(terrain)
-	focus=Vector3(a.position_world.x/w.TILE,0,a.position_world.y/w.TILE)
-	sync_actors(); sync_props()
-	map_build_ms=Time.get_ticks_msec()-started
 
 func floor_art(at: Vector3, texture: Texture2D):
 	var plane=MeshInstance3D.new(); var mesh=PlaneMesh.new(); mesh.size=Vector2.ONE
@@ -269,18 +319,41 @@ func ensure_actor(key: String, pos: Vector2, identity: String, look: Vector2, wa
 	move_actor(actors[key],pos,look,walking)
 
 func move_actor(node: Node3D, pos: Vector2, look: Vector2, walking: bool):
+	var now=age
+	var dt=clampf(now-float(node.get_meta("stride_time",now)),0,.15)
+	var previous: Vector2=node.get_meta("stride_position",pos)
+	var distance=previous.distance_to(pos)/w.TILE
+	var phase=float(node.get_meta("stride_phase",0.0))
+	if distance<1.5: phase=fmod(phase+distance*TAU/2.4,TAU)
+	var blend=move_toward(float(node.get_meta("stride_blend",0.0)),1.0 if walking or distance>0.002 and distance<1.5 else 0.0,dt*12)
+	node.set_meta("stride_phase",phase); node.set_meta("stride_blend",blend)
+	node.set_meta("stride_position",pos); node.set_meta("stride_time",now)
 	node.position=Vector3(pos.x/w.TILE,0,pos.y/w.TILE)
-	if look!=Vector2.ZERO: node.rotation.y=atan2(look.x,look.y)
-	var swing=sin(age*13)*.5 if walking else 0.0
-	node.get_node("LeftLeg").rotation.x=swing; node.get_node("RightLeg").rotation.x=-swing
-	node.get_node("LeftArm").rotation.x=-swing*.8; node.get_node("RightArm").rotation.x=swing*.8
-	if walking: node.position.y=absf(sin(age*13))*.045
+	if look!=Vector2.ZERO:
+		var target=atan2(look.x,look.y)
+		node.rotation.y=lerp_angle(node.rotation.y,target,1.0-exp(-dt*24)) if node.has_meta("facing_ready") else target
+		node.set_meta("facing_ready",true)
+	character_pose.pose(node,phase,blend)
 
 func sync_actors():
 	var alive={"player":true}; labels.clear()
 	ensure_actor("player",a.position_world,"player",w.heading,w.stepping or (w.scenes.active and not w.scenes.sequence.is_empty() and w.scenes.sequence[w.scenes.index].has("player_from")),true)
 	for npc in w.actors():
 		var identity=str(npc.get("graphics_id","")); var key=str(npc.get("script",identity))+str(npc.get("local_id",""))
+		if identity.contains("METEORITE"):
+			key+="_"+str(a.postgame.state().triangle); alive[key]=true
+			if not actors.has(key):
+				var node=Node3D.new(); people.add_child(node); actors[key]=node
+				var color=Color("515b72").lerp(Color("ed4338"),float(a.postgame.state().triangle)/10)
+				kit.shape(node,"canopy",Vector3(0,.32,0),Vector3(.65,.65,.65),color.to_html(false))
+			actors[key].position=Vector3(npc.pos.x/w.TILE,0,npc.pos.y/w.TILE)
+			continue
+		if identity.contains("LUGIA") or identity.contains("HO_OH"):
+			alive[key]=true
+			if not actors.has(key):
+				var node=Sprite3D.new(); node.texture=a.c.portraits[249 if identity.contains("LUGIA") else 250]; node.pixel_size=.035; node.billboard=BaseMaterial3D.BILLBOARD_ENABLED; people.add_child(node); actors[key]=node
+			actors[key].position=Vector3(npc.pos.x/w.TILE,1,npc.pos.y/w.TILE)
+			continue
 		alive[key]=true
 		if identity.contains("POKEDEX") or identity.contains("FOSSIL") or identity.contains("OLD_AMBER") or identity.contains("ITEM_BALL") or identity.contains("SNORLAX") or identity.contains("ARTICUNO") or identity.contains("ZAPDOS") or identity.contains("MOLTRES") or identity.contains("MEWTWO"):
 			if not actors.has(key):

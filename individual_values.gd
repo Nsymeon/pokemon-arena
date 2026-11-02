@@ -112,6 +112,7 @@ func apply_values(mon,values) -> Dictionary:
 	return result
 
 func open(mon,friendly,slot):
+	if c.campaign.daily.locked(c): return
 	if window!=null and is_instance_valid(window): window.queue_free()
 	editing=c.move_editor.identity(mon,friendly,slot)
 	window=Window.new(); window.title=mon.name+" / IVs, nature and held item"; window.size=Vector2i(440,510)
@@ -139,6 +140,7 @@ func set_boxes(values):
 		boxes[stat].get_line_edit().text=str(values[stat])
 
 func apply():
+	if c.campaign.daily.locked(c): return
 	var values={}
 	for stat in STATS:
 		boxes[stat].apply()

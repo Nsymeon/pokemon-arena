@@ -42,7 +42,7 @@ static func color(type: String) -> Color:
 # The generated snapshot is checked against modern stats and recorded learnsets.
 static func all() -> Array:
 	var data = JSON.parse_string(FileAccess.get_file_as_string("res://data/roster.json"))
-	assert(data is Array and data.size() == 158, "Missing or invalid roster data")
+	assert(data is Array and data.size() == 388, "Missing or invalid roster data")
 	for mon in data: mon.id = int(mon.id)
 	return data
 

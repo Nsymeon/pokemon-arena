@@ -12,6 +12,7 @@ func install():
 			for key in saved:
 				if saved[key] in c.adventure.extras.HELD+[""]: choices[key]=saved[key]
 func choose(key,id):
+	if c.campaign.daily.locked(c): return
 	choices[key]=id
 	if OS.get_cmdline_user_args().is_empty():
 		var file=FileAccess.open("user://battle-gear.json",FileAccess.WRITE)

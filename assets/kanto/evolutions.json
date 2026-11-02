@@ -1,0 +1,1266 @@
+{
+  "1": [
+    {
+      "method": "LEVEL",
+      "param": 16,
+      "target": 2
+    }
+  ],
+  "2": [
+    {
+      "method": "LEVEL",
+      "param": 32,
+      "target": 3
+    }
+  ],
+  "4": [
+    {
+      "method": "LEVEL",
+      "param": 16,
+      "target": 5
+    }
+  ],
+  "5": [
+    {
+      "method": "LEVEL",
+      "param": 36,
+      "target": 6
+    }
+  ],
+  "7": [
+    {
+      "method": "LEVEL",
+      "param": 16,
+      "target": 8
+    }
+  ],
+  "8": [
+    {
+      "method": "LEVEL",
+      "param": 36,
+      "target": 9
+    }
+  ],
+  "10": [
+    {
+      "method": "LEVEL",
+      "param": 7,
+      "target": 11
+    }
+  ],
+  "11": [
+    {
+      "method": "LEVEL",
+      "param": 10,
+      "target": 12
+    }
+  ],
+  "13": [
+    {
+      "method": "LEVEL",
+      "param": 7,
+      "target": 14
+    }
+  ],
+  "14": [
+    {
+      "method": "LEVEL",
+      "param": 10,
+      "target": 15
+    }
+  ],
+  "16": [
+    {
+      "method": "LEVEL",
+      "param": 18,
+      "target": 17
+    }
+  ],
+  "17": [
+    {
+      "method": "LEVEL",
+      "param": 36,
+      "target": 18
+    }
+  ],
+  "19": [
+    {
+      "method": "LEVEL",
+      "param": 20,
+      "target": 20
+    }
+  ],
+  "21": [
+    {
+      "method": "LEVEL",
+      "param": 20,
+      "target": 22
+    }
+  ],
+  "23": [
+    {
+      "method": "LEVEL",
+      "param": 22,
+      "target": 24
+    }
+  ],
+  "25": [
+    {
+      "method": "ITEM",
+      "param": "thunderstone",
+      "target": 26
+    }
+  ],
+  "27": [
+    {
+      "method": "LEVEL",
+      "param": 22,
+      "target": 28
+    }
+  ],
+  "29": [
+    {
+      "method": "LEVEL",
+      "param": 16,
+      "target": 30
+    }
+  ],
+  "30": [
+    {
+      "method": "ITEM",
+      "param": "moonstone",
+      "target": 31
+    }
+  ],
+  "32": [
+    {
+      "method": "LEVEL",
+      "param": 16,
+      "target": 33
+    }
+  ],
+  "33": [
+    {
+      "method": "ITEM",
+      "param": "moonstone",
+      "target": 34
+    }
+  ],
+  "35": [
+    {
+      "method": "ITEM",
+      "param": "moonstone",
+      "target": 36
+    }
+  ],
+  "37": [
+    {
+      "method": "ITEM",
+      "param": "firestone",
+      "target": 38
+    }
+  ],
+  "39": [
+    {
+      "method": "ITEM",
+      "param": "moonstone",
+      "target": 40
+    }
+  ],
+  "41": [
+    {
+      "method": "LEVEL",
+      "param": 22,
+      "target": 42
+    }
+  ],
+  "42": [
+    {
+      "method": "FRIENDSHIP",
+      "param": 0,
+      "target": 169
+    }
+  ],
+  "43": [
+    {
+      "method": "LEVEL",
+      "param": 21,
+      "target": 44
+    }
+  ],
+  "44": [
+    {
+      "method": "ITEM",
+      "param": "leafstone",
+      "target": 45
+    },
+    {
+      "method": "ITEM",
+      "param": "sunstone",
+      "target": 182
+    }
+  ],
+  "46": [
+    {
+      "method": "LEVEL",
+      "param": 24,
+      "target": 47
+    }
+  ],
+  "48": [
+    {
+      "method": "LEVEL",
+      "param": 31,
+      "target": 49
+    }
+  ],
+  "50": [
+    {
+      "method": "LEVEL",
+      "param": 26,
+      "target": 51
+    }
+  ],
+  "52": [
+    {
+      "method": "LEVEL",
+      "param": 28,
+      "target": 53
+    }
+  ],
+  "54": [
+    {
+      "method": "LEVEL",
+      "param": 33,
+      "target": 55
+    }
+  ],
+  "56": [
+    {
+      "method": "LEVEL",
+      "param": 28,
+      "target": 57
+    }
+  ],
+  "58": [
+    {
+      "method": "ITEM",
+      "param": "firestone",
+      "target": 59
+    }
+  ],
+  "60": [
+    {
+      "method": "LEVEL",
+      "param": 25,
+      "target": 61
+    }
+  ],
+  "61": [
+    {
+      "method": "ITEM",
+      "param": "waterstone",
+      "target": 62
+    },
+    {
+      "method": "TRADE_ITEM",
+      "param": "kingsrock",
+      "target": 186
+    }
+  ],
+  "63": [
+    {
+      "method": "LEVEL",
+      "param": 16,
+      "target": 64
+    }
+  ],
+  "64": [
+    {
+      "method": "TRADE",
+      "param": 0,
+      "target": 65
+    }
+  ],
+  "66": [
+    {
+      "method": "LEVEL",
+      "param": 28,
+      "target": 67
+    }
+  ],
+  "67": [
+    {
+      "method": "TRADE",
+      "param": 0,
+      "target": 68
+    }
+  ],
+  "69": [
+    {
+      "method": "LEVEL",
+      "param": 21,
+      "target": 70
+    }
+  ],
+  "70": [
+    {
+      "method": "ITEM",
+      "param": "leafstone",
+      "target": 71
+    }
+  ],
+  "72": [
+    {
+      "method": "LEVEL",
+      "param": 30,
+      "target": 73
+    }
+  ],
+  "74": [
+    {
+      "method": "LEVEL",
+      "param": 25,
+      "target": 75
+    }
+  ],
+  "75": [
+    {
+      "method": "TRADE",
+      "param": 0,
+      "target": 76
+    }
+  ],
+  "77": [
+    {
+      "method": "LEVEL",
+      "param": 40,
+      "target": 78
+    }
+  ],
+  "79": [
+    {
+      "method": "LEVEL",
+      "param": 37,
+      "target": 80
+    },
+    {
+      "method": "TRADE_ITEM",
+      "param": "kingsrock",
+      "target": 199
+    }
+  ],
+  "81": [
+    {
+      "method": "LEVEL",
+      "param": 30,
+      "target": 82
+    }
+  ],
+  "84": [
+    {
+      "method": "LEVEL",
+      "param": 31,
+      "target": 85
+    }
+  ],
+  "86": [
+    {
+      "method": "LEVEL",
+      "param": 34,
+      "target": 87
+    }
+  ],
+  "88": [
+    {
+      "method": "LEVEL",
+      "param": 38,
+      "target": 89
+    }
+  ],
+  "90": [
+    {
+      "method": "ITEM",
+      "param": "waterstone",
+      "target": 91
+    }
+  ],
+  "92": [
+    {
+      "method": "LEVEL",
+      "param": 25,
+      "target": 93
+    }
+  ],
+  "93": [
+    {
+      "method": "TRADE",
+      "param": 0,
+      "target": 94
+    }
+  ],
+  "95": [
+    {
+      "method": "TRADE_ITEM",
+      "param": "metalcoat",
+      "target": 208
+    }
+  ],
+  "96": [
+    {
+      "method": "LEVEL",
+      "param": 26,
+      "target": 97
+    }
+  ],
+  "98": [
+    {
+      "method": "LEVEL",
+      "param": 28,
+      "target": 99
+    }
+  ],
+  "100": [
+    {
+      "method": "LEVEL",
+      "param": 30,
+      "target": 101
+    }
+  ],
+  "102": [
+    {
+      "method": "ITEM",
+      "param": "leafstone",
+      "target": 103
+    }
+  ],
+  "104": [
+    {
+      "method": "LEVEL",
+      "param": 28,
+      "target": 105
+    }
+  ],
+  "109": [
+    {
+      "method": "LEVEL",
+      "param": 35,
+      "target": 110
+    }
+  ],
+  "111": [
+    {
+      "method": "LEVEL",
+      "param": 42,
+      "target": 112
+    }
+  ],
+  "113": [
+    {
+      "method": "FRIENDSHIP",
+      "param": 0,
+      "target": 242
+    }
+  ],
+  "116": [
+    {
+      "method": "LEVEL",
+      "param": 32,
+      "target": 117
+    }
+  ],
+  "117": [
+    {
+      "method": "TRADE_ITEM",
+      "param": "dragonscale",
+      "target": 230
+    }
+  ],
+  "118": [
+    {
+      "method": "LEVEL",
+      "param": 33,
+      "target": 119
+    }
+  ],
+  "120": [
+    {
+      "method": "ITEM",
+      "param": "waterstone",
+      "target": 121
+    }
+  ],
+  "123": [
+    {
+      "method": "TRADE_ITEM",
+      "param": "metalcoat",
+      "target": 212
+    }
+  ],
+  "129": [
+    {
+      "method": "LEVEL",
+      "param": 20,
+      "target": 130
+    }
+  ],
+  "133": [
+    {
+      "method": "ITEM",
+      "param": "thunderstone",
+      "target": 135
+    },
+    {
+      "method": "ITEM",
+      "param": "waterstone",
+      "target": 134
+    },
+    {
+      "method": "ITEM",
+      "param": "firestone",
+      "target": 136
+    },
+    {
+      "method": "FRIENDSHIP_DAY",
+      "param": 0,
+      "target": 196
+    },
+    {
+      "method": "FRIENDSHIP_NIGHT",
+      "param": 0,
+      "target": 197
+    }
+  ],
+  "137": [
+    {
+      "method": "TRADE_ITEM",
+      "param": "upgrade",
+      "target": 233
+    }
+  ],
+  "138": [
+    {
+      "method": "LEVEL",
+      "param": 40,
+      "target": 139
+    }
+  ],
+  "140": [
+    {
+      "method": "LEVEL",
+      "param": 40,
+      "target": 141
+    }
+  ],
+  "147": [
+    {
+      "method": "LEVEL",
+      "param": 30,
+      "target": 148
+    }
+  ],
+  "148": [
+    {
+      "method": "LEVEL",
+      "param": 55,
+      "target": 149
+    }
+  ],
+  "152": [
+    {
+      "method": "LEVEL",
+      "param": 16,
+      "target": 153
+    }
+  ],
+  "153": [
+    {
+      "method": "LEVEL",
+      "param": 32,
+      "target": 154
+    }
+  ],
+  "155": [
+    {
+      "method": "LEVEL",
+      "param": 14,
+      "target": 156
+    }
+  ],
+  "156": [
+    {
+      "method": "LEVEL",
+      "param": 36,
+      "target": 157
+    }
+  ],
+  "158": [
+    {
+      "method": "LEVEL",
+      "param": 18,
+      "target": 159
+    }
+  ],
+  "159": [
+    {
+      "method": "LEVEL",
+      "param": 30,
+      "target": 160
+    }
+  ],
+  "161": [
+    {
+      "method": "LEVEL",
+      "param": 15,
+      "target": 162
+    }
+  ],
+  "163": [
+    {
+      "method": "LEVEL",
+      "param": 20,
+      "target": 164
+    }
+  ],
+  "165": [
+    {
+      "method": "LEVEL",
+      "param": 18,
+      "target": 166
+    }
+  ],
+  "167": [
+    {
+      "method": "LEVEL",
+      "param": 22,
+      "target": 168
+    }
+  ],
+  "170": [
+    {
+      "method": "LEVEL",
+      "param": 27,
+      "target": 171
+    }
+  ],
+  "172": [
+    {
+      "method": "FRIENDSHIP",
+      "param": 0,
+      "target": 25
+    }
+  ],
+  "173": [
+    {
+      "method": "FRIENDSHIP",
+      "param": 0,
+      "target": 35
+    }
+  ],
+  "174": [
+    {
+      "method": "FRIENDSHIP",
+      "param": 0,
+      "target": 39
+    }
+  ],
+  "175": [
+    {
+      "method": "FRIENDSHIP",
+      "param": 0,
+      "target": 176
+    }
+  ],
+  "177": [
+    {
+      "method": "LEVEL",
+      "param": 25,
+      "target": 178
+    }
+  ],
+  "179": [
+    {
+      "method": "LEVEL",
+      "param": 15,
+      "target": 180
+    }
+  ],
+  "180": [
+    {
+      "method": "LEVEL",
+      "param": 30,
+      "target": 181
+    }
+  ],
+  "183": [
+    {
+      "method": "LEVEL",
+      "param": 18,
+      "target": 184
+    }
+  ],
+  "187": [
+    {
+      "method": "LEVEL",
+      "param": 18,
+      "target": 188
+    }
+  ],
+  "188": [
+    {
+      "method": "LEVEL",
+      "param": 27,
+      "target": 189
+    }
+  ],
+  "191": [
+    {
+      "method": "ITEM",
+      "param": "sunstone",
+      "target": 192
+    }
+  ],
+  "194": [
+    {
+      "method": "LEVEL",
+      "param": 20,
+      "target": 195
+    }
+  ],
+  "204": [
+    {
+      "method": "LEVEL",
+      "param": 31,
+      "target": 205
+    }
+  ],
+  "209": [
+    {
+      "method": "LEVEL",
+      "param": 23,
+      "target": 210
+    }
+  ],
+  "216": [
+    {
+      "method": "LEVEL",
+      "param": 30,
+      "target": 217
+    }
+  ],
+  "218": [
+    {
+      "method": "LEVEL",
+      "param": 38,
+      "target": 219
+    }
+  ],
+  "220": [
+    {
+      "method": "LEVEL",
+      "param": 33,
+      "target": 221
+    }
+  ],
+  "223": [
+    {
+      "method": "LEVEL",
+      "param": 25,
+      "target": 224
+    }
+  ],
+  "228": [
+    {
+      "method": "LEVEL",
+      "param": 24,
+      "target": 229
+    }
+  ],
+  "231": [
+    {
+      "method": "LEVEL",
+      "param": 25,
+      "target": 232
+    }
+  ],
+  "236": [
+    {
+      "method": "LEVEL_ATK_LT_DEF",
+      "param": 20,
+      "target": 107
+    },
+    {
+      "method": "LEVEL_ATK_GT_DEF",
+      "param": 20,
+      "target": 106
+    },
+    {
+      "method": "LEVEL_ATK_EQ_DEF",
+      "param": 20,
+      "target": 237
+    }
+  ],
+  "238": [
+    {
+      "method": "LEVEL",
+      "param": 30,
+      "target": 124
+    }
+  ],
+  "239": [
+    {
+      "method": "LEVEL",
+      "param": 30,
+      "target": 125
+    }
+  ],
+  "240": [
+    {
+      "method": "LEVEL",
+      "param": 30,
+      "target": 126
+    }
+  ],
+  "246": [
+    {
+      "method": "LEVEL",
+      "param": 30,
+      "target": 247
+    }
+  ],
+  "247": [
+    {
+      "method": "LEVEL",
+      "param": 55,
+      "target": 248
+    }
+  ],
+  "252": [
+    {
+      "method": "LEVEL",
+      "param": 16,
+      "target": 253
+    }
+  ],
+  "253": [
+    {
+      "method": "LEVEL",
+      "param": 36,
+      "target": 254
+    }
+  ],
+  "255": [
+    {
+      "method": "LEVEL",
+      "param": 16,
+      "target": 256
+    }
+  ],
+  "256": [
+    {
+      "method": "LEVEL",
+      "param": 36,
+      "target": 257
+    }
+  ],
+  "258": [
+    {
+      "method": "LEVEL",
+      "param": 16,
+      "target": 259
+    }
+  ],
+  "259": [
+    {
+      "method": "LEVEL",
+      "param": 36,
+      "target": 260
+    }
+  ],
+  "261": [
+    {
+      "method": "LEVEL",
+      "param": 18,
+      "target": 262
+    }
+  ],
+  "263": [
+    {
+      "method": "LEVEL",
+      "param": 20,
+      "target": 264
+    }
+  ],
+  "265": [
+    {
+      "method": "LEVEL_SILCOON",
+      "param": 7,
+      "target": 266
+    },
+    {
+      "method": "LEVEL_CASCOON",
+      "param": 7,
+      "target": 268
+    }
+  ],
+  "266": [
+    {
+      "method": "LEVEL",
+      "param": 10,
+      "target": 267
+    }
+  ],
+  "268": [
+    {
+      "method": "LEVEL",
+      "param": 10,
+      "target": 269
+    }
+  ],
+  "270": [
+    {
+      "method": "LEVEL",
+      "param": 14,
+      "target": 271
+    }
+  ],
+  "271": [
+    {
+      "method": "ITEM",
+      "param": "waterstone",
+      "target": 272
+    }
+  ],
+  "273": [
+    {
+      "method": "LEVEL",
+      "param": 14,
+      "target": 274
+    }
+  ],
+  "274": [
+    {
+      "method": "ITEM",
+      "param": "leafstone",
+      "target": 275
+    }
+  ],
+  "290": [
+    {
+      "method": "LEVEL_NINJASK",
+      "param": 20,
+      "target": 291
+    },
+    {
+      "method": "LEVEL_SHEDINJA",
+      "param": 20,
+      "target": 292
+    }
+  ],
+  "276": [
+    {
+      "method": "LEVEL",
+      "param": 22,
+      "target": 277
+    }
+  ],
+  "285": [
+    {
+      "method": "LEVEL",
+      "param": 23,
+      "target": 286
+    }
+  ],
+  "278": [
+    {
+      "method": "LEVEL",
+      "param": 25,
+      "target": 279
+    }
+  ],
+  "283": [
+    {
+      "method": "LEVEL",
+      "param": 22,
+      "target": 284
+    }
+  ],
+  "320": [
+    {
+      "method": "LEVEL",
+      "param": 40,
+      "target": 321
+    }
+  ],
+  "300": [
+    {
+      "method": "ITEM",
+      "param": "moonstone",
+      "target": 301
+    }
+  ],
+  "343": [
+    {
+      "method": "LEVEL",
+      "param": 36,
+      "target": 344
+    }
+  ],
+  "339": [
+    {
+      "method": "LEVEL",
+      "param": 30,
+      "target": 340
+    }
+  ],
+  "341": [
+    {
+      "method": "LEVEL",
+      "param": 30,
+      "target": 342
+    }
+  ],
+  "349": [
+    {
+      "method": "BEAUTY",
+      "param": 170,
+      "target": 350
+    }
+  ],
+  "318": [
+    {
+      "method": "LEVEL",
+      "param": 30,
+      "target": 319
+    }
+  ],
+  "328": [
+    {
+      "method": "LEVEL",
+      "param": 35,
+      "target": 329
+    }
+  ],
+  "329": [
+    {
+      "method": "LEVEL",
+      "param": 45,
+      "target": 330
+    }
+  ],
+  "296": [
+    {
+      "method": "LEVEL",
+      "param": 24,
+      "target": 297
+    }
+  ],
+  "309": [
+    {
+      "method": "LEVEL",
+      "param": 26,
+      "target": 310
+    }
+  ],
+  "322": [
+    {
+      "method": "LEVEL",
+      "param": 33,
+      "target": 323
+    }
+  ],
+  "363": [
+    {
+      "method": "LEVEL",
+      "param": 32,
+      "target": 364
+    }
+  ],
+  "364": [
+    {
+      "method": "LEVEL",
+      "param": 44,
+      "target": 365
+    }
+  ],
+  "331": [
+    {
+      "method": "LEVEL",
+      "param": 32,
+      "target": 332
+    }
+  ],
+  "361": [
+    {
+      "method": "LEVEL",
+      "param": 42,
+      "target": 362
+    }
+  ],
+  "298": [
+    {
+      "method": "FRIENDSHIP",
+      "param": 0,
+      "target": 183
+    }
+  ],
+  "325": [
+    {
+      "method": "LEVEL",
+      "param": 32,
+      "target": 326
+    }
+  ],
+  "307": [
+    {
+      "method": "LEVEL",
+      "param": 37,
+      "target": 308
+    }
+  ],
+  "333": [
+    {
+      "method": "LEVEL",
+      "param": 35,
+      "target": 334
+    }
+  ],
+  "360": [
+    {
+      "method": "LEVEL",
+      "param": 15,
+      "target": 202
+    }
+  ],
+  "355": [
+    {
+      "method": "LEVEL",
+      "param": 37,
+      "target": 356
+    }
+  ],
+  "287": [
+    {
+      "method": "LEVEL",
+      "param": 18,
+      "target": 288
+    }
+  ],
+  "288": [
+    {
+      "method": "LEVEL",
+      "param": 36,
+      "target": 289
+    }
+  ],
+  "316": [
+    {
+      "method": "LEVEL",
+      "param": 26,
+      "target": 317
+    }
+  ],
+  "293": [
+    {
+      "method": "LEVEL",
+      "param": 20,
+      "target": 294
+    }
+  ],
+  "294": [
+    {
+      "method": "LEVEL",
+      "param": 40,
+      "target": 295
+    }
+  ],
+  "366": [
+    {
+      "method": "TRADE_ITEM",
+      "param": "deepseatooth",
+      "target": 367
+    },
+    {
+      "method": "TRADE_ITEM",
+      "param": "deepseascale",
+      "target": 368
+    }
+  ],
+  "353": [
+    {
+      "method": "LEVEL",
+      "param": 37,
+      "target": 354
+    }
+  ],
+  "304": [
+    {
+      "method": "LEVEL",
+      "param": 32,
+      "target": 305
+    }
+  ],
+  "305": [
+    {
+      "method": "LEVEL",
+      "param": 42,
+      "target": 306
+    }
+  ],
+  "345": [
+    {
+      "method": "LEVEL",
+      "param": 40,
+      "target": 346
+    }
+  ],
+  "347": [
+    {
+      "method": "LEVEL",
+      "param": 40,
+      "target": 348
+    }
+  ],
+  "280": [
+    {
+      "method": "LEVEL",
+      "param": 20,
+      "target": 281
+    }
+  ],
+  "281": [
+    {
+      "method": "LEVEL",
+      "param": 30,
+      "target": 282
+    }
+  ],
+  "371": [
+    {
+      "method": "LEVEL",
+      "param": 30,
+      "target": 372
+    }
+  ],
+  "372": [
+    {
+      "method": "LEVEL",
+      "param": 50,
+      "target": 373
+    }
+  ],
+  "374": [
+    {
+      "method": "LEVEL",
+      "param": 20,
+      "target": 375
+    }
+  ],
+  "375": [
+    {
+      "method": "LEVEL",
+      "param": 45,
+      "target": 376
+    }
+  ]
+}

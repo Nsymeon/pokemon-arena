@@ -6,7 +6,7 @@ const VITAMINS={"hpup":"hp","protein":"atk","iron":"def","calcium":"spa","zinc":
 const EV_BERRIES={"pomegberry":"hp","kelpsyberry":"atk","qualotberry":"def","hondewberry":"spa","grepaberry":"spd","tamatoberry":"spe"}
 const XITEMS={"xattack":"atk","xdefend":"def","xspecial":"spa","xspeed":"spe","xaccuracy":"accuracy"}
 const TREASURES={"nugget":5000,"bigpearl":3750,"pearl":700,"stardust":1000,"starpiece":4900}
-var HELD=["blackglasses","quickclaw","cleansetag","silkscarf","laxincense","seaincense","metalcoat","nevermeltice","kingsrock","luckypunch","dragonscale"]+preload("res://held_gear.gd").ITEMS
+var HELD=["blackglasses","quickclaw","cleansetag","silkscarf","laxincense","seaincense","metalcoat","nevermeltice","kingsrock","luckypunch","dragonscale","upgrade","deepseatooth","deepseascale"]+preload("res://held_gear.gd").ITEMS
 var catalog={
 	"masterball":{"name":"Master Ball / guaranteed wild capture","price":0},
 	"linkcable":{"name":"Link Cable / single-player trade evolution","price":3000},
@@ -25,8 +25,8 @@ var catalog={
 	"pokedoll":{"name":"Poke Doll / gift for Copycat to learn Mimic","price":1000},
 	"maxrepel":{"name":"Max Lure / 250 steps / 20% grass hordes","price":700},
 	"direhit":{"name":"Dire Hit / critical boost for this battle","price":650},
-	"upgrade":{"name":"Up-Grade / stored for Porygon trade evolution (species not yet in roster)","price":0},
-	"sunstone":{"name":"Sun Stone / stored for later-generation evolutions","price":0},
+	"upgrade":{"name":"Up-Grade / Porygon holds it when using a Link Cable","price":0},
+	"sunstone":{"name":"Sun Stone / Bellossom or Sunflora evolution","price":0},
 	"guardspec":{"name":"Guard Spec. / team Mist 60s","price":700}
 }
 
@@ -99,15 +99,10 @@ func use(id,slot) -> bool:
 		mon.hp=1.0; mon.ailment=""; success=true
 	elif id=="maxrevive" and mon.hp<=0: mon.hp=1.0; success=true
 	elif catalog[id].has("heal") and mon.hp>0 and mon.hp<1: mon.hp=minf(1,mon.hp+catalog[id].heal); success=true
-	elif id=="linkcable" and LINK_EVOLUTIONS.has(int(mon.id)):
-		a.collection.register(mon)
-		var old=int(mon.id); mon.id=LINK_EVOLUTIONS[old]; a.c.abilities.assign(mon)
-		a.evolutions.append([old,int(mon.id),mon.get("shiny",false)])
-		a.inventory.level_up(mon,old,int(mon.level)); success=true
-	elif id in STONES and STONES[id].has(int(mon.id)):
-		a.collection.register(mon)
-		var old=int(mon.id); mon.id=STONES[id][old]; a.c.abilities.assign(mon)
-		a.evolutions.append([old,int(mon.id),mon.get("shiny",false)])
+	elif a.evolution_rules.item_target(mon,id)>0:
+		var old=int(mon.id); var target=a.evolution_rules.item_target(mon,id)
+		if id=="linkcable" and mon.get("held_item","") in ["metalcoat","kingsrock","dragonscale","upgrade","deepseatooth","deepseascale"]: mon.held_item=""
+		a.evolution_rules.evolve(mon,target)
 		a.inventory.level_up(mon,old,int(mon.level)); success=true
 	elif id=="rarecandy" and mon.level<100 and mon.hp>0:
 		var party=a.data.party

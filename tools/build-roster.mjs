@@ -4,9 +4,10 @@ import {moveRules} from './move-rules.mjs';
 const read = async n => JSON.parse(await fs.readFile(`data/source/${n}.json`, 'utf8'));
 const dex = await read('pokedex'), moves = await read('moves'), learnsets = await read('learnsets');
 const id = s => s.toLowerCase().replace(/[^a-z0-9]/g,'');
-const extraIds = [152,185,197,355,361,599,821];
-const selected = Object.entries(dex).filter(([key,p]) => ((p.num >= 1 && p.num <= 151) || extraIds.includes(p.num)) && !p.forme && !p.baseSpecies).sort((a,b)=>a[1].num-b[1].num);
-if(selected.length !== 158) throw Error(`Expected 158, got ${selected.length}`);
+const extraIds = [599,821];
+const previous = new Map(JSON.parse(await fs.readFile('data/roster.json','utf8')).map(p=>[p.id,p]));
+const selected = Object.entries(dex).filter(([key,p]) => ((p.num >= 1 && p.num <= 386) || extraIds.includes(p.num)) && !p.forme && !p.baseSpecies).sort((a,b)=>a[1].num-b[1].num);
+if(selected.length !== 388) throw Error(`Expected 388, got ${selected.length}`);
 const plans = new Map();
 function family(numbers, text) {for(const n of numbers) plans.set(n,text.split('|').map(s=>s.trim().split('/')));}
 family([1,2,3], 'razorleaf/vinewhip|sludgebomb|energyball/seedbomb|synthesis');
@@ -83,6 +84,15 @@ family([129], 'tackle|flail|bounce|splash');
 family([130], 'waterfall|crunch|icefang|dragondance');
 family([131], 'waterpulse|icebeam|thunderbolt|sing');
 family([132], 'transform');
+family([201], 'hiddenpower');
+family([235], 'sketch');
+family([202,360], 'counter|mirrorcoat|safeguard|destinybond');
+family([243], 'thunderbolt|extrasensory|shadowball|calmmind');
+family([244], 'flamethrower|extrasensory|stomp|sunnyday');
+family([245], 'surf|icebeam|extrasensory|calmmind');
+family([249], 'aeroblast|psychic|hydropump|recover');
+family([250], 'sacredfire|bravebird|earthquake|recover');
+family([386], 'psychic|superpower|shadowball|recover');
 family([133], 'swift|quickattack|shadowball|babydolleyes');
 family([134], 'waterpulse|icebeam|surf|acidarmor');
 family([135], 'thundershock|pinmissile|thunderbolt|thunderwave');
@@ -139,6 +149,7 @@ function legalMoves(key) {
 }
 const report = [];
 const roster = selected.map(([key,p])=>{
+ if(previous.has(p.num)) return previous.get(p.num);
  const legal = legalMoves(key), chosen = [];
  for(const candidates of plans.get(p.num) || []) {
    const found = candidates.map(id).find(m=>legal.has(m) && moves[m] && !chosen.includes(m));
@@ -150,7 +161,7 @@ const roster = selected.map(([key,p])=>{
    if(!m.basePower || m.basePower>130 || m.selfdestruct || m.recharge || key==='hiddenpower' || key==='terablast') return -999;
    return (p.types.includes(m.type)?40:0) + Math.min(m.basePower,90)*0.35 + (m.category==='Physical'?p.baseStats.atk:p.baseStats.spa)*0.15;
  };
- if(p.num!==132) {
+ if(![132,201,235].includes(p.num)) {
    const candidates = [...legal].filter(m=>!chosen.includes(m) && score(m)>-999).sort((a,b)=>score(b)-score(a));
    while(chosen.length<4 && candidates.length) chosen.push(candidates.shift());
    if(chosen.length!==4) throw Error(`${p.name}: only ${chosen.length} moves`);
@@ -166,7 +177,7 @@ const roster = selected.map(([key,p])=>{
    const cooldown = kind==='heal'?9:kind==='guard'?7:kind==='buff'?8:kind==='status'?6:kind==='transform'?8:kind==='splash'?2:Math.round((0.4+bp/55+(kind==='dash'?0.5:0))*100)/100;
    return {id:key,name:m.name,type:m.type,category:m.category,base_power:bp,kind,effect,damage,cost:m.category==='Status'?kind==='splash'?0:25:Math.round(5+bp*.19),cooldown,drain:!!m.drain,recoil:!!m.recoil,arena_only:false,...moveRules(m,key)};
  });
- if(p.num===132) converted.push(
+ if([132,201,235].includes(p.num)) converted.push(
    {id:'arena_reposition',name:'Reposition',type:'Normal',category:'Status',kind:'teleport',damage:0,cost:15,cooldown:3,effect:'',arena_only:true},
    {id:'arena_struggle',name:'Struggle (Arena)',type:'Normal',category:'Physical',kind:'dash',damage:18,cost:12,cooldown:1.6,effect:'',recoil:true,arena_only:true},
    {id:'arena_guard',name:'Guard (Arena)',type:'Normal',category:'Status',kind:'guard',damage:0,cost:25,cooldown:7,effect:'',arena_only:true}
@@ -176,7 +187,7 @@ const roster = selected.map(([key,p])=>{
 });
 await fs.mkdir('data',{recursive:true});
 await fs.writeFile('data/roster.json',JSON.stringify(roster,null,2)+'\n');
-await fs.writeFile('data/movesets.md','# Gen 1 + retained Pokémon\n\nModern base stats and typings. Moves checked against recorded learnsets, including pre-evolutions across generations. Real-time execution is adapted. Ditto has Transform plus three explicitly marked arena actions until transformation.\n\n| No. | Pokémon | Types | HP / Atk / Def / SpA / SpD / Spe | Q | E | F | C |\n|---|---|---|---|---|---|---|---|\n'+roster.map(p=>`| ${p.id} | ${p.name} | ${p.types.join('/')} | ${Object.values(p.base_stats).join(' / ')} | ${p.moves.map(m=>m.name).join(' | ')} |`).join('\n')+'\n');
+await fs.writeFile('data/movesets.md','# National 386 + two retained Pokémon\n\nModern base stats and typings. Moves checked against recorded learnsets, including pre-evolutions across generations. Real-time execution is adapted. Ditto, Unown and Smeargle keep their species move plus three explicitly marked arena actions.\n\n| No. | Pokémon | Types | HP / Atk / Def / SpA / SpD / Spe | Q | E | F | C |\n|---|---|---|---|---|---|---|---|\n'+roster.map(p=>`| ${p.id} | ${p.name} | ${p.types.join('/')} | ${Object.values(p.base_stats).join(' / ')} | ${p.moves.map(m=>m.name).join(' | ')} |`).join('\n')+'\n');
 const hashes={};
 for(const n of ['pokedex','moves','learnsets']) hashes[n]={url:`https://play.pokemonshowdown.com/data/${n}.json`,sha256:crypto.createHash('sha256').update(await fs.readFile(`data/source/${n}.json`)).digest('hex')};
 await fs.writeFile('data/sources.json',JSON.stringify({retrieved:new Date().toISOString(),data:hashes,sprites:'https://github.com/PokeAPI/sprites/tree/master/sprites/pokemon',total:roster.length,retained:extraIds},null,2));
