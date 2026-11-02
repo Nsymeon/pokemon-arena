@@ -282,6 +282,7 @@ func reset():
 	shake = 0
 	notice_time = 0
 	enemy_bench.reset(self)
+	if campaign.active and campaign.daily_enabled and not adventure.in_battle: campaign.daily.apply_player(self)
 
 func _unhandled_input(event):
 	if frontend.layer != null and frontend.layer.visible: return
@@ -304,8 +305,9 @@ func _unhandled_input(event):
 		if controls.matches(event,"capture"):
 			adventure.throw_ball()
 			return
-		if controls.matches(event,"restart") or controls.matches(event,"roster") or (result!="" and event is InputEventKey and event.pressed and event.keycode==KEY_ENTER):
-			if not can_continue_team(): adventure.return_world()
+		if controls.matches(event,"restart"): return
+		if controls.matches(event,"roster") or (result!="" and (controls.matches(event,"interact") or (event is InputEventKey and event.pressed and event.keycode==KEY_ENTER))):
+			if result!="" and not can_continue_team(): adventure.return_world()
 			return
 	if adventure.in_battle and adventure.capture_time > 0: return
 	if campaign.layer != null and campaign.layer.visible: return
@@ -664,7 +666,9 @@ func _process(delta):
 			if recall_before < FAINT_FADE_START and result_time >= FAINT_FADE_START: tone(720, 0.15)
 			if resolution_ready() and adventure.in_battle: adventure.record_knockout()
 			if resolution_ready() and can_continue_team(): advance_team()
-			elif resolution_ready(): campaign.record_result()
+			elif resolution_ready():
+				if adventure.in_battle and result in ["DEFEAT","DRAW"]: adventure.return_world()
+				else: campaign.record_result()
 	if not selecting: update_camera(delta)
 	queue_redraw()
 
@@ -1122,9 +1126,9 @@ func _draw():
 				draw_rect(Rect2(40+i*120,180,120,600*shutter),Color("334354"))
 			label_at("FIELD CHANGE / " + fields.LABELS[fields.active].to_upper(),Vector2(400,220),21,GOLD)
 	elif result != "" and resolution_ready():
-		overlay(result + (" / " + opponent_name().to_upper() if not enemy_party.is_empty() else ""), ("R / Tab: League progress" + (" / " + campaign.error if campaign.error != "" else " / SAVED")) if campaign.active else ("R / Enter: return to adventure" if adventure.in_battle else "R: rematch  •  Tab: choose Pokémon"))
+		overlay(result + (" / " + opponent_name().to_upper() if not enemy_party.is_empty() else ""), ("R / Tab: League progress" + (" / " + campaign.error if campaign.error != "" else " / SAVED")) if campaign.active else ("Enter / "+controls.text("interact")+": return to adventure" if adventure.in_battle else "R: rematch  •  Tab: choose Pokémon"))
 	elif paused:
-		overlay("PAUSED", "Esc to resume  •  R to restart")
+		overlay("PAUSED", "Esc to resume" if adventure.in_battle else "Esc to resume  •  R to restart")
 	draw_set_transform(Vector2.ZERO)
 	if switch_menu: draw_switch_menu()
 
@@ -1520,6 +1524,7 @@ func setup_selection_controls():
 	selection_controls.add_child(opponent_choice)
 
 func filtered_roster() -> Array:
+	if campaign.active and campaign.daily_enabled: return player_team.duplicate()
 	var indices = []
 	for i in range(roster.size()):
 		var mon: Dictionary = roster[i]
@@ -1537,7 +1542,7 @@ func change_page(amount: int):
 func start_match():
 	if not campaign.prepare_match(): return
 	opponent_choice.release_focus()
-	enemy_party = league.party(self,opponent_choice.selected)
+	enemy_party = campaign.opponent_party() if campaign.active else league.party(self,opponent_choice.selected)
 	opponent_identity = league.trainers[opponent_choice.selected-1].id if opponent_choice.selected > 0 else "rival"
 	if not enemy_party.is_empty(): team_mode = true
 	search_box.release_focus()
@@ -1549,10 +1554,17 @@ func start_match():
 	selection_controls.visible = false
 	if team_mode:
 		player_team[team_slot] = player_index
-		enemy_team[team_slot] = enemy_index
+		if enemy_party.is_empty(): enemy_team[team_slot] = enemy_index
 	reset()
 
 func selection_input(event):
+	if campaign.active and campaign.daily_enabled:
+		if event is InputEventKey and event.pressed and not event.echo:
+			if event.keycode==KEY_ENTER: start_match()
+			elif event.keycode>=KEY_1 and event.keycode<=KEY_6:
+				team_slot=event.keycode-KEY_1; player_index=player_team[team_slot]
+		elif event is InputEventMouseButton and event.pressed: selection_click(get_global_mouse_position()-ROSTER_OFFSET,event.button_index)
+		return
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_T and opponent_choice.selected == 0: team_mode = not team_mode
 		if team_mode and event.keycode >= KEY_1 and event.keycode <= KEY_6:
@@ -1612,6 +1624,7 @@ func selection_click(mouse: Vector2, button: int):
 	if Rect2(40, 66, 260, 32).has_point(mouse): select_enemy = false
 	if Rect2(310, 66, 260, 32).has_point(mouse) and opponent_choice.selected == 0: select_enemy = true
 	if Rect2(930, 748, 310, 42).has_point(mouse): start_match(); return
+	if campaign.active and campaign.daily_enabled: return
 	if Rect2(1040, 497, 90, 32).has_point(mouse): change_page(-1); return
 	if Rect2(1140, 497, 100, 32).has_point(mouse): change_page(1); return
 	var indices = filtered_roster()
@@ -2138,7 +2151,7 @@ func draw_team_selection():
 		var team = player_team if friendly else enemy_team
 		var party = preview_party if not friendly else []
 		var start_x = 40 if friendly else 652
-		for i in range(party.size() if not party.is_empty() else 6):
+		for i in range(party.size() if not party.is_empty() else team.size()):
 			var mon = party[i] if not party.is_empty() else roster[team[i]]
 			var x = start_x + i * 98
 			panel(Rect2(x, 806, 92, 50), Color("243c49"), GOLD if i == (opponent_preview_slot if not party.is_empty() else team_slot) else Color("425b68"))

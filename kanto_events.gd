@@ -42,9 +42,9 @@ func geometry(label: String):
 func refresh():
 	patches.clear()
 	var name=str(w.room().name)
-	if name=="MtEmber_Exterior" and a.sevii.done("network_quest"): geometry("MtEmber_Exterior_EventScript_OpenCave")
-	if name=="SixIsland_RuinValley" and a.field.can_use("cut"): geometry("SixIsland_RuinValley_EventScript_OpenDottedHoleDoor")
-	if name=="FiveIsland_Meadow" and a.sevii.done("sapphire_stolen"): geometry("FiveIsland_Meadow_EventScript_SetWarehouseDoorUnlocked")
+	if name=="MtEmber_Exterior" and a.sevii.done("password_ruby"): geometry("MtEmber_Exterior_EventScript_OpenCave")
+	if name=="SixIsland_RuinValley" and a.sevii.done("lorelei") and a.field.can_use("cut"): geometry("SixIsland_RuinValley_EventScript_OpenDottedHoleDoor")
+	if name=="FiveIsland_Meadow" and a.sevii.done("password_ruby") and a.sevii.done("sapphire_stolen"): geometry("FiveIsland_Meadow_EventScript_SetWarehouseDoorUnlocked")
 	if name.begins_with("SeafoamIslands_") and done("calm:"+w.current): geometry("calm")
 	if name=="CeladonCity_GameCorner": geometry(name+"_EventScript_"+("OpenRocketHideout" if done("poster") else "HideRocketHideout"))
 	if name=="RocketHideout_B4F":
@@ -200,6 +200,9 @@ func pickup(item):
 
 func interact() -> bool:
 	var front=Vector2i((a.position_world+w.heading*w.TILE)/w.TILE)
+	for hidden in a.progression.hidden_items():
+		if not hidden.get("underfoot",false) and Vector2i(int(hidden.x),int(hidden.y))==front:
+			pickup(hidden); return true
 	if front.x>=0 and front.y>=0 and front.x<w.room().width and front.y<w.room().height:
 		var behavior=int(catalog[w.current].behavior[front.y*int(w.room().width)+front.x])
 		if behavior in [0x83,0x97]:
@@ -291,6 +294,8 @@ func allow_step(target: Vector2) -> bool:
 	return true
 
 func allow_door(destination: String) -> bool:
+	var story_gate=a.progression.gate(destination)
+	if story_gate!="": a.dialog=story_gate; return false
 	if w.current=="MAP_VIRIDIAN_CITY" and destination=="MAP_ROUTE2" and not done("trainer:Route22_EarlyRival"):
 		a.dialog="Before heading north, meet Blue on Route 22, west of Viridian, and win your second rival battle."; a.c.click_move=false; return false
 	if destination=="MAP_ROUTE23" and not badge_owned("Boulder"):

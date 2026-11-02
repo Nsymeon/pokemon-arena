@@ -129,9 +129,11 @@ func enter(id: String, at: Vector2):
 	update_camera()
 	a.save()
 	scenes.entrance()
+	a.progression.entered()
 
 func tick(dt):
 	a.time+=dt
+	if not scenes.active and a.modal=="" and a.progression.done("champion_pending"): a.progression.resume_ceremony()
 	if scenes.tick(dt):
 		update_camera(); a.queue_redraw(); return
 	if a.dialog=="" and a.modal=="":
@@ -140,6 +142,7 @@ func tick(dt):
 			update_camera(); a.queue_redraw(); return
 		if scenes.check_oak_intro(): return
 		if scenes.route22_rival(): return
+		if a.progression.main_rival(): return
 		if try_warp(): return
 		if scenes.detect_trainer(): return
 		if events.tick(dt):
@@ -199,6 +202,9 @@ func actors() -> Array:
 	for object in room().objects:
 		if object.get("graphics_id","")=="OBJ_EVENT_GFX_PROF_OAK" and a.data.starter==0 and not events.done("oak_intro"): continue
 		if current=="MAP_ROUTE22" and object.get("graphics_id","")=="OBJ_EVENT_GFX_BLUE": continue
+		if current=="MAP_CERULEAN_CITY" and object.get("graphics_id","")=="OBJ_EVENT_GFX_BLUE": continue
+		if object.get("graphics_id","")=="OBJ_EVENT_GFX_BLUE" and current in ["MAP_POKEMON_TOWER_2F","MAP_SILPH_CO_7F","MAP_SS_ANNE_2F_CORRIDOR"]:
+			if (scenes.active and scenes.actor.get("key","")=="scene_blue") or a.progression.rival_done({"MAP_POKEMON_TOWER_2F":"story_tower_blue","MAP_SILPH_CO_7F":"late_silph_blue","MAP_SS_ANNE_2F_CORRIDOR":"ship_blue"}[current]): continue
 		if object.get("graphics_id","")=="OBJ_EVENT_GFX_POKEDEX" and events.done("parcel_delivered"): continue
 		if object.get("graphics_id","")=="OBJ_EVENT_GFX_BLUE" and current=="MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB" and a.data.rival: continue
 		if object.get("graphics_id","")=="OBJ_EVENT_GFX_PROF_OAK" and current=="MAP_PALLET_TOWN": continue
@@ -221,6 +227,9 @@ func quest_actors() -> Array:
 		for npc in a.base_npcs()+a.Finale.npcs(a):
 			if str(npc[2]).begins_with("late_enter_"): continue
 			var action=str(npc[2])
+			if action in ["late_task_strength","late_task_surf","late_task_bicycle","late_task_silph_saved"]: continue
+			if action=="story_shipblue" and (a.Story.state(a).get("ship_blue",false) or (scenes.active and scenes.actor.get("key","")=="scene_blue")): continue
+			if action in ["story_bridge","late_task_hideout_guard","late_task_lift_key","late_task_tower_ghost","late_task_tower_rocket","late_task_flute","late_task_silph_guard","late_task_silph_blue","late_task_lapras","late_task_gold_teeth","late_task_victory_trainer","late_task_league_rival"]: continue
 			if action=="rival" and (a.data.rival or room().name=="PalletTown"): continue
 			if action.begins_with("story_switch") or action in ["late_warp","late_quiz","late_task_mansion_switch","late_task_card_key","late_task_secret_key","late_task_victory_boulder","late_task_snorlax","late_task_seafoam_boulder","late_league"]: continue
 			if action in ["story_bill","story_console"] and room().name!="Route25_SeaCottage": continue

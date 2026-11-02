@@ -5,12 +5,12 @@ var tutors: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://as
 var dialogue: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://assets/kanto/dialogue.json"))
 
 func gate(destination) -> bool:
-	if destination.begins_with("MAP_MT_EMBER_RUBY_PATH") and not done("network_quest"):
-		a.dialog="Speak to Celio after becoming Champion to investigate the Ruby cave."; return false
-	if destination=="MAP_SIX_ISLAND_DOTTED_HOLE_1F" and not a.field.can_use("cut"):
-		a.dialog="The Braille door requires Cut Shears and the Cascade Badge."; return false
-	if destination=="MAP_FIVE_ISLAND_ROCKET_WAREHOUSE" and not done("sapphire_stolen"):
-		a.dialog="The Warehouse is locked. Follow the Sapphire quest at Dotted Hole."; return false
+	if destination.begins_with("MAP_MT_EMBER_RUBY_PATH") and not (done("network_quest") and done("password_ruby")):
+		a.dialog="Receive Oak's National Dex, speak to Celio, then defeat both Rocket guards at Mt. Ember."; return false
+	if destination=="MAP_SIX_ISLAND_DOTTED_HOLE_1F" and not (done("lorelei") and a.field.can_use("cut")):
+		a.dialog="Help Lorelei at Icefall Cave to move the scientist, then use Cut Shears on the Braille door."; return false
+	if destination=="MAP_FIVE_ISLAND_ROCKET_WAREHOUSE" and not (done("password_ruby") and done("sapphire_stolen")):
+		a.dialog="The Warehouse needs two passwords: the Mt. Ember guards' and the Sapphire thief's."; return false
 	return true
 
 func on_step() -> bool:
@@ -50,8 +50,8 @@ func finish(key): a.field.finish("sevii:"+key)
 
 func ferry_menu():
 	var list=a.inventory.page("SEAGALLOP FERRY / SEVII ISLANDS")
-	if not a.Finale.has(a,"volcano"):
-		a.inventory.row(list,"Earn the Volcano Badge before travelling with Bill to One Island.",func():pass,true); return
+	if not done("tri_pass"):
+		a.inventory.row(list,"Meet Bill outside Cinnabar Gym after earning the Volcano Badge to receive the Tri-Pass.",func():pass,true); return
 	for i in range(PORTS.size()):
 		var locked=i>=4 and not done("ruby_delivered")
 		a.inventory.row(list,a.world.maps[PORTS[i]].name+(" / Celio needs the Ruby first" if locked else ""),sail.bind(i),locked)
@@ -60,26 +60,41 @@ func at_port() -> bool:
 	return a.world.current in PORTS or a.world.current.ends_with("_HARBOR")
 
 func sail(index):
-	if a.in_battle or not at_port() or index<0 or index>=PORTS.size() or not a.Finale.has(a,"volcano"): return
+	if a.in_battle or not at_port() or index<0 or index>=PORTS.size() or not done("tri_pass"): return
 	if index>=4 and not done("ruby_delivered"): return
 	a.clear_ui()
 	a.world.scenes.play([{"text":"The Seagallop sets sail for "+a.world.maps[PORTS[index]].name+"...","duration":1.6,"flash":true}],func():a.world.enter(PORTS[index],Vector2(10.5,10.5)*48))
 
 func npc(o) -> bool:
 	var script=str(o.get("script",""))
+	if script=="OneIsland_PokemonCenter_1F_EventScript_Bill":
+		if done("lostelle_returned") and not done("initial_trip_complete"):
+			a.world.scenes.play([
+				{"text":"BILL: Lostelle is safe and Celio's PC is working again. Thank you for helping us!","duration":2.7},
+				{"text":"BILL: Let's head back to Cinnabar. Keep your Tri-Pass so you can visit these islands again.","duration":2.8,"flash":true}
+			],func():finish("initial_trip_complete"); a.world.enter("MAP_CINNABAR_ISLAND",Vector2(10.5,10.5)*48); a.save())
+		else: a.dialog="BILL: Deliver the Meteorite to Two Island, find Lostelle, then come back here."
+		return true
 	if script=="SaffronCity_CopycatsHouse_2F_EventScript_Copycat" and not a.field.done("tutor:"+script) and int(a.data.bag.get("pokedoll",0))<=0:
 		a.dialog="COPYCAT: Bring me a Poke Doll from the Mart and I can teach Mimic to a compatible partner."; return true
 	if script in ["ThreeIsland_EventScript_Biker","ThreeIsland_EventScript_AntiBiker1","ThreeIsland_EventScript_AntiBiker2"]:
 		bikers(); return true
 	if tutors.has(script): tutor_menu(script); return true
 	if "Celio" in script:
-		if done("sapphire"): a.field.reward("sevii:network","CELIO: The Ruby and Sapphire power the Network Machine! Thank you for reconnecting the islands.")
+		if not done("tri_pass"): a.dialog="Meet Bill in Cinnabar after earning the Volcano Badge."; return true
+		if done("network"): a.dialog="CELIO: The Network Machine is running! Cerulean Cave is now open to you."
+		elif done("sapphire"): a.field.reward("sevii:network","CELIO: The Ruby and Sapphire power the Network Machine! Thank you for reconnecting the islands.")
 		elif done("ruby"): a.field.reward("sevii:ruby_delivered","CELIO: The Ruby works! Take the RAINBOW PASS for Islands Four through Seven. Find the Sapphire at Dotted Hole on Six Island.")
-		elif a.Finale.has(a,"champion"): a.field.reward("sevii:network_quest","CELIO: As Champion, help restore the Network Machine. Find the Ruby deep under Mt. Ember.")
+		elif a.progression.national(): a.field.reward("sevii:network_quest","CELIO: Your National Pokedex will help restore the Network Machine. Find the Ruby deep under Mt. Ember.")
+		elif a.Finale.has(a,"champion"): a.dialog="CELIO: Visit Oak with 60 caught Kanto species for the National Pokedex, then return."
 		else: a.dialog="CELIO: Visit Two Island and help Bill's friend. Return after becoming Champion for the Network Machine quest."
 		return true
 	if "LostellesDaddy" in script:
-		if done("lostelle_saved"): a.field.reward("sevii:lostelle_returned","Lostelle and her father are reunited! Bill thanks you for helping the islands.")
+		if done("lostelle_saved"):
+			if not done("lostelle_returned"):
+				a.data.bag.moonstone=mini(999,int(a.data.bag.get("moonstone",0))+1)
+				a.field.reward("sevii:lostelle_returned","Lostelle and her father are reunited! Delivered Bill's Meteorite and received a Moon Stone. Return to Bill and Celio on One Island.")
+			else: a.dialog="Thank you for finding Lostelle!"
 		else: a.field.reward("sevii:lostelle_quest","My daughter Lostelle is missing! Search Berry Forest beyond Three Island's Bond Bridge.")
 		return true
 	if script=="ThreeIsland_BerryForest_EventScript_Lostelle":
@@ -87,21 +102,23 @@ func npc(o) -> bool:
 		if done("lostelle_saved"): a.dialog="Lostelle is safe. Return to her father on Two Island."; return true
 		a.world.scenes.play([{"text":"LOSTELLE: That scary Pokemon keeps following me!","duration":1.6},{"text":"A Hypno steps out from the trees!","duration":1.2,"portrait":97}],func():a.begin_battle("sevii_lostelle",[97],[30])); return true
 	if script.ends_with("EventScript_Ruby"):
-		if not done("network_quest"): a.dialog="Ask Celio about the Network Machine after becoming Champion."
+		if not done("network_quest") or not done("password_ruby"): a.dialog="Speak to Celio with the National Pokedex and defeat both Mt. Ember guards first."
 		else: a.field.reward("sevii:ruby","The Ruby glows in your hands. Bring it to Celio on One Island.")
 		return true
 	if script.ends_with("EventScript_Sapphire"):
-		if not done("ruby_delivered"): a.dialog="Return the Ruby to Celio first."
+		if not done("ruby_delivered") or not done("lorelei"): a.dialog="Return the Ruby to Celio and help Lorelei at Icefall Cave first."
 		else: a.field.reward("sevii:sapphire_stolen","A scientist snatches the Sapphire! He reveals the Rocket Warehouse password. Follow him to Five Island!")
 		return true
 	if "RocketWarehouse_EventScript_Gideon" in script:
 		if done("sapphire"): a.dialog="GIDEON: You won. Take the Sapphire back to Celio."
-		elif done("sapphire_stolen"): a.begin_battle("sevii_sapphire",[100,101,81,82,137],[46,46,46,46,46])
+		elif done("sapphire_stolen") and ["Admin1","Admin2"].all(func(id):return a.field.done("trainer:FiveIsland_RocketWarehouse_EventScript_"+id)): a.begin_battle("sevii_sapphire",[100,101,81,82,137],[46,46,46,46,46])
+		elif done("sapphire_stolen"): a.dialog="Defeat both Rocket Admins inside the Warehouse before confronting Gideon."
 		else: a.dialog="Track the Sapphire at Dotted Hole first."
 		return true
 	if "IcefallCave_Back_EventScript_Lorelei" in script:
 		if done("lorelei"): a.dialog="LORELEI: Icefall Cave's Pokemon are safe again. Thank you!"
-		else: a.world.scenes.play([{"text":"LORELEI: Team Rocket is stealing Pokemon! Help me drive them out!","duration":1.8}],func():a.begin_battle("sevii_lorelei",[42,110],[38,38]))
+		elif not done("ruby_delivered"): a.dialog="Help Celio restore the Network Machine first."
+		else: a.world.scenes.play([{"text":"LORELEI: Team Rocket is stealing Pokemon! Help me drive them out!","duration":1.8}],func():a.begin_battle("sevii_lorelei",[41,41,42],[38,38,38]))
 		return true
 	if at_port() and "SAILOR" in str(o.get("graphics_id","")): ferry_menu(); return true
 	return false
@@ -159,5 +176,5 @@ func teach(script,slot,index):
 
 func journal():
 	var list=a.inventory.page("SEVII / STORY JOURNAL")
-	for pair in [["bikers","Three Island: defeat the four biker gang members."],["tanoby","Seven Island: push all seven Tanoby Key boulders onto their floor switches."],["lostelle_quest","Two Island: speak with Lostelle's father at the Joyful Game Corner."],["lostelle_saved","Three Island: follow Bond Bridge into Berry Forest and rescue Lostelle."],["lostelle_returned","Return to Lostelle's father."],["network_quest","Become Champion, then speak to Celio at One Island Pokemon Center."],["ruby","Find the Ruby in Mt. Ember's underground path."],["ruby_delivered","Bring the Ruby to Celio for the Rainbow Pass."],["lorelei","Help Lorelei confront Rocket in Icefall Cave on Four Island."],["sapphire_stolen","Six Island: enter Dotted Hole with Cut Shears; follow UP, LEFT, RIGHT, DOWN."],["sapphire","Five Island: defeat Gideon in the Rocket Warehouse."],["network","Return the Sapphire to Celio."]]:
+	for pair in [["bikers","Three Island: defeat the four biker gang members."],["tanoby","Seven Island: push all seven Tanoby Key boulders onto their floor switches."],["lostelle_quest","Two Island: speak with Lostelle's father at the Joyful Game Corner."],["lostelle_saved","Three Island: follow Bond Bridge into Berry Forest and rescue Lostelle."],["lostelle_returned","Return to Lostelle's father."],["network_quest","Become Champion, catch 60 Kanto species, receive the National Dex from Oak, then speak to Celio."],["ruby","Find the Ruby in Mt. Ember's underground path."],["ruby_delivered","Bring the Ruby to Celio for the Rainbow Pass."],["lorelei","Help Lorelei confront Rocket in Icefall Cave on Four Island."],["sapphire_stolen","Six Island: enter Dotted Hole with Cut Shears; follow UP, LEFT, RIGHT, DOWN."],["sapphire","Five Island: defeat Gideon in the Rocket Warehouse."],["network","Return the Sapphire to Celio."]]:
 		a.inventory.row(list,("DONE / " if done(pair[0]) else "NEXT / ")+pair[1],func():pass,true)

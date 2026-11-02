@@ -18,6 +18,7 @@ var expansion=preload("res://adventure_expansion.gd").new()
 var collection=preload("res://pokemon_collection.gd").new()
 var extras=preload("res://adventure_items.gd").new()
 var sevii=preload("res://adventure_sevii.gd").new()
+var progression=preload("res://adventure_progression.gd").new()
 var services=preload("res://adventure_services.gd").new()
 var field=preload("res://adventure_field.gd").new()
 var avatar=preload("res://adventure_avatar.gd").new()
@@ -43,6 +44,8 @@ var ui: CanvasLayer
 var original = {}
 var encounter = {}
 var evolutions: Array = []
+var evolution_scene
+var blackout_scene
 var progress_lines: Array = []
 var progress_time = 0.0
 var progress_summary=""
@@ -62,6 +65,7 @@ func install(context):
 	field.a = self
 	services.a = self
 	sevii.a = self
+	progression.a = self
 	avatar.a = self
 	world.install(self)
 	inventory.install(self)
@@ -73,6 +77,12 @@ func install(context):
 	add_child(ui)
 
 func valid(value) -> bool:
+	if value is Dictionary and value.has("heal_spot"):
+		var spot=value.heal_spot
+		if not spot is Dictionary or not world.maps.has(spot.get("map","")): return false
+		for axis in ["x","y"]:
+			if not (spot.get(axis) is int or spot.get(axis) is float) or not is_finite(float(spot[axis])): return false
+		if spot.x<0 or spot.y<0 or spot.x>=world.maps[spot.map].width*48 or spot.y>=world.maps[spot.map].height*48: return false
 	if value is Dictionary and value.has("field_exit"):
 		var e=value.field_exit
 		if not e is Dictionary or not world.maps.has(e.get("map","")): return false
@@ -344,6 +354,13 @@ func handle_input(event):
 	if event is InputEventKey and event.echo: return
 	if modal != "":
 		if modal=="CREATE YOUR TRAINER": return
+		if modal=="BLACKOUT": return
+		if modal=="HALL OF FAME" and is_instance_valid(progression.hall_scene):
+			if c.controls.matches(event,"interact") or (event is InputEventKey and event.keycode in [KEY_ENTER,KEY_ESCAPE]): progression.hall_scene.advance()
+			return
+		if modal.begins_with("EVOLUTION") and is_instance_valid(evolution_scene):
+			if c.controls.matches(event,"interact") or (event is InputEventKey and event.keycode in [KEY_ENTER,KEY_ESCAPE]): evolution_scene.advance()
+			return
 		if event is InputEventKey and event.keycode == KEY_ESCAPE:
 			if modal.begins_with("EVOLUTION"): next_evolution()
 			else: back_ui()
@@ -423,6 +440,7 @@ func heal():
 		mon.hp = 1.0
 		mon.ailment = ""
 	if data.map in Kanto.HEALING_MAPS: data.healing_map = int(data.map)
+	progression.remember_heal()
 	dialog = "Your team is fully healed. See you again!"
 	save()
 
@@ -449,6 +467,12 @@ func battle_mon(id: int, level: int, individual: Dictionary={}) -> Dictionary:
 	return mon
 
 func begin_battle(kind: String, ids: Array, levels: Array):
+	if progression.gym_cleared(kind):
+		dialog="You already earned this Gym's Badge. The Gym Leader congratulates you on your victory."
+		return
+	var source_party=progression.battle_party(kind)
+	if not source_party.is_empty():
+		ids=source_party.map(func(mon):return int(mon[0])); levels=source_party.map(func(mon):return int(mon[1]))
 	if data.party.is_empty():
 		dialog = "Choose a starter from Professor Oak first."
 		return
@@ -483,6 +507,7 @@ func begin_battle(kind: String, ids: Array, levels: Array):
 	c.opponent_identity = "wild" if kind=="wild" else "blue" if kind in ["rival","world_Route22_EarlyRival"] else "brock" if kind=="brock" else "misty" if kind=="misty" else "giovanni" if kind=="rocket" else "bug_catcher"
 	c.arena_choice.select(4 if kind=="misty" else 0 if data.map==6 else 3 if kind=="brock" else 6 if data.map==3 else 2)
 	Story.prepare(self,kind)
+	if kind=="story_tower_blue": c.opponent_identity="blue"
 	Finale.prepare(self,kind)
 	c.weather_choice.select(0)
 	c.reset()
@@ -507,7 +532,13 @@ func reward(victory: bool) -> String:
 	var later_message=Finale.reward(self,victory)
 	if not victory: return ""
 	var message = later_message if later_message!="" else Story.reward(self,encounter.kind)
-	if encounter.kind!="wild": data.money = mini(999999,int(data.money)+150)
+	if encounter.kind!="wild":
+		var used=[]
+		for slots in encounter.get("participants",{}).values():
+			for slot in slots:
+				if slot not in used: used.append(slot)
+		var amulet=used.any(func(i):return i<data.party.size() and data.party[i].get("held_item","")=="amuletcoin")
+		data.money = mini(999999,int(data.money)+(300 if amulet else 150))
 	match encounter.kind:
 		"rival": data.rival = true
 		"bug": data.bug_catcher = true
@@ -541,6 +572,7 @@ func return_world(caught: bool = false, escaped: bool = false):
 	var win = c.result == "VICTORY"
 	var message = ""
 	var new_entry={}
+	var blackout_loss=-1
 	if caught:
 		collection.sync()
 		var capture_xp=experience.reward(int(encounter.ids[c.enemy_active]),int(encounter.levels[c.enemy_active]),encounter.kind!="wild")
@@ -565,13 +597,8 @@ func return_world(caught: bool = false, escaped: bool = false):
 					data.bag["potion"]=mini(999,int(data.bag.get("potion",0))+1)
 					message+=" Pickup found a Potion!"
 		if not win:
-			data.map = int(data.healing_map)
-			position_world = Vector2(800,760)
-			if world.enabled: world.enter(world.names.get(world.LEGACY[int(data.map)],"MAP_PALLET_TOWN"),Vector2(12,16)*world.TILE)
-			for mon in data.party:
-				mon.hp = 1.0
-				mon.ailment = ""
-			message = "Your team recovered at the last healing town. Try again!"
+			blackout_loss=progression.recover()
+			message = "Your team recovered at the last healing spot."
 		elif encounter.kind=="wild": message=""
 		elif message == "": message = "Battle won! Earned money and experience."
 	if world.enabled: world.events.result(str(encounter.kind),win,caught)
@@ -587,8 +614,12 @@ func return_world(caught: bool = false, escaped: bool = false):
 	capture_time = 0
 	wild_cycle += 1
 	dialog = message
-	if not new_entry.is_empty(): collection.dex_entry(int(new_entry.id),bool(new_entry.get("shiny",false)),true)
+	if blackout_loss>=0 and world.enabled:
+		clear_ui(); modal="BLACKOUT"; dialog=""
+		blackout_scene=preload("res://adventure_blackout.gd").new(); ui.add_child(blackout_scene); blackout_scene.setup(self,blackout_loss)
+	elif not new_entry.is_empty(): collection.dex_entry(int(new_entry.id),bool(new_entry.get("shiny",false)),true)
 	elif not evolutions.is_empty(): show_evolution()
+	if world.enabled: progression.after_battle(str(encounter.kind),win and not escaped)
 	save()
 	queue_redraw()
 
@@ -615,21 +646,22 @@ func catch_chance() -> float:
 	var weak = 1.0-clampf(c.enemy.hp/c.enemy.data.hp,0,1)
 	return clampf(0.18+weak*0.65+(0.12 if c.enemy.ailment!="" else 0),0.1,0.95)
 
-func throw_ball():
+func throw_ball(master: bool=false):
 	if c.horde.active(c) and c.horde.living(c).size()>1:
 		c.notice="HORDE / Leave one wild Pokemon before throwing a ball."; c.notice_time=2; return
 	if not in_battle or encounter.kind!="wild" or c.result!="" or c.paused or c.countdown>0 or c.switch_menu or c.switch_time>=0 or capture_time>0: return
 	if c.player.hp<=0 or c.enemy.hp<=0 or c.player.get("action_lock",0)>0: return
-	if data.balls <= 0:
+	if (int(data.bag.get("masterball",0)) if master else int(data.balls)) <= 0:
 		c.notice = "NO POKE BALLS / visit Viridian's shop"
 		c.notice_time = 2
 		return
 	if data.party.size() >= 6 and data.storage.size() >= 100: return
-	data.balls -= 1
+	if master: data.bag.masterball-=1
+	else: data.balls -= 1
 	save()
-	capture_success = c.rng.randf() < catch_chance()
+	capture_success = master or c.rng.randf() < catch_chance()
 	capture_time = CAPTURE_DURATION
-	c.notice = "POKE BALL / attempting capture..."
+	c.notice = "MASTER BALL / attempting capture..." if master else "POKE BALL / attempting capture..."
 	c.notice_time = CAPTURE_DURATION
 
 func capture_visual() -> Dictionary:
@@ -1035,27 +1067,15 @@ func wrapped(value: String) -> String:
 func show_evolution():
 	if evolutions.is_empty():
 		clear_ui()
+		if world.enabled: progression.resume_ceremony()
 		return
 	var pair = evolutions[0]
-	panel("EVOLUTION / "+mon_name(pair[0])+" → "+mon_name(pair[1]))
-	for i in range(2):
-		var picture = TextureRect.new()
-		picture.texture = c.portrait({"id":pair[i],"shiny":pair[2] if pair.size()>2 else false})
-		picture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		picture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		picture.position = Vector2(240+i*500,295)
-		picture.size = Vector2(220,220)
-		ui.add_child(picture)
-		ui_label(mon_name(pair[i]),Vector2(260+i*500,555),26)
-		if i==1:
-			picture.modulate = Color(1,1,1,0)
-			var tween = picture.create_tween()
-			tween.tween_property(picture,"modulate",Color.WHITE,0.8)
-	ui_label("→",Vector2(608,390),48)
-	ui_label("Your partner evolved! Learned moves are kept.",Vector2(240,625),22)
-	ui_button("CONTINUE",Vector2(485,700),Vector2(300,50),next_evolution)
+	clear_ui(); modal="EVOLUTION"; c.click_move=false
+	evolution_scene=preload("res://evolution_presentation.gd").new()
+	ui.add_child(evolution_scene); evolution_scene.setup(self,pair)
 
 func next_evolution():
+	if evolutions.is_empty(): return
 	evolutions.pop_front()
 	show_evolution()
 
@@ -1076,7 +1096,7 @@ func grant_xp(amount: int) -> String:
 			mon.level += 1
 			mon.hp = minf(1,mon.hp+0.2)
 			message += mon_name(mon.id)+" reached Lv."+str(mon.level)+"! "
-			if EVOLUTIONS.has(int(mon.id)) and mon.level >= EVOLUTIONS[int(mon.id)][0]:
+			if mon.get("held_item","")!="everstone" and EVOLUTIONS.has(int(mon.id)) and mon.level >= EVOLUTIONS[int(mon.id)][0]:
 				evolutions.append([int(mon.id),int(EVOLUTIONS[int(mon.id)][1]),mon.get("shiny",false)])
 				collection.register(mon)
 				mon.id = EVOLUTIONS[int(mon.id)][1]

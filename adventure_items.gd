@@ -8,6 +8,7 @@ const XITEMS={"xattack":"atk","xdefend":"def","xspecial":"spa","xspeed":"spe","x
 const TREASURES={"nugget":5000,"bigpearl":3750,"pearl":700,"stardust":1000,"starpiece":4900}
 var HELD=["blackglasses","quickclaw","cleansetag","silkscarf","laxincense","seaincense","metalcoat","nevermeltice","kingsrock","luckypunch","dragonscale"]+preload("res://held_gear.gd").ITEMS
 var catalog={
+	"masterball":{"name":"Master Ball / guaranteed wild capture","price":0},
 	"linkcable":{"name":"Link Cable / single-player trade evolution","price":3000},
 	"hyperpotion":{"name":"Hyper Potion / heal 80%","price":1200,"heal":0.8},
 	"maxpotion":{"name":"Max Potion / full HP","price":2500,"heal":1.0},
@@ -55,6 +56,10 @@ func valid(data) -> bool:
 	return true
 
 func targets(id):
+	if id=="masterball":
+		if not a.in_battle: a.dialog="Use the Master Ball during a wild Pokemon battle."; a.clear_ui()
+		else: a.clear_ui(); a.throw_ball(true)
+		return
 	if a.in_battle and (id in STONES or id in VITAMINS or id in EV_BERRIES or id=="linkcable" or id in HELD or id in TREASURES or id in ["rarecandy","ppup","escaperope","repel","maxrepel","upgrade","sunstone"]):
 		a.clear_ui(); a.c.notice="Use this item outside battle."; a.c.notice_time=2; return
 	if id=="escaperope": a.field.escape(); return

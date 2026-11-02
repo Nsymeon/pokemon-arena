@@ -15,7 +15,8 @@ func reset(c):
 	if not c.team_mode: return
 	for slot in range(c.enemy_party_size()):
 		c.enemy_active = slot
-		states.append(c.enemy if slot==0 else c.replacement(false,c.enemy_team[slot]))
+		var roster_index=c.Dex.find_id(c.roster,int(c.enemy_party[slot].id)) if not c.enemy_party.is_empty() else c.enemy_team[slot]
+		states.append(c.enemy if slot==0 else c.replacement(false,roster_index))
 	c.enemy_active = 0
 
 func reserve(c) -> int:

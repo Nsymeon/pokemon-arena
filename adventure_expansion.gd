@@ -42,7 +42,7 @@ func hub():
 	a.inventory.row(list,"ELITE FOUR REMATCH RUN / stage "+str(int(s.elite)+1)+" of 5 / Lv.75-85",start_elite)
 	a.inventory.row(list,"Elite run keeps HP between battles. Defeat or interruption resets the run.",func():pass,true)
 	a.inventory.row(list,"BP REWARD SHOP",shop)
-	for id in REMATCHES: a.inventory.row(list,id.replace("_"," ").capitalize()+" / REMATCH Lv.65-80 / 5 BP"+(" / WON" if id in s.rematches else ""),start_rematch.bind(id))
+	for id in REMATCHES.slice(8): a.inventory.row(list,id.replace("_"," ").capitalize()+" / REMATCH Lv.65-80 / 5 BP"+(" / WON" if id in s.rematches else ""),start_rematch.bind(id))
 func trainer(id):
 	if id=="lt_surge": id="surge"
 	if id=="blue": id={1:"blue_charizard",4:"blue_blastoise",7:"blue_venusaur"}.get(int(a.data.starter),"blue_charizard")
@@ -52,6 +52,7 @@ func trainer(id):
 func ready() -> bool: return unlocked() and not a.in_battle and not a.data.party.is_empty() and a.data.party.any(func(m):return m.hp>0)
 func start_rematch(id):
 	if not ready() or id not in REMATCHES: return
+	if id in REMATCHES.slice(0,8): a.dialog="Gym Badges are earned once in Adventure. Replay the leaders in Gym Leaders mode."; return
 	var entry=trainer(id)
 	if entry.is_empty(): return
 	state().pending="post_rematch:"+id
@@ -200,10 +201,10 @@ func tests():
 	start_tower(); a.c.check(not a.in_battle,"Battle Tower is locked before Champion")
 	a.Finale.state(a).champion=true
 	for id in REMATCHES: a.c.check(not trainer(id).is_empty(),"Champion rematch has a real trainer team: "+id)
-	start_rematch("lt_surge")
-	a.c.check(a.in_battle and a.c.enemy_party.size()==3 and a.c.enemy.data.level>=65,"Surge rematch starts with enhanced legal team")
+	start_rematch("lorelei")
+	a.c.check(a.in_battle and a.c.enemy_party.size()==5 and a.c.enemy.data.level>=65,"Lorelei rematch starts with enhanced legal team")
 	var money=a.data.money; var message=reward(true); var bp=state().bp; reward(true)
-	a.c.check(bp==5 and state().bp==5 and a.data.money==money+1000 and "lt_surge" in state().rematches,"Rematch rewards are recorded exactly once")
+	a.c.check(bp==5 and state().bp==5 and a.data.money==money+1000 and "lorelei" in state().rematches,"Rematch rewards are recorded exactly once")
 	a.in_battle=false; a.clear_ui(); start_tower()
 	a.c.check(a.c.player.data.level==50 and a.c.enemy.data.level==50 and a.data.party[0].level==30,"Tower normalizes combat levels without changing saved levels")
 	var xp=a.data.party[0].xp; var evs=a.data.party[0].get("training",{}).duplicate(true)

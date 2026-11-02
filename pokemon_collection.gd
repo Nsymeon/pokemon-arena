@@ -173,11 +173,15 @@ func release_mon(slot):
 
 func dex():
 	sync(); var seen=0; var caught=0
-	for e in a.data.pokedex.values():
+	var national=a.progression.national()
+	for id in a.data.pokedex:
+		if not national and int(id)>151: continue
+		var e=a.data.pokedex[id]
 		if e.seen: seen+=1
 		if e.caught: caught+=1
-	var list=a.inventory.page("POKEDEX / Seen %d / Caught %d / %d" % [seen,caught,a.c.roster.size()],a.menu)
+	var list=a.inventory.page(("NATIONAL" if national else "KANTO")+" POKEDEX / Seen %d / Caught %d / %d" % [seen,caught,a.c.roster.size() if national else 151],a.menu)
 	for mon in a.c.roster:
+		if not national and int(mon.id)>151: continue
 		var entry=a.data.pokedex.get(str(int(mon.id)),{})
 		a.inventory.row(list,"#%03d  %s  %s" % [mon.id,mon.name if entry.get("seen",false) else "???","CAUGHT" if entry.get("caught",false) else "SEEN" if entry.get("seen",false) else ""],dex_entry.bind(int(mon.id),false),not entry.get("seen",false))
 

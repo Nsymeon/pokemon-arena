@@ -140,6 +140,8 @@ func run():
 	c.check(not w.events.allow_door("MAP_ROUTE2"),"Viridian north blocked before second Blue fight")
 	c.check(w.events.allow_door("MAP_ROUTE22"),"West path to Blue stays open")
 	w.events.battle_reward("world_Route22_EarlyRival",true)
+	c.check(not w.events.allow_door("MAP_ROUTE2"),"Second Blue victory still requires Oak parcel delivery")
+	w.events.finish("parcel_delivered")
 	c.check(w.events.allow_door("MAP_ROUTE2"),"Second Blue victory opens north")
 	var town=visual.MAP_VIRIDIAN_CITY
 	c.check(town.buildings.any(func(b):return b[0]==24 and b[1]==15),"Viridian school is a building")

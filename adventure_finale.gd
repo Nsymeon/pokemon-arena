@@ -24,7 +24,7 @@ const TASKS = {
 	"silph_blue":{"name":"Blue / Silph rival","map":36,"need":["card_key"],"ids":[17,102,58,65,0],"levels":[37,35,35,35,40],"identity":"blue"},
 	"silph_boss":{"name":"Giovanni / Silph takeover","map":36,"need":["silph_blue"],"ids":[33,111,115,31],"levels":[37,37,35,41],"identity":"giovanni"},
 	"lapras":{"name":"Employee / Lapras gift","map":36,"need":["silph_blue"],"gift":131,"level":25},
-	"silph_saved":{"name":"President / Free Silph Co.","map":36,"need":["silph_boss"],"text":"Silph Co. is free! Saffron Gym is open. The employee has a Lapras waiting for you."},
+	"silph_saved":{"name":"President / Free Silph Co.","map":36,"need":["silph_boss"],"text":"Silph Co. is free! Received the MASTER BALL. Saffron Gym is open. The employee on 7F has a Lapras waiting for you."},
 	"sabrina":{"name":"Sabrina / Marsh Badge","map":37,"need":["silph_saved","warp"],"trainer":"sabrina","flag":"marsh","tm":"TM04"},
 	"dojo":{"name":"Karate Master / Dojo","map":38,"need":["thunder"],"ids":[106,107],"levels":[37,37],"identity":"bruno"},
 	"hitmonlee":{"name":"Choose Hitmonlee","map":38,"need":["dojo"],"gift":106,"level":25,"flag":"dojo_gift"},
@@ -39,7 +39,7 @@ const TASKS = {
 	"seafoam_boulder":{"name":"Move boulders / calm current","map":44,"need":["surf","strength"],"text":"The boulders calm the current. Seafoam's lower chamber is now quiet and accessible."},
 	"bicycle":{"name":"Fan Club / Bicycle voucher","map":54,"need":["thunder"],"text":"Received a Bicycle voucher as a key item. Exchange it at the Cerulean Bike Shop."}
 }
-const LABELS = {"thunder":"Thunder Badge","rainbow":"Rainbow Badge","soul":"Soul Badge","marsh":"Marsh Badge","volcano":"Volcano Badge","earth":"Earth Badge","scope":"Silph Scope","flute":"Poke Flute","gold_teeth":"Gold Teeth","surf":"Surf","strength":"Strength","card_key":"Card Key","secret_key":"Secret Key","seven":"seven badges","eight":"eight badges","champion":"Champion title","snorlax":"clear Snorlax with the flute","warp":"solve the warp panels","quiz":"answer the Gym quiz","silph_saved":"free Silph Co.","league_rival":"defeat Blue at Victory Road"}
+const LABELS = {"thunder":"Thunder Badge","rainbow":"Rainbow Badge","soul":"Soul Badge","marsh":"Marsh Badge","volcano":"Volcano Badge","earth":"Earth Badge","scope":"Silph Scope","flute":"Poke Flute","gold_teeth":"Gold Teeth","surf":"Surf","strength":"Strength","card_key":"Card Key","secret_key":"Secret Key","seven":"seven badges","eight":"eight badges","champion":"Champion title","snorlax":"clear Snorlax with the flute","warp":"solve the warp panels","quiz":"answer the Gym quiz","silph_saved":"free Silph Co.","league_rival":"defeat Blue on Route 22"}
 
 static func state(a) -> Dictionary:
 	if not a.data.has("journey"): a.data["journey"]={}
@@ -83,7 +83,7 @@ static func valid(value) -> bool:
 	return true
 
 static func objective(a) -> String:
-	for pair in [["rainbow","Celadon: enter the Gym and defeat Erika."],["scope","Celadon: enter Rocket Hideout, find the Lift Key and defeat Giovanni."],["flute","Lavender: use the Silph Scope in Pokemon Tower and rescue Mr. Fuji."],["snorlax","Coastal road or Cycling Road: play the Poke Flute to clear Snorlax."],["soul","Fuchsia: defeat Koga in the Gym."],["surf","Safari Zone: visit the Secret House for Surf."],["strength","Safari Zone: find Gold Teeth, then visit the Warden in Fuchsia."],["silph_saved","Saffron: enter Silph Co., find the Card Key and stop Team Rocket."],["marsh","Saffron Gym: solve the warp panels, then challenge Sabrina."],["secret_key","Cinnabar Mansion: activate the statue and find the Secret Key."],["volcano","Cinnabar Gym: complete the quiz and defeat Blaine."],["earth","Viridian: the final Gym is open. Defeat Giovanni."],["league_rival","Routes 22-23: enter Victory Road, solve the boulder and defeat Blue."],["champion","Indigo Plateau: enter the League for the Elite Four and Champion."]]:
+	for pair in [["rainbow","Celadon: enter the Gym and defeat Erika."],["scope","Celadon: enter Rocket Hideout, find the Lift Key and defeat Giovanni."],["flute","Lavender: use the Silph Scope in Pokemon Tower and rescue Mr. Fuji."],["snorlax","Coastal road or Cycling Road: play the Poke Flute to clear Snorlax."],["soul","Fuchsia: defeat Koga in the Gym."],["surf","Safari Zone: visit the Secret House for Surf."],["strength","Safari Zone: find Gold Teeth, then visit the Warden in Fuchsia."],["silph_saved","Saffron: enter Silph Co., find the Card Key and stop Team Rocket."],["marsh","Saffron Gym: solve the warp panels, then challenge Sabrina."],["secret_key","Cinnabar Mansion: activate the statue and find the Secret Key."],["volcano","Cinnabar Gym: complete the quiz and defeat Blaine."],["earth","Viridian: the final Gym is open. Defeat Giovanni."],["league_rival","Route 22: defeat Blue before entering Route 23 and Victory Road."],["champion","Indigo Plateau: enter the League for the Elite Four and Champion."]]:
 		if not has(a,pair[0]): return pair[1]
 	return "Kanto Champion! Visit the Hall of Fame, explore or replay the League."
 
@@ -138,7 +138,10 @@ static func start_task(a,key):
 	if not TASKS.has(key): return
 	var task=TASKS[key]
 	if has(a,task.get("flag",key)): a.dialog="Already completed: "+task.name+"."; return
-	var need=missing(a,task.need)
+	var needs=task.need
+	if a.world.enabled:
+		needs={"erika":[],"koga":[],"sabrina":["silph_saved"],"blaine":["secret_key","quiz"],"league_rival":["eight"],"surf":[],"bicycle":[],"silph_blue":["card_key"]}.get(key,needs)
+	var need=missing(a,needs)
 	if need!="": a.dialog="First: "+need+"."; return
 	if task.has("trainer"):
 		var trainer=a.c.league.trainers.filter(func(t):return t.id==task.trainer)[0]
@@ -161,6 +164,7 @@ static func complete(a,key) -> String:
 		else: a.data.storage.append(mon)
 	state(a)[key]=true
 	state(a)[task.get("flag",key)]=true
+	if key=="silph_saved": a.data.bag.masterball=mini(999,int(a.data.bag.get("masterball",0))+1)
 	if task.has("tm"): a.data.tms[task.tm]=mini(999,int(a.data.tms.get(task.tm,0))+1)
 	return task.get("text","Completed: "+task.name+"!")+(" Received "+task.tm+"." if task.has("tm") else "")+(" Pokemon added to party or storage." if task.has("gift") else "")
 
@@ -237,6 +241,7 @@ static func reward(a,victory: bool) -> String:
 	return ""
 
 static func hall(a):
+	if a.world.enabled: a.progression.hall(); return
 	a.panel("HALL OF FAME / KANTO CHAMPION")
 	var party=a.data.get("hall_of_fame",[])
 	for i in range(party.size()):

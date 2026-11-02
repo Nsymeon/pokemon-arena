@@ -63,7 +63,7 @@ func entrance():
 	elif w.current=="MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB" and a.data.starter!=0 and not a.data.rival:
 		starter_battle()
 	elif w.current=="MAP_POKEMON_LEAGUE_HALL_OF_FAME" and a.Finale.has(a,"champion"):
-		play([{"text":"OAK: You and your Pokemon have earned your place here.","duration":3.0},{"text":"HALL OF FAME — Your winning team is recorded. Congratulations, Champion!","duration":3.5}],Callable(),"scene:hall_of_fame")
+		play([{"text":"OAK: You and your Pokemon have earned your place here.","duration":3.0},{"text":"Oak records each member of your winning team...","duration":2.5}],a.progression.hall)
 
 func check_oak_intro() -> bool:
 	if w.current=="MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB" and not a.data.rival:
@@ -207,6 +207,7 @@ func start_trainer(npc):
 	play([{"actor":{"key":key,"gfx":identity,"from":copy.pos,"to":copy.pos,"look":direction},"text":"!","duration":0.65},{"actor":moving,"text":"","duration":maxf(0.3,Vector2(copy.pos).distance_to(target)/110.0)},{"text":intro,"duration":maxf(2.0,float(intro.length())/35.0)}],func():a.begin_battle("world_"+key,copy.battle.party.map(func(m):return int(m[0])),copy.battle.party.map(func(m):return int(m[1]))))
 
 func sees(npc) -> bool:
+	if str(npc.get("script","")) in ["MtEmber_Exterior_EventScript_Grunt1","MtEmber_Exterior_EventScript_Grunt2"] and not a.sevii.done("network_quest"): return false
 	if not npc.has("battle") or str(npc.get("trainer_type",""))!="TRAINER_TYPE_NORMAL": return false
 	if w.events.done("trainer:"+str(npc.script)): return false
 	var direction=trainer_direction(npc)
@@ -411,11 +412,15 @@ func tests():
 # FireRed's three approach lanes share one persistent early rival encounter.
 func route22_rival() -> bool:
 	if w.current!="MAP_ROUTE22" or a.data.starter==0 or not a.data.rival: return false
-	if w.events.done("trainer:Route22_EarlyRival") or a.Finale.has(a,"league_rival"): return false
+	var late=a.Finale.has(a,"eight")
+	if a.Finale.has(a,"league_rival") or (not late and w.events.done("trainer:Route22_EarlyRival")): return false
 	var tile=Vector2i(a.position_world/w.TILE)
 	if tile.x!=33 or tile.y not in [4,5,6]: return false
 	var origin=Vector2(25.5,tile.y+.5)*w.TILE
 	var target=a.position_world-Vector2.RIGHT*w.TILE
+	if late:
+		play([{"actor":{"key":"scene_blue","gfx":"blue","from":origin,"to":target},"text":"BLUE: Eight Badges! One last battle before the Pokemon League!","duration":2.8}],func():a.Finale.start_task(a,"league_rival"))
+		return true
 	var rival_id=7 if a.data.starter==4 else 4 if a.data.starter==1 else 1
 	play([
 		{"actor":{"key":"scene_blue","gfx":"blue","from":origin,"to":target},"text":"BLUE: Hey! You're off to the Pokemon League?","duration":2.6},

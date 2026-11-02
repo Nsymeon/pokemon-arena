@@ -44,6 +44,10 @@ jobs:
           $code = $LASTEXITCODE
           $log | Write-Output
           if ($code -ne 0 -or ($log -match 'SCRIPT ERROR|ERROR:|FAIL:') -or -not ($log -match 'PASS: major statuses')) { throw 'Combat checks failed' }
+          $story = & "$env:RUNNER_TEMP/godot/Godot_v4.3-stable_win64_console.exe" --headless --path . --script tools/check-story-progression.gd -- --qa-story 2>&1
+          $storyCode = $LASTEXITCODE
+          $story | Write-Output
+          if ($storyCode -ne 0 -or ($story -match 'SCRIPT ERROR|ERROR:') -or -not ($story -match 'STORY / DAILY CHECK: \[\]')) { throw 'Story and daily League checks failed' }
       - name: Package Windows build
         shell: pwsh
         run: |

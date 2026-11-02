@@ -1,6 +1,6 @@
 extends RefCounted
 
-const PATH = "user://league-progress-v1.json"
+const PATH = "user://daily-league-v1.json"
 const ORDER = [8,9,10,11,12,13,14,15,1,2,3,4,5]
 const NAMES = ["Brock","Misty","Lt. Surge","Erika","Koga","Sabrina","Blaine","Giovanni","Lorelei","Bruno","Agatha","Lance","Blue"]
 const BADGES = ["Boulder","Cascade","Thunder","Rainbow","Soul","Marsh","Volcano","Earth"]
@@ -15,10 +15,26 @@ var stage = 0
 var recorded = false
 var layer: CanvasLayer
 var c
+var daily=preload("res://daily_league.gd").new()
+var daily_enabled=true
+var day_override=""
+
+func refresh_day():
+	if not daily_enabled: return
+	var day=day_override if day_override!="" else daily.today()
+	if data.get("day","")==day: return
+	data={"version":1,"day":day,"cleared":0,"team":daily.team(day),"champion_team":[]}
+	stage=0; recorded=false
+	save()
+
+func opponent_party() -> Array:
+	return daily.opponent(c,stage) if daily_enabled else c.league.party(c,ORDER[stage])
 
 func valid(value, ids: Array) -> bool:
 	if not value is Dictionary: return false
 	if value.get("version",0) != 1: return false
+	if value.has("day"):
+		if not daily.valid_day(value.day): return false
 	var cleared = value.get("cleared",-1)
 	if not (cleared is float or cleared is int) or cleared != int(cleared) or cleared < 0 or cleared > 13: return false
 	for key in ["team","champion_team"]:
@@ -26,6 +42,7 @@ func valid(value, ids: Array) -> bool:
 		if not team is Array or (team.size() != 6 and not (key == "champion_team" and team.is_empty())): return false
 		for id in team:
 			if not (id is int or id is float) or id != int(id) or int(id) not in ids: return false
+	if value.has("day") and value.team.map(func(id):return int(id))!=daily.team(value.day): return false
 	return true
 
 func read_progress(ids: Array):
@@ -81,6 +98,7 @@ func save() -> bool:
 	return true
 
 func remember_team():
+	if daily_enabled: return
 	c.player_team[c.team_slot] = c.player_index
 	data.team = c.player_team.map(func(index): return int(c.roster[index].id))
 
@@ -135,6 +153,7 @@ func show_hub():
 		if c.selecting: remember_team()
 		save()
 	active = false
+	refresh_day()
 	c.selecting = true
 	c.paused = false
 	c.switch_menu = false
@@ -146,7 +165,7 @@ func show_hub():
 	layer.add_child(bg)
 	layer.visible = true
 	button("BACK TO MODES",Vector2(790,42),Vector2(430,50),c.frontend.show_modes)
-	text("GYM LEADERS",Vector2(60,42),36,Color("f9d86b"))
+	text("DAILY LEAGUE / Lv.100" if daily_enabled else "GYM LEADERS",Vector2(60,42),30,Color("f9d86b"))
 	text("%d / 8 BADGES     %d / 13 TRAINERS DEFEATED" % [mini(8,int(data.cleared)),int(data.cleared)],Vector2(60,98),20)
 	text("GYM CHALLENGE",Vector2(60,145),20,Color("77e2b0"))
 	text("INDIGO PLATEAU",Vector2(680,145),20,Color("77e2b0"))
@@ -163,13 +182,15 @@ func show_hub():
 		text(" / ".join(names.slice(0,3))+"\n"+" / ".join(names.slice(3)),Vector2(680,555),18)
 	else:
 		text("Next opponent: " + NAMES[int(data.cleared)],Vector2(680,530),24)
-		text("Build your team before each match.\nTeam heals between trainers.\nLosses keep your earned badges.",Vector2(680,580),18)
+		text("Your six Pokemon change daily.\nOpponents keep their fixed six-Pokemon teams.\nEveryone is Lv.100; teams heal between trainers." if daily_enabled else "Build your team before each match.\nTeam heals between trainers.\nLosses keep your earned badges.",Vector2(680,580),18)
 	button("CONTINUE LEAGUE" if data.cleared < 13 else "REMATCH CHAMPION",Vector2(60,700),Vector2(540,60),choose.bind(mini(12,int(data.cleared))))
 	button("FREE BATTLE",Vector2(680,700),Vector2(540,60),free_battle)
-	text("Autosave after each trainer. Closing mid-battle restarts that encounter.",Vector2(60,800),18)
+	text("TEAM / "+" / ".join(data.team.map(func(id):return c.adventure.mon_name(id))),Vector2(60,780),17)
+	text("DAY "+str(data.get("day",""))+" / changes at 00:00 UTC. Daily badges autosave." if daily_enabled else "Autosave after each trainer. Closing mid-battle restarts that encounter.",Vector2(60,810),18)
 	text(error if error != "" else "Progress is stored on this PC and survives game updates.",Vector2(60,842),17,Color("ffb67e") if error != "" else Color("77e2b0"))
 
 func choose(index: int):
+	refresh_day()
 	if index < 0 or index > mini(12,int(data.cleared)): return
 	active = true
 	stage = index
@@ -181,7 +202,7 @@ func choose(index: int):
 	c.player_index = c.player_team[0]
 	c.opponent_choice.select(ORDER[index])
 	c.opponent_choice.disabled = true
-	c.preview_party = c.league.party(c,ORDER[index])
+	c.preview_party = opponent_party()
 	c.opponent_preview_slot = 0
 	c.arena_choice.select(ARENAS[index])
 	c.arena_choice.disabled = true
@@ -205,6 +226,9 @@ func prepare_match() -> bool:
 	c.arena_choice.select(ARENAS[stage])
 	c.weather_choice.select(0)
 	c.team_mode = true
+	if daily_enabled:
+		c.player_team=data.team.map(func(id):return c.Dex.find_id(c.roster,int(id)))
+		c.player_index=c.player_team[c.team_slot]
 	recorded = false
 	remember_team()
 	save()
@@ -212,6 +236,7 @@ func prepare_match() -> bool:
 
 func tests(context):
 	var p = load("res://league_campaign.gd").new()
+	p.daily_enabled=false
 	p.c = context
 	p.path = "user://league-test-" + str(Time.get_ticks_usec()) + ".json"
 	var ids: Array = context.roster.map(func(mon): return int(mon.id))
@@ -266,6 +291,7 @@ func tests(context):
 	context.check(p.data.cleared == 13 and p.data.champion_team == p.data.team,"Blue victory records the Hall of Fame team")
 	# Exercise the real menu/start/result wiring using only an isolated test save.
 	var live = context.campaign
+	var old_daily=live.daily_enabled; live.daily_enabled=false
 	var old_path = live.path
 	live.path = p.path
 	live.choose(1)
@@ -296,6 +322,7 @@ func tests(context):
 	live.record_result()
 	context.check(live.data.cleared == 1 and not context.opponent_choice.disabled,"Free battles cannot advance League progress")
 	live.path = old_path
+	live.daily_enabled=old_daily
 	live.data = {"version":1,"cleared":0,"team":[25,6,9,3,94,143],"champion_team":[]}
 	live.stage = 0
 	live.recorded = false

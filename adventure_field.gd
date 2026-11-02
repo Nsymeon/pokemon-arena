@@ -23,6 +23,9 @@ func can_use(tool) -> bool:
 
 func key_items():
 	var list=a.inventory.page("KEY ITEMS / permanent tools",a.inventory.bag)
+	a.inventory.row(list,"ITEMFINDER / scan for nearby hidden items",a.progression.itemfinder,not owns("itemfinder"))
+	for entry in [["story:tea","Tea / Saffron guards"],["sevii:tri_pass","Tri-Pass / Islands One to Three"],["sevii:meteorite","Meteorite / Bill's delivery"],["sevii:ruby_delivered","Rainbow Pass / all seven islands"],["story:national_dex","National Pokedex"]]:
+		if done(entry[0]): a.inventory.row(list,entry[1],func():pass,true)
 	for tool in KEY_TOOLS:
 		var spec=KEY_TOOLS[tool]
 		a.inventory.row(list,spec[0]+" / "+tool.to_upper()+" / "+("OWNED" if owns(tool) else "NOT FOUND")+" / "+spec[1]+" Badge "+("OK" if badge(tool) else "REQUIRED"),flash if tool=="flash" else func():pass,tool!="flash" or not can_use(tool))
@@ -61,7 +64,14 @@ func reward(key: String, text: String):
 	w().scenes.play([{"text":text,"duration":2.2,"flash":true}],func():finish(key); a.save())
 
 func hidden(o) -> bool:
+	if str(o.get("script",""))=="SixIsland_RuinValley_EventScript_Scientist" and a.sevii.done("lorelei"): return true
 	var script=str(o.get("script",""))
+	if script=="CeruleanCity_EventScript_CeruleanCaveGuard" and a.progression.legendary_requirement(150)=="": return true
+	if script=="PokemonTower_7F_EventScript_MrFuji" and a.progression.done("fuji_rescued"): return true
+	if script=="LavenderTown_VolunteerPokemonHouse_EventScript_MrFuji" and not a.progression.done("fuji_rescued"): return true
+	if w().current=="MAP_CINNABAR_ISLAND" and "BILL" in str(o.get("graphics_id","")) and (not a.Finale.has(a,"volcano") or a.sevii.done("tri_pass")): return true
+	if script=="OneIsland_PokemonCenter_1F_EventScript_Bill" and a.sevii.done("initial_trip_complete"): return true
+	if script in ["MtEmber_Exterior_EventScript_Grunt1","MtEmber_Exterior_EventScript_Grunt2"] and a.sevii.done("password_ruby"): return true
 	if script=="ThreeIsland_BerryForest_EventScript_Lostelle" and a.sevii.done("lostelle_saved"): return true
 	if script=="TwoIsland_JoyfulGameCorner_EventScript_Lostelle" and not a.sevii.done("lostelle_saved"): return true
 	if script.begins_with("ThreeIsland_EventScript_Biker") and a.sevii.done("bikers"): return true
@@ -69,6 +79,7 @@ func hidden(o) -> bool:
 	return (script.ends_with("DomeFossil") or script.ends_with("HelixFossil")) and done("fossil:chosen") or script.ends_with("_OldAmber") and done("fossil:amber")
 
 func npc(npc) -> bool:
+	if a.progression.npc(npc): return true
 	if a.services.npc(npc) or a.sevii.npc(npc): return true
 	var script=str(npc.get("script",""))
 	if trades.has(script): trade_menu(script); return true
@@ -76,6 +87,8 @@ func npc(npc) -> bool:
 		if script.ends_with("_"+name):
 			if done("static:"+script): return true
 			var species=LEGENDS[name]
+			var requirement=a.progression.legendary_requirement(species)
+			if requirement!="": a.dialog=requirement; return true
 			w().scenes.play([{"text":name.to_upper()+" lets out a powerful cry!","duration":1.5,"flash":true}],func():
 				a.begin_battle("wild",[species],[70 if species==150 else 50])
 				if a.in_battle: pending_static="static:"+script)
@@ -115,15 +128,6 @@ func npc(npc) -> bool:
 		return true
 	if script=="Route16_House_EventScript_Woman":
 		reward("field:fly","Received HM FLY! Teach it in BAG / KEY ITEMS. A healthy partner knowing Fly and the Thunder Badge are required."); return true
-	if script=="Route2_EastBuilding_EventScript_Aide":
-		var species=[]
-		for mon in a.data.party+a.data.storage:
-			if mon.id not in species: species.append(mon.id)
-		for mon in a.c.roster:
-			if done("seen:"+str(int(mon.id))) and int(mon.id) not in species: species.append(int(mon.id))
-		if species.size()<10: a.dialog="OAK'S AIDE: See 10 different Pokemon and I will give you Flash. Seen: "+str(species.size())
-		else: reward("field:flash","OAK'S AIDE: Take this LANTERN! With the Boulder Badge, illuminate Rock Tunnel from BAG / KEY ITEMS. No move slot needed.")
-		return true
 	return false
 
 func choose_fossil(kind):
@@ -269,7 +273,7 @@ func battle_result(kind,won,caught):
 
 func journal():
 	var list=a.inventory.page("KANTO / QUEST JOURNAL")
-	for entry in [["field:rocksmash","Rock Hammer: Pewter Museum researcher; Marsh Badge required to use."],["field:bicycle","Bicycle: Vermilion Fan Club voucher, then Cerulean Bike Shop."],["fossil:chosen","Fossils: defeat Miguel in Mt. Moon B2F; choose one fossil."],["fossil:amber","Old Amber: return to Pewter Museum after obtaining Cut."],["field:fly","Fly: speak to the woman in Route 16's house; Thunder Badge required."],["field:flash","Flash: see 10 different species to Oak's aide in Route 2 East Building."],["field:old_rod","Old Rod: Vermilion City's fishing guru."],["field:good_rod","Good Rod: Fuchsia City's fishing guru."],["field:super_rod","Super Rod: fishing house on Route 12."]]:
+	for entry in [["field:rocksmash","Rock Hammer: Pewter Museum researcher; Marsh Badge required to use."],["field:bicycle","Bicycle: Vermilion Fan Club voucher, then Cerulean Bike Shop."],["fossil:chosen","Fossils: defeat Miguel in Mt. Moon B2F; choose one fossil."],["fossil:amber","Old Amber: return to Pewter Museum after obtaining Cut."],["field:fly","Fly: speak to the woman in Route 16's house; Thunder Badge required."],["field:flash","Flash: show 10 caught species to Oak's aide in Route 2 East Building."],["field:old_rod","Old Rod: Vermilion City's fishing guru."],["field:good_rod","Good Rod: Fuchsia City's fishing guru."],["field:super_rod","Super Rod: fishing house on Route 12."]]:
 		a.inventory.row(list,("DONE / " if done(entry[0]) else "NEXT / ")+entry[1],func():pass,true)
 	a.inventory.row(list,"Revive fossils: Cinnabar Lab / Experiment Room. Make room in party or storage.",func():pass,true)
 	a.inventory.row(list,"Pokemon Tower: obtain Silph Scope, calm Marowak, then rescue Mr. Fuji.",func():pass,true)
