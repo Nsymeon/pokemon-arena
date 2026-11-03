@@ -58,17 +58,19 @@ func finish():
 	if after.is_valid(): after.call()
 
 func entrance():
-	if w.current=="MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB" and a.data.starter==0 and w.events.done("oak_intro"):
-		play([{"text":"OAK: Welcome to my laboratory. A Pokemon partner will keep you safe on your journey.","duration":3.2},{"text":"OAK: Choose Bulbasaur, Charmander or Squirtle.","duration":2.2}],a.starter_menu)
-	elif w.current=="MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB" and a.data.starter!=0 and not a.data.rival:
-		starter_battle()
+	if w.current=="MAP_PALLET_TOWN_PLAYERS_HOUSE_2F" and a.data.starter==0:
+		play([{"text":"A new adventure is about to begin. Mom is waiting downstairs.","duration":2.8}],Callable(),"scene:bedroom_intro")
+	elif w.current=="MAP_PALLET_TOWN_PLAYERS_HOUSE_1F" and a.data.starter==0:
+		var mom=Vector2(7.5,4.5)*w.TILE
+		for npc in w.quest_actors():
+			if npc[2]=="heal": mom=npc[0]
+		play([{"actor":{"key":"quest:heal","from":mom,"to":mom,"look":w.cardinal(a.position_world-mom)},"text":"MOM: Right. All children leave home someday. It said so on TV.","duration":3.6},{"text":"MOM: Oh, yes. PROF. OAK, next door, was looking for you.","duration":3.1}],Callable(),"scene:mom_intro")
+	elif w.current=="MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB" and a.data.starter==0 and w.events.done("oak_intro"):
+		play([{"text":"OAK: Here, "+str(a.data.get("player_name","RED"))+"! There are three Pokemon here. They are inside the Poke Balls.","duration":3.4},{"text":"OAK: Go on! Examine each one, then choose your partner.","duration":2.8}],Callable(),"scene:lab_welcome")
 	elif w.current=="MAP_POKEMON_LEAGUE_HALL_OF_FAME" and a.Finale.has(a,"champion"):
 		play([{"text":"OAK: You and your Pokemon have earned your place here.","duration":3.0},{"text":"Oak records each member of your winning team...","duration":2.5}],a.progression.hall)
 
 func check_oak_intro() -> bool:
-	if w.current=="MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB" and not a.data.rival:
-		entrance()
-		return active
 	if a.data.starter!=0 or w.current!="MAP_PALLET_TOWN" or a.position_world.y>w.TILE*2: return false
 	oak_rescue()
 	return true
@@ -106,8 +108,27 @@ func escort_path(start: Vector2, goal: Vector2) -> Array:
 
 func starter_battle():
 	if a.data.starter==0 or a.data.rival or a.in_battle: return
-	var rival_id=7 if a.data.starter==4 else 4 if a.data.starter==1 else 1
-	play([{"text":"BLUE: I'll take "+a.mon_name(rival_id)+"!","duration":2.0},{"text":"BLUE: Wait! Let's check out our Pokemon! Come on, I'll take you on!","duration":2.5}],func():a.begin_battle("rival",[rival_id],[5]))
+	var rival_id=rival_starter()
+	play([{"text":"BLUE: Wait! Let's check out our Pokemon!","duration":2.3},{"text":"BLUE: Come on, I'll take you on!","duration":2.0}],func():a.begin_battle("rival",[rival_id],[5]))
+
+func rival_starter() -> int:
+	return 7 if a.data.starter==4 else 4 if a.data.starter==1 else 1
+
+func starter_id(object: Dictionary) -> int:
+	var key=str(object.get("script",""))
+	if not key.begins_with("PalletTown_ProfessorOaksLab_"): return 0
+	return 1 if key.ends_with("BulbasaurBall") else 4 if key.ends_with("CharmanderBall") else 7 if key.ends_with("SquirtleBall") else 0
+
+func inspect_starter(id: int):
+	if a.data.starter!=0: a.show_dialogue("OAK: That Pokemon will stay here with me."); return
+	w.events.finish("starter:inspected:"+str(id))
+	a.panel("OAK'S LAB / "+a.mon_name(id).to_upper())
+	var picture=TextureRect.new(); picture.texture=a.collection.full_picture({"id":id}); picture.position=Vector2(510,260); picture.size=Vector2(260,260)
+	picture.expand_mode=TextureRect.EXPAND_IGNORE_SIZE; picture.stretch_mode=TextureRect.STRETCH_KEEP_ASPECT_CENTERED; a.ui.add_child(picture)
+	var descriptions={1:"A seed is planted on its back at birth. The plant sprouts and grows with this Pokemon.",4:"Obviously prefers hot places. When it rains, steam is said to spout from the tip of its tail.",7:"After birth, its back swells and hardens into a shell. Powerfully sprays foam from its mouth."}
+	a.ui_label(descriptions[id],Vector2(200,560),18)
+	a.ui_button("CHOOSE "+a.mon_name(id).to_upper(),Vector2(370,650),Vector2(540,55),a.choose_starter.bind(id))
+	a.ui_button("LOOK AT THE OTHER POKE BALLS",Vector2(370,725),Vector2(540,48),a.clear_ui)
 
 func pokedex_delivery():
 	if w.events.done("parcel_delivered"): return
@@ -117,13 +138,18 @@ func pokedex_delivery():
 	var corner=Vector2(6.5,2.5)*w.TILE
 	var desk=Vector2(5.5,2.5)*w.TILE
 	play([
+		{"actor":{"key":"scene_blue","gfx":"blue","from":Vector2(6.5,11.5)*w.TILE,"to":Vector2(6.5,7.5)*w.TILE},"text":"BLUE: Gramps! What did you call me for?","duration":2.1},
+		{"actor":{"key":"scene_blue","gfx":"blue","from":Vector2(6.5,7.5)*w.TILE,"to":Vector2(5.5,7.5)*w.TILE,"look":Vector2.UP},"duration":.35},
 		{"text":"OAK: Thank you for bringing my parcel. I have something for your journey.","duration":2.8},
 		{"actor":{"key":"quest:oak","from":origin,"to":corner},"duration":.8},
 		{"actor":{"key":"quest:oak","from":corner,"to":desk},"duration":.65},
 		{"actor":{"key":"quest:oak","from":desk,"to":desk,"look":Vector2.UP},"text":"Oak takes the Pokedex devices from his desk.","duration":1.3},
 		{"actor":{"key":"quest:oak","from":desk,"to":corner},"duration":.65},
 		{"actor":{"key":"quest:oak","from":corner,"to":origin},"duration":.8},
-		{"text":"OAK: The Pokedex records the Pokemon you discover. Take it with you!","duration":2.8}
+		{"text":"OAK: On the desk there is my invention, the Pokedex! It records data on Pokemon you have seen or caught.","duration":3.4},
+		{"text":"OAK: "+str(a.data.get("player_name","RED"))+" and BLUE! Take these with you!","duration":2.6},
+		{"text":"You and BLUE each received a Pokedex.","duration":2.4},
+		{"text":"BLUE: All right, Gramps! Leave it all to me!","duration":2.3}
 	],func():w.events.finish("parcel_delivered"); positions.erase("quest:oak"); a.save(),"scene:pokedex_delivery")
 
 func quest(id: String) -> bool:
@@ -164,7 +190,10 @@ func trainer_direction(npc) -> Vector2:
 	return choices[posmod(phase,choices.size())]
 
 func dialogue_flag(flag):
+	if w.events.done("source:"+str(flag)): return true
 	match flag:
+		"FLAG_BEAT_RIVAL_IN_OAKS_LAB": return a.data.rival
+		"FLAG_GOT_STARTER": return a.data.starter!=0
 		"FLAG_SYS_GAME_CLEAR": return a.Finale.has(a,"champion")
 		"FLAG_SYS_POKEDEX_GET": return w.events.done("parcel_delivered")
 		"FLAG_BADGE01_GET": return a.data.badge
@@ -178,7 +207,7 @@ func dialogue_flag(flag):
 	return null
 
 func npc_text(npc, kind="text") -> String:
-	return resolve_dialogue(str(npc.get("script","")),kind,[])
+	return resolve_dialogue(str(npc.get("script","")),kind,[]).replace("{PLAYER}",str(a.data.get("player_name","RED"))).replace("{RIVAL}","BLUE")
 
 func resolve_dialogue(key: String, kind: String, visited: Array) -> String:
 	if key in visited or visited.size()>=20: return ""
@@ -190,6 +219,13 @@ func resolve_dialogue(key: String, kind: String, visited: Array) -> String:
 			if branch.op in ["goto_if_set","goto_if_unset"]:
 				var flag=dialogue_flag(str(args[0]))
 				if flag!=null and bool(flag)==(branch.op=="goto_if_set"):
+					var found=resolve_dialogue(str(args[-1]),kind,visited)
+					if found!="": return found
+			elif branch.op in ["goto_if_eq","goto_if_ge","goto_if_lt","call_if_eq","call_if_ge","call_if_lt"]:
+				var value=null
+				if args[0]=="VAR_RESULT" and record.get("gender_check",false): value="FEMALE" if a.avatar.config().gender=="girl" else "MALE"
+				elif args[0]=="VAR_FACING": value={Vector2.UP:"DIR_NORTH",Vector2.DOWN:"DIR_SOUTH",Vector2.LEFT:"DIR_WEST",Vector2.RIGHT:"DIR_EAST"}.get(w.heading,"DIR_NORTH")
+				if value!=null and str(value)==str(args[1]) and str(branch.op).ends_with("_eq"):
 					var found=resolve_dialogue(str(args[-1]),kind,visited)
 					if found!="": return found
 	return str(record.get(kind,record.get("text","")))
@@ -324,7 +360,7 @@ func tests():
 	var old_battle=a.in_battle; a.in_battle=false; a.data.rival=false
 	for pair in [[1,4],[4,7],[7,1]]:
 		a.data.starter=pair[0]; starter_battle()
-		a.c.check(active and str(sequence[0].text).contains(a.mon_name(pair[1])) and completion.is_valid(),"Starter introduction gives Blue the counter starter")
+		a.c.check(active and rival_starter()==pair[1] and completion.is_valid(),"Exit challenge gives Blue the counter starter")
 		reset()
 	a.data.rival=true; starter_battle()
 	a.c.check(not active,"Completed first rival battle does not replay")

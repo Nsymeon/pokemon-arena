@@ -177,12 +177,14 @@ func stamp(kind: String, at: Vector3, extent: Vector3, color: String, yaw: float
 	batches[key].append(Transform3D(Basis(Vector3.UP,yaw).scaled(extent),at))
 
 func flush(parent: Node3D):
-	for key in batches:
-		var parts=key.split(":"); var list=batches[key]
-		var mm=MultiMesh.new(); mm.transform_format=MultiMesh.TRANSFORM_3D; mm.mesh=mesh(parts[0]); mm.instance_count=list.size()
-		for i in list.size(): mm.set_instance_transform(i,list[i])
-		var n=MultiMeshInstance3D.new(); n.multimesh=mm; n.material_override=material(parts[1]); parent.add_child(n)
-	batches.clear()
+	for key in batches.keys(): flush_batch(parent,key)
+
+func flush_batch(parent: Node3D, key: String):
+	var parts=key.split(":"); var list=batches[key]
+	var mm=MultiMesh.new(); mm.transform_format=MultiMesh.TRANSFORM_3D; mm.mesh=mesh(parts[0]); mm.instance_count=list.size()
+	for i in list.size(): mm.set_instance_transform(i,list[i])
+	var n=MultiMeshInstance3D.new(); n.multimesh=mm; n.material_override=material(parts[1]); parent.add_child(n)
+	batches.erase(key)
 
 func tree(at: Vector3, variation: int=0, small: bool=false):
 	var s=.68 if small else 1.
@@ -233,10 +235,72 @@ func counter(at: Vector3, size: Vector2, theme: String):
 		stamp("ball",emblem,Vector3(.45,.45,.04),"f5e8d3")
 		stamp("box",emblem+Vector3(0,0,.025),Vector3(.43,.045,.02),top)
 		stamp("ball",emblem+Vector3(0,0,.04),Vector3(.14,.14,.025),top)
+	if "MART" in theme and size.x>=1:
+		stamp("softbox",at+Vector3(0,.95,0),Vector3(.43,.18,.4),"e4e4d6")
+		stamp("softbox",at+Vector3(0,1.13,-.09),Vector3(.39,.28,.08),"344954")
+		stamp("box",at+Vector3(0,1.14,-.04),Vector3(.29,.17,.02),"80c9bb")
+		for key in 6: stamp("box",at+Vector3((key%3-1)*.08,1.055,.06+int(key/3)*.07),Vector3(.055,.012,.045),"536b76")
+
+func shop_shelf(at: Vector3, width: float=1.0):
+	stamp("softbox",at+Vector3(0,.72,-.32),Vector3(width-.03,1.44,.14),"719aa4")
+	for side in [-1,1]: stamp("softbox",at+Vector3(side*(width*.5-.05),.66,0),Vector3(.08,1.32,.8),"d3d8cb")
+	for row in 3:
+		var y=.19+row*.43
+		stamp("softbox",at+Vector3(0,y,0),Vector3(width,.065,.8),"e8e6d7")
+		stamp("box",at+Vector3(0,y+.07,.41),Vector3(width,.13,.025),"86b8c0")
+		for col in maxi(2,int(width*4)):
+			var x=-width*.5+.15+col*.24
+			if x>width*.5-.08: continue
+			var product=at+Vector3(x,y+.2,.03)
+			var color=["e68387","84b7d7","dfca7a","a4bd7a"][posmod(col+row,4)]
+			if row==0 and col%2==0: pokeball(product,.2)
+			else:
+				stamp("softbox",product,Vector3(.16,.25,.21),color)
+				stamp("box",product+Vector3(0,0,.112),Vector3(.11,.09,.016),"f2ebd5")
+			stamp("box",at+Vector3(x,y+.07,.43),Vector3(.12,.065,.012),"f2ebd5")
+
+func staircase(entry: Vector3, direction: float, length: float, width: float):
+	# The first tread is the exact walkable stair warp; the flight extends
+	# into the source's blocked footprint, with one continuous pair of rails.
+	var rise=.85
+	var count=maxi(5,int(length*5))
+	for step in count:
+		var t=(step+.5)/count; var height=.055+rise*(step+1)/count
+		var p=entry+Vector3(direction*(t*length-.36),height*.5,0)
+		stamp("box",p,Vector3(length/count+.01,height,width),"b29c7e")
+		stamp("box",p+Vector3(0,height*.5+.016,0),Vector3(length/count+.01,.032,width+.03),"dfd5be")
+	for side in [-1,1]:
+		for t in [.05,.5,.95]: stamp("softbox",entry+Vector3(direction*(t*length-.36),.25+rise*t,side*width*.5),Vector3(.07,.45,.07),"wood_a58659")
+		var basis=Basis(Vector3.BACK,direction*atan2(rise,length))*Basis.from_scale(Vector3(sqrt(length*length+rise*rise),.075,.09))
+		stamp_pose("softbox",Transform3D(basis,entry+Vector3(direction*(length*.5-.36),.5+rise*.5,side*width*.5)),"wood_c4a577")
+
+func town_map(node: Node3D):
+	shape(node,"softbox",Vector3(0,.85,0),Vector3(.76,.06,.6),"f0e4be")
+	shape(node,"box",Vector3(0,.89,0),Vector3(.68,.02,.52),"86b5c3")
+	shape(node,"box",Vector3(-.1,.905,0),Vector3(.42,.012,.4),"9fbf79")
+	for p in [Vector3(-.12,.92,.13),Vector3(.08,.92,-.13),Vector3(-.22,.92,-.05)]: shape(node,"box",p,Vector3(.07,.013,.07),"df805d")
+	shape(node,"box",Vector3(-.08,.919,0),Vector3(.03,.012,.32),"ecd799")
+	shape(node,"box",Vector3(0,.925,0),Vector3(.012,.013,.57),"d4c69e")
+
+func school_board(at: Vector3):
+	stamp("softbox",at+Vector3(0,1.03,0),Vector3(1.92,1.25,.14),"wood_a1845b")
+	stamp("box",at+Vector3(0,1.04,.08),Vector3(1.75,1.06,.025),"34584e")
+	stamp("softbox",at+Vector3(0,.43,.16),Vector3(2,.07,.3),"wood_bda475")
+	for row in 4:
+		stamp("box",at+Vector3(-.2,1.4-row*.22,.1),Vector3(.94-row*.1,.018,.012),"d5e0cb")
+		stamp("box",at+Vector3(-.75,1.4-row*.22,.1),Vector3(.035,.035,.012),"d5e0cb")
+	stamp("softbox",at+Vector3(.58,.49,.18),Vector3(.22,.05,.11),"c8ba9d")
+	stamp("softbox",at+Vector3(-.58,.48,.17),Vector3(.15,.025,.025),"eee7d0")
 
 func furnishing(at: Vector3, kind: String, variation: int=0, theme: String=""):
 	stamp("contact_plane",at+Vector3(0,.018,0),Vector3(1.15,1,1.05),"contact_shadow")
-	if kind=="television":
+	if kind=="home_cabinet":
+		stamp("softbox",at+Vector3(0,.47,-.06),Vector3(.94,.94,.8),"wood_b18b5d")
+		stamp("softbox",at+Vector3(0,.96,-.06),Vector3(1,.08,.86),"wood_d3b989")
+		for row in 3:
+			stamp("softbox",at+Vector3(0,.2+row*.28,.35),Vector3(.82,.24,.04),"wood_c8a776")
+			stamp("softbox",at+Vector3(0,.22+row*.28,.39),Vector3(.17,.035,.035),"8c7656")
+	elif kind=="television":
 		stamp("softbox",at+Vector3(0,.32,0),Vector3(.94,.64,.68),"wood_b48e61")
 		for x in [-.22,.22]: stamp("softbox",at+Vector3(x,.43,.35),Vector3(.38,.23,.025),"dac59c")
 		stamp("cylinder",at+Vector3(0,.77,0),Vector3(.08,.25,.08),"46505c")

@@ -55,9 +55,9 @@ func valid(value) -> bool:
 			if not (amount is int or amount is float) or amount!=int(amount) or amount<0 or amount>999: return false
 	if value.has("brock_tm") and not value.brock_tm is bool: return false
 	for mon in value.party+value.storage:
-		for field in ["moves","pending"]:
+		for field in ["moves","pending","egg_moves"]:
 			if not mon.has(field): continue
-			if not mon[field] is Array or mon[field].size()>(4 if field=="moves" else 305): return false
+			if not mon[field] is Array or mon[field].size()>(4 if field in ["moves","egg_moves"] else 305): return false
 			if field=="moves" and mon[field].is_empty(): return false
 			var seen = []
 			for id in mon[field]:
@@ -139,6 +139,7 @@ func use_item(id,slot) -> bool:
 		a.sync_health()
 	var mon = a.data.party[slot]
 	var item = ITEMS[id]
+	if mon.get("is_egg",false): return false
 	var changed = false
 	if item.has("heal") and mon.hp>0 and mon.hp<1:
 		mon.hp = minf(1,mon.hp+item.heal)
@@ -215,6 +216,7 @@ func move_party():
 		row(list,a.mon_name(mon.id)+" Lv."+str(mon.level)+" / "+str(mon.pending.size())+" waiting",moves_menu.bind(i))
 
 func moves_menu(slot,back=Callable()):
+	if a.data.party[slot].get("is_egg",false): a.breeding.egg_summary("party",slot); return
 	var parent=back if back.is_valid() else move_party
 	var mon = a.data.party[slot]
 	var list = page(a.mon_name(mon.id)+" / MOVES / level "+str(mon.level),parent)
@@ -227,6 +229,8 @@ func moves_menu(slot,back=Callable()):
 		if id not in mon.moves: row(list,"NEW / "+book.moves[id].name,replace_menu.bind(slot,id,"",moves_menu.bind(slot,parent)))
 	for id in eligible(mon.id,mon.level):
 		if id not in mon.moves and id not in mon.pending: row(list,"RELEARN / "+book.moves[id].name,replace_menu.bind(slot,id,"",moves_menu.bind(slot,parent)))
+	for id in mon.get("egg_moves",[]):
+		if id not in mon.moves and id not in eligible(mon.id,mon.level): row(list,"EGG MOVE / "+book.moves[id].name,replace_menu.bind(slot,id,"",moves_menu.bind(slot,parent)))
 	for entry in book.species[str(mon.id)].levels:
 		if int(entry.level)>mon.level: row(list,"Lv.%d / %s" % [entry.level,book.moves[entry.move].name],func():pass,true)
 
@@ -241,10 +245,11 @@ func replace_menu(slot,id,tm,back=Callable()):
 func teach(slot,id,index,tm="",return_page=Callable()) -> bool:
 	if a.in_battle or slot<0 or slot>=a.data.party.size() or not book.moves.has(id): return false
 	var mon = a.data.party[slot]
+	if mon.get("is_egg",false): return false
 	if id in mon.moves or index<0 or index>mon.moves.size() or index>=4: return false
 	if tm!="":
 		if not book.tms.has(tm) or int(a.data.tms.get(tm,0))<=0 or tm not in book.species[str(mon.id)].tms or book.tms[tm].move!=id: return false
-	elif id not in eligible(mon.id,mon.level) and id not in mon.pending and not a.field.hm_eligible(mon,id): return false
+	elif id not in eligible(mon.id,mon.level) and id not in mon.get("egg_moves",[]) and id not in mon.pending and not a.field.hm_eligible(mon,id): return false
 	var candidate=mon.duplicate(true)
 	if index==candidate.moves.size(): candidate.moves.append(id)
 	else: candidate.moves[index]=id

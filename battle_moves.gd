@@ -21,7 +21,7 @@ func identity(mon, friendly: bool, slot: int) -> String:
 	return "%s:%d:%d" % ["you" if friendly else "cpu",slot,mon.id]
 
 func configured(mon, friendly: bool, slot: int) -> Dictionary:
-	var result = c.ivs.configured(c.abilities.configured(mon,friendly,slot),friendly,slot)
+	var result = c.ivs.configured(c.abilities.configured(c.forms.configured(mon,friendly,slot),friendly,slot),friendly,slot)
 	if c.campaign.daily.locked(c): result=c.campaign.daily.member(c,int(mon.id))
 	var ids = choices.get(identity(mon,friendly,slot),[])
 	if not ids is Array or ids.size()!=4: return result
@@ -67,6 +67,8 @@ func click(mouse: Vector2) -> bool:
 	for friendly in [true,false]:
 		if not friendly and c.opponent_choice.selected>0: continue
 		var origin = Vector2(40 if friendly else 652,544)
+		if Rect2(origin+Vector2(404,7),Vector2(114,29)).has_point(mouse) and c.forms.count(int(c.roster[c.player_index if friendly else c.enemy_index].id))>1:
+			c.forms.open(c.roster[c.player_index if friendly else c.enemy_index],friendly,c.team_slot if c.team_mode else 0); return true
 		if c.abilities.shiny_enabled() and Rect2(origin+Vector2(524,7),Vector2(52,29)).has_point(mouse):
 			c.abilities.toggle_shiny(c.roster[c.player_index if friendly else c.enemy_index],friendly,c.team_slot if c.team_mode else 0)
 			return true

@@ -1,10 +1,14 @@
-# Pokémon Arena — Kanto 151 + retained extras
+# Pokémon Arena — Kanto Adventure and arena battles
 
-Godot 4.3 desktop arena prototype. All 151 original Kanto species are playable, plus the seven existing non-Kanto Pokémon: Chikorita, Sudowoodo, Umbreon, Duskull, Snorunt, Klink and Rookidee. Total: **158**.
+Godot 4.3 desktop arena prototype with a Kanto/Sevii Adventure. The current roster contains all 386 Gen I–III species, plus Klink and Rookidee: **388**. The sections below record successive updates; newer rules supersede earlier notes.
 
 ## Download for Windows
 
 [Download the latest tested build](https://github.com/Nsymeon/pokemon-arena/releases/latest). Choose PokemonArena-Windows.zip, extract the entire ZIP and run PLAY.bat. No Godot installation is needed. CHECK-FOR-UPDATES.bat opens the same page for future updates. Single-player against AI.
+
+## Latest: interiors, opening story, breeding and forms
+
+Cleaner rugs, one staircase per entrance, center-only indoor exits, furnished marts, a proper Viridian School blackboard and a visible Town Map. New adventures begin at home with a name and avatar, Mom's introduction, Oak's rescue, individually inspectable starter balls, Blue's exit challenge and a shared Pokedex handoff. Additional NPC gifts/services, two-parent Four Island breeding and Eggs, Unown/Deoxys form selection and weather-driven Castform are included. Neighboring maps and nearby interiors preload incrementally. Existing saves remain compatible; a fresh slot shows the revised opening. See [rules, validation and remaining limits](docs/rooms-story-breeding-update.md).
 
 ## Adventure expansion: navigation, held gear and postgame
 

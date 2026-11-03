@@ -114,7 +114,7 @@ for key,m in maps.items():
             buildings.append([x,y,bw,bh,'house','71934b'])
             for yy in range(y,y+bh):
                 for xx in range(x,x+bw): kinds[yy*w+xx]='foundation'
-    extra={'MAP_CELADON_CITY':[(40,25,4,5,'house','929969'),(36,25,4,5,'house','929969'),(48,25,4,5,'house','929969'),(27,6,7,6,'tower','929969')], 'MAP_PEWTER_CITY':[(23,2,5,3,'lab','ab7995')], 'MAP_VERMILION_CITY':[(11,14,5,4,'house','6aa58a')]}.get(key,[])
+    extra={'MAP_ROUTE2':[(2,14,8,5,'gate','a37a62'),(2,46,8,5,'gate','a37a62')], 'MAP_CELADON_CITY':[(40,25,4,5,'house','929969'),(36,25,4,5,'house','929969'),(48,25,4,5,'house','929969'),(27,6,7,6,'tower','929969')], 'MAP_PEWTER_CITY':[(23,2,5,3,'lab','ab7995')], 'MAP_VERMILION_CITY':[(11,14,5,4,'house','6aa58a')]}.get(key,[])
     for x,y,bw,bh,style,roof in extra:
         buildings.append([x,y,bw,bh,style,roof])
         for yy in range(y,y+bh):
@@ -181,7 +181,7 @@ for key,m in maps.items():
             if kinds[i]=='furniture' and m['cells'][i]&0xc00: kinds[i]='wall'
     # Unclaimed blocked structures get low relief, never an opaque roof over paths.
     for i,kind in enumerate(kinds):
-        if kind=='building': kinds[i]='cliff' if ('Ember' in m['name'] or 'Kindle' in m['name'] or 'Route23' in m['name']) else 'fence'
+        if kind=='building': kinds[i]='cliff' if ('Ember' in m['name'] or 'Kindle' in m['name'] or 'Route23' in m['name']) else 'masonry'
     # Never draw a solid fence over a source-walkable cell.
     for i,kind in enumerate(kinds):
         if kind=='fence' and not m['cells'][i]&0xC00: kinds[i]='lawn'
@@ -229,13 +229,12 @@ for key,m in maps.items():
             if layout['primary_tileset']=='gTileset_Building' and idx in [0x43,0x44,0x45,0x46,0x4b,0x4e,0x53,0x56,0x5b,0x5c,0x5d,0x5e]:
                 pen.rectangle((x,y,x+31,y+31),fill='#80a7a3')
                 for dx,dy in [(8,8),(24,24)]:pen.ellipse((x+dx,y+dy,x+dx+2,y+dy+2),fill='#b9d0b7')
-                if idx in [0x43,0x44,0x46]:pen.line((x,y+3,x+31,y+3),fill='#d6d7b9',width=3)
-                if idx in [0x5b,0x5c,0x5e]:pen.line((x,y+28,x+31,y+28),fill='#d6d7b9',width=3)
-                if idx in [0x43,0x4b,0x53,0x5b]:pen.line((x+3,y,x+3,y+31),fill='#d6d7b9',width=3)
-                if idx in [0x46,0x4e,0x56,0x5e]:pen.line((x+28,y,x+28,y+31),fill='#d6d7b9',width=3)
-            if layout['primary_tileset']=='gTileset_Building' and idx in [0x5,0x6,0xd,0xe,0x15,0x16,0x17,0x1e,0x1f]:
-                ox,oy=i%w*16,i//w*16
-                ground.paste(original.crop((ox,oy,ox+16,oy+16)).resize((32,32),Image.Resampling.LANCZOS),(x,y))
+                # Chairs use edge-looking metatiles in the MIDDLE of a rug.
+                # Only actual outer corners carry a quiet stitched perimeter.
+                if idx in [0x43,0x44,0x46]:pen.line((x,y+2,x+31,y+2),fill='#a6bdb1',width=1)
+                if idx in [0x5b,0x5c,0x5e]:pen.line((x,y+29,x+31,y+29),fill='#a6bdb1',width=1)
+                if idx in [0x43,0x53,0x5b]:pen.line((x+2,y,x+2,y+31),fill='#a6bdb1',width=1)
+                if idx in [0x46,0x56,0x5e]:pen.line((x+29,y,x+29,y+31),fill='#a6bdb1',width=1)
     folder=ROOT/'assets/kanto/modern';folder.mkdir(exist_ok=True)
     buffer=io.BytesIO(); ground.save(buffer,format='PNG')
     write_changed(folder/(m['name']+'.png'),buffer.getvalue())
@@ -248,6 +247,27 @@ for key,m in maps.items():
     if key=='MAP_PEWTER_CITY_MUSEUM_1F': stairs += [y*w+x for y in range(6,9) for x in range(9,12)]
     elif key=='MAP_PEWTER_CITY_MUSEUM_2F': stairs += [y*w+x for y in range(6,9) for x in range(8,11)]
     stairs=sorted(set(stairs+[i for i,b in enumerate(events[key]['behavior']) if int(b) in [0x2a,0x6a,0x6b,0x6c,0x6d,0x6e,0x6f]]))
+    # A stair is one architectural object anchored to its actual warp, rather
+    # than an independent ascending flight for every decorative metatile.
+    flights=[]
+    for door in m['warps']:
+        x,y=door['x'],door['y']; b=int(events[key]['behavior'][y*w+x])
+        if b not in [0x2a,0x6a,0x6b,0x6c,0x6d,0x6e,0x6f]: continue
+        if layout['primary_tileset']=='gTileset_Building' and m['cells'][y*w+x]&1023 in [7,0x1d]:
+            # 1F rises away to the right; 2F descends away to the left.
+            dx=1 if m['cells'][y*w+x]&1023==0x1d else -1
+            cells=[yy*w+xx for yy in range(max(0,y-1),min(h,y+2)) for xx in range(min(x,x+dx*2),max(x,x+dx*2)+1)]
+            flights.append([x+.5,y+.5,dx,2.5,1.15])
+            stairs+=cells
+        elif 'POKEMON_CENTER' in key:
+            # Centers use a single compact side staircase, facing inward.
+            dx=-1 if x<w/2 else 1
+            flights.append([x+.5,y+.5,dx,1.5,.95])
+            stairs += [yy*w+xx for yy in range(max(0,y-1),min(h,y+2)) for xx in range(max(0,x-1),min(w,x+2)) if (xx-x)*dx>=0]
+        else: flights.append([x+.5,y+.5,-1 if b in [0x6a,0x6b,0x6f] else 1,1.0,.9])
+    if 'PEWTER_CITY_MUSEUM' in key:
+        flights=[[11.5 if key.endswith('1F') else 8.5,7.5,-1 if key.endswith('1F') else 1,2.6,1.7]]
+    stairs=sorted(set(stairs))
     ladders=[i for i,b in enumerate(events[key]['behavior']) if int(b)==0x61]
     trees=[]; covered=set()
     for i,kind in enumerate(kinds):
@@ -257,7 +277,7 @@ for key,m in maps.items():
         if not block: continue
         covered.update(block)
         trees.append([sum(j%w+.5 for j in block)/len(block),sum(j//w+.5 for j in block)/len(block),len(block)<3])
-    result[key]={'outdoor':outdoor,'cave':cave,'texels_per_tile':32,'stairs':stairs,'ladders':ladders,'exhibits':exhibits,'tiles':kinds,'trees':trees,'buildings':buildings,'ground':'res://assets/kanto/modern/'+m['name']+'.png'}
+    result[key]={'outdoor':outdoor,'cave':cave,'texels_per_tile':32,'stairs':stairs,'flights':flights,'ladders':ladders,'exhibits':exhibits,'tiles':kinds,'trees':trees,'buildings':buildings,'ground':'res://assets/kanto/modern/'+m['name']+'.png'}
 
 path=ROOT/'assets/kanto/world-3d.json'
 write_changed(path,json.dumps(result,separators=(',',':')).encode('utf8'))

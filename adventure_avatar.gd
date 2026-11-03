@@ -6,6 +6,7 @@ var cache = {}
 var draft = {}
 var previews = []
 var a
+var name_input: LineEdit
 
 func valid(value) -> bool:
 	if not value is Dictionary or value.get("gender") not in ["boy","girl"]: return false
@@ -48,6 +49,9 @@ func show_creator(context):
 	for child in a.ui.get_children():
 		if child is Button: child.queue_free()
 	a.ui_label("Choose your look. It follows you across Kanto and into every battle.",Vector2(180,220),20)
+	name_input=LineEdit.new(); name_input.position=Vector2(650,240); name_input.size=Vector2(360,38)
+	name_input.max_length=12; name_input.placeholder_text="Your name"; name_input.text=str(a.data.get("player_name",""))
+	a.ui.add_child(name_input)
 	a.ui_button("BOY",Vector2(180,275),Vector2(180,48),set_gender.bind("boy"))
 	a.ui_button("GIRL",Vector2(380,275),Vector2(180,48),set_gender.bind("girl"))
 	for i in PARTS.size():
@@ -108,8 +112,11 @@ func refresh():
 
 func confirm():
 	var previous = a.data.get("avatar")
+	var previous_name=a.data.get("player_name","RED")
+	a.data["player_name"]=name_input.text.strip_edges() if is_instance_valid(name_input) and name_input.text.strip_edges()!="" else ("RED" if draft.gender=="boy" else "LEAF")
 	a.data["avatar"] = draft.duplicate(true)
 	if not a.save():
+		a.data.player_name=previous_name
 		if previous==null: a.data.erase("avatar")
 		else: a.data.avatar = previous
 		a.ui_label("Could not save. Check storage and try again.",Vector2(180,705),18)

@@ -168,6 +168,7 @@ func tutor_slots(script,slot):
 func teach(script,slot,index):
 	if a.in_battle or not tutors.has(script) or a.field.done("tutor:"+script) or slot<0 or slot>=a.data.party.size(): return
 	var mon=a.data.party[slot]; var move=tutors[script]
+	if mon.get("is_egg",false): return
 	if move in mon.moves or move not in a.field.learning.get(str(int(mon.id)),{}).get("tutors",[]) or index<0 or index>mon.moves.size() or index>=4: return
 	if "Copycat" in script:
 		if int(a.data.bag.get("pokedoll",0))<=0: return

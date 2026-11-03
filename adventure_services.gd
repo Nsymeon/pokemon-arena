@@ -32,13 +32,17 @@ func valid(value) -> bool:
 
 func npc(o) -> bool:
 	var script=str(o.get("script",""))
-	if "DaycareMan" in script or "DaycareWoman" in script: daycare_menu(); return true
+	if "DaycareMan" in script or "DaycareWoman" in script:
+		if a.world.current.begins_with("MAP_FOUR_ISLAND"): a.breeding.menu()
+		else: daycare_menu()
+		return true
 	if "CoinCaseMan" in script: a.field.reward("coin_case","Received COIN CASE! Use the Game Corner's machines and prize counters."); return true
 	if script.begins_with("CeladonCity_GameCorner_") and not "RocketGrunt" in script: game_menu(); return true
 	if "SAFARI_ZONE_ENTRANCE" in a.world.current: safari_menu(); return true
 	return false
 
 func steps():
+	a.breeding.step()
 	var s=state(); s.steps=mini(1000000000,int(s.steps)+1)
 	if not s.daycare.is_empty():
 		var mon=s.daycare.mon

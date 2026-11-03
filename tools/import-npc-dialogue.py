@@ -25,12 +25,18 @@ records={}
 for label,body in blocks.items():
  text=resolve(label)
  record={'text':text} if text else {}
+ if 'checkplayergender' in body: record['gender_check']=True
+ gift=re.search(r'\b(?:giveitem_msg\s+\w+,\s*|giveitem\s+|additem\s+)ITEM_(\w+)(?:,\s*(\d+))?',body)
+ if gift:
+  record['gift']={'item':gift[1],'amount':int(gift[2] or 1)}
+  flag=re.search(r'setflag\s+(FLAG_\w+)',body[gift.end():])
+  if flag:record['gift']['flag']=flag[1]
  match=re.search(r'trainerbattle_single\s+\w+,\s*(\w+),\s*(\w+)',body)
  if match:
   record['intro']=text_of(match[1]);record['defeat']=text_of(match[2]);record['post']=text
  branches=[]
  for line in body.splitlines():
-  branch=re.match(r'\s*(goto_if_set|goto_if_unset|goto_if_eq|goto_if_ge|goto_if_lt)\s+(.+)',line)
+  branch=re.match(r'\s*(goto_if_set|goto_if_unset|goto_if_eq|goto_if_ge|goto_if_lt|call_if_eq|call_if_ge|call_if_lt)\s+(.+)',line)
   if branch:
    args=[x.strip() for x in branch[2].split(',')]
    if len(args) in (2,3): branches.append({'op':branch[1],'args':args})

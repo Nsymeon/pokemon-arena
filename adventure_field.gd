@@ -23,6 +23,7 @@ func can_use(tool) -> bool:
 
 func key_items():
 	var list=a.inventory.page("KEY ITEMS / permanent tools",a.inventory.bag)
+	if done("town_map"): a.inventory.row(list,"TOWN MAP / Kanto connections",a.world.guide)
 	a.inventory.row(list,"ITEMFINDER / scan for nearby hidden items",a.progression.itemfinder,not owns("itemfinder"))
 	for entry in [["story:tea","Tea / Saffron guards"],["sevii:tri_pass","Tri-Pass / Islands One to Three"],["sevii:meteorite","Meteorite / Bill's delivery"],["sevii:ruby_delivered","Rainbow Pass / all seven islands"],["story:national_dex","National Pokedex"]]:
 		if done(entry[0]): a.inventory.row(list,entry[1],func():pass,true)
@@ -83,6 +84,7 @@ func npc(npc) -> bool:
 	if a.postgame.npc(npc): return true
 	if a.progression.npc(npc): return true
 	if a.services.npc(npc) or a.sevii.npc(npc): return true
+	if a.npc_scripts.npc(npc): return true
 	var script=str(npc.get("script",""))
 	if trades.has(script): trade_menu(script); return true
 	for name in LEGENDS:
@@ -173,7 +175,7 @@ func tools_menu():
 	a.inventory.row(list,"SEVII STORY JOURNAL",a.sevii.journal)
 	if a.sevii.at_port(): a.inventory.row(list,"SEAGALLOP FERRY",a.sevii.ferry_menu)
 	if a.world.current.contains("GAME_CORNER"): a.inventory.row(list,"GAME CORNER",a.services.game_menu)
-	if a.world.current.contains("POKEMON_DAY_CARE"): a.inventory.row(list,"DAY CARE",a.services.daycare_menu)
+	if a.world.current.contains("POKEMON_DAY_CARE"): a.inventory.row(list,"DAY CARE",a.breeding.menu if a.world.current.begins_with("MAP_FOUR_ISLAND") else a.services.daycare_menu)
 	if a.world.current.contains("SAFARI_ZONE_ENTRANCE"): a.inventory.row(list,"SAFARI ADMISSION",a.services.safari_menu)
 	a.inventory.row(list,"KEY ITEMS / tools, badges and HM teaching",key_items)
 	a.inventory.row(list,"QUEST JOURNAL / where to find tools and rewards",journal)
@@ -341,6 +343,7 @@ func trade_menu(script):
 func confirm_trade(script,slot):
 	if not trades.has(script) or done("trade:"+script) or slot<0 or slot>=a.data.party.size(): return
 	var offer=trades[script]; var mon=a.data.party[slot]
+	if mon.get("is_egg",false): return
 	if int(mon.id)!=int(offer.give): return
 	a.panel("CONFIRM TRADE")
 	a.ui_label("Trade your "+a.mon_name(mon.id)+" Lv."+str(mon.level)+(" (SHINY)" if mon.get("shiny",false) else "")+" for "+a.mon_name(offer.receive)+"?",Vector2(180,285),22)
@@ -357,6 +360,7 @@ func trade(script,slot):
 	w().scenes.play([{"text":"Your Poke Balls enter the trading machine...","duration":1.5},{"text":offer.nickname+" is on the way!","duration":1.4,"flash":true}],func():
 		if done("trade:"+script) or a.data.party[slot]!=mon: return
 		var received=a.new_mon(int(offer.receive),int(mon.level))
+		received["ot"]="npc:"+script
 		received.ivs=offer.ivs.duplicate(true)
 		received.shiny=false; received.ability_slot=int(offer.ability); a.c.abilities.assign(received)
 		received["nickname"]=offer.nickname

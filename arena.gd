@@ -27,6 +27,7 @@ var abilities = preload("res://passive_abilities.gd").new()
 var move_flags: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/move-flags.json"))
 var ivs=preload("res://individual_values.gd").new()
 var move_editor = preload("res://battle_moves.gd").new()
+var forms=preload("res://pokemon_forms.gd").new()
 var skills = preload("res://arena_skills.gd").new()
 var clashes = preload("res://attack_clashes.gd").new()
 var clash_effects: Array = []
@@ -130,6 +131,7 @@ func _ready():
 	add_child(sound)
 	setup_selection_controls()
 	abilities.install(self)
+	forms.install(self)
 	move_editor.install(self)
 	ivs.install(self)
 	load_portraits()
@@ -1312,6 +1314,9 @@ func draw_fainted(fighter: Dictionary):
 	draw_set_transform(world_origin() + jitter, 0, Vector2.ONE * ARENA_SCALE)
 
 func portrait(mon, flipped: bool=false):
+	if mon.get("is_egg",false): return adventure.breeding.picture()
+	var variant=art.form_portrait(mon,flipped)
+	if variant!=null: return variant
 	var bank=(shiny_flipped if flipped else shiny_portraits) if mon.get("shiny",false) else (portraits_flipped if flipped else portraits)
 	return bank.get(int(mon.id),portraits.get(int(mon.id)))
 
@@ -1719,6 +1724,7 @@ func selection_details(mon: Dictionary, rival: Dictionary, pos: Vector2, friendl
 	label_at(("YOU / " if friendly else "CPU / ") + mon.name.to_upper(), pos + Vector2(16, 25), 18, Dex.color(mon.type))
 	label_at(Dex.type_label(mon), pos + Vector2(340, 24), 12, Dex.color(mon.type))
 	if abilities.shiny_enabled() and (friendly or opponent_choice.selected==0): abilities.draw_shiny_toggle(mon,pos)
+	forms.draw(mon,pos)
 	var s: Dictionary = mon.base_stats
 	label_at("STATS HP %d   ATK %d   DEF %d   SPA %d   SPD %d   SPE %d" % [s.hp, s.atk, s.def, s.spa, s.spd, s.spe], pos + Vector2(16, 46), 11, WHITE)
 	for i in range(mon.moves.size()):

@@ -23,7 +23,7 @@ func recover() -> int:
 	var loss=blackout_cost(); a.data.money-=loss
 	a.Finale.state(a).league=0
 	if a.encounter.get("kind","")=="rival": a.data.rival=true
-	for mon in a.data.party: mon.hp=1.; mon.ailment=""
+	for mon in a.data.party: mon.hp=0. if mon.get("is_egg",false) else 1.; mon.ailment=""
 	a.data.map=int(a.data.healing_map)
 	a.position_world=Vector2(800,760)
 	if a.world.enabled:
@@ -236,6 +236,6 @@ func hall():
 
 func finish_ceremony():
 	a.clear_ui(); a.world.events.state().done.erase("story:champion_pending"); finish("hall_recorded")
-	for mon in a.data.party: mon.hp=1.; mon.ailment=""
+	for mon in a.data.party: mon.hp=0. if mon.get("is_egg",false) else 1.; mon.ailment=""
 	a.world.enter("MAP_PALLET_TOWN_PLAYERS_HOUSE_2F",Vector2(6.5,6.5)*48)
 	a.dialog="Your team has entered the Hall of Fame! Visit Professor Oak to continue your journey."; a.save()

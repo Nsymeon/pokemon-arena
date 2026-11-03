@@ -94,6 +94,7 @@ func use(id,slot) -> bool:
 		a.sync_health()
 	var mon=a.data.party[slot]
 	var fighter=a.c.player_states[slot] if a.in_battle else {}
+	if mon.get("is_egg",false): return false
 	var success=false
 	if id=="fullrestore" and mon.hp>0 and (mon.hp<1 or mon.ailment!=""):
 		mon.hp=1.0; mon.ailment=""; success=true

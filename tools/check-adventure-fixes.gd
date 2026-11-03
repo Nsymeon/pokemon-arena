@@ -58,11 +58,13 @@ func run():
 	c.check(not w.actors().any(func(n):return n.graphics_id=="OBJ_EVENT_GFX_BLUE"),"Blue leaves the lab after the first rival battle")
 	w.events.finish("parcel_received"); a.position_world=Vector2(6.5,4.5)*48; w.heading=Vector2.UP
 	key(KEY_SPACE); c.check(w.scenes.active and not w.events.done("parcel_delivered"),"Oak begins a scene before handing over the Pokedex")
-	w.scenes.tick(3); w.scenes.tick(.8); w.scenes.tick(.65); w.scenes.tick(.2)
+	for i in 16:
+		w.scenes.tick(4)
+		if w.scenes.positions.get("quest:oak")==Vector2(5.5,2.5)*48: break
 	c.check(w.scenes.positions.get("quest:oak")==Vector2(5.5,2.5)*48,"Oak walks to the Pokedex desk")
 	await snap("oak-desk")
 	c.check(w.actors().filter(func(n):return n.graphics_id=="OBJ_EVENT_GFX_PROF_OAK").is_empty(),"Moving quest Oak never leaves a duplicate at his original tile")
-	for i in 8: w.scenes.tick(4)
+	w.scenes.finish()
 	c.check(w.events.done("parcel_delivered") and not w.actors().any(func(n):return n.graphics_id=="OBJ_EVENT_GFX_POKEDEX"),"Completed handoff grants the Pokedex and removes the desk devices")
 	await snap("lab")
 	a.menu(); await snap("menu"); a.inventory.bag(); a.back_ui(); c.check(a.modal=="ADVENTURE MENU","Bag Back returns to the Adventure menu")
@@ -138,7 +140,7 @@ func run():
 	w.scenes.finish()
 	c.check(w.current=="MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB" and w.events.done("oak_intro") and w.scenes.active,"Escort enters lab and starts the introduction")
 	w.scenes.finish()
-	c.check(a.modal!="","Starter choice opens after escort")
+	c.check(a.modal=="" and w.actors().filter(func(n):return w.scenes.starter_id(n)>0).size()==3,"Escort makes all three starter balls available on the table")
 	fixture("MAP_VIRIDIAN_CITY")
 	c.check(not w.events.allow_door("MAP_ROUTE2"),"Viridian north blocked before second Blue fight")
 	c.check(w.events.allow_door("MAP_ROUTE22"),"West path to Blue stays open")

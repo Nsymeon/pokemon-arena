@@ -7,6 +7,33 @@ var cave = preload("res://cavern_art.gd").new()
 var library = {}
 var scales = {}
 var shiny_library = {}
+var form_library={}
+var form_faces={}
+var form_manifest: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://assets/forms/manifest.json"))
+
+func entry_for(mon: Dictionary) -> Dictionary:
+	var key="%d:%d:%s" % [mon.id,mon.get("form",1 if mon.id==386 else 0),"shiny" if mon.get("shiny",false) else "normal"]
+	if form_manifest.has(key):
+		if not form_library.has(key):
+			var entry=form_manifest[key].animations.duplicate(true)
+			for name in entry:
+				var anim=entry[name]; var image=Image.load_from_file(anim.path)
+				anim["texture"]=ImageTexture.create_from_image(image); anim["rows"]=image.get_height()/int(anim.height)
+			form_library[key]=entry
+		return form_library[key]
+	return (shiny_library if mon.get("shiny",false) else library).get(int(mon.id),{})
+
+func form_portrait(mon, flipped=false):
+	if int(mon.get("form",1 if mon.id==386 else 0))==0: return null
+	var key="%d:%d:%s:%s" % [mon.id,mon.get("form",1),mon.get("shiny",false),flipped]
+	if form_faces.has(key): return form_faces[key]
+	var animation=entry_for(mon).get("Idle",{})
+	if animation.is_empty(): return null
+	var crop=animation.texture.get_image().get_region(Rect2i(0,0,int(animation.width),int(animation.height)))
+	crop=crop.get_region(crop.get_used_rect())
+	if flipped: crop.flip_x()
+	form_faces[key]=ImageTexture.create_from_image(crop)
+	return form_faces[key]
 
 func load_sprites():
 	var manifest = JSON.parse_string(FileAccess.get_file_as_string("res://assets/animated/manifest.json"))
@@ -32,7 +59,7 @@ func load_sprites():
 		shiny_library[int(id)]=entry
 
 func frame(fighter: Dictionary) -> Dictionary:
-	var entry: Dictionary = (shiny_library if fighter.data.get("shiny",false) else library).get(int(fighter.data.id), {})
+	var entry: Dictionary = entry_for(fighter.data)
 	if entry.is_empty(): return {}
 	var state = "Idle"
 	if fighter.get("walk_time", 0.0) > 0: state = "Walk"

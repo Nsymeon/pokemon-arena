@@ -55,6 +55,14 @@ jobs:
           $code = $LASTEXITCODE
           $national | Write-Output
           if ($code -ne 0 -or ($national -match 'SCRIPT ERROR|ERROR:') -or -not ($national -match 'NATIONAL UPDATE: PASS')) { throw 'National update checks failed' }
+      - name: Opening story and breeding regression
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force captures | Out-Null
+          $rooms = & "$env:RUNNER_TEMP/godot/Godot_v4.3-stable_win64_console.exe" --headless --path . --script tools/check-rooms-story-breeding.gd -- --qa-rooms 2>&1
+          $code = $LASTEXITCODE
+          $rooms | Write-Output
+          if ($code -ne 0 -or ($rooms -match 'SCRIPT ERROR|ERROR:') -or -not ($rooms -match 'ROOMS / STORY / BREEDING CHECK: \[\]')) { throw 'Opening and breeding checks failed' }
       - name: Package Windows build
         shell: pwsh
         run: |

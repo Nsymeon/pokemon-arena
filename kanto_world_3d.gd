@@ -1,4 +1,5 @@
 extends Node
+signal stream_step
 # The 3D scene is a view of kanto_world; all authoritative state stays in 2D tiles.
 const Kit=preload("res://kanto_model_kit.gd")
 var w
@@ -21,6 +22,17 @@ var character_pose=preload("res://kanto_character_models.gd").new()
 var map_cache={}
 var neighbors=[]
 var keep_focus=false
+var preloading=false
+var max_stream_slice_us=0
+var image_thread: Thread
+var closing=false
+
+func load_ground(path: String) -> Image:
+	var pixels=Image.load_from_file(path); pixels.generate_mipmaps(); return pixels
+
+func _exit_tree():
+	closing=true; stream_step.emit()
+	if image_thread!=null and image_thread.is_started(): image_thread.wait_to_finish()
 
 func connection_offset(from_id: String, link: Dictionary) -> Vector3:
 	var source=w.maps[from_id]; var target=w.maps[link.map]; var offset=float(link.offset)
@@ -37,14 +49,28 @@ func rebase(from_id: String, link: Dictionary):
 	focus-=offset; camera.position-=offset; keep_focus=true
 
 func preload_neighbor():
-	if neighbors.is_empty(): return
+	if closing or preloading or neighbors.is_empty(): return
+	preloading=true
 	var next=neighbors.pop_front()
-	if not map_cache.has(next.id):
-		build_terrain(next.id)
-		map_cache[next.id]=terrain
-	map_cache[next.id].position=next.offset
-	map_cache[next.id].visible=true
-	terrain=map_cache[loaded]
+	if not map_cache.has(next.id): await build_terrain(next.id,true)
+	if closing: preloading=false; return
+	if is_instance_valid(map_cache.get(next.id)):
+		var wanted=w.room().connections.filter(func(link):return link.map==next.id)
+		if loaded==next.id: map_cache[next.id].position=Vector3.ZERO; map_cache[next.id].visible=true
+		elif not wanted.is_empty(): map_cache[next.id].position=connection_offset(loaded,wanted[0]); map_cache[next.id].visible=true
+	preloading=false
+
+func queue_nearby_doors():
+	# Gatehouses, forests and indoor warps have no map connections. Start their
+	# hidden scene while the player is still walking towards the entrance.
+	var candidates=w.room().warps.filter(func(door):return catalog.has(door.dest_map) and door.dest_map!=loaded and not map_cache.has(door.dest_map))
+	candidates.sort_custom(func(left,right):return w.events.point(left).distance_squared_to(a.position_world)<w.events.point(right).distance_squared_to(a.position_world))
+	for door in candidates:
+		if w.events.point(door).distance_to(a.position_world)>w.TILE*6: break
+		if neighbors.any(func(job):return job.id==door.dest_map): continue
+		neighbors.append({"id":str(door.dest_map)})
+		if neighbors.size()>=6: break
+
 var refresh_clock=0.0
 var active=false
 var enabled=true
@@ -83,6 +109,7 @@ func initialize():
 	props=Node3D.new(); stage.add_child(props)
 
 func _process(dt):
+	stream_step.emit()
 	active=enabled and a.exploring and w.enabled and not a.in_battle and not a.c.frontend.layer.visible
 	if not active:
 		if viewport: viewport.render_target_update_mode=SubViewport.UPDATE_DISABLED
@@ -101,7 +128,7 @@ func _process(dt):
 	camera.look_at(focus+Vector3(0,0,-1.4))
 	refresh_clock-=dt
 	if refresh_clock<=0:
-		refresh_clock=.12; sync_actors(); sync_props()
+		refresh_clock=.12; sync_actors(); sync_props(); queue_nearby_doors()
 	if actors.has("player"):
 		move_actor(actors.player,a.position_world,w.heading,w.stepping or w.events.spin!=Vector2.ZERO)
 		if w.jumping: actors.player.position.y=sin(clampf(a.position_world.distance_to(w.jump_start)/(2*w.TILE),0,1)*PI)*.65
@@ -115,7 +142,8 @@ func _process(dt):
 func build():
 	var started=Time.get_ticks_msec()
 	var patch_changed=map_cache.has(w.current) and map_cache[w.current].get_meta("patches","{}")!=JSON.stringify(w.events.patches)
-	if patch_changed and map_cache.has(w.current): map_cache[w.current].free(); map_cache.erase(w.current)
+	if patch_changed and map_cache.has(w.current):
+		map_cache[w.current].set_meta("cancelled",true); map_cache[w.current].queue_free(); map_cache.erase(w.current)
 	for node in people.get_children(): node.free()
 	actors.clear(); loaded=w.current; props_key=""; labels.clear()
 	var meta=catalog[loaded]; var outside=bool(meta.outdoor); var cave=bool(meta.cave)
@@ -136,14 +164,20 @@ func build():
 			if map_cache.has(link.map): map_cache[link.map].position=offset; map_cache[link.map].visible=true
 			else: neighbors.append({"id":link.map,"offset":offset})
 	for id in map_cache.keys():
-		if id not in wanted and map_cache.size()>7: map_cache[id].free(); map_cache.erase(id)
+		if id not in wanted and map_cache.size()>7 and map_cache[id].get_meta("ready",false): map_cache[id].queue_free(); map_cache.erase(id)
 	if not keep_focus: focus=Vector3(a.position_world.x/w.TILE,0,a.position_world.y/w.TILE)
 	keep_focus=false
 	sync_actors(); sync_props()
 	map_build_ms=Time.get_ticks_msec()-started
 
-func build_terrain(map_id: String):
-	terrain=Node3D.new(); stage.add_child(terrain)
+func build_terrain(map_id: String, cooperative: bool=false):
+	# Each pending map owns its stamp list. It can yield between small chunks
+	# without mixing geometry with live actors, props or another map build.
+	var kit=Kit.new(); kit.meshes=self.kit.meshes; kit.materials=self.kit.materials; kit.art=self.kit.art
+	var terrain=Node3D.new(); terrain.visible=not cooperative; stage.add_child(terrain)
+	map_cache[map_id]=terrain
+	if not cooperative: self.terrain=terrain
+	var slice_started=Time.get_ticks_usec()
 	terrain.set_meta("patches",JSON.stringify(w.events.patches) if map_id==w.current else "{}")
 	var loaded=map_id
 	var room=w.maps[map_id]; var meta=catalog[map_id]; var width=int(room.width); var height=int(room.height)
@@ -151,11 +185,24 @@ func build_terrain(map_id: String):
 	var stairs=meta.get("stairs",[]).map(func(index):return int(index))
 	var ladders=meta.get("ladders",[]).map(func(index):return int(index))
 	var home=not outside and ("HOUSE" in loaded or "COTTAGE" in loaded or "DAY_CARE" in loaded)
+	for flight in meta.get("flights",[]):
+		kit.staircase(Vector3(flight[0],0,flight[1]),flight[2],flight[3],flight[4])
+	terrain.set_meta("stair_count",meta.get("flights",[]).size())
 	var base="6e9867" if outside else "6f7569" if cave else "a9a18e"
 	kit.stamp("box",Vector3(width*.5,-.24,height*.5),Vector3(width+.2,.42,height+.2),base)
 	# A low landscape apron hides empty space along map borders, without collisions.
 	if outside: kit.stamp("box",Vector3(width*.5,-.48,height*.5),Vector3(width,.25,height),"739a6d")
-	var ground_image=Image.load_from_file(meta.ground); ground_image.generate_mipmaps()
+	var ground_image: Image
+	if cooperative:
+		image_thread=Thread.new(); image_thread.start(load_ground.bind(str(meta.ground)))
+		while image_thread.is_alive():
+			await stream_step
+			if closing:
+				image_thread.wait_to_finish(); image_thread=null; return
+		ground_image=image_thread.wait_to_finish(); image_thread=null
+		if not is_instance_valid(terrain) or terrain.get_meta("cancelled",false): return
+		slice_started=Time.get_ticks_usec()
+	else: ground_image=load_ground(str(meta.ground))
 	var ground=MeshInstance3D.new(); var plane=PlaneMesh.new(); plane.size=Vector2(width,height)
 	var surface=StandardMaterial3D.new(); surface.albedo_texture=ImageTexture.create_from_image(ground_image); surface.texture_filter=BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS; surface.roughness=1
 	ground.mesh=plane; ground.material_override=kit.art.ground(surface.albedo_texture) if home else surface; ground.position=Vector3(width*.5,.005,height*.5); terrain.add_child(ground)
@@ -167,8 +214,15 @@ func build_terrain(map_id: String):
 			for xx in range(int(display[0]),int(display[0]+display[2])): exhibit_cells[zz*width+xx]=true
 	# Build contiguous service counters once, rather than a grid of padded cubes.
 	var merged={}
+	var exit_trim={}
+	if not outside and not cave:
+		for door in room.warps:
+			if int(door.y)==height-2 and w.center_door(door,map_id): exit_trim[(height-1)*width+int(door.x)]=true
 	if "POKEMON_CENTER" in loaded or "LAB" in loaded or "MART" in loaded or home:
 		for i in room.cells.size():
+			if exit_trim.has(i): continue
+			if int(room.cells[i])&1023 in [0x1a,0x1b,0x1c]: continue
+			if "MART" in loaded and meta.tiles[i]=="furniture" and int(w.events.catalog[loaded].behavior[i])!=0x80: continue
 			if i in stairs or i in ladders or merged.has(i) or meta.tiles[i] not in (["table"] if home else ["furniture","table"]): continue
 			var x=i%width; var z=int(i/width); var span=1; var depth=1
 			while x+span<width and not i+span in stairs+ladders and not merged.has(i+span) and meta.tiles[i+span] in ["furniture","table"]: span+=1
@@ -184,24 +238,46 @@ func build_terrain(map_id: String):
 			if home: kit.dining_table(Vector3(x+span*.5,0,z+depth*.5),Vector2(span,depth))
 			else: kit.counter(Vector3(x+span*.5,0,z+depth*.5),Vector2(span,depth),loaded)
 	for i in room.cells.size():
+		if cooperative and i%24==0 and Time.get_ticks_usec()-slice_started>2500:
+			max_stream_slice_us=maxi(max_stream_slice_us,Time.get_ticks_usec()-slice_started)
+			await stream_step
+			if closing or not is_instance_valid(terrain) or terrain.get_meta("cancelled",false): return
+			slice_started=Time.get_ticks_usec()
 		var x=i%width; var z=int(i/width); var p=Vector3(x+.5,0,z+.5); var kind=str(meta.tiles[i]); var tile=int(room.cells[i])&1023
+		if exit_trim.has(i): continue
+		if not outside and not cave and tile in [0x1a,0x1b,0x1c]: continue
 		var patch=w.events.patches.get(Vector2i(x,z),{}) if loaded==w.current else {}
 		if not patch.is_empty():
 			# Patched doors/ice/spinners retain their exact source artwork and collision.
-			patch_plane(p,patch.image)
+			patch_plane(p,patch.image,terrain)
 			continue
 		if merged.has(i) or exhibit_cells.has(i): continue
+		# The school's second source row is a wall with windows/blackboard,
+		# not ten individual padded furniture blocks.
+		if loaded=="MAP_VIRIDIAN_CITY_SCHOOL":
+			if z==1:
+				kit.stamp("box",p+Vector3(0,.7,0),Vector3(1,1.4,.4),"plaster_c3cec5")
+				if x==4: kit.school_board(p+Vector3(.5,0,.23))
+				if x in [1,2,7]:
+					kit.stamp("softbox",p+Vector3(0,1.06,.23),Vector3(.86,.89,.1),"e9ddba")
+					kit.stamp("box",p+Vector3(0,1.06,.29),Vector3(.68,.7,.02),"99c9ce")
+					kit.stamp("box",p+Vector3(0,1.06,.31),Vector3(.035,.7,.025),"f1e6c7")
+				continue
+			if z==4 and x in [4,5]:
+				if x==4:
+					kit.dining_table(p+Vector3(.5,0,0),Vector2(1.9,.85))
+					kit.stamp("box",p+Vector3(.25,.86,0),Vector3(.44,.025,.5),"f0e7cc")
+				continue
+			if z==7 and x in [0,9]: kit.furnishing(p,"plant"); continue
 		if i in ladders:
 			kit.ladder(p)
 			continue
 		if i in stairs:
-			var start_x=x; var end_x=x
-			while start_x>0 and z*width+start_x-1 in stairs: start_x-=1
-			while end_x<width-1 and z*width+end_x+1 in stairs: end_x+=1
-			kit.stair_tile(p,x-start_x,end_x-start_x+1,not i+width in stairs,not i-width in stairs)
-			terrain.set_meta("stair_count",int(terrain.get_meta("stair_count",0))+1)
 			continue
 		match kind:
+			"masonry":
+				kit.stamp("box",p+Vector3(0,.45,0),Vector3(1,.9,1),"plaster_c3cec5")
+				kit.stamp("softbox",p+Vector3(0,.93,0),Vector3(1.02,.1,1.02),"a39178")
 			"waterfall":
 				kit.stamp("box",p+Vector3(0,.7,-.3),Vector3(1.01,1.4,.13),"waterfall")
 				kit.stamp("ball",p+Vector3(0,.07,.1),Vector3(1,.12,.65),"b2dcd6")
@@ -263,6 +339,9 @@ func build_terrain(map_id: String):
 				kit.fence(p,connections)
 			"sign": kit.sign(p)
 			"wall":
+				# Front-wall center metatiles are a cutaway doorway, not a striped
+				# wallpaper cube standing in the opening.
+				if not outside and tile in [0x1a,0x1b,0x1c]: continue
 				var wall_height=.28 if z>height*.65 else 1.5
 				kit.stamp("box",p+Vector3(0,wall_height*.5,0),Vector3(1.01,wall_height,1),"wallpaper" if home else "plaster_c3cec5")
 				if home and wall_height>1.:
@@ -270,7 +349,9 @@ func build_terrain(map_id: String):
 					kit.stamp("box",p+Vector3(0,1.47,.51),Vector3(1.01,.09,.07),"wood_c5af86")
 					if tile in [0x29,0x2a]: kit.home_window(p+Vector3(0,.85,.53))
 			"furniture", "cabinet", "plant", "computer", "table", "bed", "chair":
-				if home and tile==0x35: kit.furnishing(p,"television",x+z,loaded)
+				if "MART" in loaded and kind in ["cabinet","furniture"]: kit.shop_shelf(p)
+				elif home and tile==0x35: kit.furnishing(p,"television",x+z,loaded)
+				elif home and kind=="furniture": kit.furnishing(p,"home_cabinet",x+z,loaded)
 				elif home and tile in [0x31,0x32,0x36,0x37]: kit.furnishing(p,"kitchen",tile,loaded)
 				else: kit.furnishing(p,kind,x+z,loaded)
 			"void": kit.stamp("box",p+Vector3(0,-.01,0),Vector3(1,.03,1),"404e4e")
@@ -282,32 +363,49 @@ func build_terrain(map_id: String):
 			if image==null: image=Image.load_from_file(room.image)
 			var x=i%width; var z=int(i/width)
 			var crop=image.get_region(Rect2i(x*16,z*16,16,16))
-			floor_art(Vector3(x+.5,.035,z+.5),ImageTexture.create_from_image(crop))
+			floor_art(Vector3(x+.5,.035,z+.5),ImageTexture.create_from_image(crop),terrain)
 	for b in meta.buildings:
 		var rect=Rect2(float(b[0]),float(b[1]),float(b[2]),float(b[3]))
 		var doors=room.warps.filter(func(d):return rect.grow(.5).has_point(Vector2(d.x,d.y)))
 		kit.building(rect,str(b[4]),str(b[5]),doors)
-	for tree in meta.get("trees",[]): kit.tree(Vector3(float(tree[0]),0,float(tree[1])),int(tree[0])+int(tree[1]),bool(tree[2]))
-	kit.flush(terrain)
+	for tree in meta.get("trees",[]):
+		kit.tree(Vector3(float(tree[0]),0,float(tree[1])),int(tree[0])+int(tree[1]),bool(tree[2]))
+		if cooperative and Time.get_ticks_usec()-slice_started>2500:
+			max_stream_slice_us=maxi(max_stream_slice_us,Time.get_ticks_usec()-slice_started)
+			await stream_step
+			if closing or not is_instance_valid(terrain) or terrain.get_meta("cancelled",false): return
+			slice_started=Time.get_ticks_usec()
+	for batch in kit.batches.keys():
+		kit.flush_batch(terrain,batch)
+		if cooperative and Time.get_ticks_usec()-slice_started>2500:
+			max_stream_slice_us=maxi(max_stream_slice_us,Time.get_ticks_usec()-slice_started)
+			await stream_step
+			if closing or not is_instance_valid(terrain) or terrain.get_meta("cancelled",false): return
+			slice_started=Time.get_ticks_usec()
 	# Entrances use a clear doorstep marker, matching the original warp tile exactly.
 	for door in room.warps:
 		if not outside:
-			if room.warps.any(func(other):return other.y==door.y and other.x==door.x-1 and other.dest_map==door.dest_map): continue
-			var span=1
-			while room.warps.any(func(other):return other.y==door.y and other.x==door.x+span and other.dest_map==door.dest_map): span+=1
-			var p=Vector3(float(door.x)+span*.5,.045,float(door.y)+.5)
-			if not int(door.y)*width+int(door.x) in stairs+ladders and not cave: kit.doorway(p,home,span)
-			kit.stamp("box",p,Vector3(.85,.04,.75),"b58d73")
-			for step in range(3): kit.stamp("box",p+Vector3(0,.035,step*.19-.2),Vector3(.64,.025,.045),"f0d8ac")
-	kit.flush(terrain)
+			if not w.center_door(door,map_id) or int(door.y)*width+int(door.x) in stairs+ladders or cave: continue
+			var p=Vector3(float(door.x)+.5,.045,float(door.y)+.5)
+			kit.doorway(p,not ("MART" in loaded or "POKEMON_CENTER" in loaded),.94)
+	for batch in kit.batches.keys():
+		kit.flush_batch(terrain,batch)
+		if cooperative and Time.get_ticks_usec()-slice_started>2500:
+			max_stream_slice_us=maxi(max_stream_slice_us,Time.get_ticks_usec()-slice_started)
+			await stream_step
+			if closing or not is_instance_valid(terrain) or terrain.get_meta("cancelled",false): return
+			slice_started=Time.get_ticks_usec()
 
-func floor_art(at: Vector3, texture: Texture2D):
+	terrain.set_meta("ready",true)
+
+func floor_art(at: Vector3, texture: Texture2D, target: Node3D=null):
+	if target==null: target=terrain
 	var plane=MeshInstance3D.new(); var mesh=PlaneMesh.new(); mesh.size=Vector2.ONE
 	var mat=StandardMaterial3D.new(); mat.albedo_texture=texture; mat.texture_filter=BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS; mat.roughness=.9
-	plane.mesh=mesh; plane.material_override=mat; plane.position=at; terrain.add_child(plane)
+	plane.mesh=mesh; plane.material_override=mat; plane.position=at; target.add_child(plane)
 
-func patch_plane(at: Vector3, path: String):
-	floor_art(at+Vector3(0,.04,0),ImageTexture.create_from_image(Image.load_from_file(path)))
+func patch_plane(at: Vector3, path: String, target: Node3D=null):
+	floor_art(at+Vector3(0,.04,0),ImageTexture.create_from_image(Image.load_from_file(path)),target)
 
 func ensure_actor(key: String, pos: Vector2, identity: String, look: Vector2, walking: bool=false, player: bool=false):
 	var config=a.avatar.config() if player else {"shirt":["739db5","b88284","8caa79","c7aa6d"][posmod(identity.hash(),4)],"pants":"596b7b","hair":"71513c"}
@@ -340,6 +438,12 @@ func sync_actors():
 	ensure_actor("player",a.position_world,"player",w.heading,w.stepping or (w.scenes.active and not w.scenes.sequence.is_empty() and w.scenes.sequence[w.scenes.index].has("player_from")),true)
 	for npc in w.actors():
 		var identity=str(npc.get("graphics_id","")); var key=str(npc.get("script",identity))+str(npc.get("local_id",""))
+		if identity.contains("TOWN_MAP"):
+			alive[key]=true
+			if not actors.has(key):
+				var node=Node3D.new(); people.add_child(node); actors[key]=node; kit.town_map(node)
+			actors[key].position=Vector3(npc.pos.x/w.TILE,0,npc.pos.y/w.TILE)
+			continue
 		if identity.contains("METEORITE"):
 			key+="_"+str(a.postgame.state().triangle); alive[key]=true
 			if not actors.has(key):
@@ -369,7 +473,7 @@ func sync_actors():
 					kit.shape(node,"box",Vector3(.11,1,.2),Vector3(.12,.015,.03),"344752")
 					kit.shape(node,"box",Vector3(.11,1,.2),Vector3(.03,.015,.12),"344752")
 				elif identity.contains("ITEM_BALL"):
-					kit.pokeball(Vector3(0,.22,0)); kit.flush(node)
+					kit.pokeball(Vector3(0,1.07 if "OAKS_LAB" in loaded else .22,0),.36); kit.flush(node)
 				else:
 					kit.shape(node,"rock",Vector3(0,.19,0),Vector3(.55,.32,.48),"c4a173" if not identity.contains("AMBER") else "d79947")
 					for mark in 14:
@@ -387,10 +491,12 @@ func sync_actors():
 				if original.get("local_id","")==npc[3]: identity=str(original.graphics_id); break
 		ensure_actor(key,npc[0],identity,Vector2.DOWN)
 		if w.can_talk(npc[0]): labels.append([npc[0],a.c.controls.text("interact")+" / "+str(npc[1])])
-	if w.scenes.active and w.scenes.actor.get("key","")=="scene_blue":
-		alive.scene_blue=true; ensure_actor("scene_blue",w.scenes.positions.scene_blue,"blue",w.scenes.actor.get("look",Vector2.RIGHT),w.scenes.actor.get("walking",false))
-	if w.scenes.active and w.scenes.actor.get("key","")=="scene_oak":
-		alive.scene_oak=true; ensure_actor("scene_oak",w.scenes.positions.scene_oak,"prof_oak",Vector2.DOWN,w.scenes.actor.get("walking",false))
+	if w.scenes.active:
+		for key in ["scene_blue","scene_oak"]:
+			if not w.scenes.positions.has(key): continue
+			var moving=w.scenes.actor.get("key","")==key
+			alive[key]=true
+			ensure_actor(key,w.scenes.positions[key],"blue" if key=="scene_blue" else "prof_oak",w.scenes.actor.get("look",Vector2.DOWN) if moving else Vector2.ZERO,moving and w.scenes.actor.get("walking",false))
 	for key in actors.keys():
 		if not alive.has(key): actors[key].free(); actors.erase(key)
 

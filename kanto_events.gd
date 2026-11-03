@@ -212,7 +212,7 @@ func interact() -> bool:
 	var nearby=[]
 	for sign in w.room().signs:
 		var script=str(sign.get("script",""))
-		if "_Poster" in script or "TrashCan" in script or "_Quiz" in script or "_Statue" in script or (str(w.room().name).begins_with("SilphCo_") and "_Door" in script): nearby.append({"pos":point(sign),"kind":"sign","data":sign})
+		if script!="": nearby.append({"pos":point(sign),"kind":"sign","data":sign})
 	for item in catalog[w.current].items:
 		if not done(w.current+"item"+str(item.id)): nearby.append({"pos":point(item),"kind":"item","data":item})
 	for rock in rocks(): nearby.append({"pos":point(rock),"kind":"rock","data":rock})
@@ -234,18 +234,21 @@ func interact() -> bool:
 			else: a.dialog="A small tree blocks the way. Obtain Cut Shears from the Captain and the Cascade Badge."
 		"sign":
 			var script=str(o.script)
-			if "_Poster" in script:
+			if "_Poster" in script and w.current=="MAP_CELADON_CITY_GAME_CORNER":
 				finish("poster"); refresh(); a.dialog="A hidden switch! Stairs to the Rocket Hideout appear."; a.save()
-			elif "TrashCan" in script: trash(int(script.split("TrashCan")[1]))
-			elif "_Quiz" in script: quiz(int(script.split("_Quiz")[1].left(1)))
-			elif "_Statue" in script:
+			elif "TrashCan" in script and w.current=="MAP_VERMILION_CITY_GYM": trash(int(script.split("TrashCan")[1]))
+			elif "_Quiz" in script and w.current=="MAP_CINNABAR_ISLAND_GYM": quiz(int(script.split("_Quiz")[1].left(1)))
+			elif "_Statue" in script and w.current.begins_with("MAP_POKEMON_MANSION"):
 				state().mansion=not state().mansion; a.Finale.state(a)["mansion_switch"]=true
 				refresh(); a.dialog="The statue's eyes change. Some doors open; others close."; a.save()
-			elif "_Door" in script:
+			elif "_Door" in script and w.current.begins_with("MAP_SILPH_CO_"):
 				if not a.Finale.has(a,"card_key"): a.dialog="Locked. Find the Card Key on Silph Co. 5F."
 				else:
 					finish(w.current+"EventScript_Close"+str(w.room().name).trim_prefix("SilphCo_")+"Door"+script.split("_Door")[1])
 					refresh(); a.dialog="Card Key accepted. Door unlocked."; a.save()
+			else:
+				var text=w.scenes.npc_text(o)
+				a.show_dialogue(text if text!="" else "The lettering is worn, but the path ahead is clearly marked.")
 	return true
 
 func draw():
@@ -297,7 +300,7 @@ func allow_door(destination: String) -> bool:
 	var story_gate=a.progression.gate(destination)
 	if story_gate!="": a.dialog=story_gate; return false
 	if w.current=="MAP_VIRIDIAN_CITY" and destination=="MAP_ROUTE2" and not done("trainer:Route22_EarlyRival"):
-		a.dialog="Before heading north, meet Blue on Route 22, west of Viridian, and win your second rival battle."; a.c.click_move=false; return false
+		a.dialog="Excuse me! I dropped something along this path. Could you give me a moment to find it?"; a.c.click_move=false; return false
 	if destination=="MAP_ROUTE23" and not badge_owned("Boulder"):
 		a.dialog="LEAGUE GUARD: You need the Boulder Badge to pass."; return false
 	if destination in ["MAP_VICTORY_ROAD_1F","MAP_INDIGO_PLATEAU_EXTERIOR"]:

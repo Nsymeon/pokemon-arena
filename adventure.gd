@@ -24,6 +24,8 @@ var evolution_rules=preload("res://adventure_evolutions.gd").new()
 var services=preload("res://adventure_services.gd").new()
 var field=preload("res://adventure_field.gd").new()
 var avatar=preload("res://adventure_avatar.gd").new()
+var breeding=preload("res://adventure_breeding.gd").new()
+var npc_scripts=preload("res://adventure_npc_scripts.gd").new()
 var experience=preload("res://adventure_experience.gd").new()
 var world=preload("res://kanto_world.gd").new()
 var inventory = preload("res://adventure_inventory.gd").new()
@@ -71,6 +73,8 @@ func install(context):
 	postgame.a = self
 	evolution_rules.a=self
 	avatar.a = self
+	breeding.a=self; breeding.random.randomize()
+	npc_scripts.a=self
 	world.install(self)
 	inventory.install(self)
 	font = ThemeDB.fallback_font
@@ -94,6 +98,7 @@ func valid(value) -> bool:
 			if not (e.get(axis) is float or e.get(axis) is int) or not is_finite(e[axis]): return false
 		if e.x<0 or e.y<0 or e.x>=world.maps[e.map].width*world.TILE or e.y>=world.maps[e.map].height*world.TILE: return false
 	if value is Dictionary and value.has("avatar") and not avatar.valid(value.avatar): return false
+	if value is Dictionary and value.has("player_name") and (not value.player_name is String or value.player_name.length()>12 or "\n" in value.player_name): return false
 	if value is Dictionary and not world.events.valid(value): return false
 	if not value is Dictionary or value.get("version",0) != 1: return false
 	for key in ["map","starter","balls","money","healing_map"]:
@@ -129,7 +134,7 @@ func valid(value) -> bool:
 	if not Finale.valid(value): return false
 	for member in value.get("hall_of_fame",[]):
 		if not c.roster.any(func(mon):return int(mon.id)==int(member.id)): return false
-	return postgame.valid(value) and expansion.valid(value) and collection.valid(value) and inventory.valid(value) and extras.valid(value) and Story.valid(value) and services.valid(value)
+	return breeding.valid(value) and postgame.valid(value) and expansion.valid(value) and collection.valid(value) and inventory.valid(value) and extras.valid(value) and Story.valid(value) and services.valid(value)
 
 func load_save():
 	loaded = true
@@ -341,6 +346,7 @@ func travel(step: int):
 	save()
 
 func handle_input(event):
+	if breeding.hatching: return
 	if world.enabled and world.scenes.active:
 		if (event is InputEventKey or event is InputEventMouseButton) and event.pressed:
 			if event is InputEventKey and event.echo: return
@@ -425,6 +431,7 @@ func new_mon(id: int, level: int) -> Dictionary:
 	c.abilities.assign(mon,true)
 	c.ivs.assign(mon)
 	collection.assign(mon,true)
+	c.forms.assign(mon,true)
 	return mon
 
 func choose_starter(id: int):
@@ -434,14 +441,15 @@ func choose_starter(id: int):
 	clear_ui()
 	dialog = "Oak: " + mon_name(id) + " is your partner!"
 	save()
-	if world.enabled and world.current=="MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB": world.scenes.starter_battle()
+	if world.enabled and world.current=="MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB":
+		world.scenes.play([{"text":"OAK: "+mon_name(id)+" is your partner! Take good care of it.","duration":2.4},{"text":"BLUE: Then I'll take "+mon_name(world.scenes.rival_starter())+"!","duration":2.3}])
 
 func mon_name(id: int) -> String:
 	return c.roster[c.Dex.find_id(c.roster,id)].name
 
 func heal():
 	for mon in data.party:
-		mon.hp = 1.0
+		mon.hp = 0.0 if mon.get("is_egg",false) else 1.0
 		mon.ailment = ""
 	if data.map in Kanto.HEALING_MAPS: data.healing_map = int(data.map)
 	progression.remember_heal()
@@ -451,6 +459,9 @@ func heal():
 func battle_mon(id: int, level: int, individual: Dictionary={}) -> Dictionary:
 	if in_battle and encounter.get("kind","")=="post_tower": level=50
 	var mon: Dictionary = c.roster[c.Dex.find_id(c.roster,id)].duplicate(true)
+	var form_source=individual.duplicate(true)
+	c.forms.assign(form_source if form_source.has("id") else mon,individual.is_empty())
+	c.forms.apply(mon,int(form_source.get("form",mon.get("form",c.forms.default_form(id)))))
 	var values=individual.get("ivs",{})
 	if values.is_empty(): values=c.ivs.roll() if individual.is_empty() else c.ivs.uniform(0)
 	mon["ivs"]=values.duplicate(true)
@@ -466,7 +477,7 @@ func battle_mon(id: int, level: int, individual: Dictionary={}) -> Dictionary:
 	for stat in collection.ORDER: mon.base_stats[stat]=roundf(mon.base_stats[stat]*collection.factor(mon.nature,stat))
 	mon.speed*=collection.factor(mon.nature,"spe")
 	if individual.has("nickname"): mon.name=individual.nickname
-	for key in ["shiny","ability_slot","gender","held_item"]:
+	for key in ["shiny","ability_slot","gender","held_item","is_egg"]:
 		if individual.has(key): mon[key]=individual[key]
 	c.abilities.assign(mon,individual.is_empty())
 	return mon
@@ -584,7 +595,8 @@ func return_world(caught: bool = false, escaped: bool = false, roamer_escaped: b
 		var capture_xp=experience.reward(int(encounter.ids[c.enemy_active]),int(encounter.levels[c.enemy_active]),encounter.kind!="wild")
 		var xp_message=grant_xp(capture_xp)
 		var mon = new_mon(int(encounter.ids[c.enemy_active]),int(encounter.levels[c.enemy_active]))
-		for key in ["shiny","ability_slot","gender"]: mon[key]=c.enemy.data.get(key, false if key=="shiny" else "N" if key=="gender" else 0)
+		for key in ["shiny","ability_slot","gender","form"]: mon[key]=c.enemy.data.get(key, false if key=="shiny" else "N" if key=="gender" else 0)
+		mon.form=0 if mon.id==351 else clampi(int(mon.form),0,c.forms.count(int(mon.id))-1)
 		mon.ivs=c.enemy.data.ivs.duplicate(true)
 		mon.nature=c.enemy.data.get("nature","Hardy")
 		c.abilities.assign(mon)
@@ -623,7 +635,7 @@ func return_world(caught: bool = false, escaped: bool = false, roamer_escaped: b
 	if blackout_loss>=0 and world.enabled:
 		clear_ui(); modal="BLACKOUT"; dialog=""
 		blackout_scene=preload("res://adventure_blackout.gd").new(); ui.add_child(blackout_scene); blackout_scene.setup(self,blackout_loss)
-	elif not new_entry.is_empty(): collection.dex_entry(int(new_entry.id),bool(new_entry.get("shiny",false)),true)
+	elif not new_entry.is_empty(): collection.dex_entry(int(new_entry.id),bool(new_entry.get("shiny",false)),true,int(new_entry.get("form",0)))
 	elif not evolutions.is_empty(): show_evolution()
 	if world.enabled: progression.after_battle(str(encounter.kind),win and not escaped)
 	save()
@@ -744,6 +756,8 @@ func party_menu():
 	panel("YOUR TEAM / choose a lead Pokemon",menu)
 	for i in range(data.party.size()):
 		var mon = data.party[i]
+		if mon.get("is_egg",false):
+			ui_button("EGG\nWalk together to help it hatch",Vector2(180,230+i*66),Vector2(680,54),breeding.egg_summary.bind("party",i)); continue
 		ui_button("%s\nLv.%d  / HP %d%% / XP %d%s" % [mon_name(mon.id)+(" *" if mon.get("shiny",false) else "")+" / "+c.abilities.legal(mon.id)[int(mon.get("ability_slot",0))%c.abilities.legal(mon.id).size()],mon.level,roundi(mon.hp*100),mon.xp," / LEAD" if i==0 else ""],Vector2(180,230+i*66),Vector2(680,54),set_lead.bind(i))
 	ui_button("SUMMARY / IVs / EVs",Vector2(890,470),Vector2(210,55),collection.members)
 	ui_button("POKEDEX",Vector2(890,550),Vector2(210,55),collection.dex)
@@ -752,6 +766,7 @@ func party_menu():
 	ui_button("STORAGE (%d)" % data.storage.size(),Vector2(890,230),Vector2(210,55),storage_menu)
 
 func set_lead(slot):
+	if data.party[slot].get("is_egg",false): breeding.egg_summary("party",slot); return
 	var first = data.party[0]
 	data.party[0] = data.party[slot]
 	data.party[slot] = first
@@ -1046,7 +1061,7 @@ func tests():
 	dialog = ""
 
 func show_dialogue(text: String):
-	text=text.replace("{PLAYER}","TRAINER").replace("{RIVAL}","BLUE").replace("{POKEBLOCK}","POKEBLOCK")
+	text=text.replace("{PLAYER}",str(data.get("player_name","RED"))).replace("{RIVAL}","BLUE").replace("{POKEBLOCK}","POKEBLOCK")
 	var pages=[]
 	for paragraph in text.split("\n\n"):
 		var lines=wrapped(paragraph.replace("\n"," ")).split("\n")

@@ -132,8 +132,13 @@ func trapped(f,other) -> bool:
 
 func tick(f,dt):
 	if f.hp<=0: return
-	if name_of(f)=="Forecast": f["forecast_types"]=[{"sun":"Fire","rain":"Water","hail":"Ice"}.get(c.weather.kind,"Normal")]
-	else: f.erase("forecast_types")
+	if name_of(f)=="Forecast":
+		var weather="" if c.weather.suppressed else c.weather.kind
+		f["forecast_types"]=[{"sun":"Fire","rain":"Water","hail":"Ice"}.get(weather,"Normal")]
+		if int(f.data.id)==351: f.data.form={"sun":1,"rain":2,"hail":3}.get(weather,0)
+	else:
+		f.erase("forecast_types")
+		if int(f.data.id)==351: f.data.form=0
 	f["ability_clock"]=f.get("ability_clock",0.0)+dt
 	while f.ability_clock>=5:
 		f.ability_clock-=5

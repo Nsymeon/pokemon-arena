@@ -9,16 +9,18 @@ var search=""
 var shiny_only=false
 
 func full_picture(mon) -> Texture2D:
-	var library=a.c.art.shiny_library if mon.get("shiny",false) else a.c.art.library
-	var animation=library.get(int(mon.id),{}).get("Idle",{})
+	if mon.get("is_egg",false): return a.breeding.picture()
+	var animation=a.c.art.entry_for(mon).get("Idle",{})
 	if animation.is_empty(): return a.c.portrait(mon)
 	var picture=AtlasTexture.new(); picture.atlas=animation.texture
 	picture.region=Rect2(0,0,int(animation.width),int(animation.height))
 	return picture
 
 func assign(mon, fresh=false):
+	if not mon.has("ot"): mon["ot"]=str(a.data.get("trainer_id","player"))
 	if not mon.has("friendship"): mon.friendship=70
 	if not mon.has("personality"): mon.personality=a.c.ivs.random.randi_range(0,2147483647)
+	a.c.forms.assign(mon,fresh)
 	if not mon.has("nature"): mon["nature"]=NAMES[a.c.ivs.random.randi_range(0,24)] if fresh else "Hardy"
 	if not mon.has("box"): mon["box"]=0
 
@@ -39,14 +41,19 @@ func owned() -> Array:
 	var result=a.data.party+a.data.storage
 	var care=a.data.get("services",{}).get("daycare",{})
 	if not care.is_empty(): result.append(care.mon)
+	for entry in a.data.get("breeding",{}).get("parents",[]): result.append(entry.mon)
 	return result
 
 func register(mon,caught=true):
+	if mon.get("is_egg",false): return
 	if not a.data.has("pokedex"): a.data["pokedex"]={}
 	var key=str(int(mon.id)); var entry=a.data.pokedex.get(key,{"seen":false,"caught":false,"shiny":false})
 	entry.seen=true
 	entry.caught=entry.caught or caught
 	entry.shiny=entry.shiny or bool(mon.get("shiny",false))
+	if not entry.has("forms"): entry["forms"]=[]
+	var form=int(mon.get("form",a.c.forms.default_form(int(mon.id))))
+	if caught and form not in entry.forms: entry.forms.append(form)
 	a.data.pokedex[key]=entry
 
 func sync():
@@ -57,6 +64,7 @@ func sync():
 
 func valid(data) -> bool:
 	for mon in data.get("party",[])+data.get("storage",[]):
+		if mon.has("form") and (not (mon.form is int or mon.form is float) or mon.form!=int(mon.form) or mon.form<0 or mon.form>=a.c.forms.count(int(mon.id))): return false
 		if mon.has("nature") and mon.nature not in NAMES: return false
 		if mon.has("nickname") and (not mon.nickname is String or mon.nickname.length()>16 or "\n" in mon.nickname): return false
 		if mon.has("box") and (not (mon.box is int or mon.box is float) or mon.box!=int(mon.box) or mon.box<0 or mon.box>9): return false
@@ -71,6 +79,7 @@ func valid(data) -> bool:
 	return true
 
 func title(mon) -> String:
+	if mon.get("is_egg",false): return "Egg"
 	return (str(mon.nickname)+" / " if mon.has("nickname") else "")+a.mon_name(mon.id)+(" *" if mon.get("shiny",false) else "")
 
 func members():
@@ -80,12 +89,14 @@ func members():
 		a.inventory.row(list,title(mon)+" Lv."+str(mon.level),summary.bind("party",i))
 
 func summary(group,slot):
+	if slot>=0 and slot<a.data[group].size() and a.data[group][slot].get("is_egg",false): a.breeding.egg_summary(group,slot); return
 	if slot<0 or slot>=a.data[group].size(): return
 	var mon=a.data[group][slot]; assign(mon)
 	var battle=a.battle_mon(mon.id,mon.level,mon)
 	var list=a.inventory.page(title(mon)+" / Lv."+str(mon.level),members if group=="party" else pc)
 	var face=TextureRect.new(); face.texture=a.c.portrait(battle); face.expand_mode=TextureRect.EXPAND_IGNORE_SIZE; face.stretch_mode=TextureRect.STRETCH_KEEP_ASPECT_CENTERED; face.custom_minimum_size=Vector2(130,120); list.add_child(face)
 	a.inventory.row(list,"TYPE "+" / ".join(battle.types)+" | "+nature_text(mon),func():pass,true)
+	if a.c.forms.count(int(mon.id))>1: a.inventory.row(list,"FORM / "+a.c.forms.label(int(mon.id),int(mon.get("form",a.c.forms.default_form(int(mon.id))))),func():pass,true)
 	a.inventory.row(list,"HP %d/%d | EXP %d/%d | %s" % [roundi(mon.hp*battle.hp),int(battle.hp),mon.xp,a.xp_needed(mon),str(mon.get("ailment","")).to_upper()],func():pass,true)
 	a.inventory.row(list,"ATK %d  DEF %d  SPA %d  SPD %d  SPE %d" % [battle.base_stats.atk,battle.base_stats.def,battle.base_stats.spa,battle.base_stats.spd,battle.base_stats.spe],func():pass,true)
 	a.inventory.row(list,a.c.ivs.summary(mon),func():pass,true)
@@ -187,9 +198,10 @@ func dex():
 		var entry=a.data.pokedex.get(str(int(mon.id)),{})
 		a.inventory.row(list,"#%03d  %s  %s" % [mon.id,mon.name if entry.get("seen",false) else "???","CAUGHT" if entry.get("caught",false) else "SEEN" if entry.get("seen",false) else ""],dex_entry.bind(int(mon.id),false),not entry.get("seen",false))
 
-func dex_entry(id,shiny=false,first_capture=false):
+func dex_entry(id,shiny=false,first_capture=false,form=-1):
 	var back=a.finish_capture_entry if first_capture else dex
 	var mon=a.c.roster[a.c.Dex.find_id(a.c.roster,id)].duplicate(true); mon["shiny"]=shiny
+	mon["form"]=a.c.forms.default_form(id) if form<0 else form
 	var list=a.inventory.page(("NEW POKEDEX ENTRY / " if first_capture else "")+"#%03d / %s / %s" % [id,mon.name," / ".join(mon.types)],back)
 	var face=TextureRect.new(); face.texture=full_picture(mon); face.expand_mode=TextureRect.EXPAND_IGNORE_SIZE; face.stretch_mode=TextureRect.STRETCH_KEEP_ASPECT_CENTERED; face.custom_minimum_size=Vector2(240,210); list.add_child(face)
 	var entry=entries.get(str(int(id)),{})
@@ -203,7 +215,9 @@ func dex_entry(id,shiny=false,first_capture=false):
 		a.dialog=""
 		return
 	a.inventory.row(list,"PLAY CRY",a.c.audio.cry.bind(id))
-	if a.data.pokedex[str(id)].shiny: a.inventory.row(list,"SHOW NORMAL" if shiny else "SHOW SHINY",dex_entry.bind(id,not shiny))
+	if a.data.pokedex[str(id)].shiny: a.inventory.row(list,"SHOW NORMAL" if shiny else "SHOW SHINY",dex_entry.bind(id,not shiny,false,mon.form))
+	if a.c.forms.count(id)>1:
+		for known in a.data.pokedex[str(id)].get("forms",[]): a.inventory.row(list,"FORM / "+a.c.forms.label(id,int(known)),dex_entry.bind(id,shiny,false,int(known)),int(known)==int(mon.form))
 	if a.EVOLUTIONS.has(id): a.inventory.row(list,"EVOLUTION: Lv.%d -> %s" % [a.EVOLUTIONS[id][0],a.mon_name(a.EVOLUTIONS[id][1])],func():pass,true)
 	var trades={64:65,67:68,75:76,93:94}
 	if trades.has(id): a.inventory.row(list,"EVOLUTION: Link Cable -> "+a.mon_name(trades[id]),func():pass,true)
@@ -264,6 +278,7 @@ func tests():
 
 func held_menu(group,slot):
 	if a.in_battle or slot<0 or slot>=a.data[group].size(): return
+	if a.data[group][slot].get("is_egg",false): a.breeding.egg_summary(group,slot); return
 	var mon=a.data[group][slot]; var list=a.inventory.page("HELD ITEM / "+title(mon),summary.bind(group,slot))
 	if mon.get("held_item","")!="": a.inventory.row(list,"TAKE "+str(mon.held_item),equip.bind(group,slot,""))
 	for id in a.extras.HELD:
@@ -272,6 +287,7 @@ func equip(group,slot,id):
 	if a.in_battle or group not in ["party","storage"] or slot<0 or slot>=a.data[group].size(): return
 	if id!="" and (id not in a.extras.HELD or int(a.data.bag.get(id,0))<1): return
 	var mon=a.data[group][slot]; var previous=str(mon.get("held_item",""))
+	if mon.get("is_egg",false): return
 	if previous==id or previous!="" and int(a.data.bag.get(previous,0))>=999: return
 	if previous!="": a.data.bag[previous]=int(a.data.bag.get(previous,0))+1
 	if id!="": a.data.bag[id]=int(a.data.bag[id])-1
