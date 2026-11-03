@@ -6,7 +6,11 @@ Godot 4.3 desktop arena prototype with a Kanto/Sevii Adventure. The current rost
 
 [Download the latest tested build](https://github.com/Nsymeon/pokemon-arena/releases/latest). Choose PokemonArena-Windows.zip, extract the entire ZIP and run PLAY.bat. No Godot installation is needed. CHECK-FOR-UPDATES.bat opens the same page for future updates. Single-player against AI.
 
-## Latest: interiors, opening story, breeding and forms
+## Latest: daily team coverage and shorter Surf
+
+Daily teams now have reviewed legal movesets and two separate super-effective answers to every opposing Pokemon, with at least eight offensive move types across the team. They remain random and identical for the same UTC date. Daily move edits are separate from Free Battles. Existing daily saves upgrade without losing today's earned badges. Surf travels about 15% less distance. See [coverage rules and validation](docs/daily-coverage-update.md).
+
+## Interiors, opening story, breeding and forms
 
 Cleaner rugs, one staircase per entrance, center-only indoor exits, furnished marts, a proper Viridian School blackboard and a visible Town Map. New adventures begin at home with a name and avatar, Mom's introduction, Oak's rescue, individually inspectable starter balls, Blue's exit challenge and a shared Pokedex handoff. Additional NPC gifts/services, two-parent Four Island breeding and Eggs, Unown/Deoxys form selection and weather-driven Castform are included. Neighboring maps and nearby interiors preload incrementally. Existing saves remain compatible; a fresh slot shows the revised opening. See [rules, validation and remaining limits](docs/rooms-story-breeding-update.md).
 

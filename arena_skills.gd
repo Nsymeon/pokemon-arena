@@ -5,6 +5,8 @@ var areas = preload("res://area_skills.gd").new()
 const BEAMS = ["solarbeam", "hyperbeam", "icebeam", "aurorabeam", "hydropump", "flamethrower"]
 const RUSHES = ["quickattack", "extremespeed", "aquajet"]
 const SEEKERS = ["aurasphere", "swift", "magicalleaf", "shockwave", "disarmingvoice", "clearsmog", "magnetbomb"]
+const SURF_SPEED=620.0
+const SURF_RANGE=760.0
 
 func homing(move: Dictionary) -> bool:
 	return move.get("id", "") in SEEKERS
@@ -90,7 +92,7 @@ func description(move) -> String:
 	if move.id == "flamethrower": return "FLAME CONE"
 	if move.id == "rockslide": return "FALLING ROCKS"
 	if move.id == "hurricane": return "WIND VORTEX"
-	if move.id == "surf": return "RIDE WAVE"
+	if move.id == "surf": return "RIDE WAVE / "+str(int(SURF_RANGE))
 	if move.id in ["thunderbolt", "thunder"]: return "AIM CIRCLE"
 	if move.id == "earthquake": return "SHOCKWAVE / ARENA WIDTH 1/5"
 	if move.id == "whirlpool": return "PULL VORTEX / WIDTH 1/6"
@@ -116,11 +118,11 @@ func launch(c, user, target, move, direction, friendly) -> bool:
 		point += (aim_point - point).limit_length(850)
 		point = point.clamp(Vector2(23, 23), c.FIELD.end - Vector2(23, 23))
 	var delay = 0.75 if kind in ["lightning", "rocks", "vortex", "psychic"] else 0.3 if kind == "quake" else 0.0
-	var duration = 1.45 if kind == "wave" else delay + 0.55
+	var duration = SURF_RANGE/SURF_SPEED if kind == "wave" else delay + 0.55
 	if kind == "beam": duration = 1.35
 	var radius = c.balance.bounds(c).size.x/5.0 if kind=="quake" else 110.0 if kind in ["lightning","rocks","vortex","psychic"] else 310.0
 	if kind=="quake": duration = delay+radius/900.0+0.3
-	c.shots.append({"skill": kind, "scale": move.get("area_scale", 1.0), "pos": point, "origin": user.pos, "dir": direction.normalized(), "vel": direction * 620, "age": 0.0, "life": duration, "duration": duration, "delay": delay, "damage": move.damage, "radius": radius, "friendly": friendly, "owner": user, "attack_snapshot": user.duplicate(true), "color": c.Dex.color(move.type), "move": move.duplicate(true), "hit_done": false, "rocks_hit": []})
+	c.shots.append({"skill": kind, "scale": move.get("area_scale", 1.0), "pos": point, "origin": user.pos, "dir": direction.normalized(), "vel": direction.normalized() * SURF_SPEED, "age": 0.0, "life": duration, "duration": duration, "delay": delay, "damage": move.damage, "radius": radius, "friendly": friendly, "owner": user, "attack_snapshot": user.duplicate(true), "color": c.Dex.color(move.type), "move": move.duplicate(true), "hit_done": false, "rocks_hit": []})
 	return true
 
 func riding(c, fighter) -> bool:
@@ -134,12 +136,13 @@ func tick(c, s, dt):
 	if s.skill == "rush":
 		tick_rush(c, s, dt)
 		return
-	s.age += dt
+	var travel_dt=minf(dt,s.life) if s.skill=="wave" else dt
+	s.age += travel_dt
 	s.life -= dt
 	var target = c.shot_target(s)
 	var old: Vector2 = s.pos
 	if s.skill == "wave":
-		s.pos += s.vel * dt
+		s.pos = s.origin+s.dir*minf(SURF_RANGE,s.age*SURF_SPEED)
 		if s.owner.hp > 0 and c.result == "":
 			c.move_fighter(s.owner, s.pos - s.owner.pos)
 		if not c.FIELD.grow(100).has_point(s.pos): s.life = 0

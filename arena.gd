@@ -853,7 +853,7 @@ func update_ai(dt: float):
 				continue
 			var score = Dex.effectiveness(move.type, Conditions.types(player)) * (1.5 if move.type in Conditions.types(enemy) else 1.0)
 			if move.kind == "dash" and distance > (420 if move.id == "extremespeed" else 320 if move.id in skills.RUSHES else 200): continue
-			if move.kind == "pulse" and distance > (800 if move.id in ["surf", "rockslide"] else 310 if move.id == "earthquake" else 175): continue
+			if move.kind == "pulse" and distance > (skills.SURF_RANGE if move.id=="surf" else 800 if move.id=="rockslide" else 310 if move.id == "earthquake" else 175): continue
 			if move.kind == "transform": score = 10.0
 			if weather.MOVES.has(move.id): score = 2.2 if weather.kind != weather.MOVES[move.id] else -1.0
 			if move.kind == "status": score = 1.6 if distance < 260 and (move.get("status", "") == "" or player.ailment == "") else -1.0

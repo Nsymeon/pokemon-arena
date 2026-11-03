@@ -22,8 +22,11 @@ var day_override=""
 func refresh_day():
 	if not daily_enabled: return
 	var day=day_override if day_override!="" else daily.today()
-	if data.get("day","")==day: return
-	data={"version":1,"day":day,"cleared":0,"team":daily.team(day),"champion_team":[]}
+	if data.get("day","")==day:
+		if int(data.get("team_rules",1))==daily.TEAM_RULES: return
+		# Upgrade today's roster without removing badges already earned today.
+		data.team=daily.team(day); data["team_rules"]=daily.TEAM_RULES; save(); return
+	data={"version":1,"day":day,"team_rules":daily.TEAM_RULES,"cleared":0,"team":daily.team(day),"champion_team":[]}
 	stage=0; recorded=false
 	save()
 
@@ -35,6 +38,9 @@ func valid(value, ids: Array) -> bool:
 	if value.get("version",0) != 1: return false
 	if value.has("day"):
 		if not daily.valid_day(value.day): return false
+		if not (value.get("team_rules",1) is int or value.get("team_rules",1) is float): return false
+		var rules=value.get("team_rules",1)
+		if rules!=int(rules) or int(rules) not in [1,2]: return false
 	var cleared = value.get("cleared",-1)
 	if not (cleared is float or cleared is int) or cleared != int(cleared) or cleared < 0 or cleared > 13: return false
 	for key in ["team","champion_team"]:
@@ -42,7 +48,7 @@ func valid(value, ids: Array) -> bool:
 		if not team is Array or (team.size() != 6 and not (key == "champion_team" and team.is_empty())): return false
 		for id in team:
 			if not (id is int or id is float) or id != int(id) or int(id) not in ids: return false
-	if value.has("day") and value.team.map(func(id):return int(id))!=daily.team(value.day): return false
+	if value.has("day") and value.team.map(func(id):return int(id))!=daily.team(value.day,int(value.get("team_rules",1))): return false
 	return true
 
 func read_progress(ids: Array):
@@ -182,7 +188,7 @@ func show_hub():
 		text(" / ".join(names.slice(0,3))+"\n"+" / ".join(names.slice(3)),Vector2(680,555),18)
 	else:
 		text("Next opponent: " + NAMES[int(data.cleared)],Vector2(680,530),24)
-		text("Your six Pokemon change daily.\nOpponents keep their fixed six-Pokemon teams.\nLv.50 / locked Hardy nature and ability. No held items." if daily_enabled else "Build your team before each match.\nTeam heals between trainers.\nLosses keep your earned badges.",Vector2(680,580),18)
+		text("Daily team with coverage for every opponent.\nOpponents keep their fixed six-Pokemon teams.\nLv.50 / locked Hardy nature and ability. No held items.\nYou can customize your daily moves before fighting." if daily_enabled else "Build your team before each match.\nTeam heals between trainers.\nLosses keep your earned badges.",Vector2(680,580),18)
 	button("CONTINUE LEAGUE" if data.cleared < 13 else "REMATCH CHAMPION",Vector2(60,700),Vector2(540,60),choose.bind(mini(12,int(data.cleared))))
 	button("FREE BATTLE",Vector2(680,700),Vector2(540,60),free_battle)
 	text("TEAM / "+" / ".join(data.team.map(func(id):return c.adventure.mon_name(id))),Vector2(60,780),17)

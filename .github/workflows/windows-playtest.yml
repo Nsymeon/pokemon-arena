@@ -55,6 +55,10 @@ jobs:
           $code = $LASTEXITCODE
           $national | Write-Output
           if ($code -ne 0 -or ($national -match 'SCRIPT ERROR|ERROR:') -or -not ($national -match 'NATIONAL UPDATE: PASS')) { throw 'National update checks failed' }
+          $daily = & "$env:RUNNER_TEMP/godot/Godot_v4.3-stable_win64_console.exe" --headless --path . --script tools/check-daily-coverage.gd -- --qa-daily 2>&1
+          $dailyCode = $LASTEXITCODE
+          $daily | Write-Output
+          if ($dailyCode -ne 0 -or ($daily -match 'SCRIPT ERROR|ERROR:') -or -not ($daily -match 'DAILY COVERAGE CHECK: \[\]')) { throw 'Daily coverage or Surf checks failed' }
       - name: Opening story and breeding regression
         shell: pwsh
         run: |

@@ -18,11 +18,12 @@ func install(context):
 		if saved is Dictionary: choices = saved
 
 func identity(mon, friendly: bool, slot: int) -> String:
+	if c.campaign.daily.locked(c): return "daily:%s:%s:%d:%d" % [c.campaign.data.get("day",""),"you" if friendly else "cpu",slot,mon.id]
 	return "%s:%d:%d" % ["you" if friendly else "cpu",slot,mon.id]
 
 func configured(mon, friendly: bool, slot: int) -> Dictionary:
 	var result = c.ivs.configured(c.abilities.configured(c.forms.configured(mon,friendly,slot),friendly,slot),friendly,slot)
-	if c.campaign.daily.locked(c): result=c.campaign.daily.member(c,int(mon.id))
+	if c.campaign.daily.locked(c): result=c.campaign.daily.player_member(c,int(mon.id)) if friendly else c.campaign.daily.member(c,int(mon.id))
 	var ids = choices.get(identity(mon,friendly,slot),[])
 	if not ids is Array or ids.size()!=4: return result
 	var seen = []
