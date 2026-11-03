@@ -6,7 +6,13 @@ Godot 4.3 desktop arena prototype with a Kanto/Sevii Adventure. The current rost
 
 [Download the latest tested build](https://github.com/Nsymeon/pokemon-arena/releases/latest). Choose PokemonArena-Windows.zip, extract the entire ZIP and run PLAY.bat. No Godot installation is needed. CHECK-FOR-UPDATES.bat opens the same page for future updates. Single-player against AI.
 
-## Latest: daily team coverage and shorter Surf
+## Latest: clear roads and stable indoor walls
+
+Removed 143 misplaced masonry blocks from walkable road/roof-edge tiles across 23 maps, including Viridian City. Unclaimed walkable tiles now use flat path or lawn artwork; real building footprints and source collisions are preserved. Indoor cutaway walls sit above the floor instead of competing for the same depth, fixing their flicker as the camera follows downward movement. Existing saves need no reset.
+
+Validation: all 416 map data/terrain audits and all 416 rendered map builds passed. A focused GPU regression reproduces the reported Viridian view and walks toward the bottom wall in the player's home, Blue's home and Viridian Pokemon Center. The same test failed on the original road blocks and coplanar wall surfaces, then passed after the fixes. Run it with `--script tools/check-road-room-render.gd -- --qa-road-room` using a normal Godot renderer (not headless); the metadata audit also protects walkable tiles in CI.
+
+## Daily team coverage and shorter Surf
 
 Daily teams now have reviewed legal movesets and two separate super-effective answers to every opposing Pokemon, with at least eight offensive move types across the team. They remain random and identical for the same UTC date. Daily move edits are separate from Free Battles. Existing daily saves upgrade without losing today's earned badges. Surf travels about 15% less distance. See [coverage rules and validation](docs/daily-coverage-update.md).
 

@@ -2,6 +2,9 @@ extends Node
 signal stream_step
 # The 3D scene is a view of kanto_world; all authoritative state stays in 2D tiles.
 const Kit=preload("res://kanto_model_kit.gd")
+const GROUND_Y=0.005
+const CUTAWAY_RIM_TOP=0.08
+const BASE_TOP=-0.03
 var w
 var a
 var viewport: SubViewport
@@ -205,7 +208,7 @@ func build_terrain(map_id: String, cooperative: bool=false):
 	else: ground_image=load_ground(str(meta.ground))
 	var ground=MeshInstance3D.new(); var plane=PlaneMesh.new(); plane.size=Vector2(width,height)
 	var surface=StandardMaterial3D.new(); surface.albedo_texture=ImageTexture.create_from_image(ground_image); surface.texture_filter=BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS; surface.roughness=1
-	ground.mesh=plane; ground.material_override=kit.art.ground(surface.albedo_texture) if home else surface; ground.position=Vector3(width*.5,.005,height*.5); terrain.add_child(ground)
+	ground.mesh=plane; ground.material_override=kit.art.ground(surface.albedo_texture) if home else surface; ground.position=Vector3(width*.5,GROUND_Y,height*.5); terrain.add_child(ground)
 	# Exhibit footprints come from the source museum layout.
 	var exhibit_cells={}
 	for display in meta.get("exhibits",[]):
@@ -276,6 +279,8 @@ func build_terrain(map_id: String, cooperative: bool=false):
 			continue
 		match kind:
 			"masonry":
+				# Also tolerate old metadata without putting false walls on paths.
+				if not int(room.cells[i])&0xc00: continue
 				kit.stamp("box",p+Vector3(0,.45,0),Vector3(1,.9,1),"plaster_c3cec5")
 				kit.stamp("softbox",p+Vector3(0,.93,0),Vector3(1.02,.1,1.02),"a39178")
 			"waterfall":
@@ -354,7 +359,10 @@ func build_terrain(map_id: String, cooperative: bool=false):
 				elif home and kind=="furniture": kit.furnishing(p,"home_cabinet",x+z,loaded)
 				elif home and tile in [0x31,0x32,0x36,0x37]: kit.furnishing(p,"kitchen",tile,loaded)
 				else: kit.furnishing(p,kind,x+z,loaded)
-			"void": kit.stamp("box",p+Vector3(0,-.01,0),Vector3(1,.03,1),"404e4e")
+			"void":
+				# The old top was exactly GROUND_Y: the floor and cutaway wall
+				# competed for depth as the follow camera moved (visible flicker).
+				kit.stamp("box",p+Vector3(0,(CUTAWAY_RIM_TOP+BASE_TOP)*.5,0),Vector3(1,CUTAWAY_RIM_TOP-BASE_TOP,1),"404e4e")
 	# Source floor art on important pads preserves visual puzzle clues.
 	var image: Image
 	for i in room.cells.size():

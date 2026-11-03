@@ -181,7 +181,16 @@ for key,m in maps.items():
             if kinds[i]=='furniture' and m['cells'][i]&0xc00: kinds[i]='wall'
     # Unclaimed blocked structures get low relief, never an opaque roof over paths.
     for i,kind in enumerate(kinds):
-        if kind=='building': kinds[i]='cliff' if ('Ember' in m['name'] or 'Kindle' in m['name'] or 'Route23' in m['name']) else 'masonry'
+        if kind!='building': continue
+        if not m['cells'][i]&0xc00:
+            # General's broad building ID ranges include walkable path corners
+            # and roof overhangs. Once real footprints are claimed, recover the
+            # flat ground from its palette instead of leaving a freestanding cube.
+            x,y=i%w*16,i//w*16
+            kinds[i]=classify(original.crop((x,y,x+16,y+16)),'',m['cells'][i]&1023,
+                              int(events[key]['behavior'][i]),False,outdoor,cave)[0]
+        else:
+            kinds[i]='cliff' if ('Ember' in m['name'] or 'Kindle' in m['name'] or 'Route23' in m['name']) else 'masonry'
     # Never draw a solid fence over a source-walkable cell.
     for i,kind in enumerate(kinds):
         if kind=='fence' and not m['cells'][i]&0xC00: kinds[i]='lawn'

@@ -17,6 +17,9 @@ for key,room in maps.items():
     assert header[:8]==b'\x89PNG\r\n\x1a\n',ground
     resolution=view.get('texels_per_tile',16)
     assert struct.unpack('>II',header[16:24])==(width*resolution,height*resolution),ground
+    for i,kind in enumerate(view['tiles']):
+        if kind=='masonry':
+            assert room['cells'][i]&0xc00,(key,'masonry hides walkable source tile',i%width,i//width)
     doors={(d['x'],d['y']) for d in room['warps']}
     for x,y,w,h,style,color in view['buildings']:
         buildings+=1
@@ -25,4 +28,4 @@ for key,room in maps.items():
         for yy in range(y+1,y+h-1):
             for xx in range(x+1,x+w-1):
                 assert (xx,yy) in doors or room['cells'][yy*width+xx]&0xc00,(key,'roof hides walkable source tile',xx,yy)
-print(f'PASS: {len(modern)} modern maps, matching terrain textures, {buildings} building footprints; no roofs over interior walkable tiles.')
+print(f'PASS: {len(modern)} modern maps, matching terrain textures, {buildings} building footprints; no masonry or interior roofs over walkable source tiles.')
