@@ -67,6 +67,13 @@ jobs:
           $code = $LASTEXITCODE
           $rooms | Write-Output
           if ($code -ne 0 -or ($rooms -match 'SCRIPT ERROR|ERROR:') -or -not ($rooms -match 'ROOMS / STORY / BREEDING CHECK: \[\]')) { throw 'Opening and breeding checks failed' }
+      - name: Save deletion regression
+        shell: pwsh
+        run: |
+          $deletion = & "$env:RUNNER_TEMP/godot/Godot_v4.3-stable_win64_console.exe" --headless --path . --script tools/check-save-deletion.gd -- --qa-delete 2>&1
+          $code = $LASTEXITCODE
+          $deletion | Write-Output
+          if ($code -ne 0 -or ($deletion -match 'SCRIPT ERROR|ERROR:') -or -not ($deletion -match 'SAVE DELETION CHECK: \[\]')) { throw 'Save deletion checks failed' }
       - name: Package Windows build
         shell: pwsh
         run: |

@@ -287,7 +287,9 @@ func reset():
 	if campaign.active and campaign.daily_enabled and not adventure.in_battle: campaign.daily.apply_player(self)
 
 func _unhandled_input(event):
-	if frontend.layer != null and frontend.layer.visible: return
+	if frontend.layer != null and frontend.layer.visible:
+		if frontend.page=="delete_save" and event is InputEventKey and event.pressed and not event.echo and event.keycode==KEY_ESCAPE: save_slots.show()
+		return
 	if enemy_bench.timer>=0:
 		if event is InputEventKey and event.pressed and not event.echo and event.keycode==KEY_ESCAPE: paused = not paused
 		return

@@ -801,6 +801,7 @@ func management_menu():
 	ui_button("SAVE AND CONTINUE",Vector2(180,465),Vector2(400,65),func(): save(); clear_ui())
 	ui_button("SAVE AND RETURN TO MODES",Vector2(180,555),Vector2(600,65),leave)
 	ui_button("RESET THIS SAVE SLOT",Vector2(180,650),Vector2(400,55),confirm_reset)
+	ui_button("MANAGE / DELETE SAVE SLOTS",Vector2(650,650),Vector2(480,55),func():leave(); c.save_slots.show())
 
 func words(value: String, at: Vector2, size = 20, color = Color("eef4de")):
 	draw_string(font,at,value,HORIZONTAL_ALIGNMENT_LEFT,-1,size,color)

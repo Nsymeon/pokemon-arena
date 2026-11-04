@@ -123,6 +123,7 @@ func press(button):
 
 func back_frontend():
 	match c.frontend.page:
+		"delete_save": c.save_slots.show()
 		"slots": c.frontend.show_modes()
 		"controller", "graphics": c.frontend.show_settings()
 		"title": pass

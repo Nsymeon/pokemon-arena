@@ -6,7 +6,13 @@ Godot 4.3 desktop arena prototype with a Kanto/Sevii Adventure. The current rost
 
 [Download the latest tested build](https://github.com/Nsymeon/pokemon-arena/releases/latest). Choose PokemonArena-Windows.zip, extract the entire ZIP and run PLAY.bat. No Godot installation is needed. CHECK-FOR-UPDATES.bat opens the same page for future updates. Single-player against AI.
 
-## Latest: clear roads and stable indoor walls
+## Latest: Adventure save deletion and FireRed fidelity audit
+
+**Play -> Adventure -> DELETE** permanently clears one chosen slot after confirmation, including its backups and reset recovery copies. It also handles damaged saves. Inside Adventure, the save-management menu can return to the slot selector. Cancel/Escape/controller Back preserves the save; other slots and modes are unaffected. See [save controls](docs/save-slots-and-controller.md).
+
+The [current FireRed fidelity audit](docs/firered-fidelity-audit.md) verifies exact imported layout data across 416 maps and encounter tables across 124 maps. It also records concrete gaps: several original trainer builds, conditional NPC scripts, economy and side-service details still differ. This remains a FireRed-based Adventure with custom real-time combat, not a fully faithful remake. The audit distinguishes requested features from unfinished fidelity work and supersedes older completeness notes.
+
+## Clear roads and stable indoor walls
 
 Removed 143 misplaced masonry blocks from walkable road/roof-edge tiles across 23 maps, including Viridian City. Unclaimed walkable tiles now use flat path or lawn artwork; real building footprints and source collisions are preserved. Indoor cutaway walls sit above the floor instead of competing for the same depth, fixing their flicker as the camera follows downward movement. Existing saves need no reset.
 
