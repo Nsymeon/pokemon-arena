@@ -19,6 +19,7 @@ var collection=preload("res://pokemon_collection.gd").new()
 var extras=preload("res://adventure_items.gd").new()
 var sevii=preload("res://adventure_sevii.gd").new()
 var progression=preload("res://adventure_progression.gd").new()
+var gyms=preload("res://adventure_gyms.gd").new()
 var postgame=preload("res://adventure_postgame.gd").new()
 var evolution_rules=preload("res://adventure_evolutions.gd").new()
 var services=preload("res://adventure_services.gd").new()
@@ -70,6 +71,7 @@ func install(context):
 	services.a = self
 	sevii.a = self
 	progression.a = self
+	gyms.a = self
 	postgame.a = self
 	evolution_rules.a=self
 	avatar.a = self
@@ -522,9 +524,11 @@ func begin_battle(kind: String, ids: Array, levels: Array):
 	for i in range(ids.size()): c.enemy_party.append(battle_mon(ids[i],levels[i]))
 	c.opponent_identity = "wild" if kind=="wild" else "blue" if kind in ["rival","world_Route22_EarlyRival"] else "brock" if kind=="brock" else "misty" if kind=="misty" else "giovanni" if kind=="rocket" else "bug_catcher"
 	c.arena_choice.select(4 if kind=="misty" else 0 if data.map==6 else 3 if kind=="brock" else 6 if data.map==3 else 2)
-	Story.prepare(self,kind)
-	if kind=="story_tower_blue": c.opponent_identity="blue"
-	Finale.prepare(self,kind)
+	if gyms.leaders.has(kind): gyms.prepare(kind)
+	else:
+		Story.prepare(self,kind)
+		if kind=="story_tower_blue": c.opponent_identity="blue"
+		Finale.prepare(self,kind)
 	c.weather_choice.select(0)
 	c.reset()
 	for i in range(data.party.size()):

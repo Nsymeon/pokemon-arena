@@ -1,5 +1,6 @@
 extends SceneTree
-# Diagnostic, not a claim of full playthrough. First run audit-firered-fidelity.py.
+# Source comparison for the eight Adventure Gyms, not a full playthrough.
+# First run audit-firered-fidelity.py to produce independent expected parties.
 var c
 var a
 func _initialize(): run.call_deferred()
@@ -32,8 +33,8 @@ func run():
 		for i in mini(actual.size(),expected.size()):
 			party_matches=party_matches and actual[i].id==int(expected[i].id) and actual[i].level==int(expected[i].level)
 			if expected[i].moves!=null:
-				var left=actual[i].moves.duplicate(); var right=expected[i].moves.duplicate(); left.sort(); right.sort()
-				moves_match=moves_match and left==right
+				moves_match=moves_match and actual[i].moves==expected[i].moves
+		c.check(party_matches and moves_match,"FireRed species, levels and ordered moves match: "+spec[0])
 		report.append({"leader":spec[0],"species_levels_match":party_matches,"explicit_moves_match":moves_match,"actual":actual,"source":expected})
 		print(spec[0],": species/levels=",party_matches," source moves=",moves_match)
 	var file=FileAccess.open("res://captures/firered-runtime-fidelity.json",FileAccess.WRITE); file.store_string(JSON.stringify(report,"\t")); file.close()

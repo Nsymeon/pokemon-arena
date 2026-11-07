@@ -6,7 +6,11 @@ Godot 4.3 desktop arena prototype with a Kanto/Sevii Adventure. The current rost
 
 [Download the latest tested build](https://github.com/Nsymeon/pokemon-arena/releases/latest). Choose PokemonArena-Windows.zip, extract the entire ZIP and run PLAY.bat. No Godot installation is needed. CHECK-FOR-UPDATES.bat opens the same page for future updates. Single-player against AI.
 
-## Latest: Adventure save deletion and FireRed fidelity audit
+## Latest: original FireRed Adventure Gym builds
+
+All eight Adventure Gym Leaders now use source-imported species, levels and ordered movesets, including Brock's two/three-move partners and Giovanni's final Rhyhorn Lv.50. Leaders carry their original finite trainer-item inventories; use shares the player's current percentage healing and costs one second of action/movement recovery. Switching never replenishes items. Adventure badge locks, existing saves, Free Battle presets and the daily full Lv.50 teams are preserved. See [Gym rules, source and checks](docs/adventure-gym-fidelity-update.md). This completes the first agreed fidelity step; other trainers, economy and scripts remain separate work.
+
+## Adventure save deletion and FireRed fidelity audit
 
 **Play -> Adventure -> DELETE** permanently clears one chosen slot after confirmation, including its backups and reset recovery copies. It also handles damaged saves. Inside Adventure, the save-management menu can return to the slot selector. Cancel/Escape/controller Back preserves the save; other slots and modes are unaffected. See [save controls](docs/save-slots-and-controller.md).
 

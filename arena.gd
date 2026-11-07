@@ -845,6 +845,7 @@ func update_ai(dt: float):
 	ai_timer -= dt * (0.4 if enemy.stun > 0 else 1.0)
 	if ai_timer <= 0:
 		ai_timer = difficulty.reaction(rng)
+		if adventure.gyms.try_item(): return
 		var choices = [0, 2, 1, 3]
 		var best = -1
 		var best_score = -1.0

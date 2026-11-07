@@ -1,0 +1,388 @@
+{
+  "repository": "https://github.com/pret/pokefirered",
+  "revision": "ce6406d8c2eaf46d543c8a2606de0c3cb1951982",
+  "leaders": {
+    "brock": {
+      "source_id": "TRAINER_LEADER_BROCK",
+      "identity": "brock",
+      "name": "BROCK",
+      "items": [],
+      "party": [
+        {
+          "id": 74,
+          "level": 12,
+          "moves": [
+            "tackle",
+            "defensecurl"
+          ],
+          "held_item": ""
+        },
+        {
+          "id": 95,
+          "level": 14,
+          "moves": [
+            "tackle",
+            "bind",
+            "rocktomb"
+          ],
+          "held_item": ""
+        }
+      ]
+    },
+    "misty": {
+      "source_id": "TRAINER_LEADER_MISTY",
+      "identity": "misty",
+      "name": "MISTY",
+      "items": [
+        "superpotion"
+      ],
+      "party": [
+        {
+          "id": 120,
+          "level": 18,
+          "moves": [
+            "tackle",
+            "harden",
+            "recover",
+            "waterpulse"
+          ],
+          "held_item": ""
+        },
+        {
+          "id": 121,
+          "level": 21,
+          "moves": [
+            "swift",
+            "recover",
+            "rapidspin",
+            "waterpulse"
+          ],
+          "held_item": ""
+        }
+      ]
+    },
+    "surge": {
+      "source_id": "TRAINER_LEADER_LT_SURGE",
+      "identity": "surge",
+      "name": "LT. SURGE",
+      "items": [
+        "superpotion",
+        "fullheal"
+      ],
+      "party": [
+        {
+          "id": 100,
+          "level": 21,
+          "moves": [
+            "sonicboom",
+            "tackle",
+            "screech",
+            "shockwave"
+          ],
+          "held_item": ""
+        },
+        {
+          "id": 25,
+          "level": 18,
+          "moves": [
+            "quickattack",
+            "thunderwave",
+            "doubleteam",
+            "shockwave"
+          ],
+          "held_item": ""
+        },
+        {
+          "id": 26,
+          "level": 24,
+          "moves": [
+            "quickattack",
+            "thunderwave",
+            "doubleteam",
+            "shockwave"
+          ],
+          "held_item": ""
+        }
+      ]
+    },
+    "late_erika": {
+      "source_id": "TRAINER_LEADER_ERIKA",
+      "identity": "erika",
+      "name": "ERIKA",
+      "items": [
+        "hyperpotion",
+        "fullheal"
+      ],
+      "party": [
+        {
+          "id": 71,
+          "level": 29,
+          "moves": [
+            "stunspore",
+            "acid",
+            "poisonpowder",
+            "gigadrain"
+          ],
+          "held_item": ""
+        },
+        {
+          "id": 114,
+          "level": 24,
+          "moves": [
+            "poisonpowder",
+            "constrict",
+            "ingrain",
+            "gigadrain"
+          ],
+          "held_item": ""
+        },
+        {
+          "id": 45,
+          "level": 29,
+          "moves": [
+            "sleeppowder",
+            "acid",
+            "stunspore",
+            "gigadrain"
+          ],
+          "held_item": ""
+        }
+      ]
+    },
+    "late_koga": {
+      "source_id": "TRAINER_LEADER_KOGA",
+      "identity": "koga",
+      "name": "KOGA",
+      "items": [
+        "hyperpotion",
+        "hyperpotion",
+        "fullheal"
+      ],
+      "party": [
+        {
+          "id": 109,
+          "level": 37,
+          "moves": [
+            "selfdestruct",
+            "sludge",
+            "smokescreen",
+            "toxic"
+          ],
+          "held_item": ""
+        },
+        {
+          "id": 89,
+          "level": 39,
+          "moves": [
+            "minimize",
+            "sludge",
+            "acidarmor",
+            "toxic"
+          ],
+          "held_item": ""
+        },
+        {
+          "id": 109,
+          "level": 37,
+          "moves": [
+            "selfdestruct",
+            "sludge",
+            "smokescreen",
+            "toxic"
+          ],
+          "held_item": ""
+        },
+        {
+          "id": 110,
+          "level": 43,
+          "moves": [
+            "tackle",
+            "sludge",
+            "smokescreen",
+            "toxic"
+          ],
+          "held_item": ""
+        }
+      ]
+    },
+    "late_sabrina": {
+      "source_id": "TRAINER_LEADER_SABRINA",
+      "identity": "sabrina",
+      "name": "SABRINA",
+      "items": [
+        "hyperpotion",
+        "hyperpotion",
+        "fullheal"
+      ],
+      "party": [
+        {
+          "id": 64,
+          "level": 38,
+          "moves": [
+            "psybeam",
+            "reflect",
+            "futuresight",
+            "calmmind"
+          ],
+          "held_item": ""
+        },
+        {
+          "id": 122,
+          "level": 37,
+          "moves": [
+            "barrier",
+            "psybeam",
+            "batonpass",
+            "calmmind"
+          ],
+          "held_item": ""
+        },
+        {
+          "id": 49,
+          "level": 38,
+          "moves": [
+            "psybeam",
+            "gust",
+            "leechlife",
+            "supersonic"
+          ],
+          "held_item": ""
+        },
+        {
+          "id": 65,
+          "level": 43,
+          "moves": [
+            "psychic",
+            "recover",
+            "futuresight",
+            "calmmind"
+          ],
+          "held_item": ""
+        }
+      ]
+    },
+    "late_blaine": {
+      "source_id": "TRAINER_LEADER_BLAINE",
+      "identity": "blaine",
+      "name": "BLAINE",
+      "items": [
+        "hyperpotion",
+        "hyperpotion",
+        "fullheal"
+      ],
+      "party": [
+        {
+          "id": 58,
+          "level": 42,
+          "moves": [
+            "bite",
+            "roar",
+            "takedown",
+            "fireblast"
+          ],
+          "held_item": ""
+        },
+        {
+          "id": 77,
+          "level": 40,
+          "moves": [
+            "stomp",
+            "bounce",
+            "firespin",
+            "fireblast"
+          ],
+          "held_item": ""
+        },
+        {
+          "id": 78,
+          "level": 42,
+          "moves": [
+            "stomp",
+            "bounce",
+            "firespin",
+            "fireblast"
+          ],
+          "held_item": ""
+        },
+        {
+          "id": 59,
+          "level": 47,
+          "moves": [
+            "bite",
+            "roar",
+            "takedown",
+            "fireblast"
+          ],
+          "held_item": ""
+        }
+      ]
+    },
+    "late_giovanni": {
+      "source_id": "TRAINER_LEADER_GIOVANNI",
+      "identity": "giovanni",
+      "name": "GIOVANNI",
+      "items": [
+        "hyperpotion",
+        "hyperpotion",
+        "fullheal"
+      ],
+      "party": [
+        {
+          "id": 111,
+          "level": 45,
+          "moves": [
+            "takedown",
+            "rockblast",
+            "scaryface",
+            "earthquake"
+          ],
+          "held_item": ""
+        },
+        {
+          "id": 51,
+          "level": 42,
+          "moves": [
+            "slash",
+            "sandtomb",
+            "mudslap",
+            "earthquake"
+          ],
+          "held_item": ""
+        },
+        {
+          "id": 31,
+          "level": 44,
+          "moves": [
+            "bodyslam",
+            "doublekick",
+            "poisonsting",
+            "earthquake"
+          ],
+          "held_item": ""
+        },
+        {
+          "id": 34,
+          "level": 45,
+          "moves": [
+            "thrash",
+            "doublekick",
+            "poisonsting",
+            "earthquake"
+          ],
+          "held_item": ""
+        },
+        {
+          "id": 111,
+          "level": 50,
+          "moves": [
+            "takedown",
+            "rockblast",
+            "scaryface",
+            "earthquake"
+          ],
+          "held_item": ""
+        }
+      ]
+    }
+  }
+}

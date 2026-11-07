@@ -221,7 +221,7 @@ static func tests(a):
 	a.c.check(state(a).get("switch",0)==2,"Adjacent second switch opens Gym")
 	interact(a,"story_surge")
 	a.c.check(a.in_battle and a.c.enemy_party.size()==3 and a.c.opponent_identity=="surge","Surge starts Adventure Gym battle")
-	a.c.check(a.c.enemy_party[2].moves[0].id=="shockwave","Surge uses his designed Electric moveset")
+	a.c.check(a.c.enemy_party[2].moves.map(func(m):return m.id)==["quickattack","thunderwave","doubleteam","shockwave"],"Surge uses his FireRed moveset and slot order")
 	a.reward(true)
 	var tm=a.data.tms.TM34
 	a.reward(true)
