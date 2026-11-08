@@ -6,9 +6,13 @@ Godot 4.3 desktop arena prototype with a Kanto/Sevii Adventure. The current rost
 
 [Download the latest tested build](https://github.com/Nsymeon/pokemon-arena/releases/latest). Choose PokemonArena-Windows.zip, extract the entire ZIP and run PLAY.bat. No Godot installation is needed. CHECK-FOR-UPDATES.bat opens the same page for future updates. Single-player against AI.
 
-## Latest: original FireRed Adventure Gym builds
+## Latest: FireRed story and map trainer builds
 
-All eight Adventure Gym Leaders now use source-imported species, levels and ordered movesets, including Brock's two/three-move partners and Giovanni's final Rhyhorn Lv.50. Leaders carry their original finite trainer-item inventories; use shares the player's current percentage healing and costs one second of action/movement recovery. Switching never replenishes items. Adventure badge locks, existing saves, Free Battle presets and the daily full Lv.50 teams are preserved. See [Gym rules, source and checks](docs/adventure-gym-fidelity-update.md). This completes the first agreed fidelity step; other trainers, economy and scripts remain separate work.
+Adventure map trainers, rivals, Rockets, Dojo, Sevii story battles and both League rounds now use source-imported species, levels, ordered custom/default moves and held items. All 443 imported trainer actors resolve to a build. Blue's teams follow the chosen starter at each story stage. Trainer bag items are finite and shared across switches; Full Restore and the League rematch berries work, as does Black Belt's Fighting boost. Dive resolves from the existing battle catalog for trainers who have it. Existing saves and the separate Daily/Free/custom challenge modes remain compatible. See [scope, checks and remaining limits](docs/adventure-trainer-fidelity-update.md).
+
+## Original FireRed Adventure Gym builds
+
+All eight Adventure Gym Leaders now use source-imported species, levels and ordered movesets, including Brock's two/three-move partners and Giovanni's final Rhyhorn Lv.50. Leaders carry their original finite trainer-item inventories; use shares the player's current percentage healing and costs one second of action/movement recovery. Switching never replenishes items. Adventure badge locks, existing saves, Free Battle presets and the daily full Lv.50 teams are preserved. See [Gym rules, source and checks](docs/adventure-gym-fidelity-update.md). This was the first agreed fidelity step; the remaining trainer builds are covered above, while economy and scripts remain later work.
 
 ## Adventure save deletion and FireRed fidelity audit
 

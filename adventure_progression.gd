@@ -8,7 +8,6 @@ const AIDES={
 	"Route16_NorthEntrance_2F_EventScript_Aide":[40,"amuletcoin","Amulet Coin"],
 	"Route15_WestEntrance_2F_EventScript_Aide":[50,"expshare","Exp. Share"]}
 var hall_scene
-var source_parties: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://assets/kanto/story-parties.json"))
 
 func remember_heal():
 	if a.world.enabled:
@@ -38,13 +37,7 @@ func recover() -> int:
 func battle_party(kind: String) -> Array:
 	var gym_party=a.gyms.party(kind)
 	if not gym_party.is_empty(): return gym_party
-	if not a.world.enabled: return []
-	if kind.begins_with("late_league_") and kind.trim_prefix("late_league_").is_valid_int():
-		return a.postgame.league_team(int(kind.trim_prefix("late_league_"))).map(func(mon):return [int(mon.id),int(mon.level)])
-	var chapter={"rival":"OAKS_LAB","world_Route22_EarlyRival":"ROUTE22_EARLY","bridge_blue":"CERULEAN","ship_blue":"SS_ANNE","story_tower_blue":"POKEMON_TOWER","late_silph_blue":"SILPH","late_league_rival":"ROUTE22_LATE"}.get(kind,"")
-	if chapter=="": return []
-	var starter={1:"CHARMANDER",4:"SQUIRTLE",7:"BULBASAUR"}.get(int(a.data.starter),"SQUIRTLE")
-	return source_parties.get("RIVAL_"+chapter+"_"+starter,[])
+	return a.trainers.party(kind)
 
 func rival_done(kind: String) -> bool:
 	if kind=="story_tower_blue": return done("tower_blue")

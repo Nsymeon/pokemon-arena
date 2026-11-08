@@ -845,7 +845,7 @@ func update_ai(dt: float):
 	ai_timer -= dt * (0.4 if enemy.stun > 0 else 1.0)
 	if ai_timer <= 0:
 		ai_timer = difficulty.reaction(rng)
-		if adventure.gyms.try_item(): return
+		if adventure.trainer_items.try_item(): return
 		var choices = [0, 2, 1, 3]
 		var best = -1
 		var best_score = -1.0
@@ -910,7 +910,7 @@ func damage_amount(attacker: Dictionary, target: Dictionary, base_damage: float,
 	var multiplier = Dex.effectiveness(move_type, Conditions.types(target))
 	var boost = float(move.get("weather_power", weather.power(move)))
 	var held=str(attacker.data.get("held_item",""))
-	if {"blackglasses":"Dark","silkscarf":"Normal","seaincense":"Water","metalcoat":"Steel","nevermeltice":"Ice"}.get(held,"")==move_type: boost*=1.05 if held=="seaincense" else 1.1
+	if {"blackbelt":"Fighting","blackglasses":"Dark","silkscarf":"Normal","seaincense":"Water","metalcoat":"Steel","nevermeltice":"Ice"}.get(held,"")==move_type: boost*=1.05 if held=="seaincense" else 1.1
 	if (attacker.get("dire_hit",false) or held=="luckypunch" and int(attacker.data.id)==113) and rng.randf()<0.25: boost*=1.5
 	if physical and attacker.ailment == "burn" and abilities.name_of(attacker)!="Guts": boost *= 0.5
 	return snappedf(base_damage * ratio * stab * multiplier * boost * abilities.damage(attacker,target,move) * (0.5 if target.guard > 0 else 1.0) * support.multiplier(self,target,move), 0.1)
@@ -2127,6 +2127,7 @@ func opponent_name() -> String:
 		var trainer=adventure.expansion.trainer(opponent_identity)
 		return str(trainer.get("name",opponent_identity))+" / Rematch"
 	if adventure.in_battle:
+		if adventure.encounter.has("trainer_name"): return str(adventure.encounter.trainer_name).capitalize()
 		return {"wild":"Wild Pokemon","rival":"Blue","bug":"Bug Catcher","brock":"Brock","lass":"Lass","rocket":"Team Rocket Grunt","misty":"Misty"}.get(adventure.encounter.kind,"Trainer")
 	for trainer in league.trainers:
 		if trainer.id == opponent_identity: return trainer.name

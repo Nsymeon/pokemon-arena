@@ -20,6 +20,8 @@ var extras=preload("res://adventure_items.gd").new()
 var sevii=preload("res://adventure_sevii.gd").new()
 var progression=preload("res://adventure_progression.gd").new()
 var gyms=preload("res://adventure_gyms.gd").new()
+var trainers=preload("res://adventure_trainers.gd").new()
+var trainer_items=preload("res://adventure_trainer_items.gd").new()
 var postgame=preload("res://adventure_postgame.gd").new()
 var evolution_rules=preload("res://adventure_evolutions.gd").new()
 var services=preload("res://adventure_services.gd").new()
@@ -72,6 +74,8 @@ func install(context):
 	sevii.a = self
 	progression.a = self
 	gyms.a = self
+	trainers.a = self
+	trainer_items.a = self
 	postgame.a = self
 	evolution_rules.a=self
 	avatar.a = self
@@ -485,6 +489,10 @@ func battle_mon(id: int, level: int, individual: Dictionary={}) -> Dictionary:
 	return mon
 
 func begin_battle(kind: String, ids: Array, levels: Array):
+	# A source Gym actor must use the same badge/reward path as its quest actor.
+	var trainer_id=trainers.resolve(kind)
+	for gym_kind in gyms.leaders:
+		if trainer_id==gyms.leaders[gym_kind].source_id: kind=gym_kind; break
 	if progression.gym_cleared(kind):
 		dialog="You already earned this Gym's Badge. The Gym Leader congratulates you on your victory."
 		return
@@ -525,6 +533,7 @@ func begin_battle(kind: String, ids: Array, levels: Array):
 	c.opponent_identity = "wild" if kind=="wild" else "blue" if kind in ["rival","world_Route22_EarlyRival"] else "brock" if kind=="brock" else "misty" if kind=="misty" else "giovanni" if kind=="rocket" else "bug_catcher"
 	c.arena_choice.select(4 if kind=="misty" else 0 if data.map==6 else 3 if kind=="brock" else 6 if data.map==3 else 2)
 	if gyms.leaders.has(kind): gyms.prepare(kind)
+	elif trainer_id!="": trainers.prepare(kind)
 	else:
 		Story.prepare(self,kind)
 		if kind=="story_tower_blue": c.opponent_identity="blue"
@@ -1202,7 +1211,9 @@ func chapter_tests():
 	data.badge = true
 	travel(1)
 	c.check(data.map==5,"Route 3 opens after Brock")
-	begin_battle("lass",[21,39],[2,12])
+	# Synthetic XP boundary fixture; real Lass battles now ignore these supplied
+	# placeholders and select their exact FireRed team instead.
+	begin_battle("qa_level_up",[21,39],[2,12])
 	c.enemy.hp = 0
 	c.finish_round()
 	c.shots.clear()

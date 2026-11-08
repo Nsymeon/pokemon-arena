@@ -2,7 +2,6 @@ extends RefCounted
 # Persistent, one-per-save roaming Pokemon and source event-island puzzles.
 var a
 var book: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://assets/kanto/postgame.json"))
-var teams: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://assets/kanto/league-parties.json"))
 var pending=false
 var flee_clock=0.0
 const TRIANGLE="BirthIsland_Exterior_EventScript_Triangle"
@@ -151,9 +150,11 @@ func legendary(species,key):
 		if a.in_battle: a.field.pending_static="static:"+key)
 
 func league_team(stage: int) -> Array:
-	var rematch=a.sevii.done("network") and a.Finale.has(a,"champion")
-	var key="ELITE_FOUR_"+["LORELEI","BRUNO","AGATHA","LANCE"][stage]+("_2" if rematch else "") if stage<4 else "CHAMPION_"+("REMATCH_" if rematch else "FIRST_")+{1:"CHARMANDER",4:"SQUIRTLE",7:"BULBASAUR"}.get(int(a.data.starter),"SQUIRTLE")
-	return teams.get(key,[])
+	var id=a.trainers.league_id(stage)
+	if id=="": return []
+	var result=a.trainers.book.trainers[id].party.duplicate(true)
+	for mon in result: mon["item"]=mon.held_item
+	return result
 
 func journal():
 	activate()

@@ -74,6 +74,13 @@ jobs:
           $code = $LASTEXITCODE
           $gyms | Write-Output
           if ($code -ne 0 -or ($gyms -match 'SCRIPT ERROR|ERROR:') -or -not ($gyms -match 'ADVENTURE GYM CHECK: \[\]')) { throw 'Adventure Gym fidelity checks failed' }
+      - name: Adventure trainer fidelity regression
+        shell: pwsh
+        run: |
+          $trainers = & "$env:RUNNER_TEMP/godot/Godot_v4.3-stable_win64_console.exe" --headless --path . --script tools/check-adventure-trainers.gd -- --qa-trainers 2>&1
+          $code = $LASTEXITCODE
+          $trainers | Write-Output
+          if ($code -ne 0 -or ($trainers -match 'SCRIPT ERROR|ERROR:') -or -not ($trainers -match 'ADVENTURE TRAINER CHECK: \[\]')) { throw 'Adventure trainer fidelity checks failed' }
       - name: Save deletion regression
         shell: pwsh
         run: |

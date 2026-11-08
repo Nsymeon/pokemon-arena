@@ -41,11 +41,15 @@ func tick(f,other,dt):
 		if f.item_clock>=5:
 			f.item_clock=fmod(f.item_clock,5)
 			if f.hp<f.data.hp: f.hp=minf(f.data.hp,f.hp+f.data.hp/16.0); c.Conditions.note(f,"LEFTOVERS +HP")
-	if item in ["sitrusberry","lumberry"] and c.abilities.name_of(other)=="Unnerve": return
+	if item in ["sitrusberry","lumberry","cheriberry","chestoberry","persimberry"] and c.abilities.name_of(other)=="Unnerve": return
 	if item=="sitrusberry" and f.hp<=f.data.hp*0.5:
 		f.hp=minf(f.data.hp,f.hp+f.data.hp*0.25); consume(f); c.Conditions.note(f,"SITRUS BERRY +HP")
 	elif item=="lumberry" and (f.ailment!="" or f.volatile.get("confusion",0)>0):
 		f.ailment=""; f.ailment_time=0; f.volatile.erase("confusion"); consume(f); c.Conditions.note(f,"LUM BERRY / CURED")
+	elif item in ["cheriberry","chestoberry"] and f.ailment=={"cheriberry":"paralysis","chestoberry":"sleep"}[item]:
+		f.ailment=""; f.ailment_time=0; consume(f); c.Conditions.note(f,item.trim_suffix("berry").to_upper()+" BERRY / CURED")
+	elif item=="persimberry" and f.volatile.get("confusion",0)>0:
+		f.volatile.erase("confusion"); consume(f); c.Conditions.note(f,"PERSIM BERRY / CURED")
 func ev_yield(mon,base) -> Dictionary:
 	var result=base.duplicate(true); var item=str(mon.get("held_item",""))
 	if item in POWER: result[POWER[item]]=int(result.get(POWER[item],0))+8
