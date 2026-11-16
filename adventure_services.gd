@@ -21,6 +21,7 @@ func valid(value) -> bool:
 		if not (n is int or n is float) or not is_finite(n) or n!=int(n) or n<0 or n>{"coins":9999,"steps":1000000000,"safari_steps":600,"safari_balls":30}[key]: return false
 	if not s.daycare.is_empty():
 		if not s.daycare.get("mon") is Dictionary: return false
+		if not valid_steps(s.daycare.get("xp_steps",0)): return false
 		for key in ["start_level","deposited"]:
 			var n=s.daycare.get(key)
 			if not (n is int or n is float) or n!=int(n) or n<0 or n>1000000000: return false
@@ -32,6 +33,9 @@ func valid(value) -> bool:
 
 func npc(o) -> bool:
 	var script=str(o.get("script",""))
+	if script=="TwoIsland_EventScript_Clerk":
+		var stage="Expanded3" if a.sevii.done("network") else "Expanded2" if a.Finale.has(a,"champion") else "Expanded1" if a.sevii.done("lostelle_saved") else "Initial"
+		a.inventory.shop("TwoIsland_EventScript_Shop"+stage); return true
 	if "DaycareMan" in script or "DaycareWoman" in script:
 		if a.world.current.begins_with("MAP_FOUR_ISLAND"): a.breeding.menu()
 		else: daycare_menu()
@@ -46,14 +50,7 @@ func steps():
 	a.breeding.step()
 	var s=state(); s.steps=mini(1000000000,int(s.steps)+1)
 	if not s.daycare.is_empty():
-		var mon=s.daycare.mon
-		if mon.level<100:
-			mon.xp+=1
-			if mon.xp>=a.xp_needed(mon):
-				mon.xp-=a.xp_needed(mon); mon.level+=1
-				# Preserve chosen moves; new moves wait for the player's decision.
-				for entry in a.inventory.book.species[str(int(mon.id))].levels:
-					if int(entry.level)==int(mon.level) and entry.move not in mon.moves and entry.move not in mon.pending: mon.pending.append(entry.move)
+		s.daycare.xp_steps=mini(1000000000,int(s.daycare.get("xp_steps",0))+1)
 	if s.safari and a.world.current.begins_with("MAP_SAFARI_ZONE"):
 		s.safari_steps=maxi(0,int(s.safari_steps)-1)
 		if s.safari_steps==0: end_safari("Time is up! Your Safari visit has ended.")
@@ -61,26 +58,44 @@ func steps():
 func daycare_menu():
 	var s=state(); var list=a.inventory.page("DAY CARE / one partner / 1 EXP per walking tile")
 	if s.daycare.is_empty():
-		a.inventory.row(list,"Retrieval costs $100 + $100 per level gained. No automatic evolution or move replacement.",func():pass,true)
+		a.inventory.row(list,"Retrieval: $100 + $100 per level gained. New moves can replace the oldest move; no evolution.",func():pass,true)
 		for i in range(a.data.party.size()): a.inventory.row(list,"LEAVE "+a.mon_name(a.data.party[i].id)+" Lv."+str(a.data.party[i].level),deposit.bind(i),a.data.party.size()<2 or a.data.party[i].hp<=0)
 	else:
-		var mon=s.daycare.mon
+		var mon=projected(s.daycare.mon,int(s.daycare.get("xp_steps",0)))
 		a.inventory.row(list,a.mon_name(mon.id)+" Lv."+str(mon.level)+" / RETRIEVE $"+str(fee()),withdraw,a.data.party.size()>=6 or a.data.money<fee())
 
 func deposit(slot):
 	if a.in_battle or not state().daycare.is_empty() or slot<0 or slot>=a.data.party.size() or a.data.party.size()<2: return
 	if a.data.party[slot].hp<=0 or a.data.party.filter(func(m):return m.hp>0).size()<2: a.dialog="Keep a healthy partner with you."; return
 	if a.field.losing_surf(slot,{"hp":0,"moves":[]}): return
-	state().daycare={"mon":a.data.party[slot],"start_level":a.data.party[slot].level,"deposited":state().steps}
+	state().daycare={"mon":a.data.party[slot],"start_level":a.data.party[slot].level,"deposited":state().steps,"xp_steps":0}
 	a.data.party.remove_at(slot); a.save(); daycare_menu()
 
 func fee() -> int:
 	if state().daycare.is_empty(): return 0
-	return 100+100*maxi(0,int(state().daycare.mon.level)-int(state().daycare.start_level))
+	var mon=projected(state().daycare.mon,int(state().daycare.get("xp_steps",0)))
+	return 100+100*maxi(0,int(mon.level)-int(state().daycare.start_level))
 
 func withdraw():
 	if a.in_battle or state().daycare.is_empty() or a.data.party.size()>=6 or a.data.money<fee(): return
-	a.data.money-=fee(); a.data.party.append(state().daycare.mon); state().daycare={}; a.save(); daycare_menu()
+	var mon=projected(state().daycare.mon,int(state().daycare.get("xp_steps",0)))
+	mon.hp=1.; mon.ailment=""
+	a.data.money-=fee(); a.data.party.append(mon); state().daycare={}; a.save(); daycare_menu()
+
+func valid_steps(value) -> bool:
+	return (value is int or value is float) and is_finite(value) and value==int(value) and value>=0 and value<=1000000000
+
+func projected(original: Dictionary, steps: int) -> Dictionary:
+	var mon=original.duplicate(true)
+	mon.xp+=steps
+	while int(mon.level)<100 and mon.xp>=a.xp_needed(mon):
+		mon.xp-=a.xp_needed(mon); mon.level+=1
+		for entry in a.inventory.book.species[str(int(mon.id))].levels:
+			if int(entry.level)!=int(mon.level) or entry.move in mon.moves: continue
+			if mon.moves.size()>=4: mon.moves.pop_front()
+			mon.moves.append(entry.move); mon.pending.erase(entry.move)
+	if int(mon.level)>=100: mon.xp=0
+	return mon
 
 func safari_menu():
 	var list=a.inventory.page("SAFARI ZONE / $500 / 30 Safari Balls / 600 steps")
@@ -118,14 +133,14 @@ func safari_action(action):
 	if safari_mon.is_empty() or not state().safari: return
 	if action=="run": safari_mon={}; a.clear_ui(); return
 	if action=="ball":
-		if a.data.party.size()>=6 and a.data.storage.size()>=100: message="Party and storage are full. Make room before catching."; safari_panel(); return
+		if a.data.party.size()>=6 and a.data.storage.size()>=a.collection.STORAGE_CAPACITY: message="Party and storage are full. Make room before catching."; safari_panel(); return
 		state().safari_balls-=1
 		# Full HP, Safari Ball 1.5x, no status bonus. Four shakes resolve to a/255.
 		var chance=floor(float(catch_factor*1275/100)*1.5)/765.0
 		if randf()<chance:
 			var name=a.mon_name(safari_mon.id)
 			if a.data.party.size()<6: a.data.party.append(safari_mon)
-			else: a.data.storage.append(safari_mon)
+			else: a.collection.store(safari_mon)
 			a.field.finish("seen:"+str(int(safari_mon.id))); safari_mon={}; a.clear_ui(); a.dialog="Caught "+name+"!"; a.save()
 			if state().safari_balls==0: end_safari("Last Safari Ball used. "+name+" was caught!")
 			return
@@ -163,11 +178,11 @@ func spin():
 
 func prize_mon(id,cost):
 	if a.in_battle or not a.field.done("coin_case") or state().coins<cost: return
-	if a.data.party.size()>=6 and a.data.storage.size()>=100: a.dialog="Make room in your party or storage first."; return
+	if a.data.party.size()>=6 and a.data.storage.size()>=a.collection.STORAGE_CAPACITY: a.dialog="Make room in your party or storage first."; return
 	state().coins-=cost
 	var mon=a.new_mon(id,{63:9,35:8,123:25,147:18,137:26}[id])
 	if a.data.party.size()<6: a.data.party.append(mon)
-	else: a.data.storage.append(mon)
+	else: a.collection.store(mon)
 	a.save(); game_menu()
 
 func prize_tm(id,cost):
@@ -183,7 +198,7 @@ func tests():
 	deposit(1); a.clear_ui()
 	a.c.check(a.data.party.size()==1 and state().daycare.mon.id==7,"Day Care transfers the exact partner out of the party")
 	var mon=state().daycare.mon; mon.xp=a.xp_needed(mon)-1
-	steps(); a.c.check(mon.level==11 and fee()==200,"Day Care steps grant EXP and calculate the retrieval fee")
+	steps(); a.c.check(mon.level==10 and projected(mon,int(state().daycare.xp_steps)).level==11 and fee()==200,"Day Care previews deferred EXP and calculates retrieval fee")
 	var money=a.data.money; withdraw(); a.clear_ui()
 	a.c.check(state().daycare.is_empty() and a.data.party.size()==2 and a.data.money==money-200,"Day Care retrieval charges once and returns partner")
 	withdraw(); a.c.check(a.data.money==money-200,"Empty Day Care cannot charge twice")
@@ -211,7 +226,7 @@ func tests():
 	start_safari(); a.c.check(a.data.money==money-500,"Active Safari cannot charge a duplicate admission")
 	var party=a.data.party.duplicate(true)
 	while a.data.party.size()<6: a.data.party.append(a.new_mon(16,5))
-	for i in range(100): a.data.storage.append(a.new_mon(19,5))
+	for i in a.collection.STORAGE_CAPACITY: a.collection.store(a.new_mon(19,5))
 	safari_encounter({"id":113,"level":25}); safari_action("ball")
 	a.c.check(state().safari_balls==30 and not safari_mon.is_empty(),"Full storage preserves Safari Ball and encounter")
 	a.data.party=party; a.data.storage=[]; safari_mon={}; a.clear_ui()

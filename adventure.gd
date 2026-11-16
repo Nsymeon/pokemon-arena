@@ -8,7 +8,7 @@ var MAPS = ["PALLET TOWN", "ROUTE 1", "VIRIDIAN CITY", "VIRIDIAN FOREST", "PEWTE
 const STARTERS = [1,4,7]
 const WILD = {1:[16,19],3:[10,13,25,16],5:[21,39,29,32],6:[41,74,46,35],7:[19,21,23,27]}
 const EVOLUTIONS = {1:[16,2],2:[32,3],4:[16,5],5:[36,6],7:[16,8],8:[36,9],10:[7,11],11:[10,12],13:[7,14],14:[10,15],16:[18,17],17:[36,18],19:[20,20],21:[20,22],23:[22,24],27:[22,28],29:[16,30],32:[16,33],41:[22,42],43:[21,44],46:[24,47],48:[31,49],50:[26,51],52:[28,53],54:[33,55],56:[28,57],60:[25,61],63:[16,64],66:[28,67],69:[21,70],72:[30,73],74:[25,75],77:[40,78],79:[37,80],81:[30,82],84:[31,85],86:[34,87],88:[38,89],92:[25,93],96:[26,97],98:[28,99],100:[30,101],104:[28,105],109:[35,110],111:[42,112],116:[32,117],118:[33,119],129:[20,130],138:[40,139],140:[40,141],147:[30,148],148:[55,149]}
-const INITIAL_DATA = {"version":1,"map":0,"x":800.0,"y":780.0,"starter":0,"party":[],"storage":[],"balls":10,"money":300,"rival":false,"bug_catcher":false,"badge":false,"healing_map":0}
+const INITIAL_DATA = {"version":1,"map":0,"x":800.0,"y":780.0,"starter":0,"party":[],"storage":[],"balls":0,"money":3000,"bag":{},"pc_items":{"potion":1},"rival":false,"bug_catcher":false,"badge":false,"healing_map":0}
 var data = INITIAL_DATA.duplicate(true)
 var save_path = SAVE_PATH
 var save_error = ""
@@ -31,6 +31,7 @@ var breeding=preload("res://adventure_breeding.gd").new()
 var npc_scripts=preload("res://adventure_npc_scripts.gd").new()
 var npc_program=preload("res://adventure_npc_program.gd").new()
 var experience=preload("res://adventure_experience.gd").new()
+var economy=preload("res://adventure_economy.gd").new()
 var world=preload("res://kanto_world.gd").new()
 var inventory = preload("res://adventure_inventory.gd").new()
 var exploring = false
@@ -67,6 +68,7 @@ var font: Font
 
 func install(context):
 	c = context
+	economy.a=self
 	collection.a=self
 	expansion.a=self
 	extras.a = self
@@ -126,7 +128,7 @@ func valid(value) -> bool:
 	for key in ["rival","bug_catcher","badge"]:
 		if not value.get(key) is bool: return false
 	for key in ["party","storage"]:
-		if not value.get(key) is Array or value[key].size() > (6 if key == "party" else 100): return false
+		if not value.get(key) is Array or value[key].size() > (6 if key == "party" else collection.STORAGE_CAPACITY): return false
 		for mon in value[key]:
 			if not mon is Dictionary: return false
 			if mon.has("gender") and mon.gender not in ["M","F","N"]: return false
@@ -269,7 +271,7 @@ func base_npcs() -> Array:
 	if Kanto.CITIES.has(int(data.map)): return Kanto.npcs(int(data.map))
 	match int(data.map):
 		0: return [[Vector2(1120,655),"Professor Oak","oak"],[Vector2(800,230),"Blue","rival"],[Vector2(405,660),"Mom / Heal","heal"]]
-		2: return [[Vector2(410,650),"Nurse Joy / Heal","heal"],[Vector2(1180,650),"Shop / 5 balls: $100","shop"]]
+		2: return [[Vector2(410,650),"Nurse Joy / Heal","heal"],[Vector2(1180,650),"Shop / Poke Ball: $200","shop"]]
 		3: return [[Vector2(800,330),"Bug Catcher","bug"]]
 		4: return [[Vector2(410,660),"Nurse Joy / Heal","heal"],[Vector2(1180,650),"Brock / Gym battle","brock"]]
 		5: return [[Vector2(800,430),"Lass / Route 3","lass"]]
@@ -570,7 +572,9 @@ func reward(victory: bool) -> String:
 			for slot in slots:
 				if slot not in used: used.append(slot)
 		var amulet=used.any(func(i):return i<data.party.size() and data.party[i].get("held_item","")=="amuletcoin")
-		data.money = mini(999999,int(data.money)+(300 if amulet else 150))
+		if not encounter.get("money_paid",false):
+			data.money=mini(999999,int(data.money)+economy.prize(amulet))
+			encounter.money_paid=true
 	match encounter.kind:
 		"rival": data.rival = true
 		"bug": data.bug_catcher = true
@@ -620,7 +624,7 @@ func return_world(caught: bool = false, escaped: bool = false, roamer_escaped: b
 		collection.register(mon)
 		var joins_party = data.party.size() < 6
 		if joins_party: data.party.append(mon)
-		else: data.storage.append(mon)
+		else: collection.store(mon)
 		message = mon_name(mon.id)+" caught! "+("Added to your party." if joins_party else "Check Party / Storage with P.")+" +"+str(capture_xp)+" EXP. "+xp_message
 	elif not escaped:
 		message = reward(win)
@@ -676,26 +680,33 @@ func mark_participant_for(slot):
 func participants() -> Array:
 	return encounter.get("participants",{}).get(str(c.enemy_active),[c.player_active])
 
-func catch_chance() -> float:
+func catch_chance(ball="balls") -> float:
 	var weak = 1.0-clampf(c.enemy.hp/c.enemy.data.hp,0,1)
-	return clampf(0.18+weak*0.65+(0.12 if c.enemy.ailment!="" else 0),0.1,0.95)
+	var bonus={"greatball":1.5,"ultraball":2.0}.get(ball,1.0)
+	if ball=="repeatball" and data.get("pokedex",{}).get(str(int(c.enemy.data.id)),{}).get("caught",false): bonus=3.0
+	if ball=="timerball": bonus=minf(4.0,1.0+floorf(float(encounter.get("battle_seconds",0)))/10.0)
+	if ball=="netball" and ("Water" in c.enemy.data.types or "Bug" in c.enemy.data.types): bonus=3.0
+	if ball=="nestball": bonus=maxf(1.0,(40.0-float(c.enemy.data.get("level",1)))/10.0)
+	return clampf((0.18+weak*0.65+(0.12 if c.enemy.ailment!="" else 0))*bonus,0.1,0.95)
 
-func throw_ball(master: bool=false):
+func throw_ball(master: bool=false, ball="balls"):
+	if master: ball="masterball"
+	if ball not in ["balls","greatball","ultraball","masterball","repeatball","timerball","netball","nestball"]: return
 	if c.horde.active(c) and c.horde.living(c).size()>1:
 		c.notice="HORDE / Leave one wild Pokemon before throwing a ball."; c.notice_time=2; return
 	if not in_battle or encounter.kind!="wild" or c.result!="" or c.paused or c.countdown>0 or c.switch_menu or c.switch_time>=0 or capture_time>0: return
 	if c.player.hp<=0 or c.enemy.hp<=0 or c.player.get("action_lock",0)>0: return
-	if (int(data.bag.get("masterball",0)) if master else int(data.balls)) <= 0:
+	if (int(data.balls) if ball=="balls" else int(data.bag.get(ball,0))) <= 0:
 		c.notice = "NO POKE BALLS / visit Viridian's shop"
 		c.notice_time = 2
 		return
-	if data.party.size() >= 6 and data.storage.size() >= 100: return
-	if master: data.bag.masterball-=1
-	else: data.balls -= 1
+	if data.party.size() >= 6 and data.storage.size() >= collection.STORAGE_CAPACITY: return
+	if ball=="balls": data.balls-=1
+	else: data.bag[ball]-=1
 	save()
-	capture_success = master or c.rng.randf() < catch_chance()
+	capture_success = master or c.rng.randf() < catch_chance(ball)
 	capture_time = CAPTURE_DURATION
-	c.notice = "MASTER BALL / attempting capture..." if master else "POKE BALL / attempting capture..."
+	c.notice = ("POKE BALL" if ball=="balls" else ball.trim_suffix("ball").to_upper()+" BALL")+" / attempting capture..."
 	c.notice_time = CAPTURE_DURATION
 
 func capture_visual() -> Dictionary:
@@ -965,6 +976,7 @@ func tests():
 	c.check(data.party.size()==1 and data.starter==4,"Starter cannot be claimed twice")
 	begin_battle("rival",[7],[5])
 	c.check(c.player_states.size()==1 and c.enemy_party.size()==1,"Adventure battles use owned party only")
+	data.balls=5 # Isolated capture fixture: Oak normally gives these after the parcel.
 	var balls_before = data.balls
 	c.countdown = 0
 	throw_ball()
@@ -1135,7 +1147,7 @@ func grant_xp(amount: int) -> String:
 			mon.level += 1
 			mon.hp = minf(1,mon.hp+0.2)
 			message += mon_name(mon.id)+" reached Lv."+str(mon.level)+"! "
-			mon.friendship=mini(255,int(mon.get("friendship",70))+3)
+			extras.friendship(mon,[5,3,2][extras.friendship_tier(mon)])
 			var target=evolution_rules.level_target(mon)
 			if target>0:
 				evolution_rules.evolve(mon,target)
@@ -1363,7 +1375,7 @@ func reset_tests():
 	c.check(not reset_adventure(),"Reset requires its explicit confirmation screen")
 	confirm_reset()
 	c.check(reset_adventure(),"Confirmed reset succeeds")
-	c.check(data.party.is_empty() and data.storage.is_empty() and data.starter==0 and data.map==0 and data.money==300 and data.balls==10,"Reset restores Pallet and initial inventory")
+	c.check(data.party.is_empty() and data.storage.is_empty() and data.starter==0 and data.map==0 and data.money==3000 and data.balls==0,"Reset restores Pallet and initial inventory")
 	c.check(not data.badge and not data.get("cascade",false) and not data.get("rocket",false) and data.tms.is_empty(),"Reset clears adventure badges, TMs and story flags")
 	c.check(not data.has("avatar"),"Adventure reset clears character appearance")
 	c.check(not data.has("journey") and not data.has("hall_of_fame"),"Adventure reset clears full Kanto and Hall of Fame")

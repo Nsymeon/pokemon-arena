@@ -50,7 +50,8 @@ func entered(previous):
 
 func step():
 	if int(a.services.state().steps)%128==0:
-		for mon in a.data.party: mon.friendship=mini(255,int(mon.get("friendship",70))+1)
+		for mon in a.data.party:
+			if a.c.ivs.random.randi_range(0,1)==0: a.extras.friendship(mon,1)
 	if a.world.current=="MAP_BIRTH_ISLAND_EXTERIOR": state().steps=mini(10000,int(state().steps)+1)
 	# Ho-Oh descends at the original approach trigger.
 	if a.world.current=="MAP_NAVEL_ROCK_SUMMIT" and not a.field.done("static:HoOh"):

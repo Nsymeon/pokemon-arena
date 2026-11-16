@@ -293,7 +293,7 @@ func interact() -> bool:
 		if gfx.contains("PROF_OAK"):
 			a.starter_menu() if a.data.starter==0 else a.heal()
 		elif gfx.contains("NURSE"): a.heal()
-		elif (room().name.contains("Mart") or room().name.contains("DepartmentStore")) and gfx.contains("CLERK"): a.inventory.shop()
+		elif (room().name.contains("Mart") or room().name.contains("DepartmentStore")) and gfx.contains("CLERK"): a.inventory.shop(str(npc.get("script","")))
 		elif npc.has("battle"):
 			if events.done("trainer:"+str(npc.script)):
 				a.show_dialogue(scenes.npc_text(npc,"post")); return true

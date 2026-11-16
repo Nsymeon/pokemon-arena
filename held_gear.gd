@@ -1,7 +1,9 @@
 extends RefCounted
 const POWER={"powerweight":"hp","powerbracer":"atk","powerbelt":"def","powerlens":"spa","powerband":"spd","poweranklet":"spe"}
 const CHOICE=["choiceband","choicespecs","choicescarf"]
-const ITEMS=["everstone","amuletcoin","expshare","leftovers","sitrusberry","lumberry","choiceband","choicespecs","choicescarf","machobrace","powerweight","powerbracer","powerbelt","powerlens","powerband","poweranklet"]
+const BERRIES=["sitrusberry","lumberry","oranberry","leppaberry","cheriberry","chestoberry","pechaberry","rawstberry","aspearberry","persimberry"]
+const CURES={"cheriberry":["paralysis"],"chestoberry":["sleep"],"pechaberry":["poison","toxic"],"rawstberry":["burn"],"aspearberry":["freeze"]}
+const ITEMS=["everstone","amuletcoin","expshare","leftovers","soothebell","choiceband","choicespecs","choicescarf","machobrace","powerweight","powerbracer","powerbelt","powerlens","powerband","poweranklet","sitrusberry","lumberry","oranberry","leppaberry","cheriberry","chestoberry","pechaberry","rawstberry","aspearberry","persimberry"]
 const DESCRIPTIONS={"everstone":"Everstone / prevents level-up evolution while held","amuletcoin":"Amulet Coin / double trainer prize money if holder participated","expshare":"Exp. Share / bench holder gets 50% XP, no EVs","leftovers":"Leftovers / heal 1/16 HP every 5 combat seconds","sitrusberry":"Sitrus Berry / heal 25% at half HP, consumed","lumberry":"Lum Berry / cure status and confusion, consumed","choiceband":"Choice Band / 1.5x Attack, locks one move until switching","choicespecs":"Choice Specs / 1.5x Sp. Atk, locks one move until switching","choicescarf":"Choice Scarf / 1.5x movement speed, locks one move until switching","machobrace":"Macho Brace / double earned EVs, half movement speed","powerweight":"Power Weight / +8 HP EVs, half movement speed","powerbracer":"Power Bracer / +8 ATK EVs, half movement speed","powerbelt":"Power Belt / +8 DEF EVs, half movement speed","powerlens":"Power Lens / +8 SPA EVs, half movement speed","powerband":"Power Band / +8 SPD EVs, half movement speed","poweranklet":"Power Anklet / +8 SPE EVs, half movement speed"}
 var c
 var choices={}
@@ -41,15 +43,24 @@ func tick(f,other,dt):
 		if f.item_clock>=5:
 			f.item_clock=fmod(f.item_clock,5)
 			if f.hp<f.data.hp: f.hp=minf(f.data.hp,f.hp+f.data.hp/16.0); c.Conditions.note(f,"LEFTOVERS +HP")
-	if item in ["sitrusberry","lumberry","cheriberry","chestoberry","persimberry"] and c.abilities.name_of(other)=="Unnerve": return
+	if item in BERRIES and c.abilities.name_of(other)=="Unnerve": return
 	if item=="sitrusberry" and f.hp<=f.data.hp*0.5:
 		f.hp=minf(f.data.hp,f.hp+f.data.hp*0.25); consume(f); c.Conditions.note(f,"SITRUS BERRY +HP")
 	elif item=="lumberry" and (f.ailment!="" or f.volatile.get("confusion",0)>0):
 		f.ailment=""; f.ailment_time=0; f.volatile.erase("confusion"); consume(f); c.Conditions.note(f,"LUM BERRY / CURED")
-	elif item in ["cheriberry","chestoberry"] and f.ailment=={"cheriberry":"paralysis","chestoberry":"sleep"}[item]:
+	elif item=="oranberry" and f.hp<=f.data.hp*0.5:
+		f.hp=minf(f.data.hp,f.hp+10); consume(f); c.Conditions.note(f,"ORAN BERRY +HP")
+	elif item in CURES and f.ailment in CURES[item]:
 		f.ailment=""; f.ailment_time=0; consume(f); c.Conditions.note(f,item.trim_suffix("berry").to_upper()+" BERRY / CURED")
 	elif item=="persimberry" and f.volatile.get("confusion",0)>0:
 		f.volatile.erase("confusion"); consume(f); c.Conditions.note(f,"PERSIM BERRY / CURED")
+	elif item=="leppaberry":
+		for move in f.data.moves:
+			if c.support.pp_limit(move)>0 and c.support.pp(f,move)==0:
+				if not f.has("healing_pp"): f.healing_pp={}
+				f.healing_pp[move.id]=mini(10,c.support.pp_limit(move)); consume(f); c.Conditions.note(f,"LEPPA BERRY +PP"); return
+		if f.energy<=0:
+			f.energy=40; consume(f); c.Conditions.note(f,"LEPPA BERRY +ENERGY")
 func ev_yield(mon,base) -> Dictionary:
 	var result=base.duplicate(true); var item=str(mon.get("held_item",""))
 	if item in POWER: result[POWER[item]]=int(result.get(POWER[item],0))+8

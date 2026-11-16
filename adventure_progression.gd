@@ -131,6 +131,7 @@ func hidden_items() -> Array:
 	var result=[]
 	for sign in a.world.room().signs:
 		if sign.get("type","")!="hidden_item": continue
+		if sign.get("item","ITEM_NONE")=="ITEM_NONE": continue
 		var item=sign.duplicate(); item.id="hidden_"+str(sign.flag); item.item=str(sign.item).trim_prefix("ITEM_")
 		if not a.field.done(a.world.current+"item"+item.id): result.append(item)
 	return result

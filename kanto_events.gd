@@ -188,8 +188,12 @@ func pickup(item):
 	var story={"CARD_KEY":"card_key","SECRET_KEY":"secret_key","LIFT_KEY":"lift_key","GOLD_TEETH":"gold_teeth"}
 	if id=="HM07": a.field.finish("field:waterfall")
 	elif story.has(id): a.Finale.state(a)[story[id]]=true
-	elif id.begins_with("TM") and a.inventory.book.tms.has(id): a.data.tms[id]=mini(999,int(a.data.tms.get(id,0))+1)
-	elif id in ["POKE_BALL","GREAT_BALL","ULTRA_BALL"]: a.data.balls=mini(999,int(a.data.balls)+1)
+	elif id.begins_with("TM") and a.inventory.book.tms.has(id):
+		if int(a.data.tms.get(id,0))>=999: a.dialog="No room for more of this TM."; return
+		a.data.tms[id]=int(a.data.tms.get(id,0))+1
+	elif id=="POKE_BALL":
+		if int(a.data.balls)>=999: a.dialog="No room for more Poke Balls."; return
+		a.data.balls+=1
 	else:
 		var bag_id=id.to_lower().replace("_","")
 		if not a.inventory.ITEMS.has(bag_id):

@@ -1,0 +1,10 @@
+# Adventure economy and PC — 2026-11-16
+
+- New saves start with $3,000, an empty Bag, no Poke Balls and one Potion in PC item storage. Oak gives five balls once during the Pokedex handoff. Existing wallets/inventories are not reset.
+- Source trainers award `4 × last party member level × trainer-class multiplier`, doubled for source doubles and for a participating Amulet Coin holder. Wild victories pay nothing; repeated reward handling cannot pay again. Custom Champion Challenges retain their separate rewards.
+- Item prices and 23 source shop-script inventories are imported from the pinned source. Department-store clerks have separate goods; Two Island expands after Lostelle, Champion and the network quest. Special Supplies preserves the project's custom training/evolution purchases. Selling pays half the source price.
+- Great, Ultra, Repeat and Timer Balls consume their own Bag stock. They apply source-style bonuses to the existing arena catch calculation; Timer uses active combat seconds instead of turns and stops during menus/pause/sendout/capture. This is not cartridge-identical catch arithmetic. Milk, Lava Cookies and Super Lure work; the requested Lure behavior remains.
+- The PC now has 14 boxes with 30 Pokemon each, for 420 total. New captures/gifts use the next available box. A selected full box refuses deposits/moves. Legacy overflowing boxes redistribute deterministically without changing individual Pokemon data. Invalid new overfilled-box saves are rejected. All acquisition paths share the capacity limit.
+- PC item storage supports deposit/withdrawal, preserving counts and rejecting full pockets. Mail stationery has a saved short-note editor; the original held-mail, mailbox and multiplayer exchange mechanics remain a side-service task.
+
+Validation covers 420 slots, all full-box guards, a legacy 100-mon migration, exact individual data preservation, save round trips, source trainer classes and stock, prices, selling, Oak's one-time balls, PC Potion withdrawal and special-ball consumption. Combat/save smoke, story and NPC suites are also run. Diagnostic scripts use isolated fixtures rather than the player's save.

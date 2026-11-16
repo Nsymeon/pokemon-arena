@@ -149,8 +149,9 @@ func pokedex_delivery():
 		{"text":"OAK: On the desk there is my invention, the Pokedex! It records data on Pokemon you have seen or caught.","duration":3.4},
 		{"text":"OAK: "+str(a.data.get("player_name","RED"))+" and BLUE! Take these with you!","duration":2.6},
 		{"text":"You and BLUE each received a Pokedex.","duration":2.4},
+		{"text":"OAK: Catch Pokemon to record their data. Take these five Poke Balls!","duration":2.6},
 		{"text":"BLUE: All right, Gramps! Leave it all to me!","duration":2.3}
-	],func():w.events.finish("parcel_delivered"); positions.erase("quest:oak"); a.save(),"scene:pokedex_delivery")
+	],func():w.events.finish("parcel_delivered"); a.data.balls=mini(999,int(a.data.balls)+5); positions.erase("quest:oak"); a.save(),"scene:pokedex_delivery")
 
 func quest(id: String) -> bool:
 	if id=="late_task_tower_ghost": return a.field.ghost()

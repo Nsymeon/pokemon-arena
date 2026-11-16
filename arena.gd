@@ -714,6 +714,7 @@ func update_battle(dt: float):
 		finish_round()
 		return
 	round_time += dt
+	if adventure.in_battle: adventure.encounter.battle_seconds=float(adventure.encounter.get("battle_seconds",0))+dt
 	notice_time -= dt
 	switch_cooldown = maxf(0, switch_cooldown - dt)
 	sprinting = controls.held("battle_sprint") and movement_input() != Vector2.ZERO and player.dash_time <= 0 and player.energy >= 12.0 * dt and not Conditions.immobilized(player)

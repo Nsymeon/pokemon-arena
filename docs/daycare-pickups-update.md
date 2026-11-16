@@ -1,0 +1,11 @@
+# Day Care and map pickups — 2026-11-16
+
+Day Care now keeps the deposited Pokemon's moves and level unchanged for breeding. Walking stores EXP; retrieval applies the accumulated levels, replacing the oldest move when learning a fifth move, without evolution. Both Route 5 and Four Island charge $100 plus $100 per gained level. Old saves retain already-earned levels and do not receive that EXP twice.
+
+Egg production checks at step 255 and every 256 steps thereafter, using the source integer comparison and compatibility tiers. New eggs use source egg-cycle counts and the party's shared 256-step cycle, resetting on collection. Three distinct IVs inherit from random parents; existing egg/TM/shared-level move inheritance remains. Old eggs retain their saved remaining steps. FireRed's disabled Emerald Everstone/Volt Tackle code is not enabled here. Arena abilities, modern species and the existing shiny system remain project adaptations.
+
+Every imported visible and non-placeholder hidden pickup is exercised by the map pickup test: 168 visible and 171 hidden records. Great/Ultra Balls now retain their own inventory types. Full ball, item and TM pockets leave the pickup on the map, available after making room. Placeholder ITEM_NONE records are excluded from Itemfinder results.
+
+The remaining hidden-item catalog includes Net/Nest Balls, mushrooms, Heart Scales, berry treasures, PP Max, Sacred Ash, Soothe Bell and held cure/Oran/Leppa berries. Net/Nest bonuses use the existing arena capture equation; PP Max/Leppa support recovery PP and arena energy. Sacred Ash revives fainted party members outside battle. Soothe Bell applies a rounded-down 50% bonus to the implemented friendship gains; level-up/vitamin gains use source tiers, and walking uses the source 50% check per 128 steps. This is not yet a complete port of every friendship trigger, held-mail or berry Bag-use interaction.
+
+Validation: `tools/check-daycare-fidelity.gd` tests deferred growth, replacement ordering, fees, no evolution, old saves and hatch boundaries. `tools/check-map-pickups.gd` exercises imported pickup records, one-time flags, full-pocket retries, item effects and save serialization. Tests disable saving and do not load the player's Adventure slots.

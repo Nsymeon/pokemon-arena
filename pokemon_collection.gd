@@ -1,6 +1,9 @@
 extends RefCounted
 
 var a
+const BOX_COUNT=14
+const BOX_SIZE=30
+const STORAGE_CAPACITY=BOX_COUNT*BOX_SIZE
 const NAMES=["Hardy","Lonely","Brave","Adamant","Naughty","Bold","Docile","Relaxed","Impish","Lax","Timid","Hasty","Serious","Jolly","Naive","Modest","Mild","Quiet","Bashful","Rash","Calm","Gentle","Sassy","Careful","Quirky"]
 const ORDER=["atk","def","spe","spa","spd"]
 var entries: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://assets/kanto/pokedex-entries.json"))
@@ -57,17 +60,23 @@ func register(mon,caught=true):
 	a.data.pokedex[key]=entry
 
 func sync():
+	migrate_storage()
 	if not a.data.has("pokedex"): a.data["pokedex"]={}
 	for mon in owned(): assign(mon); register(mon)
 	for key in a.data.get("world_events",{}).get("done",{}):
 		if str(key).begins_with("seen:"): register({"id":int(str(key).trim_prefix("seen:"))},false)
 
 func valid(data) -> bool:
+	if data.has("storage_layout") and data.storage_layout!=2: return false
+	var counts={}
 	for mon in data.get("party",[])+data.get("storage",[]):
 		if mon.has("form") and (not (mon.form is int or mon.form is float) or mon.form!=int(mon.form) or mon.form<0 or mon.form>=a.c.forms.count(int(mon.id))): return false
 		if mon.has("nature") and mon.nature not in NAMES: return false
 		if mon.has("nickname") and (not mon.nickname is String or mon.nickname.length()>16 or "\n" in mon.nickname): return false
-		if mon.has("box") and (not (mon.box is int or mon.box is float) or mon.box!=int(mon.box) or mon.box<0 or mon.box>9): return false
+		if mon.has("box") and (not (mon.box is int or mon.box is float) or mon.box!=int(mon.box) or mon.box<0 or mon.box>=BOX_COUNT): return false
+	for mon in data.get("storage",[]):
+		var box=int(mon.get("box",0)); counts[box]=int(counts.get(box,0))+1
+		if data.has("storage_layout") and counts[box]>BOX_SIZE: return false
 	if data.has("pokedex"):
 		if not data.pokedex is Dictionary: return false
 		for id in data.pokedex:
@@ -77,6 +86,32 @@ func valid(data) -> bool:
 			for field in ["seen","caught","shiny"]:
 				if not e.get(field) is bool: return false
 	return true
+
+func migrate_storage():
+	if a.data.get("storage_layout",0)==2: return
+	var counts={}; var overflow=[]
+	for mon in a.data.get("storage",[]):
+		var box=clampi(int(mon.get("box",0)),0,BOX_COUNT-1)
+		if int(counts.get(box,0))<BOX_SIZE:
+			mon["box"]=box; counts[box]=int(counts.get(box,0))+1
+		else: overflow.append(mon)
+	for mon in overflow:
+		for box in BOX_COUNT:
+			if int(counts.get(box,0))<BOX_SIZE:
+				mon.box=box; counts[box]=int(counts.get(box,0))+1; break
+	a.data.storage_layout=2
+
+func box_count(box: int) -> int:
+	return a.data.storage.filter(func(mon):return int(mon.get("box",0))==box).size()
+
+func store(mon, preferred=-1) -> bool:
+	if a.data.storage.size()>=STORAGE_CAPACITY: return false
+	var first=pc_box if preferred<0 else preferred
+	for offset in BOX_COUNT:
+		var box=posmod(first+offset,BOX_COUNT)
+		if box_count(box)<BOX_SIZE:
+			mon["box"]=box; a.data.storage.append(mon); return true
+	return false
 
 func title(mon) -> String:
 	if mon.get("is_egg",false): return "Egg"
@@ -129,7 +164,7 @@ func rename(group,slot):
 		a.save(); summary(group,slot))
 
 func can_deposit(slot) -> bool:
-	if slot<0 or slot>=a.data.party.size() or a.data.party.size()<2 or a.data.storage.size()>=100: return false
+	if slot<0 or slot>=a.data.party.size() or a.data.party.size()<2 or a.data.storage.size()>=STORAGE_CAPACITY or box_count(pc_box)>=BOX_SIZE: return false
 	var remaining=a.data.party.duplicate(); remaining.remove_at(slot)
 	return remaining.any(func(m):return m.hp>0)
 
@@ -137,20 +172,22 @@ func deposit(slot):
 	if a.in_battle or slot<0 or slot>=a.data.party.size() or not can_deposit(slot): return
 	if a.field.losing_surf(slot,{"hp":0,"moves":[]}): return
 	var mon=a.data.party[slot]; mon["box"]=pc_box
-	a.data.storage.append(mon); a.data.party.remove_at(slot); a.save(); pc()
+	if not store(mon,pc_box): return
+	a.data.party.remove_at(slot); a.save(); pc()
 
 func pc():
 	sync()
-	var list=a.inventory.page("PC / BOX %d / %d of 100 stored" % [pc_box+1,a.data.storage.size()],a.party_menu)
+	var list=a.inventory.page("PC / BOX %d: %d/30 / %d of 420 stored" % [pc_box+1,box_count(pc_box),a.data.storage.size()],a.party_menu)
 	var options=HBoxContainer.new(); list.add_child(options)
 	var box=OptionButton.new()
-	for i in range(10): box.add_item("Box "+str(i+1))
+	for i in BOX_COUNT: box.add_item("Box %d (%d/30)" % [i+1,box_count(i)])
 	box.selected=pc_box; box.item_selected.connect(func(i):pc_box=i; pc()); options.add_child(box)
 	var input=LineEdit.new(); input.placeholder_text="Name or type..."; input.text=search; input.custom_minimum_size=Vector2(380,44); options.add_child(input)
 	var filter=CheckButton.new(); filter.text="Shiny only"; filter.button_pressed=shiny_only; options.add_child(filter)
 	var apply=Button.new(); apply.text="SEARCH"; options.add_child(apply)
 	apply.pressed.connect(func():search=input.text; shiny_only=filter.button_pressed; pc())
 	a.inventory.row(list,"YOUR PARTY / deposit or view summary",members)
+	a.inventory.row(list,"ITEM STORAGE / deposit and withdraw",a.inventory.pc_items)
 	var grid=GridContainer.new(); grid.columns=3; grid.add_theme_constant_override("h_separation",10); grid.add_theme_constant_override("v_separation",10); list.add_child(grid)
 	var count=0
 	for i in range(a.data.storage.size()):
@@ -163,10 +200,10 @@ func pc():
 
 func choose_box(slot):
 	var list=a.inventory.page("MOVE TO BOX",summary.bind("storage",slot))
-	for i in range(10): a.inventory.row(list,"BOX "+str(i+1),move_box.bind(slot,i))
+	for i in BOX_COUNT: a.inventory.row(list,"BOX %d / %d/30" % [i+1,box_count(i)],move_box.bind(slot,i),box_count(i)>=BOX_SIZE)
 
 func move_box(slot,box):
-	if a.in_battle or slot<0 or slot>=a.data.storage.size() or box<0 or box>9: return
+	if a.in_battle or slot<0 or slot>=a.data.storage.size() or box<0 or box>=BOX_COUNT or box_count(box)>=BOX_SIZE: return
 	a.data.storage[slot]["box"]=box; pc_box=box; a.save(); pc()
 
 func confirm_release(slot):

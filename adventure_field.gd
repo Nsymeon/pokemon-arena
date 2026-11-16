@@ -151,13 +151,13 @@ func fossil_menu():
 
 func revive(kind):
 	if not FOSSILS.has(kind) or not done("fossil:"+kind) or done("revived:"+kind): return
-	if a.data.party.size()>=6 and a.data.storage.size()>=100: a.dialog="Party and storage are full. Make room first."; a.clear_ui(); return
+	if a.data.party.size()>=6 and a.data.storage.size()>=a.collection.STORAGE_CAPACITY: a.dialog="Party and storage are full. Make room first."; a.clear_ui(); return
 	a.clear_ui()
 	w().scenes.play([{"text":"SCIENTIST: The fossil is going into the regeneration chamber...","duration":1.8},{"text":"Ancient cells stir. A Pokemon is waking up!","duration":1.7,"flash":true},{"text":"It is alive!","duration":1.5,"portrait":FOSSILS[kind]}],func():
-		if a.data.party.size()>=6 and a.data.storage.size()>=100: a.dialog="Make space and return."; return
+		if a.data.party.size()>=6 and a.data.storage.size()>=a.collection.STORAGE_CAPACITY: a.dialog="Make space and return."; return
 		var mon=a.new_mon(FOSSILS[kind],5)
 		if a.data.party.size()<6: a.data.party.append(mon)
-		else: a.data.storage.append(mon)
+		else: a.collection.store(mon)
 		finish("revived:"+kind); a.dialog=a.mon_name(mon.id)+" was revived! "+("Sent to storage." if a.data.party.size()>=6 and mon not in a.data.party else "Joined your party."); a.save())
 
 func outdoor() -> bool:
@@ -246,12 +246,12 @@ func draw():
 
 func gift(key,species,level,text):
 	if done("gift:"+key): a.dialog="This Pokemon is already travelling with you."; return
-	if a.data.party.size()>=6 and a.data.storage.size()>=100: a.dialog="Make room in your party or storage first."; return
+	if a.data.party.size()>=6 and a.data.storage.size()>=a.collection.STORAGE_CAPACITY: a.dialog="Make room in your party or storage first."; return
 	w().scenes.play([{"text":text,"duration":1.8,"flash":true}],func():
 		if done("gift:"+key): return
 		var mon=a.new_mon(species,level)
 		if a.data.party.size()<6: a.data.party.append(mon)
-		elif a.data.storage.size()<100: a.data.storage.append(mon)
+		elif a.data.storage.size()<a.collection.STORAGE_CAPACITY: a.collection.store(mon)
 		else: return
 		finish("gift:"+key); a.dialog=a.mon_name(species)+" joined you!"; a.save())
 

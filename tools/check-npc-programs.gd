@@ -9,6 +9,7 @@ func fixture():
 	a.npc_program.cancel(); a.clear_ui(); a.world.scenes.reset(); a.dialog=""
 	a.data=a.INITIAL_DATA.duplicate(true); a.data.starter=4; a.data.rival=true
 	a.data.party=[a.new_mon(4,20)]; a.inventory.migrate()
+	a.data.bag.potion=5 # Explicit gift/rollback fixture, independent of new-game resources.
 	a.world.enabled=true; a.world.current="MAP_ROUTE1"; a.world.view3d.enabled=false
 	a.in_battle=false; a.exploring=true; c.campaign.active=false
 	c.frontend.layer.visible=false; c.campaign.layer.visible=false; c.selection_controls.visible=false

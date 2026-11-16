@@ -15,18 +15,18 @@ func npc(object: Dictionary) -> bool:
 	if "MagikarpSalesman" in script:
 		if a.field.done("gift:magikarp_sale"): a.show_dialogue("I don't give refunds!"); return true
 		var list=a.inventory.page("A MAGIKARP / $500")
-		a.inventory.row(list,"BUY MAGIKARP / Lv.5",buy_magikarp,a.data.money<500 or (a.data.party.size()>=6 and a.data.storage.size()>=100))
+		a.inventory.row(list,"BUY MAGIKARP / Lv.5",buy_magikarp,a.data.money<500 or (a.data.party.size()>=6 and a.data.storage.size()>=a.collection.STORAGE_CAPACITY))
 		return true
 	if "PokemonCenter" in script and ("Jigglypuff" in script or "Chansey" in script):
 		a.c.audio.cry(39 if "Jigglypuff" in script else 113); a.show_dialogue(a.world.scenes.npc_text(object)); return true
 	return false # Ordered source programs run after dedicated story/service handlers.
 
 func buy_magikarp():
-	if a.in_battle or a.data.money<500 or a.field.done("gift:magikarp_sale") or (a.data.party.size()>=6 and a.data.storage.size()>=100): return
+	if a.in_battle or a.data.money<500 or a.field.done("gift:magikarp_sale") or (a.data.party.size()>=6 and a.data.storage.size()>=a.collection.STORAGE_CAPACITY): return
 	a.data.money-=500
 	var mon=a.new_mon(129,5)
 	if a.data.party.size()<6: a.data.party.append(mon)
-	else: a.data.storage.append(mon)
+	else: a.collection.store(mon)
 	a.field.finish("gift:magikarp_sale"); a.clear_ui(); a.show_dialogue("You paid $500 and received MAGIKARP!"); a.save()
 
 func togepi_egg():
@@ -34,7 +34,7 @@ func togepi_egg():
 	if a.data.party.is_empty() or a.data.party[0].get("is_egg",false) or int(a.data.party[0].get("friendship",70))<250:
 		a.show_dialogue("Let me take a look at your Pokemon... Come back when your first partner trusts you completely."); return
 	if a.data.party.size()>=6: a.show_dialogue("You don't have space in your party. Make room for an Egg and come back."); return
-	var egg=a.new_mon(175,5); egg["is_egg"]=true; egg["egg_steps"]=(int(a.breeding.book["175"].cycles)+1)*256; egg.hp=0.; egg.friendship=120
+	var egg=a.new_mon(175,5); a.breeding.prepare_egg(egg,175)
 	a.data.party.append(egg); a.field.finish("gift:togepi_egg"); a.save(); a.show_dialogue("You treat your Pokemon right. Please take this Egg!\n\nReceived an Egg from the Gentleman!")
 
 func daisy():
@@ -53,5 +53,5 @@ func groom(slot):
 	if a.in_battle or slot<0 or slot>=a.data.party.size() or not a.Finale.has(a,"champion"): return
 	var mon=a.data.party[slot]
 	if mon.get("is_egg",false) or int(a.services.state().steps)-int(a.data.get("daisy_step",-500))<500: return
-	mon.friendship=mini(255,int(mon.get("friendship",70))+3); a.data["daisy_step"]=int(a.services.state().steps)
+	a.extras.friendship(mon,3); a.data["daisy_step"]=int(a.services.state().steps)
 	a.clear_ui(); a.world.scenes.play([{"text":"DAISY: Your Pokemon will look nice in no time!","duration":2.,"flash":true},{"text":"DAISY: There you go! All done!","duration":2.}],a.save)

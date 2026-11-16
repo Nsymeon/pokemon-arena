@@ -14,10 +14,14 @@ var ITEMS = {
 	"revive":{"name":"Revive / fainted to 50%","price":600,"revive":true}
 }
 const SHOP_TMS = {"TM09":1000,"TM17":1200,"TM40":1500}
+var shop_script=""
+var source_shop=""
 
 func install(adventure):
 	a = adventure
 	ITEMS.merge(a.extras.catalog)
+	for id in ITEMS:
+		if int(ITEMS[id].price)>0: ITEMS[id].price=a.economy.price(id,int(ITEMS[id].price))
 
 func eligible(id, level) -> Array:
 	var result: Array = []
@@ -46,11 +50,12 @@ func migrate():
 		if not mon.has("ailment"): mon.ailment = ""
 
 func valid(value) -> bool:
-	for field in ["bag","tms"]:
+	if not value.get("pc_items",{}) is Dictionary or value.get("pc_items",{}).size()>50: return false
+	for field in ["bag","tms","pc_items"]:
 		if not value.has(field): continue
 		if not value[field] is Dictionary: return false
 		for id in value[field]:
-			if not (ITEMS.has(id) if field=="bag" else book.tms.has(id)): return false
+			if not (book.tms.has(id) if field=="tms" else ITEMS.has(id)): return false
 			var amount = value[field][id]
 			if not (amount is int or amount is float) or amount!=int(amount) or amount<0 or amount>999: return false
 	if value.has("brock_tm") and not value.brock_tm is bool: return false
@@ -171,30 +176,81 @@ func use_item(id,slot) -> bool:
 	a.clear_ui()
 	return true
 
-func shop():
-	var list = page("POKE MART / $%d" % a.data.money)
-	row(list,"5 Poke Balls / $100",buy.bind("balls",100),a.data.money<100 or a.data.balls>994)
-	for id in ITEMS:
-		if int(ITEMS[id].price)<=0: continue
-		row(list,ITEMS[id].name+" / $"+str(ITEMS[id].price),buy.bind(id,ITEMS[id].price),a.data.money<ITEMS[id].price)
-	for id in SHOP_TMS:
-		row(list,book.tms[id].name+" / $"+str(SHOP_TMS[id]),buy.bind(id,SHOP_TMS[id]),a.data.money<SHOP_TMS[id])
+func stock(script: String) -> Array:
+	if a.economy.book.shops.has(script): return a.economy.book.shops[script]
+	if script=="custom": return ["linkcable"]+a.extras.EV_BERRIES.keys()+a.extras.HELD.filter(func(id):return int(ITEMS[id].price)>0)
+	return ["balls"]+ITEMS.keys().filter(func(id):return int(ITEMS[id].price)>0)+SHOP_TMS.keys()
+
+func shop(script=""):
+	shop_script=script
+	if script=="" and a.world.enabled:
+		for key in a.economy.book.shops:
+			if str(key).begins_with(a.world.room().name+"_EventScript_"): shop_script=key; break
+	if shop_script!="custom": source_shop=shop_script
+	var list = page(("SPECIAL SUPPLIES" if shop_script=="custom" else "POKE MART")+" / $%d" % a.data.money,shop.bind(source_shop) if shop_script=="custom" else Callable())
+	for id in stock(shop_script):
+		var cost=unit_price(id)
+		if cost<=0: continue
+		var name="Poke Ball" if id=="balls" else str(ITEMS[id].name) if ITEMS.has(id) else str(book.tms[id].name) if book.tms.has(id) else ""
+		if name!="": row(list,name+" / $"+str(cost),buy.bind(id,cost),a.data.money<cost)
+	row(list,"SELL ITEMS",sell_menu)
+	if shop_script!="custom": row(list,"SPECIAL SUPPLIES / custom arena items",shop.bind("custom"))
+
+func pc_items():
+	if not a.data.has("pc_items"): a.data.pc_items={}
+	var list=page("ITEM STORAGE / PC",a.collection.pc)
+	for id in a.data.pc_items:
+		if int(a.data.pc_items[id])>0: row(list,"WITHDRAW "+str(ITEMS[id].name)+" x"+str(a.data.pc_items[id]),transfer_pc_item.bind(id,false),int(a.data.bag.get(id,0))>=999)
+	for id in a.data.bag:
+		if int(a.data.bag[id])>0: row(list,"DEPOSIT "+str(ITEMS[id].name)+" x"+str(a.data.bag[id]),transfer_pc_item.bind(id,true),int(a.data.pc_items.get(id,0))>=999)
+
+func transfer_pc_item(id: String, deposit: bool):
+	if a.in_battle or not ITEMS.has(id): return
+	if not a.data.has("pc_items"): a.data.pc_items={}
+	var source=a.data.bag if deposit else a.data.pc_items
+	var target=a.data.pc_items if deposit else a.data.bag
+	if int(source.get(id,0))<=0 or int(target.get(id,0))>=999: return
+	if deposit and not target.has(id) and target.size()>=50: return
+	source[id]-=1; target[id]=int(target.get(id,0))+1
+	if source[id]==0: source.erase(id)
+	a.save(); pc_items()
+
+func unit_price(id) -> int:
+	return 200 if id=="balls" else int(ITEMS[id].price) if ITEMS.has(id) else a.economy.price(id,SHOP_TMS.get(id,0))
+
+func sell_menu():
+	var list=page("SELL / $"+str(a.data.money),shop.bind(shop_script))
+	for id in a.data.bag:
+		var amount=int(a.data.bag[id]); var cost=a.economy.price(id,int(ITEMS.get(id,{}).get("price",0)))/2
+		if amount>0 and cost>0: row(list,str(ITEMS[id].name)+" x"+str(amount)+" / SELL ONE $"+str(cost),sell.bind(id),a.data.money>=999999)
+	for tm in a.data.tms:
+		if int(a.data.tms[tm])>0: row(list,str(book.tms[tm].name)+" / SELL ONE $"+str(unit_price(tm)/2),sell.bind(tm),a.data.money>=999999)
+
+func sell(id):
+	if a.in_battle: return
+	var pocket=a.data.tms if book.tms.has(id) else a.data.bag
+	var cost=a.economy.price(id,int(ITEMS.get(id,{}).get("price",0)))/2
+	if cost<=0 or int(pocket.get(id,0))<=0 or a.data.money>=999999: return
+	pocket[id]-=1; a.data.money=mini(999999,int(a.data.money)+cost); a.save(); sell_menu()
 
 func buy(id,price):
+	var expected=unit_price(id)
+	if a.in_battle or id not in stock(shop_script): return
+	if expected<=0 or int(price)!=expected: return
 	if a.data.money<price: return
 	if id=="balls":
-		if a.data.balls>994: return
-		a.data.balls+=5
+		if a.data.balls>=999: return
+		a.data.balls+=1
 	elif ITEMS.has(id):
 		if int(a.data.bag.get(id,0))>=999: return
 		a.data.bag[id]=int(a.data.bag.get(id,0))+1
-	elif SHOP_TMS.has(id):
+	elif book.tms.has(id):
 		if int(a.data.tms.get(id,0))>=999: return
 		a.data.tms[id]=int(a.data.tms.get(id,0))+1
 	else: return
 	a.data.money-=price
 	a.save()
-	shop()
+	shop(shop_script)
 
 func tm_case():
 	var list = page("TM CASE / single-use / choose a machine",bag)

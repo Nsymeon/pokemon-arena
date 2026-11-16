@@ -158,10 +158,10 @@ static func complete(a,key) -> String:
 	var task=TASKS[key]
 	if has(a,task.get("flag",key)): return "Already completed."
 	if task.has("gift"):
-		if a.data.party.size()>=6 and a.data.storage.size()>=100: return "Your party and storage are full. Make room, then speak again."
+		if a.data.party.size()>=6 and a.data.storage.size()>=a.collection.STORAGE_CAPACITY: return "Your party and storage are full. Make room, then speak again."
 		var mon=a.new_mon(task.gift,task.level)
 		if a.data.party.size()<6: a.data.party.append(mon)
-		else: a.data.storage.append(mon)
+		else: a.collection.store(mon)
 	state(a)[key]=true
 	state(a)[task.get("flag",key)]=true
 	if key=="silph_saved": a.data.bag.masterball=mini(999,int(a.data.bag.get("masterball",0))+1)

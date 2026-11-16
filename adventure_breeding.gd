@@ -16,13 +16,17 @@ func valid(data) -> bool:
 		if mon.get("is_egg",false):
 			var steps=mon.get("egg_steps",-1)
 			if not (steps is int or steps is float) or steps!=int(steps) or steps<0 or steps>100000 or mon.hp!=0 or mon.level!=5: return false
+			var cycles=mon.get("egg_cycles",0)
+			if not a.services.valid_steps(cycles) or cycles>254: return false
 	if not data.has("breeding"): return true
 	var s=data.breeding
 	if not s is Dictionary or not s.get("parents") is Array or s.parents.size()>2 or not s.get("pending") is Dictionary: return false
+	if not a.services.valid_steps(s.get("hatch_phase",0)) or s.get("hatch_phase",0)>255: return false
 	if not (s.get("steps") is int or s.get("steps") is float) or s.steps!=int(s.steps) or s.steps<0 or s.steps>1000000000: return false
 	var check=[]
 	for entry in s.parents:
 		if not entry is Dictionary or not entry.get("mon") is Dictionary: return false
+		if not a.services.valid_steps(entry.get("xp_steps",0)): return false
 		if not (entry.get("level") is int or entry.get("level") is float) or entry.level!=int(entry.level) or entry.level<1 or entry.level>100: return false
 		if entry.mon.get("is_egg",false): return false
 		check.append(entry.mon)
@@ -69,7 +73,7 @@ func offspring(parents: Array) -> Dictionary:
 	if species==298 and "seaincense" not in items: species=183
 	if species==360 and "laxincense" not in items: species=202
 	var egg=a.new_mon(species,5)
-	egg["is_egg"]=true; egg["egg_steps"]=(int(book[str(species)].cycles)+1)*256; egg.hp=0.; egg.friendship=120
+	prepare_egg(egg,species)
 	egg["origin"]="Hatched at Four Island Day Care"; egg["ot"]=str(a.data.get("trainer_id","player"))
 	var available=["hp","atk","def","spe","spa","spd"]
 	for i in 3:
@@ -89,12 +93,16 @@ func offspring(parents: Array) -> Dictionary:
 	egg["egg_moves"]=inherited
 	return egg
 
+func prepare_egg(egg: Dictionary, species: int):
+	egg["is_egg"]=true; egg["egg_cycles"]=int(book[str(species)].cycles)
+	egg["egg_steps"]=(int(egg.egg_cycles)+1)*256-1; egg.hp=0.; egg.friendship=120
+
 func menu():
 	if not a.world.current.begins_with("MAP_FOUR_ISLAND") or a.in_battle: return
 	var s=state(); var list=a.inventory.page("FOUR ISLAND DAY CARE / two parents")
 	for i in s.parents.size():
-		var parent=s.parents[i]; var cost=100+100*(int(parent.mon.level)-int(parent.level))
-		a.inventory.row(list,"RETRIEVE "+a.collection.title(parent.mon)+" Lv."+str(parent.mon.level)+" / $"+str(cost),withdraw.bind(i),a.data.party.size()>=6 or a.data.money<cost)
+		var parent=s.parents[i]; var preview=a.services.projected(parent.mon,int(parent.get("xp_steps",0))); var cost=100+100*(int(preview.level)-int(parent.level))
+		a.inventory.row(list,"RETRIEVE "+a.collection.title(preview)+" Lv."+str(preview.level)+" / $"+str(cost),withdraw.bind(i),a.data.party.size()>=6 or a.data.money<cost)
 	if s.parents.size()<2:
 		for i in a.data.party.size():
 			var mon=a.data.party[i]
@@ -103,7 +111,7 @@ func menu():
 		var chance=compatibility(s.parents.map(func(entry):return entry.mon))
 		a.inventory.row(list,("They prefer to play with other Pokemon." if chance==0 else "The two get along"+(" very well!" if chance==70 else "."))+" / Egg chance: "+str(chance)+"% per 256 steps",func():pass,true)
 	if not s.pending.is_empty(): a.inventory.row(list,"The Day-Care Man found an Egg! / TAKE EGG",take_egg,a.data.party.size()>=6)
-	a.inventory.row(list,"Parents gain 1 EXP per step. Retrieval: $100 + $100 per level gained.",func():pass,true)
+	a.inventory.row(list,"Parents gain 1 EXP per step on retrieval. New moves can replace the oldest; no evolution.",func():pass,true)
 
 func deposit(slot: int):
 	var s=state()
@@ -111,35 +119,41 @@ func deposit(slot: int):
 	var mon=a.data.party[slot]
 	if mon.get("is_egg",false) or mon.hp<=0 or a.data.party.filter(func(m):return m.hp>0).size()<2: return
 	if a.field.losing_surf(slot,{"hp":0,"moves":[]}): return
-	s.parents.append({"mon":mon,"level":mon.level}); a.data.party.remove_at(slot); s.steps=0
+	s.parents.append({"mon":mon,"level":mon.level,"xp_steps":0}); a.data.party.remove_at(slot); s.steps=0
 	a.save(); menu()
 
 func withdraw(slot: int):
 	var s=state()
 	if a.in_battle or slot<0 or slot>=s.parents.size() or a.data.party.size()>=6: return
-	var entry=s.parents[slot]; var cost=100+100*(int(entry.mon.level)-int(entry.level))
+	var entry=s.parents[slot]; var mon=a.services.projected(entry.mon,int(entry.get("xp_steps",0))); var cost=100+100*(int(mon.level)-int(entry.level))
 	if a.data.money<cost: return
-	a.data.money-=cost; a.data.party.append(entry.mon); s.parents.remove_at(slot); s.steps=0
+	mon.hp=1.; mon.ailment=""
+	a.data.money-=cost; a.data.party.append(mon); s.parents.remove_at(slot); s.steps=0
 	a.save(); menu()
 
 func take_egg():
 	var s=state()
 	if a.in_battle or a.data.party.size()>=6 or s.pending.is_empty(): return
-	a.data.party.append(s.pending.duplicate(true)); s.pending={}; a.save(); menu()
+	a.data.party.append(s.pending.duplicate(true)); s.pending={}; s.hatch_phase=0; a.save(); menu()
 
 func step():
 	var s=state(); s.steps=mini(1000000000,int(s.steps)+1)
 	for entry in s.parents:
-		var mon=entry.mon
-		if mon.level>=100: continue
-		mon.xp+=1
-		if mon.xp>=a.xp_needed(mon):
-			mon.xp-=a.xp_needed(mon); mon.level+=1; a.inventory.level_up(mon,mon.id,mon.level)
-	if int(s.steps)%256==0 and s.pending.is_empty() and s.parents.size()==2:
+		entry.xp_steps=mini(1000000000,int(entry.get("xp_steps",0))+1)
+	if int(s.steps)%256==255 and s.pending.is_empty() and s.parents.size()==2:
 		var parents=s.parents.map(func(entry):return entry.mon)
-		if random.randi_range(0,99)<compatibility(parents): s.pending=offspring(parents)
+		if random.randi_range(0,65535)*100/65535<compatibility(parents): s.pending=offspring(parents)
+	s.hatch_phase=(int(s.get("hatch_phase",0))+1)%256
 	for mon in a.data.party:
-		if mon.get("is_egg",false): mon.egg_steps=maxi(0,int(mon.egg_steps)-1)
+		if not mon.get("is_egg",false): continue
+		if int(mon.egg_steps)==0: continue
+		if not mon.has("egg_cycles"):
+			mon.egg_steps=maxi(0,int(mon.egg_steps)-1) # Retain remaining progress of old saves.
+			continue
+		if int(s.hatch_phase)==255:
+			if int(mon.egg_cycles)==0: mon.egg_steps=0; break
+			mon.egg_cycles-=1
+		mon.egg_steps=(int(mon.egg_cycles)+1)*256-((int(s.hatch_phase)+1)%256)
 
 func tick() -> bool:
 	if hatching: return true
@@ -159,7 +173,7 @@ func hatch(mon):
 	for i in 6: tween.tween_property(view,"rotation",.12 if i%2 else -.12,.14)
 	tween.tween_property(view,"modulate",Color(5,5,5),.55)
 	tween.tween_callback(func():
-		mon.is_egg=false; mon.erase("egg_steps"); mon.hp=1.; mon.friendship=120
+		mon.is_egg=false; mon.erase("egg_steps"); mon.erase("egg_cycles"); mon.hp=1.; mon.friendship=120
 		a.collection.register(mon); a.save()
 		view.rotation=0; view.modulate=Color.WHITE; view.texture=a.collection.full_picture(mon)
 		a.c.audio.cry(mon.id)

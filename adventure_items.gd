@@ -5,9 +5,22 @@ const STONES={"moonstone":{30:31,33:34,35:36,39:40},"firestone":{37:38,58:59,133
 const VITAMINS={"hpup":"hp","protein":"atk","iron":"def","calcium":"spa","zinc":"spd","carbos":"spe"}
 const EV_BERRIES={"pomegberry":"hp","kelpsyberry":"atk","qualotberry":"def","hondewberry":"spa","grepaberry":"spd","tamatoberry":"spe"}
 const XITEMS={"xattack":"atk","xdefend":"def","xspecial":"spa","xspeed":"spe","xaccuracy":"accuracy"}
-const TREASURES={"nugget":5000,"bigpearl":3750,"pearl":700,"stardust":1000,"starpiece":4900}
+const TREASURES={"nugget":5000,"bigpearl":3750,"pearl":700,"stardust":1000,"starpiece":4900,"tinymushroom":250,"bigmushroom":2500,"heartscale":50,"razzberry":10,"blukberry":10,"nanabberry":10,"wepearberry":10,"pinapberry":10}
 var HELD=["blackglasses","quickclaw","cleansetag","silkscarf","laxincense","seaincense","metalcoat","nevermeltice","kingsrock","luckypunch","dragonscale","upgrade","deepseatooth","deepseascale"]+preload("res://held_gear.gd").ITEMS
 var catalog={
+	"netball":{"name":"Net Ball / Water and Bug bonus","price":1000},
+	"nestball":{"name":"Nest Ball / low-level bonus","price":1000},
+	"sacredash":{"name":"Sacred Ash / revive all fainted partners outside battle","price":0},
+	"ppmax":{"name":"PP Max / maximize recovery PP","price":0},
+	"greatball":{"name":"Great Ball / improved capture","price":600},
+	"ultraball":{"name":"Ultra Ball / improved capture","price":1200},
+	"repeatball":{"name":"Repeat Ball / caught species bonus","price":1000},
+	"timerball":{"name":"Timer Ball / improves with battle time","price":1000},
+	"moomoomilk":{"name":"Moomoo Milk / full HP","price":500,"heal":1.0},
+	"lavacookie":{"name":"Lava Cookie / cure status","price":200,"cure":["poison","toxic","paralysis","sleep","burn","freeze"]},
+	"retromail":{"name":"Retro Mail / stationery","price":50},
+	"dreammail":{"name":"Dream Mail / stationery","price":50},
+	"superrepel":{"name":"Super Lure / 200 steps / 20% grass hordes","price":500},
 	"freshwater":{"name":"Fresh Water / heal 50%","price":200,"heal":0.5},
 	"sodapop":{"name":"Soda Pop / heal 60%","price":300,"heal":0.6},
 	"lemonade":{"name":"Lemonade / heal 80%","price":350,"heal":0.8},
@@ -40,8 +53,14 @@ func _init():
 	for id in XITEMS: catalog[id]={"name":id.capitalize()+" / battle stat boost","price":500}
 	for id in TREASURES: catalog[id]={"name":id.capitalize()+" / sell for $"+str(TREASURES[id]),"price":0}
 	for id in HELD: catalog[id]={"name":preload("res://held_gear.gd").DESCRIPTIONS.get(id,id.capitalize()+" / equip held item"),"price":300 if id in ["sitrusberry","lumberry"] else 4000 if id=="leftovers" else 6000 if id.begins_with("choice") else 3000 if id in preload("res://held_gear.gd").ITEMS else 0}
+	catalog.soothebell.name="Soothe Bell / boosts friendship gains by 50%, rounded down"
+	catalog.leppaberry.name="Leppa Berry / held: restore empty recovery PP or exhausted energy"
+	catalog.oranberry.name="Oran Berry / held: heal 10 HP at half health"
 
 func valid(data) -> bool:
+	if not data.get("mail_notes",{}) is Dictionary: return false
+	for id in data.get("mail_notes",{}):
+		if id not in ["retromail","dreammail"] or not data.mail_notes[id] is String or data.mail_notes[id].length()>120: return false
 	var steps=data.get("repel_steps",0)
 	if not (steps is float or steps is int) or steps!=int(steps) or steps<0 or steps>250: return false
 	for mon in data.party+data.storage:
@@ -59,16 +78,30 @@ func valid(data) -> bool:
 	return true
 
 func targets(id):
-	if id=="masterball":
-		if not a.in_battle: a.dialog="Use the Master Ball during a wild Pokemon battle."; a.clear_ui()
-		else: a.clear_ui(); a.throw_ball(true)
+	if id in ["retromail","dreammail"]:
+		if a.in_battle: return
+		var list=a.inventory.page(catalog[id].name,a.inventory.bag)
+		var edit=LineEdit.new(); edit.max_length=120; edit.placeholder_text="Write a message..."; edit.text=str(a.data.get("mail_notes",{}).get(id,"")); list.add_child(edit)
+		a.inventory.row(list,"SAVE MESSAGE",func():
+			if not a.data.has("mail_notes"): a.data.mail_notes={}
+			a.data.mail_notes[id]=edit.text; a.save(); a.inventory.bag())
 		return
-	if a.in_battle and (id in STONES or id in VITAMINS or id in EV_BERRIES or id=="linkcable" or id in HELD or id in TREASURES or id in ["rarecandy","ppup","escaperope","repel","maxrepel","upgrade","sunstone"]):
+	if id in ["masterball","greatball","ultraball","repeatball","timerball","netball","nestball"]:
+		if not a.in_battle: a.dialog="Use this Ball during a wild Pokemon battle."; a.clear_ui()
+		else: a.clear_ui(); a.throw_ball(id=="masterball",id)
+		return
+	if id=="sacredash":
+		if a.in_battle or int(a.data.bag.get(id,0))<=0: return
+		var fainted=a.data.party.filter(func(mon):return not mon.get("is_egg",false) and mon.hp<=0)
+		if fainted.is_empty(): unavailable(); return
+		for mon in fainted: mon.hp=1.; mon.ailment=""
+		consume(id); a.dialog="Sacred Ash restored all fainted partners."; return
+	if a.in_battle and (id in STONES or id in VITAMINS or id in EV_BERRIES or id=="linkcable" or id in HELD or id in TREASURES or id in ["rarecandy","ppup","ppmax","escaperope","repel","superrepel","maxrepel","upgrade","sunstone"]):
 		a.clear_ui(); a.c.notice="Use this item outside battle."; a.c.notice_time=2; return
 	if id=="escaperope": a.field.escape(); return
-	if id in ["repel","maxrepel"]:
+	if id in ["repel","superrepel","maxrepel"]:
 		if int(a.data.bag.get(id,0))>0:
-			a.data["repel_steps"]=250 if id=="maxrepel" else 100; consume(id); a.dialog="Lure active: 20% grass hordes for "+str(a.data.repel_steps)+" steps."
+			a.data["repel_steps"]={"repel":100,"superrepel":200,"maxrepel":250}[id]; consume(id); a.dialog="Lure active: 20% grass hordes for "+str(a.data.repel_steps)+" steps."
 		return
 	if id in TREASURES:
 		if int(a.data.bag.get(id,0))>0 and a.data.money<999999:
@@ -77,11 +110,19 @@ func targets(id):
 	var list=a.inventory.page(catalog[id].name+" / CHOOSE POKEMON",a.inventory.bag)
 	for i in range(a.data.party.size()):
 		var mon=a.data.party[i]
-		a.inventory.row(list,a.mon_name(mon.id)+" Lv."+str(mon.level)+(" / holding "+str(mon.held_item) if mon.get("held_item","")!="" else ""),pp_menu.bind(i) if id=="ppup" else use.bind(id,i))
+		a.inventory.row(list,a.mon_name(mon.id)+" Lv."+str(mon.level)+(" / holding "+str(mon.held_item) if mon.get("held_item","")!="" else ""),pp_menu.bind(i,id) if id in ["ppup","ppmax"] else use.bind(id,i))
 
 func consume(id):
 	a.data.bag[id]=int(a.data.bag[id])-1
 	a.clear_ui(); a.save()
+
+func friendship(mon,amount):
+	if mon.get("is_egg",false): return
+	if amount>0 and mon.get("held_item","")=="soothebell": amount=int(amount*1.5)
+	mon.friendship=clampi(int(mon.get("friendship",70))+amount,0,255)
+
+func friendship_tier(mon) -> int:
+	return mini(2,int(mon.get("friendship",70))/100)
 
 func unavailable() -> bool:
 	a.clear_ui()
@@ -101,6 +142,8 @@ func use(id,slot) -> bool:
 	var success=false
 	if id=="fullrestore" and mon.hp>0 and (mon.hp<1 or mon.ailment!=""):
 		mon.hp=1.0; mon.ailment=""; success=true
+	elif catalog[id].has("cure") and mon.hp>0 and mon.get("ailment","") in catalog[id].cure:
+		mon.ailment=""; success=true
 	elif id=="maxrevive" and mon.hp<=0: mon.hp=1.0; success=true
 	elif catalog[id].has("heal") and mon.hp>0 and mon.hp<1: mon.hp=minf(1,mon.hp+catalog[id].heal); success=true
 	elif a.evolution_rules.item_target(mon,id)>0:
@@ -120,7 +163,9 @@ func use(id,slot) -> bool:
 		var training=mon.get("training",{}); var stat=VITAMINS[id]; var total=0
 		for amount in training.values(): total+=int(amount)
 		var increase=mini(10,mini(100-int(training.get(stat,0)),510-total))
-		if increase>0: training[stat]=int(training.get(stat,0))+increase; mon["training"]=training; success=true
+		if increase>0:
+			training[stat]=int(training.get(stat,0))+increase; mon["training"]=training; success=true
+			friendship(mon,[5,3,2][friendship_tier(mon)])
 	elif id in HELD and mon.get("held_item","")!=id:
 		var previous=str(mon.get("held_item",""))
 		if previous!="" and int(a.data.bag.get(previous,0))>=999: return unavailable()
@@ -152,21 +197,21 @@ func use(id,slot) -> bool:
 	elif not a.in_battle and id!="rarecandy": a.dialog="Used "+catalog[id].name+" on "+a.mon_name(mon.id)+"."
 	return true
 
-func pp_menu(slot):
-	var list=a.inventory.page("PP UP / RECOVERY MOVES",targets.bind("ppup"))
+func pp_menu(slot, item="ppup"):
+	var list=a.inventory.page(item.to_upper()+" / RECOVERY MOVES",targets.bind(item))
 	var mon=a.data.party[slot]
 	for move in mon.moves:
 		if a.inventory.book.moves[move].kind=="heal":
-			a.inventory.row(list,a.inventory.book.moves[move].name+" / bonus "+str(mon.get("ppups",{}).get(move,0))+"/3",pp_up.bind(slot,move))
+			a.inventory.row(list,a.inventory.book.moves[move].name+" / bonus "+str(mon.get("ppups",{}).get(move,0))+"/3",pp_up.bind(slot,move,item))
 	a.inventory.row(list,"Arena attacks use energy. PP Up increases limited recovery PP.",func():pass,true)
 
-func pp_up(slot,move):
-	if a.in_battle or int(a.data.bag.get("ppup",0))<=0 or slot<0 or slot>=a.data.party.size(): return
+func pp_up(slot,move,item="ppup"):
+	if item not in ["ppup","ppmax"] or a.in_battle or int(a.data.bag.get(item,0))<=0 or slot<0 or slot>=a.data.party.size(): return
 	var mon=a.data.party[slot]
 	if move not in mon.moves or a.inventory.book.moves[move].kind!="heal": return
 	var ups=mon.get("ppups",{})
 	if int(ups.get(move,0))>=3: unavailable(); return
-	ups[move]=int(ups.get(move,0))+1; mon["ppups"]=ups; consume("ppup"); a.dialog="Recovery PP increased."
+	ups[move]=3 if item=="ppmax" else int(ups.get(move,0))+1; mon["ppups"]=ups; consume(item); a.dialog="Recovery PP increased."
 
 func tests():
 	var arena_before={}

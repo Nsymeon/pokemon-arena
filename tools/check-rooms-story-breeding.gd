@@ -93,7 +93,8 @@ func run():
 	a.data.bag.revive=1; check(not a.inventory.use_item("revive",1),"Revive cannot target an Egg")
 	a.data.x=a.position_world.x; a.data.y=a.position_world.y
 	check(a.valid(JSON.parse_string(JSON.stringify(a.data))),"Parents and Egg survive validated save round-trip")
-	a.data.party[1].egg_steps=1; a.clear_ui(); a.dialog=""; a.breeding.step(); a.breeding.tick()
+	a.data.party[1].erase("egg_cycles"); a.data.party[1].egg_steps=1 # Legacy egg progress remains compatible.
+	a.clear_ui(); a.dialog=""; a.breeding.step(); a.breeding.tick()
 	await create_timer(1.8).timeout
 	check(not a.data.party[1].is_egg and a.data.party[1].hp==1,"Walking hatches an Egg into a healthy Pokemon")
 	check(a.data.pokedex.get("4",{}).get("caught",false),"Hatching registers the revealed species in the Pokedex")

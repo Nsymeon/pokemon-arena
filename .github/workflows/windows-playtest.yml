@@ -88,6 +88,24 @@ jobs:
           $code = $LASTEXITCODE
           $npcs | Write-Output
           if ($code -ne 0 -or ($npcs -match 'SCRIPT ERROR|ERROR:') -or -not ($npcs -match 'NPC PROGRAM CHECK: \[\]')) { throw 'NPC program checks failed' }
+      - name: Economy and storage regression
+        shell: pwsh
+        run: |
+          $economy = & "$env:RUNNER_TEMP/godot/Godot_v4.3-stable_win64_console.exe" --headless --path . --script tools/check-economy-storage.gd -- --qa-economy 2>&1
+          $code = $LASTEXITCODE
+          $economy | Write-Output
+          if ($code -ne 0 -or ($economy -match 'SCRIPT ERROR|ERROR:') -or -not ($economy -match 'ECONOMY / STORAGE CHECK: \[\]')) { throw 'Economy/storage checks failed' }
+      - name: Map pickups and Day Care regression
+        shell: pwsh
+        run: |
+          $pickups = & "$env:RUNNER_TEMP/godot/Godot_v4.3-stable_win64_console.exe" --headless --path . --script tools/check-map-pickups.gd -- --qa-pickups 2>&1
+          $code = $LASTEXITCODE
+          $pickups | Write-Output
+          if ($code -ne 0 -or ($pickups -match 'SCRIPT ERROR|ERROR:') -or -not ($pickups -match 'MAP PICKUP CHECK: \[\]')) { throw 'Map pickup checks failed' }
+          $daycare = & "$env:RUNNER_TEMP/godot/Godot_v4.3-stable_win64_console.exe" --headless --path . --script tools/check-daycare-fidelity.gd -- --qa-daycare 2>&1
+          $code = $LASTEXITCODE
+          $daycare | Write-Output
+          if ($code -ne 0 -or ($daycare -match 'SCRIPT ERROR|ERROR:') -or -not ($daycare -match 'DAY CARE FIDELITY CHECK: \[\]')) { throw 'Day Care checks failed' }
       - name: Save deletion regression
         shell: pwsh
         run: |
