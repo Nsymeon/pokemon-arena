@@ -82,8 +82,10 @@ func legendary_requirement(species: int) -> String:
 
 func npc(npc) -> bool:
 	var script=str(npc.get("script","")); var gfx=str(npc.get("graphics_id","")); var w=a.world
+	if AIDES.has(script) or script in ["VermilionCity_PokemonFanClub_EventScript_Chairman","CeladonCity_Condominiums_1F_EventScript_TeaWoman"]:
+		return a.npc_program.start(npc)
 	if script=="CeruleanCity_EventScript_CeruleanCaveGuard": a.dialog=legendary_requirement(150); return true
-	var gifts={"FuchsiaCity_WardensHouse_EventScript_Warden":"strength","VermilionCity_PokemonFanClub_EventScript_Chairman":"bicycle","SafariZone_SecretHouse_EventScript_Attendant":"surf","SilphCo_11F_EventScript_President":"silph_saved"}
+	var gifts={"FuchsiaCity_WardensHouse_EventScript_Warden":"strength","SafariZone_SecretHouse_EventScript_Attendant":"surf","SilphCo_11F_EventScript_President":"silph_saved"}
 	if gifts.has(script):
 		a.Finale.start_task(a,gifts[script]); return true
 	if w.current=="MAP_POKEMON_TOWER_2F" and "BLUE" in gfx:
@@ -96,16 +98,6 @@ func npc(npc) -> bool:
 		if a.Story.state(a).get("bridge_rocket",false): a.dialog="You defeated the Nugget Bridge challenge."; return true
 		if bridge_count()<5: a.dialog="Defeat all five trainers on Nugget Bridge first."; return true
 		w.scenes.play([{"text":"You cleared the five-trainer challenge! But the recruiter reveals he belongs to Team Rocket...","duration":2.6}],func():a.begin_battle("bridge_rocket",[23,41],[15,15])); return true
-	if AIDES.has(script):
-		var spec=AIDES[script]; var key="aide:"+script
-		if done(key): a.dialog="OAK'S AIDE: I hope your "+spec[2]+" is helping on your journey."; return true
-		var count=caught_kanto()
-		if count<int(spec[0]): a.dialog="OAK'S AIDE: Catch "+str(spec[0])+" different Kanto species. Your Pokedex records "+str(count)+" caught."; return true
-		if spec[1] in ["flash","itemfinder"]: a.field.finish("field:"+spec[1])
-		else: a.data.bag[spec[1]]=mini(999,int(a.data.bag.get(spec[1],0))+1)
-		finish(key); a.dialog="OAK'S AIDE: Excellent research! Received "+spec[2]+"!"; a.save(); return true
-	if script=="CeladonCity_Condominiums_1F_EventScript_TeaWoman":
-		finish("tea"); a.dialog="The lady gives you TEA. Share it with Saffron's thirsty gate guards."; a.save(); return true
 	if "PROF_OAK" in gfx and a.field.done("parcel_delivered"):
 		if national(): a.dialog="OAK: Your National Pokedex is ready. Explore the Sevii Islands and help Celio finish his research."
 		elif national_ready(): national_scene()

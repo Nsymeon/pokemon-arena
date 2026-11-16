@@ -59,9 +59,17 @@ func run():
 	a.position_world=w.events.point(sign)+Vector2.DOWN*48; w.heading=Vector2.UP
 	check(w.interact() and a.dialog!="","Ordinary route sign responds to interaction")
 	a.clear_ui(); a.dialog=""; var money=int(a.data.bag.get("potion",0))
-	a.npc_scripts.npc({"script":"Route1_EventScript_MartClerk"}); a.npc_scripts.npc({"script":"Route1_EventScript_MartClerk"})
+	for repeat in 2:
+		a.npc_program.start({"script":"Route1_EventScript_MartClerk"})
+		for step in 100:
+			if not a.npc_program.active: break
+			a.advance_dialogue()
 	check(int(a.data.bag.get("potion",0))==money+1,"Route 1 clerk gives one Potion, with no duplicate reward")
-	a.npc_scripts.npc({"script":"SaffronCity_MrPsychicsHouse_EventScript_MrPsychic"}); a.npc_scripts.npc({"script":"SaffronCity_MrPsychicsHouse_EventScript_MrPsychic"})
+	for repeat in 2:
+		a.npc_program.start({"script":"SaffronCity_MrPsychicsHouse_EventScript_MrPsychic"})
+		for step in 100:
+			if not a.npc_program.active: break
+			a.advance_dialogue()
 	check(int(a.data.tms.get("TM29",0))==1,"Mr Psychic gives TM29 exactly once")
 	fixture("MAP_FOUR_ISLAND"); a.data.starter=4; a.data.money=20000
 	var mom=a.new_mon(4,20); mom.gender="F"; mom.ivs=c.ivs.uniform(31)

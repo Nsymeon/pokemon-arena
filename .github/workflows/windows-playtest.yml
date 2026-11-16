@@ -81,6 +81,13 @@ jobs:
           $code = $LASTEXITCODE
           $trainers | Write-Output
           if ($code -ne 0 -or ($trainers -match 'SCRIPT ERROR|ERROR:') -or -not ($trainers -match 'ADVENTURE TRAINER CHECK: \[\]')) { throw 'Adventure trainer fidelity checks failed' }
+      - name: Ordered NPC dialogue regression
+        shell: pwsh
+        run: |
+          $npcs = & "$env:RUNNER_TEMP/godot/Godot_v4.3-stable_win64_console.exe" --headless --path . --script tools/check-npc-programs.gd -- --qa-npcs 2>&1
+          $code = $LASTEXITCODE
+          $npcs | Write-Output
+          if ($code -ne 0 -or ($npcs -match 'SCRIPT ERROR|ERROR:') -or -not ($npcs -match 'NPC PROGRAM CHECK: \[\]')) { throw 'NPC program checks failed' }
       - name: Save deletion regression
         shell: pwsh
         run: |

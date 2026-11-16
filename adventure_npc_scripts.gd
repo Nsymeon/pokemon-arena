@@ -19,21 +19,7 @@ func npc(object: Dictionary) -> bool:
 		return true
 	if "PokemonCenter" in script and ("Jigglypuff" in script or "Chansey" in script):
 		a.c.audio.cry(39 if "Jigglypuff" in script else 113); a.show_dialogue(a.world.scenes.npc_text(object)); return true
-	if object.has("battle"): return false
-	var record=a.world.scenes.dialogue.get(script,{})
-	if not record.has("gift"): return false
-	var gift=record.gift; var raw=str(gift.item); var item=raw.to_lower().replace("_","")
-	var tm=raw.begins_with("TM") and a.inventory.book.tms.has(raw)
-	if not tm and not a.inventory.ITEMS.has(item): return false
-	var key="npc_gift:"+script
-	if a.field.done(key): a.show_dialogue(a.world.scenes.npc_text(object)); return true
-	var inventory=a.data.tms if tm else a.data.bag; var id=raw if tm else item
-	if int(inventory.get(id,0))+int(gift.amount)>999: a.show_dialogue("There's no room for this item in your Bag."); return true
-	inventory[id]=int(inventory.get(id,0))+int(gift.amount)
-	a.field.finish(key)
-	if gift.has("flag"): a.field.finish("source:"+str(gift.flag))
-	a.show_dialogue(str(record.get("text",""))+"\n\nReceived "+(a.inventory.book.tms[id].name if tm else a.inventory.ITEMS[id].name)+"!")
-	a.save(); return true
+	return false # Ordered source programs run after dedicated story/service handlers.
 
 func buy_magikarp():
 	if a.in_battle or a.data.money<500 or a.field.done("gift:magikarp_sale") or (a.data.party.size()>=6 and a.data.storage.size()>=100): return

@@ -36,9 +36,10 @@ func npc(o) -> bool:
 		if a.world.current.begins_with("MAP_FOUR_ISLAND"): a.breeding.menu()
 		else: daycare_menu()
 		return true
-	if "CoinCaseMan" in script: a.field.reward("coin_case","Received COIN CASE! Use the Game Corner's machines and prize counters."); return true
-	if script.begins_with("CeladonCity_GameCorner_") and not "RocketGrunt" in script: game_menu(); return true
-	if "SAFARI_ZONE_ENTRANCE" in a.world.current: safari_menu(); return true
+	# Patrons and the information attendant keep their own dialogue and choices.
+	if script=="CeladonCity_GameCorner_EventScript_CoinsClerk": game_menu(); return true
+	if script.begins_with("CeladonCity_GameCorner_PrizeRoom_"): game_menu(); return true
+	if script=="FuchsiaCity_SafariZone_Entrance_EventScript_AskEnterSafariZone" or (a.world.current=="MAP_FUCHSIA_CITY_SAFARI_ZONE_ENTRANCE" and script=="0x0"): safari_menu(); return true
 	return false
 
 func steps():

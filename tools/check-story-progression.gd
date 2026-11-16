@@ -19,6 +19,10 @@ func scene_done():
 func npc(script):
 	w.events.npc_interact({"script":script})
 	scene_done()
+	for i in 200:
+		if not a.npc_program.active: break
+		if a.npc_program.waiting_choice: a.npc_program.choose(1,a.npc_program.generation)
+		else: a.advance_dialogue()
 
 func caught(count):
 	a.data.pokedex={}

@@ -247,6 +247,7 @@ func interact() -> bool:
 					finish(w.current+"EventScript_Close"+str(w.room().name).trim_prefix("SilphCo_")+"Door"+script.split("_Door")[1])
 					refresh(); a.dialog="Card Key accepted. Door unlocked."; a.save()
 			else:
+				if a.npc_program.start(o): return true
 				var text=w.scenes.npc_text(o)
 				a.show_dialogue(text if text!="" else "The lettering is worn, but the path ahead is clearly marked.")
 	return true

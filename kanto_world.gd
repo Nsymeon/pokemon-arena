@@ -111,6 +111,7 @@ func update_camera():
 	a.camera=Vector2(clampf(a.position_world.x-640,minf(0,extent.x/2),maxf(0,extent.x)),clampf(a.position_world.y-350,minf(0,extent.y/2),maxf(0,extent.y)))
 
 func enter(id: String, at: Vector2):
+	a.npc_program.cancel(true)
 	if not maps.has(id): return
 	var previous=current
 	var previous_position=a.position_world
@@ -298,6 +299,7 @@ func interact() -> bool:
 				a.show_dialogue(scenes.npc_text(npc,"post")); return true
 			scenes.start_trainer(npc)
 		else:
+			if a.npc_program.start(npc): return true
 			var line=scenes.npc_text(npc)
 			a.show_dialogue(line if line!="" else "...")
 		return true

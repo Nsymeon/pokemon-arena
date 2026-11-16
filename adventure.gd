@@ -29,6 +29,7 @@ var field=preload("res://adventure_field.gd").new()
 var avatar=preload("res://adventure_avatar.gd").new()
 var breeding=preload("res://adventure_breeding.gd").new()
 var npc_scripts=preload("res://adventure_npc_scripts.gd").new()
+var npc_program=preload("res://adventure_npc_program.gd").new()
 var experience=preload("res://adventure_experience.gd").new()
 var world=preload("res://kanto_world.gd").new()
 var inventory = preload("res://adventure_inventory.gd").new()
@@ -81,6 +82,7 @@ func install(context):
 	avatar.a = self
 	breeding.a=self; breeding.random.randomize()
 	npc_scripts.a=self
+	npc_program.a=self
 	world.install(self)
 	inventory.install(self)
 	font = ThemeDB.fallback_font
@@ -140,7 +142,7 @@ func valid(value) -> bool:
 	if not Finale.valid(value): return false
 	for member in value.get("hall_of_fame",[]):
 		if not c.roster.any(func(mon):return int(mon.id)==int(member.id)): return false
-	return breeding.valid(value) and postgame.valid(value) and expansion.valid(value) and collection.valid(value) and inventory.valid(value) and extras.valid(value) and Story.valid(value) and services.valid(value)
+	return npc_program.valid(value) and breeding.valid(value) and postgame.valid(value) and expansion.valid(value) and collection.valid(value) and inventory.valid(value) and extras.valid(value) and Story.valid(value) and services.valid(value)
 
 func load_save():
 	loaded = true
@@ -223,6 +225,7 @@ func enter():
 	queue_redraw()
 
 func leave():
+	npc_program.cancel(true)
 	evolutions.clear()
 	save()
 	exploring = false
@@ -1088,6 +1091,7 @@ func advance_dialogue():
 	var remaining=dialog_pages.duplicate()
 	dialog="" if remaining.is_empty() else str(remaining.pop_front())
 	dialog_pages=remaining
+	if dialog=="": npc_program.resume()
 
 func wrapped(value: String) -> String:
 	var output = ""
@@ -1281,6 +1285,7 @@ func confirm_reset():
 
 func reset_adventure() -> bool:
 	if not exploring or in_battle or modal!="RESET ADVENTURE?": return false
+	npc_program.cancel(true)
 	# Keep a manual recovery copy, separate from the automatically loaded backup.
 	var archive = save_path+".before-reset-"+str(Time.get_unix_time_from_system())+"-"+str(Time.get_ticks_usec())
 	for suffix in ["", ".bak"]:

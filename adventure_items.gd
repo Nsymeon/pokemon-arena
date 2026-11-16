@@ -8,6 +8,9 @@ const XITEMS={"xattack":"atk","xdefend":"def","xspecial":"spa","xspeed":"spe","x
 const TREASURES={"nugget":5000,"bigpearl":3750,"pearl":700,"stardust":1000,"starpiece":4900}
 var HELD=["blackglasses","quickclaw","cleansetag","silkscarf","laxincense","seaincense","metalcoat","nevermeltice","kingsrock","luckypunch","dragonscale","upgrade","deepseatooth","deepseascale"]+preload("res://held_gear.gd").ITEMS
 var catalog={
+	"freshwater":{"name":"Fresh Water / heal 50%","price":200,"heal":0.5},
+	"sodapop":{"name":"Soda Pop / heal 60%","price":300,"heal":0.6},
+	"lemonade":{"name":"Lemonade / heal 80%","price":350,"heal":0.8},
 	"masterball":{"name":"Master Ball / guaranteed wild capture","price":0},
 	"linkcable":{"name":"Link Cable / single-player trade evolution","price":3000},
 	"hyperpotion":{"name":"Hyper Potion / heal 80%","price":1200,"heal":0.8},

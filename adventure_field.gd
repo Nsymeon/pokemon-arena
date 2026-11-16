@@ -65,6 +65,7 @@ func reward(key: String, text: String):
 	w().scenes.play([{"text":text,"duration":2.2,"flash":true}],func():finish(key); a.save())
 
 func hidden(o) -> bool:
+	if a.world.events.done("source:"+str(o.get("flag","0"))): return true
 	if a.postgame.hidden(o): return true
 	if str(o.get("script",""))=="SixIsland_RuinValley_EventScript_Scientist" and a.sevii.done("lorelei"): return true
 	var script=str(o.get("script",""))
@@ -81,6 +82,8 @@ func hidden(o) -> bool:
 	return (script.ends_with("DomeFossil") or script.ends_with("HelixFossil")) and done("fossil:chosen") or script.ends_with("_OldAmber") and done("fossil:amber")
 
 func npc(npc) -> bool:
+	if str(npc.get("script","")) in ["VermilionCity_House1_EventScript_FishingGuru","FuchsiaCity_House2_EventScript_FishingGurusBrother","CeruleanCity_BikeShop_EventScript_Clerk"]:
+		return a.npc_program.start(npc)
 	if a.postgame.npc(npc): return true
 	if a.progression.npc(npc): return true
 	if a.services.npc(npc) or a.sevii.npc(npc): return true
