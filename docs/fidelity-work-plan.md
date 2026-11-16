@@ -9,10 +9,10 @@ User instruction updated 2026-11-16: continue through all stages without asking 
 | 3 | Conditional NPC dialogue, choices and transactional gifts | Released as playtest 60; engine-specific story/services remain in their stages |
 | 4 | Full main-story/cutscene prerequisites and completion | Next |
 | 5 | Signs, pickups and inspection interactions | Pickup coverage implemented; inspection/script review remains |
-| 6 | Starting resources, trainer prizes and shop economy | Implemented; final regression/publication; arena healing/catching retained |
-| 7 | PC: 14 boxes of 30, safe migration and capacity | Implemented; final regression/publication |
-| 8 | Double battles and Vs. Seeker progression | Pending |
-| 9 | Breeding/Day Care rule fidelity | Deferred growth, move replacement and source egg cycles implemented; final regression/publication |
+| 6 | Starting resources, trainer prizes and shop economy | Released as playtest 61; arena healing/catching retained |
+| 7 | PC: 14 boxes of 30, safe migration and capacity | Released as playtest 61 |
+| 8 | Double battles and Vs. Seeker progression | Vs. Seeker implemented/tested; double battles remain |
+| 9 | Breeding/Day Care rule fidelity | Deferred growth, move replacement and source egg cycles released as playtest 61; remaining inheritance edge cases require review |
 | 10 | Safari, Game Corner, Fame Checker, Teachy TV, Trainer Tower | Pending |
 | 11 | National Dex, seven islands and legendary gating | Pending full review |
 | 12 | All puzzle-state paths and recovery | Pending full review |

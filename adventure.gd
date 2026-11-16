@@ -32,6 +32,7 @@ var npc_scripts=preload("res://adventure_npc_scripts.gd").new()
 var npc_program=preload("res://adventure_npc_program.gd").new()
 var experience=preload("res://adventure_experience.gd").new()
 var economy=preload("res://adventure_economy.gd").new()
+var vs_seeker=preload("res://adventure_vs_seeker.gd").new()
 var world=preload("res://kanto_world.gd").new()
 var inventory = preload("res://adventure_inventory.gd").new()
 var exploring = false
@@ -69,6 +70,7 @@ var font: Font
 func install(context):
 	c = context
 	economy.a=self
+	vs_seeker.a=self
 	collection.a=self
 	expansion.a=self
 	extras.a = self
@@ -144,7 +146,7 @@ func valid(value) -> bool:
 	if not Finale.valid(value): return false
 	for member in value.get("hall_of_fame",[]):
 		if not c.roster.any(func(mon):return int(mon.id)==int(member.id)): return false
-	return npc_program.valid(value) and breeding.valid(value) and postgame.valid(value) and expansion.valid(value) and collection.valid(value) and inventory.valid(value) and extras.valid(value) and Story.valid(value) and services.valid(value)
+	return vs_seeker.valid(value) and npc_program.valid(value) and breeding.valid(value) and postgame.valid(value) and expansion.valid(value) and collection.valid(value) and inventory.valid(value) and extras.valid(value) and Story.valid(value) and services.valid(value)
 
 func load_save():
 	loaded = true
@@ -494,6 +496,7 @@ func battle_mon(id: int, level: int, individual: Dictionary={}) -> Dictionary:
 	return mon
 
 func begin_battle(kind: String, ids: Array, levels: Array):
+	if kind.begins_with("seeker_") and not vs_seeker.ready(kind.trim_prefix("seeker_")): return
 	# A source Gym actor must use the same badge/reward path as its quest actor.
 	var trainer_id=trainers.resolve(kind)
 	for gym_kind in gyms.leaders:
@@ -628,6 +631,7 @@ func return_world(caught: bool = false, escaped: bool = false, roamer_escaped: b
 		message = mon_name(mon.id)+" caught! "+("Added to your party." if joins_party else "Check Party / Storage with P.")+" +"+str(capture_xp)+" EXP. "+xp_message
 	elif not escaped:
 		message = reward(win)
+		vs_seeker.result(win)
 		if world.enabled: world.events.battle_reward(str(encounter.kind),win)
 		if win:
 			for member in data.party:

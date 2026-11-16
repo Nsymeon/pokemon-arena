@@ -106,6 +106,13 @@ jobs:
           $code = $LASTEXITCODE
           $daycare | Write-Output
           if ($code -ne 0 -or ($daycare -match 'SCRIPT ERROR|ERROR:') -or -not ($daycare -match 'DAY CARE FIDELITY CHECK: \[\]')) { throw 'Day Care checks failed' }
+      - name: Vs Seeker regression
+        shell: pwsh
+        run: |
+          $seeker = & "$env:RUNNER_TEMP/godot/Godot_v4.3-stable_win64_console.exe" --headless --path . --script tools/check-vs-seeker.gd -- --qa-seeker 2>&1
+          $code = $LASTEXITCODE
+          $seeker | Write-Output
+          if ($code -ne 0 -or ($seeker -match 'SCRIPT ERROR|ERROR:') -or -not ($seeker -match 'VS SEEKER CHECK: \[\]')) { throw 'Vs Seeker checks failed' }
       - name: Save deletion regression
         shell: pwsh
         run: |

@@ -24,6 +24,7 @@ func league_id(stage: int) -> String:
 	return "TRAINER_ELITE_FOUR_"+["LORELEI","BRUNO","AGATHA","LANCE"][stage]+("_2" if rematch else "")
 
 func resolve(kind: String) -> String:
+	if kind.begins_with("seeker_"): return a.vs_seeker.resolve(kind.trim_prefix("seeker_"))
 	if a.gyms.leaders.has(kind): return a.gyms.leaders[kind].source_id
 	if RIVALS.has(kind): return "TRAINER_RIVAL_"+RIVALS[kind]+"_"+starter_suffix()
 	if kind.begins_with("late_league_") and kind.trim_prefix("late_league_").is_valid_int(): return league_id(int(kind.trim_prefix("late_league_")))
@@ -69,3 +70,4 @@ func prepare(kind: String):
 		var source=trainer.party[i]
 		a.c.enemy_party[i].moves=definitions(source.moves)
 		a.c.enemy_party[i]["held_item"]=source.held_item
+	if kind.begins_with("seeker_"): a.vs_seeker.started(kind.trim_prefix("seeker_"))

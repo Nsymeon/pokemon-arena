@@ -490,7 +490,8 @@ func sync_actors():
 			actors[key].position=Vector3(npc.pos.x/w.TILE,0,npc.pos.y/w.TILE)
 		else:
 			ensure_actor(key,npc.pos,identity,w.scenes.trainer_direction(npc),w.scenes.active and str(w.scenes.actor.get("key",""))==str(npc.get("script","")) and w.scenes.actor.get("walking",false))
-		if w.can_talk(npc.pos): labels.append([npc.pos,a.c.controls.text("interact")+" / TALK"])
+		if a.vs_seeker.ready(str(npc.get("script",""))): labels.append([npc.pos,"!! / REMATCH"])
+		elif w.can_talk(npc.pos): labels.append([npc.pos,a.c.controls.text("interact")+" / TALK"])
 	for npc in w.quest_actors():
 		var key="quest:"+str(npc[2]); alive[key]=true
 		var identity=str(npc[2])

@@ -25,6 +25,7 @@ func key_items():
 	var list=a.inventory.page("KEY ITEMS / permanent tools",a.inventory.bag)
 	if done("town_map"): a.inventory.row(list,"TOWN MAP / Kanto connections",a.world.guide)
 	a.inventory.row(list,"ITEMFINDER / scan for nearby hidden items",a.progression.itemfinder,not owns("itemfinder"))
+	if a.vs_seeker.owns(): a.inventory.row(list,"VS. SEEKER / "+str(a.vs_seeker.state().charge)+"/100 charge",a.vs_seeker.activate)
 	for entry in [["story:tea","Tea / Saffron guards"],["sevii:tri_pass","Tri-Pass / Islands One to Three"],["sevii:meteorite","Meteorite / Bill's delivery"],["sevii:ruby_delivered","Rainbow Pass / all seven islands"],["story:national_dex","National Pokedex"]]:
 		if done(entry[0]): a.inventory.row(list,entry[1],func():pass,true)
 	for tool in KEY_TOOLS:
@@ -82,6 +83,7 @@ func hidden(o) -> bool:
 	return (script.ends_with("DomeFossil") or script.ends_with("HelixFossil")) and done("fossil:chosen") or script.ends_with("_OldAmber") and done("fossil:amber")
 
 func npc(npc) -> bool:
+	if a.vs_seeker.npc(npc): return true
 	if str(npc.get("script","")) in ["VermilionCity_House1_EventScript_FishingGuru","FuchsiaCity_House2_EventScript_FishingGurusBrother","CeruleanCity_BikeShop_EventScript_Clerk"]:
 		return a.npc_program.start(npc)
 	if a.postgame.npc(npc): return true

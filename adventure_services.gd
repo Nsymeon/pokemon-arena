@@ -48,6 +48,7 @@ func npc(o) -> bool:
 
 func steps():
 	a.breeding.step()
+	a.vs_seeker.step()
 	var s=state(); s.steps=mini(1000000000,int(s.steps)+1)
 	if not s.daycare.is_empty():
 		s.daycare.xp_steps=mini(1000000000,int(s.daycare.get("xp_steps",0))+1)

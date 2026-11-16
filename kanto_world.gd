@@ -121,6 +121,7 @@ func enter(id: String, at: Vector2):
 	stepping=false
 	jumping=false
 	current=id
+	a.vs_seeker.entered()
 	events.spin=Vector2.ZERO
 	events.refresh()
 	a.data["world_map"]=id
@@ -495,7 +496,8 @@ func draw():
 			elif "Snorlax" in str(npc.get("script","")):
 				a.draw_texture_rect(a.c.portraits[143],Rect2(npc.pos-Vector2(38,60),Vector2(76,76)),false)
 			else: person(npc.pos,str(npc.get("graphics_id","OBJ_EVENT_GFX_WOMAN_1")).trim_prefix("OBJ_EVENT_GFX_"),false,scenes.trainer_direction(npc),scenes.active and str(scenes.actor.get("key",""))==str(npc.get("script","")) and scenes.actor.get("walking",false))
-			if can_talk(npc.pos): a.words(a.c.controls.text("interact")+" / "+(str(npc.battle.name) if npc.has("battle") else "TALK"),npc.pos+Vector2(-35,-65),14,Color("fff0b0"))
+			if a.vs_seeker.ready(str(npc.get("script",""))): a.words("!! / REMATCH",npc.pos+Vector2(-35,-65),14,Color("fff0b0"))
+			elif can_talk(npc.pos): a.words(a.c.controls.text("interact")+" / "+(str(npc.battle.name) if npc.has("battle") else "TALK"),npc.pos+Vector2(-35,-65),14,Color("fff0b0"))
 		for npc in quest_actors():
 			var identity={"oak":"prof_oak","rival":"blue","heal":"nurse","shop":"man","brock":"brock","misty":"misty","bug":"bug_catcher","rocket":"rocket_m","guide":"man","story_captain":"captain","story_shipblue":"blue","story_bill":"bill","story_surge":"lt_surge","late_task_erika":"erika","late_task_koga":"koga","late_task_sabrina":"sabrina","late_task_blaine":"blaine","late_task_giovanni":"giovanni","late_task_flute":"mr_fuji","late_task_hideout_boss":"giovanni","late_task_silph_boss":"giovanni","late_task_silph_blue":"blue","late_league":"lorelei"}.get(npc[2],"scientist")
 			if npc[2]=="late_league": identity=["lorelei","bruno","agatha","lance","blue"][clampi(int(a.Finale.state(a).get("league",0)),0,4)]
