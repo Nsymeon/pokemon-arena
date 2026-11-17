@@ -6,6 +6,9 @@ var catch_factor=0
 var bait=0
 var angry=0
 var message=""
+const MON_PRIZES={63:[180,9],35:[500,8],147:[2800,18],123:[5500,25],137:[9999,26]}
+const TM_PRIZES={"TM13":4000,"TM23":3500,"TM24":4000,"TM30":4500,"TM35":4000}
+const ITEM_PRIZES={"smokeball":800,"miracleseed":1000,"charcoal":1000,"mysticwater":1000,"yellowflute":1600}
 var rates: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://assets/kanto/catch-rates.json"))
 
 func state():
@@ -42,7 +45,7 @@ func npc(o) -> bool:
 		return true
 	# Patrons and the information attendant keep their own dialogue and choices.
 	if script=="CeladonCity_GameCorner_EventScript_CoinsClerk": game_menu(); return true
-	if script.begins_with("CeladonCity_GameCorner_PrizeRoom_"): game_menu(); return true
+	if script.begins_with("CeladonCity_GameCorner_PrizeRoom_EventScript_PrizeClerk"): game_menu(); return true
 	if script=="FuchsiaCity_SafariZone_Entrance_EventScript_AskEnterSafariZone" or (a.world.current=="MAP_FUCHSIA_CITY_SAFARI_ZONE_ENTRANCE" and script=="0x0"): safari_menu(); return true
 	return false
 
@@ -117,7 +120,8 @@ func end_safari(text):
 func safari_encounter(mon):
 	if not state().safari: a.dialog="Buy a Safari admission at the entrance first."; return
 	safari_mon=a.new_mon(int(mon.id),int(mon.level)); bait=0; angry=0
-	catch_factor=int(int(rates.get(str(int(mon.id)),{"catch":45})["catch"])*100/1275)
+	catch_factor=base_catch_factor()
+	a.collection.register(safari_mon,false)
 	message="A wild "+a.mon_name(mon.id)+(" sparkles!" if safari_mon.shiny else " appeared!")
 	safari_panel()
 
@@ -132,63 +136,104 @@ func safari_panel():
 
 func safari_action(action):
 	if safari_mon.is_empty() or not state().safari: return
+	if action not in ["ball","bait","rock","run"]: return
 	if action=="run": safari_mon={}; a.clear_ui(); return
 	if action=="ball":
 		if a.data.party.size()>=6 and a.data.storage.size()>=a.collection.STORAGE_CAPACITY: message="Party and storage are full. Make room before catching."; safari_panel(); return
 		state().safari_balls-=1
-		# Full HP, Safari Ball 1.5x, no status bonus. Four shakes resolve to a/255.
-		var chance=floor(float(catch_factor*1275/100)*1.5)/765.0
-		if randf()<chance:
-			var name=a.mon_name(safari_mon.id)
-			if a.data.party.size()<6: a.data.party.append(safari_mon)
-			else: a.collection.store(safari_mon)
-			a.field.finish("seen:"+str(int(safari_mon.id))); safari_mon={}; a.clear_ui(); a.dialog="Caught "+name+"!"; a.save()
-			if state().safari_balls==0: end_safari("Last Safari Ball used. "+name+" was caught!")
-			return
+		if safari_shakes()==4: caught_safari(); return
 		message="It broke free!"
 	elif action=="bait": catch_factor=maxi(3,catch_factor/2); bait=mini(6,bait+randi_range(2,6)); angry=0; message="The Pokemon is eating. Catching is harder, but fleeing is less likely."
 	elif action=="rock": catch_factor=mini(20,catch_factor*2); angry=mini(6,angry+randi_range(2,6)); bait=0; message="The Pokemon is angry. Catching is easier, but fleeing is more likely."
-	var flee=maxi(2,int(int(rates.get(str(int(safari_mon.id)),{"flee":50}).flee)*100/1275))*5
-	if angry>0: flee*=2; angry-=1
-	elif bait>0: flee=maxi(5,flee/4); bait-=1
+	var flee=flee_chance()
 	if state().safari_balls<=0: end_safari("Out of Safari Balls!"); return
 	if randi_range(0,99)<flee: safari_mon={}; a.clear_ui(); a.dialog="The wild Pokemon fled."; a.save(); return
+	safari_watch()
 	a.save(); safari_panel()
+
+func base_catch_factor() -> int:
+	return int(int(rates.get(str(int(safari_mon.id)),{"catch":45})["catch"])*100/1275)
+
+func shake_threshold() -> int:
+	# FireRed uses integer truncation at every division and square root.
+	var odds=int(int(catch_factor*1275/100)*15/10)/3
+	if odds<=0: return 0
+	return 65536 if odds>=255 else int(1048560/int(sqrt(int(sqrt(int(16711680/odds))))))
+
+func safari_shakes() -> int:
+	var threshold=shake_threshold(); var shakes=0
+	while shakes<4 and a.c.rng.randi_range(0,65535)<threshold: shakes+=1
+	return shakes
+
+func flee_chance() -> int:
+	var factor=maxi(2,int(int(rates.get(str(int(safari_mon.id)),{"flee":50}).flee)*100/1275))
+	if angry>0: factor=mini(20,factor*2)
+	elif bait>0: factor=maxi(1,factor/4)
+	return factor*5
+
+func safari_watch():
+	if angry>0:
+		angry-=1
+		if angry==0: catch_factor=base_catch_factor()
+	elif bait>0: bait-=1
+
+func caught_safari():
+	var mon=safari_mon; var fresh=not a.data.pokedex.get(str(int(mon.id)),{}).get("caught",false)
+	var amount=a.experience.reward(int(mon.id),int(mon.level),false)
+	var lead=-1
+	for i in a.data.party.size():
+		if a.data.party[i].hp>0 and not a.data.party[i].get("is_egg",false): lead=i; break
+	var report=a.grant_xp(amount,[lead]) if lead>=0 else ""
+	a.collection.register(mon)
+	if a.data.party.size()<6: a.data.party.append(mon)
+	else: a.collection.store(mon)
+	safari_mon={}; a.clear_ui()
+	var description="Caught "+a.mon_name(mon.id)+"! +"+str(amount)+" EXP. "+report
+	if state().safari_balls==0: end_safari("Last Safari Ball used. "+description)
+	else: a.dialog=description
+	a.save()
+	if fresh: a.collection.dex_entry(int(mon.id),bool(mon.shiny),true,int(mon.get("form",0)))
+	elif not a.evolutions.is_empty(): a.show_evolution()
 
 func game_menu():
 	var list=a.inventory.page("GAME CORNER / "+str(state().coins)+" COINS")
 	if not a.field.done("coin_case"):
 		a.inventory.row(list,"Get the Coin Case from the man at Celadon's restaurant.",func():pass,true); return
 	a.inventory.row(list,"BUY 50 COINS / $1000",buy_coins,a.data.money<1000 or state().coins>9949)
-	a.inventory.row(list,"PLAY SLOTS / 3 COINS / three matching symbols pay 24",spin,state().coins<3)
+	a.inventory.row(list,"BUY 500 COINS / $10000",buy_coins.bind(500),a.data.money<10000 or state().coins>9499)
+	a.inventory.row(list,"PLAY SLOTS / bet 1, 2 or 3 coins",spin,state().coins<1)
 	for prize in [[63,180],[35,500],[123,5500],[147,2800],[137,9999]]: a.inventory.row(list,a.mon_name(prize[0])+" / "+str(prize[1])+" COINS",prize_mon.bind(prize[0],prize[1]),state().coins<prize[1])
 	for prize in [["TM13",4000],["TM24",4000],["TM35",4000],["TM23",3500],["TM30",4500]]: a.inventory.row(list,a.inventory.book.tms[prize[0]].name+" / "+str(prize[1])+" COINS",prize_tm.bind(prize[0],prize[1]),state().coins<prize[1])
+	for id in ITEM_PRIZES: a.inventory.row(list,a.inventory.ITEMS[id].name+" / "+str(ITEM_PRIZES[id])+" COINS",prize_item.bind(id),state().coins<ITEM_PRIZES[id])
 
-func buy_coins():
-	if a.in_battle or not a.field.done("coin_case") or a.data.money<1000 or state().coins>9949: return
-	a.data.money-=1000; state().coins+=50; a.save(); game_menu()
+func buy_coins(amount=50):
+	if amount not in [50,500] or a.in_battle or not a.field.done("coin_case") or a.data.money<amount*20 or state().coins>9999-amount: return
+	a.data.money-=amount*20; state().coins+=amount; a.save(); game_menu()
 
 func spin():
-	if a.in_battle or not a.field.done("coin_case") or state().coins<3: return
-	state().coins-=3
-	var symbols=["PIKACHU","STARYU","PSYDUCK"]; var reels=[randi_range(0,2),randi_range(0,2),randi_range(0,2)]
-	var won=reels[0]==reels[1] and reels[1]==reels[2]
-	if won: state().coins=mini(9999,int(state().coins)+24)
-	a.save(); a.clear_ui()
-	a.world.scenes.play([{"text":"The reels spin...","duration":0.8},{"text":symbols[reels[0]]+" / "+symbols[reels[1]]+" / "+symbols[reels[2]]+(" -- WON 24 COINS!" if won else " -- Try again!"),"duration":1.5}],game_menu)
+	if a.in_battle or not a.field.done("coin_case"): return
+	var list=a.inventory.page("GAME CORNER / STOP THE REELS",game_menu)
+	var game=preload("res://game_corner_slots.gd").new(); game.a=a; game.custom_minimum_size=Vector2(875,450); list.add_child(game)
 
 func prize_mon(id,cost):
+	if not MON_PRIZES.has(id) or cost!=MON_PRIZES[id][0]: return
 	if a.in_battle or not a.field.done("coin_case") or state().coins<cost: return
 	if a.data.party.size()>=6 and a.data.storage.size()>=a.collection.STORAGE_CAPACITY: a.dialog="Make room in your party or storage first."; return
 	state().coins-=cost
-	var mon=a.new_mon(id,{63:9,35:8,123:25,147:18,137:26}[id])
+	var mon=a.new_mon(id,MON_PRIZES[id][1]); a.collection.register(mon)
 	if a.data.party.size()<6: a.data.party.append(mon)
 	else: a.collection.store(mon)
 	a.save(); game_menu()
 
 func prize_tm(id,cost):
+	if not TM_PRIZES.has(id) or cost!=TM_PRIZES[id]: return
 	if a.in_battle or not a.field.done("coin_case") or state().coins<cost or int(a.data.tms.get(id,0))>=999: return
 	state().coins-=cost; a.data.tms[id]=int(a.data.tms.get(id,0))+1; a.save(); game_menu()
+
+func prize_item(id):
+	if a.in_battle or not a.field.done("coin_case") or not ITEM_PRIZES.has(id): return
+	if state().coins<ITEM_PRIZES[id] or int(a.data.bag.get(id,0))>=999: return
+	state().coins-=ITEM_PRIZES[id]; a.data.bag[id]=int(a.data.bag.get(id,0))+1; a.save(); game_menu()
 
 func tests():
 	var previous=a.data.duplicate(true); var saving=a.save_allowed; var map=a.world.current; var at=a.position_world

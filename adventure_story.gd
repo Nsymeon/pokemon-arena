@@ -112,6 +112,9 @@ static func reward(a,kind) -> String:
 	if kind in ["bridge_blue","bridge_rocket","ship_blue","sailor"]:
 		var first=not s.get(kind,false)
 		s[kind]=true
+		if kind=="bridge_blue" and first:
+			a.field.finish("field:famechecker")
+			return "BLUE: Here, take this FAME CHECKER. It collects information about famous people. Open it from BAG / KEY ITEMS."
 		if kind=="bridge_rocket" and first:
 			a.data.money=mini(999999,int(a.data.money)+5000)
 			return "Nugget Bridge cleared! Nugget sold for $5000. Continue north to Bill."

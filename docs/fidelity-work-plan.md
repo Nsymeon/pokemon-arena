@@ -11,13 +11,13 @@ User instruction updated 2026-11-16: continue through all stages without asking 
 | 5 | Signs, pickups and inspection interactions | Pickup coverage implemented; inspection/script review remains |
 | 6 | Starting resources, trainer prizes and shop economy | Released as playtest 61; arena healing/catching retained |
 | 7 | PC: 14 boxes of 30, safe migration and capacity | Released as playtest 61 |
-| 8 | Double battles and Vs. Seeker progression | Vs. Seeker implemented/tested; double battles remain |
+| 8 | Double battles and Vs. Seeker progression | Implemented and tested, including simultaneous 2v2, partner control, reserves and source rematch progression |
 | 9 | Breeding/Day Care rule fidelity | Deferred growth, move replacement and source egg cycles released as playtest 61; remaining inheritance edge cases require review |
-| 10 | Safari, Game Corner, Fame Checker, Teachy TV, Trainer Tower | Pending |
+| 10 | Safari, Game Corner, Fame Checker, Teachy TV, Trainer Tower | Runtime services and four Tower formats implemented/tested; remaining source fidelity limits are listed in doubles-and-services-update.md |
 | 11 | National Dex, seven islands and legendary gating | Pending full review |
 | 12 | All puzzle-state paths and recovery | Pending full review |
 | 13 | Interior/exterior presentation and NPC choreography | Pending |
-| 14 | Transition performance and memory | Pending |
+| 14 | Transition performance and memory | Animation startup memory corrected with bounded lazy cache; full map-transition profiling remains |
 | 15 | Old-save compatibility and recovery | Per-stage checks; final review pending |
 | 16 | Preserve custom features and mode separation | Per-stage checks; final review pending |
 | 17 | Fresh-save end-to-end manual playthrough and release | Pending |

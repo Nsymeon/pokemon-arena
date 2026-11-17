@@ -26,6 +26,8 @@ func key_items():
 	if done("town_map"): a.inventory.row(list,"TOWN MAP / Kanto connections",a.world.guide)
 	a.inventory.row(list,"ITEMFINDER / scan for nearby hidden items",a.progression.itemfinder,not owns("itemfinder"))
 	if a.vs_seeker.owns(): a.inventory.row(list,"VS. SEEKER / "+str(a.vs_seeker.state().charge)+"/100 charge",a.vs_seeker.activate)
+	if a.fame_checker.owns(): a.inventory.row(list,"FAME CHECKER / collected stories",a.fame_checker.menu)
+	if a.teachy_tv.owns(): a.inventory.row(list,"TEACHY TV / battle and adventure lessons",a.teachy_tv.menu)
 	for entry in [["story:tea","Tea / Saffron guards"],["sevii:tri_pass","Tri-Pass / Islands One to Three"],["sevii:meteorite","Meteorite / Bill's delivery"],["sevii:ruby_delivered","Rainbow Pass / all seven islands"],["story:national_dex","National Pokedex"]]:
 		if done(entry[0]): a.inventory.row(list,entry[1],func():pass,true)
 	for tool in KEY_TOOLS:
@@ -88,7 +90,7 @@ func npc(npc) -> bool:
 		return a.npc_program.start(npc)
 	if a.postgame.npc(npc): return true
 	if a.progression.npc(npc): return true
-	if a.services.npc(npc) or a.sevii.npc(npc): return true
+	if a.trainer_tower.npc(npc) or a.services.npc(npc) or a.sevii.npc(npc): return true
 	if a.npc_scripts.npc(npc): return true
 	var script=str(npc.get("script",""))
 	if trades.has(script): trade_menu(script); return true

@@ -5,6 +5,7 @@ const ARENA_ORIGIN = Vector2(40, 180)
 const ARENA_SCALE = 0.8
 var camera_offset = Vector2.ZERO
 var horde=preload("res://wild_horde.gd").new()
+var doubles=preload("res://double_battle.gd").new()
 var enemy_bench = preload("res://enemy_switching.gd").new()
 var balance = preload("res://battle_balance.gd").new()
 var weather = preload("res://weather_rules.gd").new()
@@ -227,6 +228,7 @@ func reset():
 	switch_target = -1
 	switch_cooldown = 0
 	player_states.clear()
+	doubles.reset()
 	player = {"pos": Vector2(350, 410), "hp": 180.0, "energy": 100.0, "face": 1.0, "inv": 0.0, "flash": 0.0, "dash": Vector2.ZERO, "dash_time": 0.0, "stun": 0.0}
 	enemy = {"pos": Vector2(930, 410), "hp": 210.0, "energy": 100.0, "face": -1.0, "inv": 0.0, "flash": 0.0, "dash": Vector2.ZERO, "dash_time": 0.0, "stun": 0.0}
 	for pair in [[player, player_index], [enemy, enemy_index]]:
@@ -440,10 +442,11 @@ func use_move(user: Dictionary, target: Dictionary, index: int, direction: Vecto
 	return true
 
 func execute_move(user: Dictionary, target: Dictionary, move: Dictionary, direction: Vector2, friendly: bool):
-	var selected=enemy
-	if not friendly: enemy=user
+	var selected=enemy; var controlled=player
+	if friendly: player=user; enemy=target
+	else: enemy=user; player=target
 	execute_move_inner(user,target,move,direction,friendly)
-	enemy=selected
+	enemy=selected; player=controlled
 
 func execute_move_inner(user: Dictionary, target: Dictionary, move: Dictionary, direction: Vector2, friendly: bool):
 	user["movement_lock"] = 0.4
@@ -460,7 +463,7 @@ func execute_move_inner(user: Dictionary, target: Dictionary, move: Dictionary, 
 			if user.data.moves[i].id=="sketch":
 				user.data.moves[i]=copied.duplicate(true)
 				if friendly and adventure.in_battle:
-					adventure.data.party[player_active].moves[i]=copied.id
+					adventure.data.party[player_states.find(user)].moves[i]=copied.id
 					adventure.save()
 				break
 		Conditions.note(user,"SKETCHED "+copied.name); return
@@ -544,8 +547,7 @@ func execute_move_inner(user: Dictionary, target: Dictionary, move: Dictionary, 
 		Conditions.note(user,"TARGET MUST SLEEP")
 		return
 	if move.id == "haze":
-		player.stages.clear()
-		enemy.stages.clear()
+		for fighter in allies()+foes(): fighter.stages.clear()
 		rings.append({"pos":user.pos,"radius":0.0,"max":300.0,"life":0.7,"color":color})
 		return
 	if move.id in ["whirlwind","roar"]:
@@ -651,6 +653,7 @@ func steer_homing(shot: Dictionary, dt: float):
 func _process(delta):
 	audio.update_music()
 	if frontend.layer != null and frontend.layer.visible: return
+	adventure.trainer_tower.tick(delta)
 	if adventure.in_battle and not paused: adventure.progress_time = maxf(0,adventure.progress_time-delta)
 	if adventure.in_battle and adventure.modal != "":
 		queue_redraw()
@@ -698,6 +701,7 @@ func _process(delta):
 	queue_redraw()
 
 func update_battle(dt: float):
+	if doubles.active(self): doubles.tick(self,dt); return
 	if horde.active(self): horde.select_target(self); horde.settle(self,dt)
 	if adventure.in_battle: adventure.mark_participant()
 	if result != "": return
@@ -721,7 +725,7 @@ func update_battle(dt: float):
 	for i in range(4):
 		cooldowns[i] = maxf(0, cooldowns[i] - dt)
 		if not horde.active(self): enemy_cooldowns[i] = maxf(0, enemy_cooldowns[i] - dt)
-	for fighter in [player]+foes():
+	for fighter in allies()+foes():
 		fighter.inv = maxf(0, fighter.inv - dt)
 		fighter.flash = maxf(0, fighter.flash - dt)
 		fighter.stun = maxf(0, fighter.stun - dt)
@@ -769,11 +773,49 @@ func update_battle(dt: float):
 	if player.hp <= 0 or foes().all(func(f):return f.hp<=0): finish_round()
 
 func foes() -> Array:
+	if doubles.active(self): return doubles.squad(self,false)
 	return enemy_bench.states if horde.active(self) else [enemy]
 
+func allies() -> Array:
+	return doubles.squad(self,true) if doubles.active(self) else [player]
+
+func opponents(friendly: bool) -> Array: return foes() if friendly else allies()
+
+func is_friendly(f) -> bool: return int(f.get("battle_side",0 if f==player else 1))==0
+
+func opponent_for(f) -> Dictionary:
+	var choices=opponents(is_friendly(f)).filter(func(other):return other.hp>0)
+	if choices.is_empty(): return enemy if is_friendly(f) else player
+	choices.sort_custom(func(x,y):return x.pos.distance_squared_to(f.pos)<y.pos.distance_squared_to(f.pos))
+	return choices[0]
+
+func tick_fighter(fighter,dt):
+	for key in ["inv","flash","stun","guard","boost"]: fighter[key]=maxf(0,float(fighter[key])-dt)
+	var opponent=opponent_for(fighter)
+	if fighter.volatile.get("leechseed",0)>0 and fighter.hp>0:
+		fighter["seed_tick"]=float(fighter.get("seed_tick",1))-minf(dt,fighter.volatile.leechseed)
+		if fighter.seed_tick<=0:
+			fighter.seed_tick+=1; var stolen=minf(fighter.hp,fighter.data.hp*.025); fighter.hp-=stolen
+			if opponent.hp>0: opponent.hp=clampf(opponent.hp+stolen*(-1 if abilities.name_of(fighter)=="Liquid Ooze" else 1),0,opponent.data.hp)
+	abilities.tick(fighter,dt); Conditions.tick(fighter,dt); gear.tick(fighter,opponent,dt)
+	if fighter.hp>0 and fighter.charge_left>0:
+		fighter.charge_left=maxf(0,fighter.charge_left-dt)
+		if fighter.charge_left<=0 and not fighter.pending_move.is_empty():
+			var pending=fighter.pending_move; fighter.pending_move={}
+			var old_pc=cooldowns; var old_ec=enemy_cooldowns
+			if is_friendly(fighter): cooldowns=fighter.double_cooldowns
+			else: enemy_cooldowns=fighter.double_cooldowns
+			execute_move(fighter,opponent,pending.move,pending.direction,pending.friendly)
+			cooldowns=old_pc; enemy_cooldowns=old_ec
+	if fighter!=player or not sprinting: fighter.energy=minf(100,fighter.energy+dt*15)
+	if fighter.dash_time>0:
+		move_fighter(fighter,fighter.dash*dt); fighter.dash_time-=dt; burst(fighter.pos,Dex.color(fighter.data.type),1)
+		if fighter.pos.distance_to(opponent.pos)<44 and not fighter.dash_move.is_empty():
+			hit(opponent,fighter.dash_move.damage,fighter.dash.normalized(),is_friendly(fighter),fighter.dash_move,fighter); fighter.dash_time=0
+
 func shot_target(shot: Dictionary) -> Dictionary:
-	if not shot.friendly: return player
-	return shot.get("target",enemy)
+	if not shot.friendly and not doubles.active(self): return player
+	return shot.get("target",enemy if shot.friendly else player)
 
 func update_projectiles(dt: float):
 	for shot in shots: steer_homing(shot, dt)
@@ -786,7 +828,7 @@ func update_projectiles(dt: float):
 		shot.life -= dt
 		shot.age = shot.get("age", 0.0) + dt
 		shot.pos += shot.vel * dt
-		for target in foes() if shot.friendly else [player]:
+		for target in opponents(shot.friendly):
 			if target.hp>0 and shot.life > 0 and shot.pos.distance_to(target.pos) < shot.radius + 19:
 				hit(target, shot.damage, shot.vel.normalized(), shot.friendly, shot.move, shot.get("owner", {}), shot.get("attack_snapshot", {}))
 				shot.life = 0
@@ -828,7 +870,7 @@ func finish_round():
 
 func update_ai(dt: float):
 	if enemy.hp <= 0 or player.hp <= 0: return
-	if not horde.active(self): enemy_bench.tick(self,dt)
+	if not horde.active(self) and not doubles.active(self): enemy_bench.tick(self,dt)
 	if enemy_bench.timer>=0: return
 	var offset: Vector2 = player.pos - enemy.pos
 	var distance = offset.length()
@@ -911,7 +953,7 @@ func damage_amount(attacker: Dictionary, target: Dictionary, base_damage: float,
 	var multiplier = Dex.effectiveness(move_type, Conditions.types(target))
 	var boost = float(move.get("weather_power", weather.power(move)))
 	var held=str(attacker.data.get("held_item",""))
-	if {"blackbelt":"Fighting","blackglasses":"Dark","silkscarf":"Normal","seaincense":"Water","metalcoat":"Steel","nevermeltice":"Ice"}.get(held,"")==move_type: boost*=1.05 if held=="seaincense" else 1.1
+	boost*=gear.power(attacker,move_type)
 	if (attacker.get("dire_hit",false) or held=="luckypunch" and int(attacker.data.id)==113) and rng.randf()<0.25: boost*=1.5
 	if physical and attacker.ailment == "burn" and abilities.name_of(attacker)!="Guts": boost *= 0.5
 	return snappedf(base_damage * ratio * stab * multiplier * boost * abilities.damage(attacker,target,move) * (0.5 if target.guard > 0 else 1.0) * support.multiplier(self,target,move), 0.1)
@@ -1004,7 +1046,7 @@ func update_effects(dt: float):
 		effect.age += dt
 		effect.life -= dt
 	impacts = impacts.filter(func(effect): return effect.life > 0)
-	for fighter in [player]+foes():
+	for fighter in allies()+foes():
 		fighter["anim_age"] = fighter.get("anim_age", 0.0) + dt
 		fighter["attack_time"] = maxf(0, fighter.get("attack_time", 0.0) - dt)
 		fighter["walk_time"] = maxf(0, fighter.get("walk_time", 0.0) - dt)
@@ -1083,7 +1125,8 @@ func _draw():
 		draw_rock(rock)
 	for shot in shots:
 		if shot.get("skill", "") == "wave": skills.draw(self, shot)
-	if horde.active(self): horde.draw(self)
+	if doubles.active(self): doubles.draw(self)
+	elif horde.active(self): horde.draw(self)
 	else:
 		if player.pos.y < enemy.pos.y:
 			draw_creature(player, true)
@@ -1120,8 +1163,9 @@ func _draw():
 			draw_circle(enemy.pos,35*flash,Color(1,0.65,0.68,flash*0.7))
 
 	if click_move: draw_arc(click_destination,15,0,TAU,24,MINT,2)
-	draw_ball_sequence(player, true)
-	draw_ball_sequence(enemy, false)
+	if not doubles.active(self):
+		draw_ball_sequence(player, true)
+		draw_ball_sequence(enemy, false)
 	if result == "" and countdown <= 0:
 		var target = screen_to_arena(get_global_mouse_position())
 		draw_arc(target, 10, 0, TAU, 16, Color(GOLD, 0.7), 1)
@@ -1232,14 +1276,14 @@ func draw_ellipse(center: Vector2, radii: Vector2, color: Color):
 
 func draw_creature(fighter: Dictionary, friendly: bool):
 	if not friendly and adventure.in_battle and adventure.capture_time>0 and adventure.capture_visual().hidden: return
-	if not selecting and not friendly and enemy_bench.timer>=0:
+	if not selecting and fighter==enemy and not friendly and enemy_bench.timer>=0:
 		enemy_bench.draw_recall(self)
 		return
 	if fighter.get("hp",1)>0 and fighter.get("volatile",{}).get("underground",0)>0:
 		draw_ellipse(fighter.pos,Vector2(30,12),Color(0.12,0.08,0.03,0.85))
 		draw_arc(fighter.pos,30,0,TAU,24,Color("b69b69"),3)
 		return
-	if not selecting and friendly and switch_time >= 0:
+	if not selecting and fighter==player and switch_time >= 0:
 		draw_switch_recall()
 		return
 	if not selecting and fighter.get("fainted", false):
@@ -1303,7 +1347,7 @@ func draw_fainted(fighter: Dictionary):
 	var animated: Dictionary = fighter.get("faint_frame", {})
 	var facing: float = fighter.face
 	var recall = 0.0 if horde.active(self) and fighter!=player else recall_progress(faint_elapsed)
-	var hand = trainer_hand(fighter == player)
+	var hand = trainer_hand(is_friendly(fighter))
 	draw_ellipse(p + Vector2(facing * size.y * 0.4 * pose.fall, 9), Vector2(25 + pose.fall * 9, 8), Color(0.06, 0.14, 0.13, 0.28 * pose.alpha))
 	var jitter = Vector2(sin(clock_time * 85), cos(clock_time * 91)) * shake
 	# Pivot at the feet: the head tips forward towards the opponent.
@@ -2135,6 +2179,7 @@ func opponent_name() -> String:
 	return opponent_identity.split("_")[0].capitalize()
 
 func can_continue_team() -> bool:
+	if doubles.active(self): return false
 	if not team_mode or result == "": return false
 	return (player.hp > 0 or has_player_reserve()) and (enemy.hp > 0 or enemy_bench.reserve(self)>=0)
 
@@ -2153,6 +2198,7 @@ func replacement(friendly: bool, index: int) -> Dictionary:
 	fighter.fainted = false
 	fighter.transformed = false
 	fighter.entering = true
+	fighter.erase("battle_side"); fighter.erase("battle_slot")
 	fighter.heading = Vector2(fighter.face, 0)
 	abilities.assign(fighter.data,not friendly and not enemy_party.is_empty())
 	Conditions.init(fighter)
@@ -2204,9 +2250,10 @@ func style_tests():
 		if not art.library.has(int(mon.id)): continue
 		for name in ["Idle", "Walk", "Attack", "Hurt"]:
 			check(art.library[int(mon.id)].has(name), "Animation state " + name + ": " + mon.name)
-		for anim in art.library[int(mon.id)].values():
+		for anim in art.entry_for(mon).values():
 			check(anim.durations.size() * int(anim.width) == anim.texture.get_width(), "Animation columns match metadata")
 			check(anim.rows == 8 or anim.rows == 1, "Animation has supported directions")
+	check(art.cache_order.size()<=art.CACHE_ENTRIES and (art.texture_bytes<=art.CACHE_BYTES or art.cache_order.size()==1),"All species art validation keeps the animation cache bounded")
 	pick(6, 9)
 	player.heading = Vector2.RIGHT
 	check(art.frame(player).region.position.y == art.frame(player).region.size.y * 2, "Facing right selects east row")
@@ -2357,6 +2404,9 @@ func activate_player(slot: int):
 	sprinting = false
 
 func request_switch(slot: int) -> bool:
+	if doubles.active(self) and slot in doubles.player_slots and slot!=player_active:
+		if paused or countdown>0 or result!="" or switch_time>=0 or enemy_bench.timer>=0: return false
+		return doubles.focus(self,slot)
 	if not team_mode or paused or countdown > 0 or result != "" or switch_time >= 0 or enemy_bench.timer>=0: return false
 	if slot < 0 or slot >= player_states.size() or slot == player_active or player_states[slot].hp <= 0: return false
 	if player.get("movement_lock",0)>0 or player.get("charge_left", 0.0) > 0 or player.get("volatile", {}).get("partiallytrapped", 0) > 0 or player.get("volatile",{}).get("airborne",0)>0 or player.get("volatile",{}).get("underground",0)>0:
@@ -2382,16 +2432,21 @@ func request_switch(slot: int) -> bool:
 	switch_target = slot
 	switch_time = 0
 	switch_menu = false
-	shots.clear()
-	rings.clear()
-	impacts.clear()
+	if not doubles.active(self):
+		shots.clear()
+		rings.clear()
+		impacts.clear()
 	player.entering = false
 	enemy.entering = false
 	tone(720, 0.15)
 	return true
 
 func complete_switch():
+	var previous_slot=player_active
+	if doubles.active(self):
+		for f in allies()+foes(): f.entering=false
 	activate_player(switch_target)
+	if doubles.active(self): doubles.switched(self,previous_slot,switch_target)
 	switch_time = -1
 	switch_target = -1
 	switch_cooldown = 4.0
@@ -2424,7 +2479,7 @@ func draw_switch_menu():
 		var size = texture.get_size() * 60.0 / maxf(texture.get_width(), texture.get_height())
 		draw_texture_rect(texture, Rect2(rect.position + Vector2(48, 52) - size / 2, size), false, Color.WHITE if f.hp > 0 else Color(0.3, 0.3, 0.3))
 		label_at("%d  %s" % [i + 1, f.data.name], rect.position + Vector2(90, 28), 20, accent)
-		label_at("ACTIVE" if i == player_active else "FAINTED" if f.hp <= 0 else Dex.type_label(f.data), rect.position + Vector2(90, 51), 12, accent)
+		label_at("ACTIVE" if i == player_active else "ALLY / TAKE CONTROL" if doubles.active(self) and i in doubles.player_slots and f.hp>0 else "FAINTED" if f.hp <= 0 else Dex.type_label(f.data), rect.position + Vector2(90, 51), 12, accent)
 		bar(rect.position + Vector2(90, 65), 245, f.hp / f.data.hp, MINT, 8)
 		label_at("HP %d / %d     ENERGY %d" % [f.hp, f.data.hp, f.energy], rect.position + Vector2(90, 94), 12)
 	label_at("Switch ready in %.1fs of battle • B to resume" % switch_cooldown if switch_cooldown > 0 else "Recall and send out • HP and energy are preserved", Vector2(390, 690), 15, GOLD)
@@ -2680,12 +2735,14 @@ func capture_polish():
 	get_tree().quit()
 
 func resolution_ready() -> bool:
+	if doubles.active(self): return doubles.resolution_ready(self)
 	if result == "" or not shots.is_empty(): return false
 	for fighter in [player, enemy]:
 		if fighter.get("fainted", false) and result_time < fighter.get("faint_delay", 0.0) + FAINT_RESULT_TIME - 0.00001: return false
 	return result_time >= FAINT_RESULT_TIME - 0.00001
 
 func update_resolution(delta: float):
+	if doubles.active(self): doubles.resolution(self,delta); return
 	var left = delta
 	while left > 0.00001 and not resolution_ready():
 		var dt = minf(left, 0.04)

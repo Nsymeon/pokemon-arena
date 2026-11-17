@@ -238,7 +238,11 @@ func interact() -> bool:
 			else: a.dialog="A small tree blocks the way. Obtain Cut Shears from the Captain and the Cascade Badge."
 		"sign":
 			var script=str(o.script)
-			if "_Poster" in script and w.current=="MAP_CELADON_CITY_GAME_CORNER":
+			if script=="TrainerTower_Lobby_EventScript_ShowRecords": a.trainer_tower.menu()
+			elif script.begins_with("CeladonCity_GameCorner_EventScript_SlotMachine"):
+				if a.field.done("coin_case"): a.services.spin()
+				else: a.dialog="You need a Coin Case before you can play."
+			elif "_Poster" in script and w.current=="MAP_CELADON_CITY_GAME_CORNER":
 				finish("poster"); refresh(); a.dialog="A hidden switch! Stairs to the Rocket Hideout appear."; a.save()
 			elif "TrashCan" in script and w.current=="MAP_VERMILION_CITY_GYM": trash(int(script.split("TrashCan")[1]))
 			elif "_Quiz" in script and w.current=="MAP_CINNABAR_ISLAND_GYM": quiz(int(script.split("_Quiz")[1].left(1)))
@@ -302,6 +306,8 @@ func allow_step(target: Vector2) -> bool:
 	return true
 
 func allow_door(destination: String) -> bool:
+	var tower_gate=a.trainer_tower.gate(destination)
+	if tower_gate!="": a.dialog=tower_gate; return false
 	var story_gate=a.progression.gate(destination)
 	if story_gate!="": a.dialog=story_gate; return false
 	if w.current=="MAP_VIRIDIAN_CITY" and destination=="MAP_ROUTE2" and not done("trainer:Route22_EarlyRival"):
@@ -336,6 +342,7 @@ func allow_door(destination: String) -> bool:
 
 func elevator():
 	var name=str(w.room().name)
+	if name=="TrainerTower_Elevator": a.trainer_tower.elevator(); return
 	if name.begins_with("RocketHideout") and not a.Finale.has(a,"lift_key"):
 		a.dialog="The lift requires the Lift Key."; return
 	var prefix=name.trim_suffix("Elevator")
@@ -351,6 +358,9 @@ func elevator():
 	var cancel=Button.new(); cancel.text="Cancel"; cancel.pressed.connect(a.clear_ui); list.add_child(cancel)
 
 func elevator_go(id: String):
+	if w.current=="MAP_TRAINER_TOWER_ELEVATOR":
+		if id=="MAP_TRAINER_TOWER_LOBBY": a.trainer_tower.leave()
+		return
 	var exits=w.maps[id].warps.filter(func(door):return door.dest_map==w.current)
 	if exits.is_empty(): return
 	a.clear_ui(); w.enter(id,point(exits[0])+Vector2(0,w.TILE))
@@ -359,6 +369,11 @@ func battle_reward(kind: String, victory: bool):
 	if not victory or not kind.begins_with("world_"): return
 	var script=kind.trim_prefix("world_")
 	finish("trainer:"+script)
+	# Paired trainers share one source trainer flag, regardless of who approached.
+	var trainer_id=a.trainers.resolve(kind)
+	if trainer_id!="":
+		for other in a.trainers.book.scripts:
+			if a.trainers.book.scripts[other]==trainer_id: finish("trainer:"+other)
 	if script.begins_with("CinnabarIsland_Gym_"):
 		for i in range(6):
 			if script.ends_with("_"+["Quinn","Avery","Ramon","Derek","Dusty","Zac"][i]): finish("quiz"+str(i+1))

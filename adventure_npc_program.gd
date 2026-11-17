@@ -109,7 +109,7 @@ func value(raw):
 	if not raw is String: return raw
 	if raw=="VAR_FACING": return {Vector2.DOWN:1,Vector2.UP:2,Vector2.LEFT:3,Vector2.RIGHT:4}.get(a.world.heading,1)
 	if raw=="VAR_MAP_SCENE_VIRIDIAN_CITY_GYM_DOOR": return int(a.Finale.badges(a)>=7)
-	if raw=="VAR_MAP_SCENE_VIRIDIAN_CITY_OLD_MAN": return int(done("parcel_delivered"))
+	if raw=="VAR_MAP_SCENE_VIRIDIAN_CITY_OLD_MAN": return 2 if done("field:teachytv") or done("source:FLAG_GOT_TEACHY_TV") else int(done("parcel_delivered"))
 	if raw=="VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB": return 6 if done("parcel_delivered") else 4 if a.data.rival else 3 if a.data.starter!=0 else 2 if done("oak_intro") else 0
 	if raw=="VAR_MAP_SCENE_SILPH_CO_11F": return int(staged.get("journey",{}).get("silph_boss",false))
 	if raw=="VAR_MAP_SCENE_VERMILION_CITY" and staged.get("story",{}).get("cut",false): return 3
@@ -250,7 +250,10 @@ func run():
 			"compare","compare_var_to_value": compared=[value(args[0]),value(args[1])]
 			"checkflag": compared=[int(flag_value(str(args[0]))),1]
 			"setflag","clearflag": set_flag(str(args[0]),op=="setflag")
-			"famechecker": set_flag("FAME:"+str(args[0])+":"+str(args[1]),true)
+			"famechecker":
+				# The optional third argument changes portrait state, not a fact index.
+				if args.size()<3 or args[2]=="SetFlavorTextFlagFromSpecialVars": set_flag("FAME:"+str(args[0])+":"+str(args[1]),true)
+				else: set_flag("FAME_PORTRAIT:"+str(args[0])+":"+str(args[1]),true)
 			"checkplayergender": put("VAR_RESULT",1 if a.avatar.config().gender=="girl" else 0)
 			"msgbox","message":
 				last_text=words(args[0])

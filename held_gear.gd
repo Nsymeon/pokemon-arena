@@ -1,6 +1,7 @@
 extends RefCounted
 const POWER={"powerweight":"hp","powerbracer":"atk","powerbelt":"def","powerlens":"spa","powerband":"spd","poweranklet":"spe"}
 const CHOICE=["choiceband","choicespecs","choicescarf"]
+const TYPE_BOOSTS={"miracleseed":"Grass","charcoal":"Fire","mysticwater":"Water","blackbelt":"Fighting","blackglasses":"Dark","silkscarf":"Normal","metalcoat":"Steel","nevermeltice":"Ice","seaincense":"Water"}
 const BERRIES=["sitrusberry","lumberry","oranberry","leppaberry","cheriberry","chestoberry","pechaberry","rawstberry","aspearberry","persimberry"]
 const CURES={"cheriberry":["paralysis"],"chestoberry":["sleep"],"pechaberry":["poison","toxic"],"rawstberry":["burn"],"aspearberry":["freeze"]}
 const ITEMS=["everstone","amuletcoin","expshare","leftovers","soothebell","choiceband","choicespecs","choicescarf","machobrace","powerweight","powerbracer","powerbelt","powerlens","powerband","poweranklet","sitrusberry","lumberry","oranberry","leppaberry","cheriberry","chestoberry","pechaberry","rawstberry","aspearberry","persimberry"]
@@ -25,6 +26,7 @@ func speed(f) -> float:
 	var item=held(f)
 	return 1.5 if item=="choicescarf" else 0.5 if item in POWER or item=="machobrace" else 1.0
 func attack(f,physical) -> float: return 1.5 if held(f)==("choiceband" if physical else "choicespecs") else 1.0
+func power(f,type) -> float: return (1.05 if held(f)=="seaincense" else 1.1) if TYPE_BOOSTS.get(held(f),"")==type else 1.
 func allowed(f,id) -> bool: return held(f) not in CHOICE or f.get("choice_move",id)==id
 func lock(f,id):
 	if held(f) in CHOICE: f["choice_move"]=id

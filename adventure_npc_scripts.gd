@@ -4,6 +4,8 @@ var a
 
 func npc(object: Dictionary) -> bool:
 	var script=str(object.get("script",""))
+	if script in ["ViridianCity_EventScript_TutorialOldMan","ViridianCity_EventScript_OldMan"] and a.teachy_tv.old_man(): return true
+	if script=="TwoIsland_House_EventScript_MoveManiac": a.move_reminder.menu(); return true
 	if script=="PalletTown_RivalsHouse_EventScript_Daisy": daisy(); return true
 	if script=="FiveIsland_WaterLabyrinth_EventScript_EggGentleman": togepi_egg(); return true
 	if "NameRater" in script:

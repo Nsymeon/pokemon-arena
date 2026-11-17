@@ -136,6 +136,7 @@ func enter(id: String, at: Vector2):
 	a.save()
 	scenes.entrance()
 	a.progression.entered()
+	a.trainer_tower.entered()
 
 func tick(dt):
 	a.time+=dt
@@ -148,6 +149,7 @@ func tick(dt):
 			advance_step(dt)
 			update_camera(); a.queue_redraw(); return
 		if scenes.check_oak_intro(): return
+		if a.teachy_tv.trigger(): return
 		if scenes.route22_rival(): return
 		if a.progression.main_rival(): return
 		if try_warp(): return
@@ -211,6 +213,7 @@ func actors() -> Array:
 	var result=[]
 	var quests=quest_actors()
 	for object in room().objects:
+		if not a.trainer_tower.actor_visible(object): continue
 		if object.get("graphics_id","")=="OBJ_EVENT_GFX_PROF_OAK" and a.data.starter==0 and not events.done("oak_intro"): continue
 		if current=="MAP_ROUTE22" and object.get("graphics_id","")=="OBJ_EVENT_GFX_BLUE": continue
 		if current=="MAP_CERULEAN_CITY" and object.get("graphics_id","")=="OBJ_EVENT_GFX_BLUE": continue
@@ -225,6 +228,7 @@ func actors() -> Array:
 		if "Snorlax" in str(object.get("script","")) and events.done("snorlax:"+current): continue
 		if a.field.hidden(object) or (str(object.get("script","")).ends_with("EeveeBall") and a.field.done("gift:eevee")): continue
 		var npc=object.duplicate(true)
+		npc.graphics_id=a.trainer_tower.graphics(object)
 		npc["pos"]=scenes.positions.get(str(object.get("script","")),Vector2(float(object.x)+0.5,float(object.y)+0.5)*TILE)
 		npc.pos=a.postgame.position(object,npc.pos)
 		if quests.any(func(q):return q[0].distance_to(npc.pos)<TILE*0.5 or (q.size()>3 and str(q[3])!="" and q[3]==object.get("local_id",""))): continue

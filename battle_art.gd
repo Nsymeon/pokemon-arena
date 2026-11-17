@@ -9,19 +9,43 @@ var scales = {}
 var shiny_library = {}
 var form_library={}
 var form_faces={}
+const CACHE_ENTRIES=24
+const CACHE_BYTES=128*1024*1024
+var cached_entries={}
+var cache_order=[]
+var texture_bytes=0
 var form_manifest: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://assets/forms/manifest.json"))
 
 func entry_for(mon: Dictionary) -> Dictionary:
 	var key="%d:%d:%s" % [mon.id,mon.get("form",1 if mon.id==386 else 0),"shiny" if mon.get("shiny",false) else "normal"]
 	if form_manifest.has(key):
 		if not form_library.has(key):
-			var entry=form_manifest[key].animations.duplicate(true)
-			for name in entry:
-				var anim=entry[name]; var image=Image.load_from_file(anim.path)
-				anim["texture"]=ImageTexture.create_from_image(image); anim["rows"]=image.get_height()/int(anim.height)
-			form_library[key]=entry
-		return form_library[key]
-	return (shiny_library if mon.get("shiny",false) else library).get(int(mon.id),{})
+			form_library[key]=form_manifest[key].animations.duplicate(true)
+		return hydrate(key,form_library[key],int(mon.id))
+	var bank=shiny_library if mon.get("shiny",false) else library
+	return hydrate("%d:base:%s"%[mon.id,mon.get("shiny",false)],bank.get(int(mon.id),{}),int(mon.id))
+
+func hydrate(key:String,entry:Dictionary,id:int) -> Dictionary:
+	if entry.is_empty(): return entry
+	if cached_entries.has(key): cache_order.erase(key); cache_order.append(key); return entry
+	var bytes=0
+	for name in entry:
+		var anim=entry[name]; var image=Image.load_from_file(anim.path)
+		if image==null or image.is_empty():
+			push_error("Missing animation image: "+str(anim.path)); return {}
+		anim["texture"]=ImageTexture.create_from_image(image); anim["rows"]=image.get_height()/int(anim.height)
+		bytes+=image.get_width()*image.get_height()*4
+		if name=="Idle" and not scales.has(id):
+			var used=image.get_region(Rect2i(0,0,int(anim.width),int(anim.height))).get_used_rect()
+			scales[id]=clampf(86.4/maxf(1,maxf(used.size.x,used.size.y)),1.92,3.6)
+	cached_entries[key]={"entry":entry,"bytes":bytes}; cache_order.append(key); texture_bytes+=bytes
+	# Keep metadata for all species, but release the least recently used textures.
+	# An unusually large single species can exceed the budget without an eviction loop.
+	while cache_order.size()>1 and (cache_order.size()>CACHE_ENTRIES or texture_bytes>CACHE_BYTES):
+		var oldest=cache_order.pop_front(); var cached=cached_entries[oldest]
+		for anim in cached.entry.values(): anim.erase("texture")
+		texture_bytes-=int(cached.bytes); cached_entries.erase(oldest)
+	return entry
 
 func form_portrait(mon, flipped=false):
 	if int(mon.get("form",1 if mon.id==386 else 0))==0: return null
@@ -36,27 +60,12 @@ func form_portrait(mon, flipped=false):
 	return form_faces[key]
 
 func load_sprites():
+	library.clear(); shiny_library.clear(); form_library.clear(); form_faces.clear(); scales.clear()
+	cached_entries.clear(); cache_order.clear(); texture_bytes=0
 	var manifest = JSON.parse_string(FileAccess.get_file_as_string("res://assets/animated/manifest.json"))
-	for id in manifest:
-		var entry = manifest[id]
-		for name in entry:
-			var anim = entry[name]
-			var image = Image.load_from_file(anim.path)
-			anim["texture"] = ImageTexture.create_from_image(image)
-			anim["rows"] = image.get_height() / int(anim.height)
-			if name == "Idle":
-				var used = image.get_region(Rect2i(0, 0, int(anim.width), int(anim.height))).get_used_rect()
-				scales[int(id)] = clampf(86.4 / maxf(used.size.x, used.size.y), 1.92, 3.6)
-		library[int(id)] = entry
+	for id in manifest: library[int(id)]=manifest[id]
 	var shiny_manifest=JSON.parse_string(FileAccess.get_file_as_string("res://assets/shiny/manifest.json"))
-	for id in shiny_manifest:
-		var entry=shiny_manifest[id]
-		for name in entry:
-			var anim=entry[name]
-			var image=Image.load_from_file(anim.path)
-			anim["texture"]=ImageTexture.create_from_image(image)
-			anim["rows"]=image.get_height()/int(anim.height)
-		shiny_library[int(id)]=entry
+	for id in shiny_manifest: shiny_library[int(id)]=shiny_manifest[id]
 
 func frame(fighter: Dictionary) -> Dictionary:
 	var entry: Dictionary = entry_for(fighter.data)

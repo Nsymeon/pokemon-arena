@@ -147,12 +147,12 @@ func tick(c, s, dt):
 			c.move_fighter(s.owner, s.pos - s.owner.pos)
 		if not c.FIELD.grow(100).has_point(s.pos): s.life = 0
 	if s.age < s.delay: return
-	if c.horde.active(c) and s.friendly:
+	if c.doubles.active(c) or c.horde.active(c) and s.friendly:
 		if not s.has("targets_hit"): s["targets_hit"]=[]
-		for foe in c.foes():
-			var slot=int(foe.horde_slot)
+		for foe in c.opponents(s.friendly):
+			var slot=int(foe.get("battle_slot",foe.get("horde_slot",0)))
 			if foe.hp>0 and slot not in s.targets_hit and contains(s,foe.pos,old) and not (s.hit_done and s.skill in ["lightning","rocks","vortex","psychic"]):
-				c.hit(foe,s.damage,s.dir,true,s.move,s.owner,s.attack_snapshot); s.targets_hit.append(slot)
+				c.hit(foe,s.damage,s.dir,s.friendly,s.move,s.owner,s.attack_snapshot); s.targets_hit.append(slot)
 	elif not s.hit_done and contains(s, target.pos, old):
 		c.hit(target, s.damage, s.dir, s.friendly, s.move, s.owner, s.attack_snapshot)
 		s.hit_done = true
@@ -385,7 +385,7 @@ func minimap(c):
 	c.draw_rect(Rect2(rect.position + c.camera_offset * ratio, Vector2(1200,600) / c.ARENA_SCALE * ratio), Color(0.9,1,1,0.45), false, 1)
 	for friendly in [true, false]:
 		c.draw_circle(rect.position + c.trainer_position(friendly) * ratio, 3, c.GOLD)
-		for fighter in [c.player] if friendly else c.foes():
+		for fighter in c.allies() if friendly else c.foes():
 			if fighter.hp>0: c.draw_circle(rect.position + fighter.pos * ratio, 4, c.MINT if friendly else Color("ff7a72"))
 
 func tests(c):

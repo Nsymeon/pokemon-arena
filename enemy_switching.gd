@@ -22,6 +22,7 @@ func reset(c):
 func reserve(c) -> int:
 	if c.horde.active(c): return -1
 	for i in range(states.size()):
+		if c.doubles.active(c) and i in c.doubles.enemy_slots: continue
 		if i!=c.enemy_active and states[i].hp>0: return i
 	return -1
 
@@ -42,6 +43,7 @@ func activate(c,slot):
 
 func request(c,slot) -> bool:
 	if c.horde.active(c): return false
+	if c.doubles.active(c) and slot in c.doubles.enemy_slots: return false
 	if not c.team_mode or used>=c.difficulty.switches() or timer>=0 or cooldown>0 or c.countdown>0 or c.result!="" or c.paused or c.switch_menu or c.switch_time>=0: return false
 	if c.enemy.hp<=0 or c.player.hp<=0 or slot<0 or slot>=states.size() or slot==c.enemy_active or states[slot].hp<=0: return false
 	if c.Conditions.immobilized(c.enemy) or c.enemy.volatile.get("partiallytrapped",0)>0 or c.enemy.action_lock>0 or c.enemy.dash_time>0: return false
@@ -67,7 +69,9 @@ func request(c,slot) -> bool:
 	return true
 
 func complete(c):
+	var previous=c.enemy_active
 	activate(c,target)
+	if c.doubles.active(c): c.doubles.enemy_switched(c,previous,target)
 	target = -1
 	timer = -1
 	cooldown = c.rng.randf_range(12,20)
@@ -85,6 +89,7 @@ func tick(c,dt):
 	var best = -1
 	var score = -100.0
 	for i in range(states.size()):
+		if c.doubles.active(c) and i in c.doubles.enemy_slots: continue
 		if i==c.enemy_active or states[i].hp<=0: continue
 		var f = states[i]
 		var offense = 0.0

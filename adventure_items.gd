@@ -6,8 +6,9 @@ const VITAMINS={"hpup":"hp","protein":"atk","iron":"def","calcium":"spa","zinc":
 const EV_BERRIES={"pomegberry":"hp","kelpsyberry":"atk","qualotberry":"def","hondewberry":"spa","grepaberry":"spd","tamatoberry":"spe"}
 const XITEMS={"xattack":"atk","xdefend":"def","xspecial":"spa","xspeed":"spe","xaccuracy":"accuracy"}
 const TREASURES={"nugget":5000,"bigpearl":3750,"pearl":700,"stardust":1000,"starpiece":4900,"tinymushroom":250,"bigmushroom":2500,"heartscale":50,"razzberry":10,"blukberry":10,"nanabberry":10,"wepearberry":10,"pinapberry":10}
-var HELD=["blackglasses","quickclaw","cleansetag","silkscarf","laxincense","seaincense","metalcoat","nevermeltice","kingsrock","luckypunch","dragonscale","upgrade","deepseatooth","deepseascale"]+preload("res://held_gear.gd").ITEMS
+var HELD=["smokeball","blackglasses","quickclaw","cleansetag","silkscarf","laxincense","seaincense","metalcoat","nevermeltice","kingsrock","luckypunch","dragonscale","upgrade","deepseatooth","deepseascale"]+preload("res://held_gear.gd").ITEMS
 var catalog={
+	"yellowflute":{"name":"Yellow Flute / reusable confusion cure","price":500},
 	"netball":{"name":"Net Ball / Water and Bug bonus","price":1000},
 	"nestball":{"name":"Nest Ball / low-level bonus","price":1000},
 	"sacredash":{"name":"Sacred Ash / revive all fainted partners outside battle","price":0},
@@ -53,6 +54,8 @@ func _init():
 	for id in XITEMS: catalog[id]={"name":id.capitalize()+" / battle stat boost","price":500}
 	for id in TREASURES: catalog[id]={"name":id.capitalize()+" / sell for $"+str(TREASURES[id]),"price":0}
 	for id in HELD: catalog[id]={"name":preload("res://held_gear.gd").DESCRIPTIONS.get(id,id.capitalize()+" / equip held item"),"price":300 if id in ["sitrusberry","lumberry"] else 4000 if id=="leftovers" else 6000 if id.begins_with("choice") else 3000 if id in preload("res://held_gear.gd").ITEMS else 0}
+	for id in ["miracleseed","charcoal","mysticwater"]:
+		HELD.append(id); catalog[id]={"name":id.capitalize()+" / boosts "+preload("res://held_gear.gd").TYPE_BOOSTS[id]+" moves by 10%","price":9800 if id=="charcoal" else 100}
 	catalog.soothebell.name="Soothe Bell / boosts friendship gains by 50%, rounded down"
 	catalog.leppaberry.name="Leppa Berry / held: restore empty recovery PP or exhausted energy"
 	catalog.oranberry.name="Oran Berry / held: heal 10 HP at half health"
@@ -139,6 +142,9 @@ func use(id,slot) -> bool:
 	var mon=a.data.party[slot]
 	var fighter=a.c.player_states[slot] if a.in_battle else {}
 	if mon.get("is_egg",false): return false
+	if id=="yellowflute":
+		if not a.in_battle or mon.hp<=0 or not fighter.volatile.has("confusion"): return unavailable()
+		fighter.volatile.erase("confusion"); a.clear_ui(); a.save(); return true
 	var success=false
 	if id=="fullrestore" and mon.hp>0 and (mon.hp<1 or mon.ailment!=""):
 		mon.hp=1.0; mon.ailment=""; success=true

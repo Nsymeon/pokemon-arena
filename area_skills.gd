@@ -30,18 +30,18 @@ func tick(c,s,dt):
 				# Recovery starts at impact, even if the opponent dodged the move.
 				s.owner.movement_lock = maxf(s.owner.get("movement_lock",0),0.8)
 				s.owner.action_lock = maxf(s.owner.get("action_lock",0),0.8)
-			for foe in c.foes() if s.friendly else [c.player]:
+			for foe in c.opponents(s.friendly):
 				if foe.pos.distance_to(s.pos)<=s.radius: c.hit(foe,s.damage,(foe.pos-s.pos).normalized(),s.friendly,s.move,s.owner,s.attack_snapshot)
 			s.hit_done = true
 			c.burst(s.pos,s.color,25)
 	else:
 		if s.age<s.delay: return
 		if not s.has("targets_hit"): s["targets_hit"]=[]
-		for foe in c.foes() if s.friendly else [c.player]:
+		for foe in c.opponents(s.friendly):
 			if foe.hp<=0 or c.Conditions.avoids(foe,s.move): continue
 			var delta: Vector2=s.pos-foe.pos
 			if delta.length()>s.radius: continue
-			var key=int(foe.get("horde_slot",-1)) if s.friendly else -2
+			var key=int(foe.get("battle_slot",foe.get("horde_slot",-1)))
 			if key not in s.targets_hit:
 				var dealt=c.hit(foe,s.damage,delta.normalized(),s.friendly,s.move,s.owner,s.attack_snapshot)
 				if dealt>0 and c.rng.randf()<0.3: c.Conditions.apply(c,foe,{"volatileStatus":"flinch"},s.move)

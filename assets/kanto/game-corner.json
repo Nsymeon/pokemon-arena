@@ -1,0 +1,115 @@
+{
+  "reels": [
+    [
+      "7",
+      "PSYDUCK",
+      "CHERRIES",
+      "ROCKET",
+      "PIKACHU",
+      "SHELLDER",
+      "PIKACHU",
+      "MAGNEMITE",
+      "7",
+      "SHELLDER",
+      "PSYDUCK",
+      "ROCKET",
+      "CHERRIES",
+      "PIKACHU",
+      "SHELLDER",
+      "7",
+      "MAGNEMITE",
+      "PIKACHU",
+      "ROCKET",
+      "SHELLDER",
+      "PIKACHU"
+    ],
+    [
+      "7",
+      "MAGNEMITE",
+      "CHERRIES",
+      "PSYDUCK",
+      "ROCKET",
+      "MAGNEMITE",
+      "CHERRIES",
+      "PSYDUCK",
+      "PIKACHU",
+      "MAGNEMITE",
+      "CHERRIES",
+      "PSYDUCK",
+      "7",
+      "MAGNEMITE",
+      "CHERRIES",
+      "ROCKET",
+      "PSYDUCK",
+      "SHELLDER",
+      "MAGNEMITE",
+      "PSYDUCK",
+      "CHERRIES"
+    ],
+    [
+      "7",
+      "PSYDUCK",
+      "SHELLDER",
+      "MAGNEMITE",
+      "PIKACHU",
+      "PSYDUCK",
+      "SHELLDER",
+      "MAGNEMITE",
+      "PIKACHU",
+      "PSYDUCK",
+      "MAGNEMITE",
+      "SHELLDER",
+      "PIKACHU",
+      "PSYDUCK",
+      "MAGNEMITE",
+      "SHELLDER",
+      "PIKACHU",
+      "PSYDUCK",
+      "MAGNEMITE",
+      "SHELLDER",
+      "ROCKET"
+    ]
+  ],
+  "lines": [
+    [
+      0,
+      4,
+      8,
+      3
+    ],
+    [
+      0,
+      3,
+      6,
+      2
+    ],
+    [
+      1,
+      4,
+      7,
+      1
+    ],
+    [
+      2,
+      5,
+      8,
+      2
+    ],
+    [
+      2,
+      4,
+      6,
+      3
+    ]
+  ],
+  "payouts": {
+    "CHERRIES": 2,
+    "CHERRIES_PAIR": 6,
+    "MAGNEMITE": 8,
+    "SHELLDER": 8,
+    "PIKACHU": 15,
+    "PSYDUCK": 15,
+    "ROCKET": 100,
+    "7": 300
+  }
+}

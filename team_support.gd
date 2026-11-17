@@ -8,7 +8,7 @@ func reset():
 	teams=[{},{}]
 
 func side(c,f) -> Dictionary:
-	return teams[0 if f==c.player else 1]
+	return teams[0 if c.is_friendly(f) else 1]
 
 func tick(dt):
 	for team in teams:

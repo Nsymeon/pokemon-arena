@@ -86,7 +86,7 @@ static func apply(c, f, payload, move, hostile: bool = true) -> bool:
 		note(f, status.to_upper())
 		changed = true
 		if hostile and c.abilities.name_of(f)=="Synchronize" and status in ["burn","poison","toxic","paralysis"] and not payload.get("reflected",false):
-			var other=c.enemy if f==c.player else c.player
+			var other=c.opponent_for(f)
 			apply(c,other,{"status":payload.get("status",""),"reflected":true},{})
 	var volatile_status: String = payload.get("volatileStatus", "")
 	if volatile_status == "leechseed":

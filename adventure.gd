@@ -25,6 +25,10 @@ var trainer_items=preload("res://adventure_trainer_items.gd").new()
 var postgame=preload("res://adventure_postgame.gd").new()
 var evolution_rules=preload("res://adventure_evolutions.gd").new()
 var services=preload("res://adventure_services.gd").new()
+var move_reminder=preload("res://adventure_move_reminder.gd").new()
+var fame_checker=preload("res://adventure_fame_checker.gd").new()
+var teachy_tv=preload("res://adventure_teachy_tv.gd").new()
+var trainer_tower=preload("res://adventure_trainer_tower.gd").new()
 var field=preload("res://adventure_field.gd").new()
 var avatar=preload("res://adventure_avatar.gd").new()
 var breeding=preload("res://adventure_breeding.gd").new()
@@ -76,6 +80,9 @@ func install(context):
 	extras.a = self
 	field.a = self
 	services.a = self
+	move_reminder.a=self; fame_checker.a=self
+	teachy_tv.a=self
+	trainer_tower.a=self
 	sevii.a = self
 	progression.a = self
 	gyms.a = self
@@ -146,7 +153,7 @@ func valid(value) -> bool:
 	if not Finale.valid(value): return false
 	for member in value.get("hall_of_fame",[]):
 		if not c.roster.any(func(mon):return int(mon.id)==int(member.id)): return false
-	return vs_seeker.valid(value) and npc_program.valid(value) and breeding.valid(value) and postgame.valid(value) and expansion.valid(value) and collection.valid(value) and inventory.valid(value) and extras.valid(value) and Story.valid(value) and services.valid(value)
+	return trainer_tower.valid(value) and vs_seeker.valid(value) and npc_program.valid(value) and breeding.valid(value) and postgame.valid(value) and expansion.valid(value) and collection.valid(value) and inventory.valid(value) and extras.valid(value) and Story.valid(value) and services.valid(value)
 
 func load_save():
 	loaded = true
@@ -162,6 +169,7 @@ func load_save():
 			data = parser.data
 			inventory.migrate()
 			expansion.recover()
+			trainer_tower.recover()
 			for key in ["map","starter","balls","money","healing_map"]: data[key] = int(data[key])
 			for mon in collection.owned():
 				c.abilities.assign(mon)
@@ -499,6 +507,8 @@ func begin_battle(kind: String, ids: Array, levels: Array):
 	if kind.begins_with("seeker_") and not vs_seeker.ready(kind.trim_prefix("seeker_")): return
 	# A source Gym actor must use the same badge/reward path as its quest actor.
 	var trainer_id=trainers.resolve(kind)
+	if trainer_id!="" and trainers.book.trainers.get(trainer_id,{}).get("double_battle",false) and data.party.filter(func(mon):return mon.hp>0 and not mon.get("is_egg",false)).size()<2:
+		dialog="This is a double battle. Bring at least two healthy Pokemon."; return
 	for gym_kind in gyms.leaders:
 		if trainer_id==gyms.leaders[gym_kind].source_id: kind=gym_kind; break
 	if progression.gym_cleared(kind):
@@ -540,7 +550,8 @@ func begin_battle(kind: String, ids: Array, levels: Array):
 	for i in range(ids.size()): c.enemy_party.append(battle_mon(ids[i],levels[i]))
 	c.opponent_identity = "wild" if kind=="wild" else "blue" if kind in ["rival","world_Route22_EarlyRival"] else "brock" if kind=="brock" else "misty" if kind=="misty" else "giovanni" if kind=="rocket" else "bug_catcher"
 	c.arena_choice.select(4 if kind=="misty" else 0 if data.map==6 else 3 if kind=="brock" else 6 if data.map==3 else 2)
-	if gyms.leaders.has(kind): gyms.prepare(kind)
+	if kind=="trainer_tower": trainer_tower.prepare()
+	elif gyms.leaders.has(kind): gyms.prepare(kind)
 	elif trainer_id!="": trainers.prepare(kind)
 	else:
 		Story.prepare(self,kind)
@@ -557,6 +568,7 @@ func begin_battle(kind: String, ids: Array, levels: Array):
 		fighter.ailment_time = 2.5 if fighter.ailment=="sleep" else 3.0 if fighter.ailment=="paralysis" else 5.0 if fighter.ailment=="freeze" else 8.0
 	c.activate_player(first)
 	c.horde.start(c)
+	c.doubles.start(c)
 	c.countdown = c.SEND_OUT_TIME
 
 func sync_health():
@@ -565,6 +577,7 @@ func sync_health():
 		data.party[i].ailment = c.player_states[i].ailment
 
 func reward(victory: bool) -> String:
+	if encounter.get("kind","")=="trainer_tower": return trainer_tower.reward(victory)
 	if str(encounter.get("kind","")).begins_with("post_"): return expansion.reward(victory)
 	var later_message=Finale.reward(self,victory)
 	if not victory: return ""
@@ -633,12 +646,12 @@ func return_world(caught: bool = false, escaped: bool = false, roamer_escaped: b
 		message = reward(win)
 		vs_seeker.result(win)
 		if world.enabled: world.events.battle_reward(str(encounter.kind),win)
-		if win:
+		if win and encounter.kind!="trainer_tower":
 			for member in data.party:
 				if member.get("ability","")=="Pickup" and c.abilities.random.randf()<0.1:
 					data.bag["potion"]=mini(999,int(data.bag.get("potion",0))+1)
 					message+=" Pickup found a Potion!"
-		if not win:
+		if not win and encounter.kind!="trainer_tower":
 			blackout_loss=progression.recover()
 			message = "Your team recovered at the last healing spot."
 		elif encounter.kind=="wild": message=""
@@ -662,6 +675,7 @@ func return_world(caught: bool = false, escaped: bool = false, roamer_escaped: b
 	elif not new_entry.is_empty(): collection.dex_entry(int(new_entry.id),bool(new_entry.get("shiny",false)),true,int(new_entry.get("form",0)))
 	elif not evolutions.is_empty(): show_evolution()
 	if world.enabled: progression.after_battle(str(encounter.kind),win and not escaped)
+	if encounter.kind=="trainer_tower": trainer_tower.after_battle(win)
 	save()
 	queue_redraw()
 
@@ -671,6 +685,14 @@ func finish_capture_entry():
 
 func mark_participant():
 	if not in_battle or encounter.is_empty(): return
+	if c.doubles.active(c):
+		for target in c.doubles.enemy_slots:
+			if c.enemy_bench.states[target].hp<=0: continue
+			var key=str(target)
+			if not encounter.participants.has(key): encounter.participants[key]=[]
+			for slot in c.doubles.player_slots:
+				if c.player_states[slot].hp>0 and slot not in encounter.participants[key]: encounter.participants[key].append(slot)
+		return
 	var targets=range(encounter.ids.size()) if c.horde.active(c) else [c.enemy_active]
 	for slot in targets:
 		if not c.horde.active(c) or slot>=c.enemy_bench.states.size() or c.enemy_bench.states[slot].hp>0: mark_participant_for(slot)
@@ -1134,14 +1156,15 @@ func next_evolution():
 	evolutions.pop_front()
 	show_evolution()
 
-func grant_xp(amount: int) -> String:
+func grant_xp(amount: int, field_participants: Array=[]) -> String:
 	var message = ""
 	for slot in range(data.party.size()):
 		var mon=data.party[slot]
 		if mon.hp <= 0: continue
 		var earned=amount
-		if in_battle:
-			if slot in participants(): earned=maxi(1,amount/maxi(1,participants().size()))
+		if in_battle or not field_participants.is_empty():
+			var active=participants() if in_battle else field_participants
+			if slot in active: earned=maxi(1,amount/maxi(1,active.size()))
 			elif mon.get("held_item","")=="expshare": earned=maxi(1,amount/2)
 			else: continue
 		mon.xp += earned
@@ -1178,7 +1201,7 @@ func record_knockout(immediate=false):
 	if not encounter.has("rewarded"): encounter.rewarded = []
 	if c.enemy_active in encounter.rewarded: return
 	encounter.rewarded.append(c.enemy_active)
-	if encounter.kind=="post_tower": return
+	if encounter.kind in ["post_tower","trainer_tower"]: return
 	sync_health()
 	var amount = experience.reward(int(encounter.ids[c.enemy_active]),int(encounter.levels[c.enemy_active]),encounter.kind!="wild")
 	c.ivs.award_evs(int(encounter.ids[c.enemy_active]),participants())

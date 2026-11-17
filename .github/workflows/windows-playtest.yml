@@ -113,6 +113,21 @@ jobs:
           $code = $LASTEXITCODE
           $seeker | Write-Output
           if ($code -ne 0 -or ($seeker -match 'SCRIPT ERROR|ERROR:') -or -not ($seeker -match 'VS SEEKER CHECK: \[\]')) { throw 'Vs Seeker checks failed' }
+      - name: Double battles and remaining services
+        shell: pwsh
+        run: |
+          $checks = @(
+            @('check-art-cache.gd', 'ART CACHE CHECK: \[\]'),
+            @('check-double-battles.gd', 'DOUBLE BATTLE CHECK: \[\]'),
+            @('check-service-fidelity.gd', 'SERVICE FIDELITY CHECK: \[\]'),
+            @('check-trainer-tower.gd', 'TRAINER TOWER CHECK: \[\]')
+          )
+          foreach ($check in $checks) {
+            $result = & "$env:RUNNER_TEMP/godot/Godot_v4.3-stable_win64_console.exe" --headless --path . --script "tools/$($check[0])" -- --qa-fidelity 2>&1
+            $code = $LASTEXITCODE
+            $result | Write-Output
+            if ($code -ne 0 -or ($result -match 'SCRIPT ERROR|ERROR:') -or -not ($result -match $check[1])) { throw "Fidelity check failed: $($check[0])" }
+          }
       - name: Save deletion regression
         shell: pwsh
         run: |

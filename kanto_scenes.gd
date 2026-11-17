@@ -244,6 +244,9 @@ func start_trainer(npc):
 	play([{"actor":{"key":key,"gfx":identity,"from":copy.pos,"to":copy.pos,"look":direction},"text":"!","duration":0.65},{"actor":moving,"text":"","duration":maxf(0.3,Vector2(copy.pos).distance_to(target)/110.0)},{"text":intro,"duration":maxf(2.0,float(intro.length())/35.0)}],func():a.begin_battle("world_"+key,copy.battle.party.map(func(m):return int(m[0])),copy.battle.party.map(func(m):return int(m[1]))))
 
 func sees(npc) -> bool:
+	if npc.has("battle"):
+		var id=a.trainers.resolve("world_"+str(npc.get("script","")))
+		if a.trainers.book.trainers.get(id,{}).get("double_battle",false) and a.data.party.filter(func(mon):return mon.hp>0).size()<2: return false
 	if str(npc.get("script","")) in ["MtEmber_Exterior_EventScript_Grunt1","MtEmber_Exterior_EventScript_Grunt2"] and not a.sevii.done("network_quest"): return false
 	if not npc.has("battle") or str(npc.get("trainer_type",""))!="TRAINER_TYPE_NORMAL": return false
 	if w.events.done("trainer:"+str(npc.script)): return false
