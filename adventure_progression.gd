@@ -92,8 +92,12 @@ func npc(npc) -> bool:
 		if not done("tower_blue"): a.begin_battle("story_tower_blue",[],[])
 		else: a.dialog="BLUE: Your team is getting stronger. See you around!"
 		return true
-	if script in ["MtEmber_Exterior_EventScript_Grunt1","MtEmber_Exterior_EventScript_Grunt2"] and not a.sevii.done("network_quest"):
-		a.dialog="The Rockets are digging. Speak to Celio after receiving the National Pokedex."; return true
+	if script in ["MtEmber_Exterior_EventScript_Grunt1","MtEmber_Exterior_EventScript_Grunt2"]:
+		if not a.sevii.done("network_quest"): a.dialog="The Rockets are digging. Speak to Celio after receiving the National Pokedex."
+		elif a.field.done("trainer:"+script): a.dialog="We will regroup elsewhere."
+		else:
+			w.scenes.play([{"text":"ROCKET: You've been listening in! You heard our password, didn't you?","duration":2.6}],func():a.begin_battle("world_"+script,[],[]))
+		return true
 	if script=="Route24_EventScript_Rocket":
 		if a.Story.state(a).get("bridge_rocket",false): a.dialog="You defeated the Nugget Bridge challenge."; return true
 		if bridge_count()<5: a.dialog="Defeat all five trainers on Nugget Bridge first."; return true

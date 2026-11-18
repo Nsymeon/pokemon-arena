@@ -1,4 +1,4 @@
-# FireRed fidelity audit — updated 2026-11-17
+# FireRed fidelity audit — updated 2026-11-18
 
 **Verdict: the world layout and the main progression are based on FireRed, but this is not yet a complete FireRed remake with only graphics/combat changed.** Some differences are deliberate features requested for this project; others remain unfinished fidelity work. A percentage would be misleading because imported coordinates and dialogue text do not prove working scripts.
 
@@ -18,7 +18,7 @@ Reference: the locally pinned [pret/pokefirered source](https://github.com/pret/
 | Pokemon systems | Source level/TM tables, EXP growth/yields, EV yields, National evolution restrictions, breeding data and normal/shiny/form assets exist. Real-time stats, attacks, recovery and several service rules are adaptations. |
 | Saves | Three independent Adventure slots, autosave/recovery, reset and now explicit permanent deletion. Daily challenge progress is separate. |
 | Adventure Gym builds | First fidelity step completed: all eight use exact source species, levels, ordered moves and held-item absence. Their original finite trainer-item inventories now work with the shared arena healing rules. See [Gym validation and limits](adventure-gym-fidelity-update.md). |
-| Story/map trainer builds | Second fidelity step: 639 source build definitions and 727 direct script identities, with all 443 imported actors checked through battle creation. Rivals select the correct starter variant; first/rematch League teams use source moves and held items. See [trainer validation and limits](adventure-trainer-fidelity-update.md). |
+| Story/map trainer builds | Second fidelity step: 639 source build definitions and 729 script identities, with all 443 imported actors checked through battle creation. Rivals select the correct starter variant; first/rematch League teams use source moves and held items. The two nested Mt. Ember Rocket battle roots now resolve. See [trainer validation and limits](adventure-trainer-fidelity-update.md). |
 
 ## Confirmed fidelity gaps
 
@@ -43,7 +43,9 @@ Reference: the locally pinned [pret/pokefirered source](https://github.com/pret/
 
 Ran source-data comparison, map/geometry/trainer audits, the combat/save smoke suite, story/Daily progression tests, National/postgame tests, opening/NPC-gift/breeding tests, and save-deletion tests. The deletion selector and confirmation were rendered and visually inspected using isolated test files. No real Adventure save was deleted.
 
-The story tests simulate victories and prerequisite states. **An uninterrupted manual journey from a fresh save through all optional branches and the Sevii ending has not been completed.** Passing these checks is not proof of full cartridge parity or campaign balance.
+The continuous campaign check now earns progression through runtime handlers across 50 battles and nine persisted checkpoints, from the opening to the completed Sevii Network Machine. It caught and fixed first-rival defeat recovery and the Mt. Ember Rocket battles. Puzzle checks replay 143 legal boulder pushes and verify 305 transition cases. See [coverage and practical limits](campaign-and-puzzle-verification.md).
+
+The campaign harness teleports between maps and simulates battle outcomes; other tests use prerequisite fixtures. **An uninterrupted manual journey from a fresh save through all optional branches and the Sevii ending has not been completed.** Passing these checks is not proof of full cartridge parity or campaign balance.
 
 On 2026-11-16 the user authorized continuing all stages without confirmation between them. Gym and trainer builds, ordinary NPC programs, economy, PC storage, Day Care growth and Vs. Seeker progression are released. The latest batch adds simultaneous doubles, Adventure services, Trainer Tower formats and bounded animation loading. Track the remaining story, inheritance, puzzle, presentation and full-playthrough work in [the work plan](fidelity-work-plan.md). No full-game parity claim is made.
 

@@ -7,19 +7,21 @@ User instruction updated 2026-11-16: continue through all stages without asking 
 | 1 | Eight original Adventure Gym builds | Released |
 | 2 | Other map/story trainer builds and finite inventories | Released |
 | 3 | Conditional NPC dialogue, choices and transactional gifts | Released as playtest 60; engine-specific story/services remain in their stages |
-| 4 | Full main-story/cutscene prerequisites and completion | Next |
+| 4 | Full main-story/cutscene prerequisites and completion | Continuous 50-battle campaign chain tested; first-rival defeat and Mt. Ember blockers fixed; manual choreography/optional branches remain |
 | 5 | Signs, pickups and inspection interactions | Pickup coverage implemented; inspection/script review remains |
 | 6 | Starting resources, trainer prizes and shop economy | Released as playtest 61; arena healing/catching retained |
 | 7 | PC: 14 boxes of 30, safe migration and capacity | Released as playtest 61 |
 | 8 | Double battles and Vs. Seeker progression | Implemented and tested, including simultaneous 2v2, partner control, reserves and source rematch progression |
 | 9 | Breeding/Day Care rule fidelity | Deferred growth, move replacement and source egg cycles released as playtest 61; remaining inheritance edge cases require review |
 | 10 | Safari, Game Corner, Fame Checker, Teachy TV, Trainer Tower | Runtime services and four Tower formats implemented/tested; remaining source fidelity limits are listed in doubles-and-services-update.md |
-| 11 | National Dex, seven islands and legendary gating | Pending full review |
-| 12 | All puzzle-state paths and recovery | Pending full review |
+| 11 | National Dex, seven islands and legendary gating | Continuous campaign reaches National Dex and completed Network Machine; remaining optional branches need review |
+| 12 | All puzzle-state paths and recovery | Complete selected boulder/warp/Deoxys solutions tested: 143 pushes and 305 transition cases; exhaustive states and manual traversal remain |
 | 13 | Interior/exterior presentation and NPC choreography | Pending |
 | 14 | Transition performance and memory | Animation startup memory corrected with bounded lazy cache; full map-transition profiling remains |
 | 15 | Old-save compatibility and recovery | Per-stage checks; final review pending |
 | 16 | Preserve custom features and mode separation | Per-stage checks; final review pending |
-| 17 | Fresh-save end-to-end manual playthrough and release | Pending |
+| 17 | Fresh-save end-to-end manual playthrough and release | Automated progression and isolated opening UI checked; uninterrupted manual journey remains pending |
 
 An imported layout, passing fixture or completed release is not evidence that every cartridge interaction has been reproduced. The main audit and stage reports track practical limits.
+
+See [campaign and puzzle verification](campaign-and-puzzle-verification.md) for the latest findings, coverage and limits.

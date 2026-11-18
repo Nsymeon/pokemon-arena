@@ -91,6 +91,13 @@ def export():
     # This actor calls a separate battle label; the legacy map importer likewise
     # resolves its actual identity instead of treating it as a generic scientist.
     scripts['MtMoon_B2F_EventScript_Miguel'] = 'TRAINER_SUPER_NERD_MIGUEL'
+    # These two story actors branch into separate battle labels after Celio's
+    # quest begins. They have no direct trainerbattle command on the actor root.
+    for index in (1, 2):
+        actor = f'MtEmber_Exterior_EventScript_Grunt{index}'
+        battle = f'MtEmber_Exterior_EventScript_BattleGrunt{index}'
+        assert battle in blocks[actor]
+        scripts[actor] = scripts[battle]
     maps = json.loads((ROOT / 'assets/kanto/maps.json').read_text(encoding='utf8'))
     actors = [(m['name'], o['script']) for m in maps.values() for o in m['objects'] if 'battle' in o]
     missing = [(m, script) for m, script in actors if script not in scripts]

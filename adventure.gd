@@ -626,6 +626,7 @@ func return_world(caught: bool = false, escaped: bool = false, roamer_escaped: b
 	var message = ""
 	var new_entry={}
 	var blackout_loss=-1
+	var lab_tutorial=world.enabled and encounter.kind=="rival" and not data.rival
 	if caught:
 		collection.sync()
 		var capture_xp=experience.reward(int(encounter.ids[c.enemy_active]),int(encounter.levels[c.enemy_active]),encounter.kind!="wild")
@@ -651,7 +652,14 @@ func return_world(caught: bool = false, escaped: bool = false, roamer_escaped: b
 				if member.get("ability","")=="Pickup" and c.abilities.random.randf()<0.1:
 					data.bag["potion"]=mini(999,int(data.bag.get("potion",0))+1)
 					message+=" Pickup found a Potion!"
-		if not win and encounter.kind!="trainer_tower":
+		if lab_tutorial:
+			# FireRed's first rival battle progresses on either outcome and Oak
+			# heals the starter in the lab. It is not a normal blackout.
+			data.rival=true
+			for member in data.party:
+				member.hp=0. if member.get("is_egg",false) else 1.; member.ailment=""
+			message="OAK: Your first battle is over. I have healed your Pokemon. Your journey is ready to begin!"
+		elif not win and encounter.kind!="trainer_tower":
 			blackout_loss=progression.recover()
 			message = "Your team recovered at the last healing spot."
 		elif encounter.kind=="wild": message=""

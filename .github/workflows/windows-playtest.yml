@@ -128,6 +128,21 @@ jobs:
             $result | Write-Output
             if ($code -ne 0 -or ($result -match 'SCRIPT ERROR|ERROR:') -or -not ($result -match $check[1])) { throw "Fidelity check failed: $($check[0])" }
           }
+      - name: Continuous campaign and puzzle paths
+        timeout-minutes: 5
+        shell: pwsh
+        run: |
+          $checks = @(
+            @('check-campaign-journey.gd', 'CAMPAIGN JOURNEY CHECK: \[\]'),
+            @('check-puzzle-paths.gd', 'PUZZLE PATH CHECK: \[\]'),
+            @('check-puzzle-transitions.gd', 'PUZZLE TRANSITION CHECK: \[\]')
+          )
+          foreach ($check in $checks) {
+            $result = & "$env:RUNNER_TEMP/godot/Godot_v4.3-stable_win64_console.exe" --headless --path . --script "tools/$($check[0])" -- --qa-fidelity --qa-snapshots 2>&1
+            $code = $LASTEXITCODE
+            $result | Write-Output
+            if ($code -ne 0 -or ($result -match 'SCRIPT ERROR|ERROR:') -or -not ($result -match $check[1])) { throw "Campaign/puzzle check failed: $($check[0])" }
+          }
       - name: Save deletion regression
         shell: pwsh
         run: |
